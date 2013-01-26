@@ -173,7 +173,7 @@ import scala.math._
         if (state.sigmaA + state.sigmaB > 1) None
         else {
           var k = 0
-          val guessControlArray = controlTestOrder(validControlInterval(state)(timeStep))(numberOfControlTests)
+          val guessControlArray: Array[Double] = controlTestOrder(validControlInterval(state))
           var control: Option[Double] = None
           var controlFound = false
           while(k< numberOfControlTests && !controlFound){
