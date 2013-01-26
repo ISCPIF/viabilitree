@@ -51,12 +51,12 @@ package object viabilityLanguages {
   // TODO: Change [epsilon]
   // Since sDot = uControl(t) and s should belong to [0,1], u must be in the interval defined below. [timeStep] is the
   // time interval between two slices. [epsilon] is used to avoid numerical problems: analytically we'll get s\in [0+epsilon, 1-epsilon]
-  def validControlInterval(state: State)(implicit timeStep: Double) = {
+  def validControlInterval(state: State) = {
     val epsilon = pow(10, -10)
     new Interval((epsilon-state.s)/timeStep, (1-state.s-epsilon)/timeStep)
   }
 
-  def controlTestOrder(interval: Interval)(implicit numberOfControlTests: Int): Array[Double] = {
+  def controlTestOrder(interval: Interval): Array[Double] = {
     val step = (interval.max - interval.min) / (numberOfControlTests - 1)
     val controlTests = (interval.min to interval.max by step)
     def reordering(x: Seq[Double], accumulator: Seq[Double], side: Boolean): Array[Double] = {
@@ -75,8 +75,7 @@ package object viabilityLanguages {
   }
 
   // TODO: We may be interested in monitoring the number of guesses
-  def initialPointGuesser(targetIFunction: IndicatorFunction)
-                         (implicit rng: Random, numberOfControlTests: Int, timeStep: Double, model: Model): (State, Control) = {
+  def initialPointGuesser(targetIFunction: IndicatorFunction)(implicit rng: Random): (State, Control) = {
 
     var initialPointFound = false
     //The initialisation is meaningless, the values will be immediately overridden
@@ -110,7 +109,7 @@ package object viabilityLanguages {
     val root = new Leaf {
       val reversePath = Seq.empty
 
-      val stateControl:(State, Double) = initialPointGuesser(targetIFunction)(rng, numberOfControlTests, numberOfSteps, model)
+      val stateControl:(State, Double) = initialPointGuesser(targetIFunction)(rng)
       val testPoint: Point = stateControl._1
       val control: Option[Double] = Some(stateControl._2)
 
@@ -127,7 +126,7 @@ package object viabilityLanguages {
         if (state.sigmaA + state.sigmaB > 1) None
         else {
           var k = 0
-          val guessControlArray = controlTestOrder(validControlInterval(state)(timeStep))(numberOfControlTests)
+          val guessControlArray = controlTestOrder(validControlInterval(state))
           var control: Option[Double] = None
           var controlFound = false
           while (k < numberOfControlTests && !controlFound) {
