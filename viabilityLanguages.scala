@@ -16,7 +16,8 @@ import scala.util.Random
 package object viabilityLanguages {
 
   //TODO: Review!! And create the inputs properly
-  // INITIAL ARGUMENTS
+  //INITIAL ARGUMENTS
+  // Modif test git
   val stateDimension = 3
   val controlDimension = 1
   // The number of slices of the capture basin
