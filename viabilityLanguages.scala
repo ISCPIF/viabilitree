@@ -22,7 +22,7 @@ package object viabilityLanguages {
   val controlDimension = 1
   // The number of slices of the capture basin
   val numberOfSteps = 10
-  val maxDepth = 15
+  val maxDepth = 12
   val numberOfControlTests = 20
   val randomNG = new Random(3)
   val timeStep: Double = 1.0
@@ -171,7 +171,7 @@ package object viabilityLanguages {
 
   def main(args: Array[String]) {
     println("Hello, world!")
-    captureTube()(randomNG)(1)
+    captureTube()(randomNG)(2)
     /*
     val random = new Random(17)
     var randomStateList: List[Array[Double]] = Nil

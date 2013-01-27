@@ -179,12 +179,13 @@ import scala.math._
           while(k< numberOfControlTests && !controlFound){
             val image = model(state, guessControlArray(k))
             //TODO: Delete. Debug.
-            println("State: " + state.toList + "  Guess control: " + guessControlArray(k) + "  Image: " + image.toList)
+            //println("State: " + state.toList + "  Guess control: " + guessControlArray(k) + "  Image: " + image.toList)
             if (projectionTreeSet.contains(closestGridPoint(image)) == true) {
               println("THE IMAGE IS IN THE TARGET")
               control =  Some(guessControlArray(k))
               controlFound = true
             }
+            else println("NOT IN THE TARGET")
             k +=1
           }
           control
