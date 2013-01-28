@@ -7,8 +7,10 @@ import fr.iscpif.viability.initialSteps.InputProcessing._
 import fr.iscpif.viability.viabilityRoot._
 import fr.iscpif.viability.initialSteps._
 import fr.iscpif.viability.LanguageModel._
-import scalax.io._
 
+import scalax.io._
+import scalax.file.Path
+import scalax.io.StandardOpenOption._
 import math._
 import Function._
 import scala.util.Random
@@ -18,11 +20,8 @@ package object viabilityLanguages {
 
   //TODO: Review!! And create the inputs properly (in a class)
   //INITIAL ARGUMENTS
-  // Modif test git
   val stateDimension = 3
   val controlDimension = 1
-  // The number of slices of the capture basin
-  val numberOfSteps = 10
   val maxDepth = 5
   val numberOfControlTests = 20
   val randomNG = new Random(3)
@@ -147,24 +146,39 @@ package object viabilityLanguages {
     case 0 => throw new RuntimeException("The 0-slice of the capture tube is just the set of target points")
     case 1 => {
       val firstSlice = initialSteps.FirstKdTree.firstKdTree
-      kdTreeToFile(firstSlice, "./OutputKdTrees/kdTree1.csv")
+
+      deleteFile("./OutputKdTrees/kdTree1.csv")
+      val output: Output = Resource.fromFile("./OutputKdTrees/kdTree1.csv")
+      kdTreeToFile(firstSlice, output)
+
       firstSlice
     }
     case n => {
       val firstSlice = initialSteps.FirstKdTree.firstKdTree
-      kdTreeToFile(firstSlice, "./OutputKdTrees/kdTree1.csv")
+
+      deleteFile("./OutputKdTrees/kdTree1.csv")
+      val output1: Output = Resource.fromFile("./OutputKdTrees/kdTree1.csv")
+      kdTreeToFile(firstSlice, output1)
+
       def targetIFunction: RichIndicatorFunction = targetIFunctionCreation(firstSlice, model)
       val initNode = initialNodeCreation(targetIFunction)
       //Here the current slice is the second slice (the one that is two steps before the target)
       var currentSlice: Node = kdTreeComputation(initNode, maxDepth, targetIFunction)(rng)
-      kdTreeToFile(currentSlice, "./OutputKdTrees/kdTree2.csv")
+
+      deleteFile("./OutputKdTrees/kdTree2.csv")
+      val output2: Output = Resource.fromFile("./OutputKdTrees/kdTree2.csv")
+      kdTreeToFile(firstSlice, output2)
+
       var i = 2
       while (i < n) {
         def currentIFunction: RichIndicatorFunction = targetIFunctionCreation(currentSlice, model)
         val initNode = initialNodeCreation(currentIFunction)
         currentSlice = kdTreeComputation(initNode, maxDepth, currentIFunction)(rng)
-        val outputFile: String = "./OutputKdTrees/kdtree" + (i+1).toString() +".csv"
-        kdTreeToFile(currentSlice, outputFile)
+
+        val outputFile: String = "OutputKdTrees/kdtree" + (i+1).toString() +".csv"
+        deleteFile(outputFile)
+        val output: Output = Resource.fromFile(outputFile)
+        kdTreeToFile(currentSlice, output)
         i += 1
       }
       currentSlice
@@ -172,8 +186,10 @@ package object viabilityLanguages {
   }
 
 
-  def leafZoneToFile(leaf: Leaf, outputFile: String) {
-    val output: Output = Resource.fromFile(outputFile)
+  // OUTPUT FUNCTIONS
+
+  def leafZoneToFile(leaf: Leaf, outputResource: Output) {
+    //val output: Output = Resource.fromFile(outputFile)
     assert(leaf.zone.region.length == 3)
     val intervals = leaf.zone.region
     val origin = Array(intervals(0).min, intervals(1).min, intervals(2).min)
@@ -183,24 +199,31 @@ package object viabilityLanguages {
     val line: List[String] =
       List(origin(0).toString(), origin(1).toString(), origin(2).toString(), lengthSA, lengthSB, lengthS)
     //val list: List[String] = List(leaf.)
-    output.writeStrings(line,",")(Codec.UTF8)
-    output.write("\n")
+    outputResource.writeStrings(line,",")(Codec.UTF8)
+    outputResource.write("\n")
   }
 
-  def kdTreeToFile(node: Node, outputFile: String) {
+  def kdTreeToFile(node: Node, outputResource: Output) {
     node match {
-      case leaf: Leaf => leafZoneToFile(leaf, outputFile) ; println("LEAF PRINTED" + leaf )
-      case fork: Fork => kdTreeToFile(fork.lowChild, outputFile) ; kdTreeToFile(fork.highChild, outputFile)
+      case leaf: Leaf => if(leaf.label == true){leafZoneToFile(leaf, outputResource) ; println("LEAF PRINTED" + leaf )}
+      case fork: Fork => kdTreeToFile(fork.lowChild, outputResource) ; kdTreeToFile(fork.highChild, outputResource)
     }
   }
 
+  def deleteFile(pathName: String){
+     val path = scalax.file.Path.fromString(pathName)
+     if(path.exists) path.delete(false)
+  }
 
+
+  /// MAIN
 
 
   def main(args: Array[String]) {
     println("Hello, world!")
 
-    /*  TEST OUTPUT
+    // Test output
+    /*
     val leafTest: Leaf = new Leaf {
       val reversePath = Seq.empty
       val zone = new Zone {
@@ -208,10 +231,14 @@ package object viabilityLanguages {
         val region: Array[Interval] = Array(unitInterval, unitInterval, unitInterval)
       }
       val testPoint =  Array(0.0,0.0,0.0)
-      val control = None
+      val control = Some(0.3)//None
     }
-   leafZoneToFile(leafTest, "LeafOutput.text")
+   val outputResource: Output = Resource.fromFile("LeafOutput.text")
+   leafZoneToFile(leafTest, outputResource)
    */
+
+    //deleteFile("LeafOutput.text")
+
 
     captureTube()(randomNG)(3)
 
