@@ -506,7 +506,7 @@ package object kdtreeBounded extends App {
         if (testPointInZone) leaf.testPoint
         else randomPoint(parentFork.zone.divideLow(parentFork.divisionCoordinate))
       }
-      lazy val control = {
+      val control = {
         if (testPointInZone) leaf.control
         else iFunction(this.testPoint)
       }
@@ -526,7 +526,7 @@ package object kdtreeBounded extends App {
         if (testPointInZone) leaf.testPoint
         else randomPoint(parentFork.zone.divideHigh(parentFork.divisionCoordinate))
       }
-      lazy val control = {
+      val control = {
         if (testPointInZone) leaf.control
         else iFunction(this.testPoint)
       }

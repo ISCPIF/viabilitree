@@ -7,6 +7,7 @@ import fr.iscpif.viability.initialSteps.InputProcessing._
 import fr.iscpif.viability.viabilityRoot._
 import fr.iscpif.viability.initialSteps._
 import fr.iscpif.viability.LanguageModel._
+import scalax.io._
 
 import math._
 import Function._
@@ -15,14 +16,14 @@ import scala.util.Random
 
 package object viabilityLanguages {
 
-  //TODO: Review!! And create the inputs properly
+  //TODO: Review!! And create the inputs properly (in a class)
   //INITIAL ARGUMENTS
   // Modif test git
   val stateDimension = 3
   val controlDimension = 1
   // The number of slices of the capture basin
   val numberOfSteps = 10
-  val maxDepth = 12
+  val maxDepth = 5
   val numberOfControlTests = 20
   val randomNG = new Random(3)
   val timeStep: Double = 1.0
@@ -144,42 +145,78 @@ package object viabilityLanguages {
   def captureTube()(implicit rng: Random): Int => Node = {
 
     case 0 => throw new RuntimeException("The 0-slice of the capture tube is just the set of target points")
-    case 1 => val firstSlice = initialSteps.FirstKdTree.firstKdTree ; exportKdTree(firstSlice) ; firstSlice
+    case 1 => {
+      val firstSlice = initialSteps.FirstKdTree.firstKdTree
+      kdTreeToFile(firstSlice, "./OutputKdTrees/kdTree1.csv")
+      firstSlice
+    }
     case n => {
-      //TODO: Delete. Debug
-      println("I'VE BEEN HERE 1")
-      def targetIFunction: RichIndicatorFunction = targetIFunctionCreation(captureTube()(rng)(1), model)
+      val firstSlice = initialSteps.FirstKdTree.firstKdTree
+      kdTreeToFile(firstSlice, "./OutputKdTrees/kdTree1.csv")
+      def targetIFunction: RichIndicatorFunction = targetIFunctionCreation(firstSlice, model)
       val initNode = initialNodeCreation(targetIFunction)
+      //Here the current slice is the second slice (the one that is two steps before the target)
       var currentSlice: Node = kdTreeComputation(initNode, maxDepth, targetIFunction)(rng)
-      exportKdTree(currentSlice)
+      kdTreeToFile(currentSlice, "./OutputKdTrees/kdTree2.csv")
       var i = 2
       while (i < n) {
         def currentIFunction: RichIndicatorFunction = targetIFunctionCreation(currentSlice, model)
         val initNode = initialNodeCreation(currentIFunction)
         currentSlice = kdTreeComputation(initNode, maxDepth, currentIFunction)(rng)
+        val outputFile: String = "./OutputKdTrees/kdtree" + (i+1).toString() +".csv"
+        kdTreeToFile(currentSlice, outputFile)
         i += 1
       }
-      exportKdTree(currentSlice)
       currentSlice
     }
   }
 
-  // TODO: Implement
-  def exportKdTree(node: Node){
-    println("One slice done!")
+
+  def leafZoneToFile(leaf: Leaf, outputFile: String) {
+    val output: Output = Resource.fromFile(outputFile)
+    assert(leaf.zone.region.length == 3)
+    val intervals = leaf.zone.region
+    val origin = Array(intervals(0).min, intervals(1).min, intervals(2).min)
+    val lengthSA = (intervals(0).max - intervals(0).min).toString()
+    val lengthSB = (intervals(1).max - intervals(1).min).toString()
+    val lengthS = (intervals(2).max - intervals(2).min).toString()
+    val line: List[String] =
+      List(origin(0).toString(), origin(1).toString(), origin(2).toString(), lengthSA, lengthSB, lengthS)
+    //val list: List[String] = List(leaf.)
+    output.writeStrings(line,",")(Codec.UTF8)
+    output.write("\n")
   }
+
+  def kdTreeToFile(node: Node, outputFile: String) {
+    node match {
+      case leaf: Leaf => leafZoneToFile(leaf, outputFile) ; println("LEAF PRINTED" + leaf )
+      case fork: Fork => kdTreeToFile(fork.lowChild, outputFile) ; kdTreeToFile(fork.highChild, outputFile)
+    }
+  }
+
+
+
 
   def main(args: Array[String]) {
     println("Hello, world!")
-    captureTube()(randomNG)(2)
-    /*
-    val random = new Random(17)
-    var randomStateList: List[Array[Double]] = Nil
-    for(i<- 0 until 30){
-     randomStateList = randomConstrainedPoint(random)::randomStateList
+
+    /*  TEST OUTPUT
+    val leafTest: Leaf = new Leaf {
+      val reversePath = Seq.empty
+      val zone = new Zone {
+        val unitInterval = new Interval(0, 1)
+        val region: Array[Interval] = Array(unitInterval, unitInterval, unitInterval)
+      }
+      val testPoint =  Array(0.0,0.0,0.0)
+      val control = None
     }
-    randomStateList.foreach(x => println(initialSteps.FirstKdTree.targetToIFunction()(x)))
+   leafZoneToFile(leafTest, "LeafOutput.text")
    */
+
+    captureTube()(randomNG)(3)
+
+
+
 
   }
 
