@@ -25,9 +25,9 @@ package object viabilityLanguages {
   val maxDepth = 15
   val numberOfControlTests = 20
   val randomNG = new Random(3)
-  val timeStep: Double = 1.0
+  val timeStep: Double = 0.1
 
-  val integrationStep: Double = 0.1
+  val integrationStep: Double = 0.01
   val sampleTimes: Seq[Double] = Seq(0.0, timeStep)
   val model = modelCreation(integrationStep, sampleTimes)
 
@@ -254,8 +254,21 @@ package object viabilityLanguages {
   def main(args: Array[String]) {
     println("Hello, world!")
     //test(14)
-
     captureTube()(randomNG)(1)
+
+    /*
+    val state: State = Array(48.0/99, 50.0/99, 68.0/99)
+    val control = 0
+    val model = new LanguageModel(state.sigmaA, state.sigmaB, state.s, control)
+    val sampleTimes = (0.0 to 100 by 0.1)
+    val integrationStep = 0.01
+
+    model.integrate(sampleTimes, integrationStep).foreach{case(t, s) =>println(t -> s.toList)}
+    */
+
+
+
+
 
 
     // Test output
