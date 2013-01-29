@@ -22,7 +22,7 @@ package object viabilityLanguages {
   //INITIAL ARGUMENTS
   val stateDimension = 3
   val controlDimension = 1
-  val maxDepth = 10
+  val maxDepth = 8
   val numberOfControlTests = 20
   val randomNG = new Random(3)
   val timeStep: Double = 1.0
@@ -107,7 +107,6 @@ package object viabilityLanguages {
   def initialNodeCreation(richTargetIFunction: RichIndicatorFunction)(implicit rng: Random): Node = {
     val targetIFunction = conversionToIndicator(richTargetIFunction)
     val root = new Leaf {
-      val reversePath = Seq.empty
 
       val stateControl:(State, Double) = initialPointGuesser(targetIFunction)(rng)
       val testPoint: Point = stateControl._1
@@ -216,16 +215,22 @@ package object viabilityLanguages {
   }
 
 
-  //TEST SPHERE
+  //TEST SIMPLE FIGURES
   def iFunctionSphere():Array[Double] => Option[Double] = {
     point: Array[Double] =>{
       if (pow(point(0), 2) + pow(point(1), 2) + pow(point(2), 2) <= 1) Some(0.0)
       else None
     }
   }
+  def iFunctionSmallCube():Array[Double] => Option[Double] = {
+    point: Array[Double] =>{
+      if (-0.5 <= point(0) && point(0) <= 0.5 && -0.5 <= point(1) && point(1) <= 0.5 && -0.5 <= point(2) && point(2) <= 0.5) Some(0.0)
+      else None
+    }
+  }
+
 
   val root = new Leaf {
-    val reversePath = Seq.empty
 
     val testPoint: Point = Array(0.0,0.0,0.0)
     val control: Option[Double] = Some(0.0)
@@ -236,9 +241,9 @@ package object viabilityLanguages {
     }
   }
 
-  def testSphere(depth: Int) {
-    val kdTreeSphere = kdTreeComputation(root, depth, iFunctionSphere())(randomNG)
-    val output: Output = Resource.fromFile("./OutputKdTrees/kdTree_Sphere_depth" + depth +".csv")
+  def test(depth: Int) {
+    val kdTreeSphere = kdTreeComputation(root, depth, iFunctionSmallCube())(randomNG)
+    val output: Output = Resource.fromFile("./OutputKdTrees/kdTree_SmallCube_depth" + depth +".csv")
     kdTreeToFile(kdTreeSphere, output)
   }
 
@@ -248,7 +253,7 @@ package object viabilityLanguages {
 
   def main(args: Array[String]) {
     println("Hello, world!")
-    testSphere(15)
+    test(5)
 
     //captureTube()(randomNG)(3)
 
