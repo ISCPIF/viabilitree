@@ -22,7 +22,7 @@ package object viabilityLanguages {
   //INITIAL ARGUMENTS
   val stateDimension = 3
   val controlDimension = 1
-  val maxDepth = 5
+  val maxDepth = 10
   val numberOfControlTests = 20
   val randomNG = new Random(3)
   val timeStep: Double = 1.0
@@ -175,7 +175,7 @@ package object viabilityLanguages {
         val initNode = initialNodeCreation(currentIFunction)
         currentSlice = kdTreeComputation(initNode, maxDepth, currentIFunction)(rng)
 
-        val outputFile: String = "OutputKdTrees/kdtree" + (i+1).toString() +".csv"
+        val outputFile: String = "OutputKdTrees/kdTree" + (i+1).toString() +".csv"
         deleteFile(outputFile)
         val output: Output = Resource.fromFile(outputFile)
         kdTreeToFile(currentSlice, output)
@@ -199,7 +199,7 @@ package object viabilityLanguages {
     val line: List[String] =
       List(origin(0).toString(), origin(1).toString(), origin(2).toString(), lengthSA, lengthSB, lengthS)
     //val list: List[String] = List(leaf.)
-    outputResource.writeStrings(line,",")(Codec.UTF8)
+    outputResource.writeStrings(line,";")(Codec.UTF8)
     outputResource.write("\n")
   }
 
@@ -216,11 +216,42 @@ package object viabilityLanguages {
   }
 
 
+  //TEST SPHERE
+  def iFunctionSphere():Array[Double] => Option[Double] = {
+    point: Array[Double] =>{
+      if (pow(point(0), 2) + pow(point(1), 2) + pow(point(2), 2) <= 1) Some(0.0)
+      else None
+    }
+  }
+
+  val root = new Leaf {
+    val reversePath = Seq.empty
+
+    val testPoint: Point = Array(0.0,0.0,0.0)
+    val control: Option[Double] = Some(0.0)
+
+    val zone = new Zone {
+      val interval = new Interval(-1, 1)
+      val region: Array[Interval] = Array(interval, interval, interval)
+    }
+  }
+
+  def testSphere(depth: Int) {
+    val kdTreeSphere = kdTreeComputation(root, depth, iFunctionSphere())(randomNG)
+    val output: Output = Resource.fromFile("./OutputKdTrees/kdTree_Sphere_depth" + depth +".csv")
+    kdTreeToFile(kdTreeSphere, output)
+  }
+
+
   /// MAIN
 
 
   def main(args: Array[String]) {
     println("Hello, world!")
+    testSphere(15)
+
+    //captureTube()(randomNG)(3)
+
 
     // Test output
     /*
@@ -240,7 +271,7 @@ package object viabilityLanguages {
     //deleteFile("LeafOutput.text")
 
 
-    captureTube()(randomNG)(3)
+
 
 
 
