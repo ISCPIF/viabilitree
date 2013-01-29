@@ -22,7 +22,7 @@ package object viabilityLanguages {
   //INITIAL ARGUMENTS
   val stateDimension = 3
   val controlDimension = 1
-  val maxDepth = 8
+  val maxDepth = 15
   val numberOfControlTests = 20
   val randomNG = new Random(3)
   val timeStep: Double = 1.0
@@ -174,7 +174,7 @@ package object viabilityLanguages {
         val initNode = initialNodeCreation(currentIFunction)
         currentSlice = kdTreeComputation(initNode, maxDepth, currentIFunction)(rng)
 
-        val outputFile: String = "OutputKdTrees/kdTree" + (i+1).toString() +".csv"
+        val outputFile: String = "OutputKdTrees/kdTree" + (i+1).toString()+"_depth"+ maxDepth +".csv"
         deleteFile(outputFile)
         val output: Output = Resource.fromFile(outputFile)
         kdTreeToFile(currentSlice, output)
@@ -204,7 +204,7 @@ package object viabilityLanguages {
 
   def kdTreeToFile(node: Node, outputResource: Output) {
     node match {
-      case leaf: Leaf => if(leaf.label == true){leafZoneToFile(leaf, outputResource) ; println("LEAF PRINTED" + leaf )}
+      case leaf: Leaf => if(leaf.label == true) leafZoneToFile(leaf, outputResource)
       case fork: Fork => kdTreeToFile(fork.lowChild, outputResource) ; kdTreeToFile(fork.highChild, outputResource)
     }
   }
@@ -242,8 +242,8 @@ package object viabilityLanguages {
   }
 
   def test(depth: Int) {
-    val kdTreeSphere = kdTreeComputation(root, depth, iFunctionSmallCube())(randomNG)
-    val output: Output = Resource.fromFile("./OutputKdTrees/kdTree_SmallCube_depth" + depth +".csv")
+    val kdTreeSphere = kdTreeComputation(root, depth, iFunctionSphere())(randomNG)
+    val output: Output = Resource.fromFile("./OutputKdTrees/kdTree_Sphere_depth" + depth +".csv")
     kdTreeToFile(kdTreeSphere, output)
   }
 
@@ -253,9 +253,9 @@ package object viabilityLanguages {
 
   def main(args: Array[String]) {
     println("Hello, world!")
-    test(5)
+    //test(14)
 
-    //captureTube()(randomNG)(3)
+    captureTube()(randomNG)(1)
 
 
     // Test output

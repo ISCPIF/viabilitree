@@ -48,7 +48,10 @@ package object kdtreeBounded extends App {
 
     def isRoot: Boolean = if ( parent == None) true else false
     //@tailrec final def rootCalling ...
-    def rootCalling: Node = if (this.isRoot) this else parent.get.rootCalling
+    def rootCalling: Node = parent match {
+      case None => this
+      case Some(parent) => parent.rootCalling
+    }
 
     //TODO: Delete. Useful for debugging
     def asFork: Fork =
@@ -85,16 +88,10 @@ package object kdtreeBounded extends App {
       else Descendant.NotDescendant
     }
     def attachLow(child: Node) {
-      //??TODO: Delete. Useful for debugging
-      //Either the child is not yet fixed or a leaf is substituted by a fork with the same zone
-      //assert(_lowChild == null || (child.isInstanceOf[Fork] && child.zone == _lowChild.zone))
       _lowChild = child
       child.parent = Some(this)
     }
     def attachHigh(child: Node) {
-      //??TODO: Delete. Useful for debugging
-      //Either the child is not yet fixed or a leaf is substituted by a fork with the same zone
-      //assert(_highChild == null || (child.isInstanceOf[Fork] && child.zone == _highChild.zone))
       _highChild = child
       child.parent = Some(this)
     }
@@ -434,17 +431,10 @@ package object kdtreeBounded extends App {
     }
   }
 
-  def pairsToSet(pairs: List[(Leaf, Leaf, Int)]): Set[(Leaf, Int)] = {
-    pairs match {
-      case Nil => Set[(Leaf, Int)]()
-      case h :: t => {
-        val leaf1: (Leaf, Int) =  (h._1, h._3)
-        val leaf2: (Leaf, Int) =  (h._2, h._3)
-        pairsToSet(t) + leaf1 + leaf2
-      }
+  def pairsToSet(pairs: List[(Leaf, Leaf, Int)]): List[(Leaf, Int)] =
+    pairs.flatMap {
+      case (l1, l2, i) => List(l1 -> i, l2 -> i)
     }
-  }
-
 
   // We do not need this function anymore
   /*
@@ -496,23 +486,26 @@ package object kdtreeBounded extends App {
   //////////////////// REFINING (AND EXPANDING IN THE UNBOUNDED CASE)
 
   // The node together with the preferred coordinate (if another coordinate is bigger it will have no impact)
-  def nodesToRefine(node: Node): Set[(Leaf, Int)] = {
-    node match {
+  def nodesToRefine(node: Node, depth: Int): List[(Leaf, Int)] = {
+   val leaves =
+    (node match {
       case leaf: Leaf => {
         leaf.label match {
           case true => leafTouchesBoundary(leaf) match {
-            case Some(coordinate) => Set[(Leaf, Int)]((leaf, coordinate))
-            case None => Set[(Leaf, Int)]()
+            case Some(coordinate) => List((leaf, coordinate))
+            case None => List.empty
           }
-          case false => Set[(Leaf, Int)]()
+          case false => List.empty
         }
       }
-      case fork: Fork => {
-        nodesToRefine(fork.lowChild) ++ nodesToRefine(fork.highChild) ++
+      case fork: Fork =>
+        nodesToRefine(fork.lowChild, depth) ++ nodesToRefine(fork.highChild, depth) ++
           pairsToSet(pairsBetweenNodes(fork.lowChild, fork.highChild))
-      }
-    }
+    }).filter { case (leaf, _) => refinable(depth, leaf) }
+
+    leaves.groupBy{ case(l, _) => l }.toList.map{case(_, l) => l.head}
   }
+
 
 
   def attachToLeaf(leaf: Leaf, preferredCoordinate: Int, iFunction: RichIndicatorFunction)(implicit rng: Random): Node = {
@@ -550,16 +543,24 @@ package object kdtreeBounded extends App {
       val divisionCoordinate = coordinate
       val zone: Zone = leaf.zone
     }
+
     newFork.parent = leaf.parent
+
+    newFork.parent match {
+      case None =>
+      case Some(parentValue) => parentValue.descendantType(leaf) match {
+        case Descendant.Low => parentValue.attachLow(newFork)
+        case Descendant.High => parentValue.attachHigh(newFork)
+        case Descendant.NotDescendant => throw new RuntimeException("The original leaf should be lowChild or HighChild")
+      }
+    }
+
     newFork.attachLow(generateChild(newFork, newFork.zone.divideLow(coordinate)))
     newFork.attachHigh(generateChild(newFork, newFork.zone.divideHigh(coordinate)))
 
     newFork.rootCalling
-
   }
 
-
-  //TODO: Condition on the path or on the zone?
   def refinable(maxDepth: Int, leaf: Leaf) = {
     //zoneVolume(leaf.zone) > 1 / pow(2, maxDepth)
     leaf.path.length <= maxDepth
@@ -692,15 +693,16 @@ package object kdtreeBounded extends App {
   }
 
   def kdTreeComputation(initialNode: Node, maxDepth: Int, iFunction: RichIndicatorFunction)(implicit rng: Random): Node = {
-    var leavesToRefine: Set[(Leaf, Int)] = nodesToRefine(initialNode)
+    var leavesToRefine = nodesToRefine(initialNode, maxDepth)
     var outputRoot = initialNode
-
-    while (leavesToRefine.size != 0){
+    while (!leavesToRefine.isEmpty){
       leavesToRefine.foreach( leafAndCoord => outputRoot = attachToLeaf(leafAndCoord._1, leafAndCoord._2, iFunction ))
-      leavesToRefine = nodesToRefine(outputRoot)
+      leavesToRefine = nodesToRefine(outputRoot, maxDepth)
     }
     outputRoot
   }
+
+
 
   /*
   //?? TODO: change [var outputRoot] ?
