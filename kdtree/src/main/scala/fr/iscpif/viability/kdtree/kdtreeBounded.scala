@@ -23,14 +23,7 @@ package object kdtreeBounded extends App {
 
   ////// Basic structures
   trait Node {
-    //protected var _parent: Option[Fork] = None
     var parent: Option[Fork] = None
-    //def parentDefinition(fork: Fork) { _parent = Some(fork)}
-    //def parent = _parent
-
-    //TODO: change val to def if necessary
-    //def zone: Zone
-    //TODO: Lazy val instead of val?
     val zone: Zone
 
     def path: Path = reversePath.reverse
@@ -47,26 +40,18 @@ package object kdtreeBounded extends App {
     }
 
     def isRoot: Boolean = if ( parent == None) true else false
-    //@tailrec final def rootCalling ...
+
     def rootCalling: Node = parent match {
       case None => this
       case Some(parent) => parent.rootCalling
     }
-
-    //TODO: Delete. Useful for debugging
-    def asFork: Fork =
-      if (!this.isInstanceOf[Fork]) throw new RuntimeException("This node is not a Fork")
-      else this.asInstanceOf[Fork]
-    def asLeaf: Leaf =
-      if (!this.isInstanceOf[Leaf]) throw new RuntimeException("This node is not a Fork")
-      else this.asInstanceOf[Leaf]
 
     def isInKdTree(point: Point): Boolean = {
       this match {
         case leaf: Leaf => if ((leaf.label == true) && leaf.zone.contains(point)) true else false
         case fork: Fork =>
           if (!fork.zone.contains(point)) false
-          else{
+          else {
             assume(xor(fork.lowChild.zone.contains(point), fork.highChild.zone.contains(point)))
             fork.lowChild.isInKdTree(point) || fork.highChild.isInKdTree(point)
           }
@@ -165,73 +150,7 @@ package object kdtreeBounded extends App {
   }
 
 
-
-  //////// Examples of tree creation (One parent with two children)
-
-  /* TODO: This test is no longer valid (new definition of leaf including control)
-  object TestA{
-
-    val root: Fork = new Fork {
-      val zone = new Zone { val region = Array(new Interval(0, 10.0), new Interval(0.0, 10.0) ) }
-      val reversePath = Seq.empty
-      val divisionCoordinate = 0
-    }
-
-    val lFork = new Fork {
-      val divisionCoordinate = 1
-      _parent = Some(root)
-      // TODO: Change val to def if necessary
-      //def zone = zoneComputation(this)
-      val zone = zoneComputation(this)
-      def reversePath = reversePathComputation(this)
-    }
-    root.attachLow(lFork)
-
-    val hLeaf = new Leaf {
-      _parent = Some(root)
-      // TODO: Change val to def if necessary
-      //def zone = zoneComputation(this)
-      val zone = zoneComputation(this)
-      def reversePath = reversePathComputation(this)
-      val testPoint = Array(5.5, 5.5)
-      val label = true
-    }
-    root.attachHigh(hLeaf)
-
-    val llLeaf = new Leaf {
-      _parent = Some(lFork)
-      // TODO: Change val to def if necessary
-      val zone = zoneComputation(this)
-      def reversePath = reversePathComputation(this)
-      val testPoint = Array(3.0, 3.0)
-      val label = false
-    }
-    lFork.attachLow(llLeaf)
-
-    val lhLeaf = new Leaf {
-      _parent = Some(lFork)
-      // TODO: Change val to def if necessary
-      val zone = zoneComputation(this)
-      def reversePath = reversePathComputation(this)
-      val testPoint = Array(3.0, 6.0)
-      val label = false
-    }
-    lFork.attachHigh(lhLeaf)
-
-    val modelTest: Point => Boolean = {
-      point =>
-        val sum = pow(point(0)-5, 2) + pow(point(1)-5, 2)
-        sum <= 1
-    }
-  }
-  */
-
-
-
   //////////  HELPERS
-
-
-
   def extractCommonPath(x: Path, y: Path): (Path, Path, Path) = {
     def extractCommonPath0(x: Path, y: Path, commonPath: List[PathElement]): (Path, Path, Path) =
       (x.toList, y.toList) match {
@@ -259,9 +178,6 @@ package object kdtreeBounded extends App {
 
 
   ////////////// CRITICAL PAIRS
-
-
-
   sealed trait Sign {def opposite: Sign}
   case object Positive extends Sign {def opposite = Negative}
   case object Negative extends Sign {def opposite = Positive}
@@ -436,21 +352,8 @@ package object kdtreeBounded extends App {
       case (l1, l2, i) => List(l1 -> i, l2 -> i)
     }
 
-  // We do not need this function anymore
-  /*
-  def pairsInNode(node: Node): List[(Leaf, Leaf)] = {
-    node match {
-      case leaf: Leaf => Nil
-      case fork: Fork =>
-        pairsInNode(fork.lowChild) :::
-          pairsInNode(fork.highChild) :::
-          pairsBetweenNodes(fork.lowChild, fork.highChild)
-    }
-  }
-  */
 
   /////// HELPERS DEBUG
-
   def consistentParent(fork: Fork): Boolean = {
     fork.lowChild.parent == Some(fork) && fork.highChild.parent == Some(fork)
   }
@@ -505,8 +408,6 @@ package object kdtreeBounded extends App {
 
     leaves.groupBy{ case(l, _) => l }.toList.map{case(_, l) => l.head}
   }
-
-
 
   def attachToLeaf(leaf: Leaf, preferredCoordinate: Int, iFunction: RichIndicatorFunction)(implicit rng: Random): Node = {
     //?? TODO: Delete?
@@ -597,37 +498,6 @@ package object kdtreeBounded extends App {
     }
   }
 
-
-
-  // We do not need this function anymore
-  /*
-  // TODO: Review. There has been some bugs in this function
-  /*To be called on the initialNode. Compute the nodes to be refined and refines them.
-   @returns [true] if at least one node has been refined.*/
-  def refineCriticalPairs(node: Node, maxDepth: Int, iFunction: RichIndicatorFunction)(implicit rng: Random): (Node, Boolean) = {
-    val criticalPairs: List[(Leaf, Leaf)] = pairsInNode(node)
-    var alreadyRefined: List[Node] = Nil
-    if (criticalPairs == Nil) (node.rootCalling, false)
-    else {
-      var firstRefined = false
-      var secondRefined = false
-      def oneRefined = firstRefined || secondRefined
-      var root = node.rootCalling
-      for (k<- 0 until criticalPairs.length){
-        if(alreadyRefined.forall(x=> x!= criticalPairs(k)._1 && x!= criticalPairs(k)._2)){
-          val (x, y, z) = refinePair(maxDepth, iFunction, criticalPairs(k))
-          root = x ; firstRefined = y ; secondRefined = z
-          if (firstRefined == true) alreadyRefined = criticalPairs(k)._1 :: alreadyRefined
-          if (secondRefined == true) alreadyRefined = criticalPairs(k)._2 :: alreadyRefined
-        }
-      }
-      (root, oneRefined)
-    }
-  }
-  */
-
-
-
   //TODO: Use this for refine function
   // It chooses the direction to expand a node (it will be a initialNode)
   def chooseDirection(node: Node, preferredDirections: List[Direction])(implicit random: Random): Direction = {
@@ -653,33 +523,6 @@ package object kdtreeBounded extends App {
     preferredPDirections ::: preferredNDirections
   }
 
-
-  // Finally we do not compute all the borders of node and refine, but rather test if a given node touches the boundary.
-  /*
-  //Just for the bounded case. To be called on root
-  def refineBorders(node: Node, maxDepth: Int, iFunction: RichIndicatorFunction)(implicit rng: Random): (Node, Boolean) = {
-    var oneRefined = false
-    // The output will be the root of the kdtree modified after refinement
-    var root: Node = node
-    for (coordinate <- 0 until node.zone.region.length) {
-      val direction = new Direction(coordinate, Positive)
-      val positiveList = bordersOfNode(node, direction, true)
-      positiveList.foreach(x => if (refinable(maxDepth, x)) {
-        root = attachToLeaf(x, coordinate, iFunction); oneRefined = true
-      })
-    }
-    for (coordinate <- 0 until node.zone.region.length) {
-      val direction = new Direction(coordinate, Negative)
-      val negativeList = bordersOfNode(node, direction, true)
-      negativeList.foreach(x => if (refinable(maxDepth, x)) {
-        root = attachToLeaf(x, coordinate, iFunction); oneRefined = true
-      })
-    }
-    (root, oneRefined)
-  }
-  */
-
-
   //TODO: Delete. Just for debug
   def printLeafColors(node: Node) = {
     def colors(node: Node): List[Boolean] = {
@@ -701,39 +544,6 @@ package object kdtreeBounded extends App {
     }
     outputRoot
   }
-
-
-
-  /*
-  //?? TODO: change [var outputRoot] ?
-  // Just for the bounded case
-  def kdTreeComputation(initialNode: Node, maxDepth: Int, iFunction: RichIndicatorFunction)(implicit rng: Random): Node = {
-    //TODO: Integrate refineBorders and refinePairs
-    println("I'VE BEEN HERE IN KD-TREECOMPUTATION")
-    assert(initialNode.parent == None)
-    assert(initialNode.isInstanceOf[Fork] == false)
-    var outputRoot = initialNode
-    var refinableBorders = true
-    var refinablePairs = true
-    while (refinableBorders) {
-      val (y1, y2) = refineBorders(outputRoot, maxDepth, iFunction)
-      //TODO: Delete. Debug
-      if(y2) println("Borders have been refined")
-      outputRoot = y1
-      refinableBorders = y2
-    }
-    while (refinablePairs) {
-      val (x1, x2) = refineCriticalPairs(outputRoot, maxDepth, iFunction)
-      //TODO: Delete. Debug
-      if(x2) println("Pairs refined")
-      outputRoot = x1
-      refinablePairs = x2
-    }
-    assert(outputRoot.parent == None)
-    outputRoot
-  }
-  */
-
 
   ////////////////////////// VOLUME HELPERS
   def leafExtractor(node: Node): List[Leaf] = {
@@ -762,64 +572,6 @@ package object kdtreeBounded extends App {
           insideVolume(fork.highChild, nodeZone.divideHigh(fork.divisionCoordinate))
     }
   }
-
-
-  ///////////////////////////// TEST
-
-  /* TODO: This test is no longer valid (new definition of leaf including control)
-  object Test {
-    val indicatorDisc: Point => Boolean = {
-      point =>
-        val sum = pow(point(0), 2) + pow(point(1), 2)
-        sum <= 1
-    }
-
-    val indicatorSquare: Point => Boolean = {
-      point =>
-        (-0.5 <= point(0) && point(0) <= 0.5) &&
-        (-0.5 <= point(1) && point(1) <= 0.5)
-    }
-
-    val root = new Leaf {
-      val reversePath = Seq.empty
-
-      val testPoint =  Array(0.0,0.0)
-      val label = true
-
-      //For unbounded version
-      //val firstInterval = new Interval(-0.5, 0.5)
-      //val secondInterval = new Interval(-0.5, 0.5)
-
-      val firstInterval = new Interval(-1, 1)
-      val secondInterval = new Interval(-1, 1)
-
-      val zone = new Zone {
-        val region = Array(firstInterval,secondInterval)
-      }
-    }
-
-    val depth = 15
-
-
-    val rootSolution = kdTreeComputation(root, depth, indicatorSquare)(new Random(3))
-
-    val volumeSolution = insideVolume(rootSolution, rootSolution.zone)
-
-  }
-  */
-
-  // TODO ?? Review
-
-  //println("Volume: " + Test.volumeSolution + "  " + "Max Depth: " + Test.depth)
-  //println(abs(Test.volumeSolution - math.Pi))
-
-  //////////// TEST MAIN
-
-  //override def main(args: Array[String]) {
-  //  println("Hello, world!")
-  //  println("Volume: " + Test.volumeSolution + "  " + "Max Depth: " + Test.depth)
-  //}
-
 
 }
 
