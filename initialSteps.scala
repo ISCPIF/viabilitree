@@ -181,11 +181,9 @@ import scala.math._
             //TODO: Delete. Debug.
             //println("State: " + state.toList + "  Guess control: " + guessControlArray(k) + "  Image: " + image.toList)
             if (projectionTreeSet.contains(closestGridPoint(image)) == true) {
-              println("THE IMAGE IS IN THE TARGET")
               control =  Some(guessControlArray(k))
               controlFound = true
             }
-            else println("NOT IN THE TARGET")
             k +=1
           }
           control
@@ -197,7 +195,7 @@ import scala.math._
     val targetIFunction: RichIndicatorFunction = targetToIFunction()
     //TODO: Change to val? is it OK randomNG as input?
     def initialNode: Node = initialNodeCreation(targetIFunction: RichIndicatorFunction)(randomNG)
-    def firstKdTree: Node = {println("I'VE BEEN HERE 2") ; kdTreeComputation(initialNode, maxDepth, targetIFunction)(randomNG)}
+    def firstKdTree: Node = kdTreeComputation(initialNode, maxDepth, targetIFunction)(randomNG)
 
   }
 

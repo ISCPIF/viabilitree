@@ -92,16 +92,9 @@ package object viabilityLanguages {
         guessControl = guessControlArray(k)
         val image = model(guessPoint, guessControl)
         k += 1
-        //TODO: Delete. Debug
-        println("Searching for an initial point..." +  " guessPoint = " + guessPoint.toList + " guessControl = " + guessControl)
-        //val
         if (targetIFunction(image) == true) {
-        //if (targetIFunction(image) == true) {
           initialPointFound = true
-          //TODO: Delete. Debug
-          println("Initial point found!" +  " guessPoint = " + guessPoint.toList + " guessControl = " + guessControl)
         }
-        else println("targetIFunction(image) == FALSE")
       }
     }
     (guessPoint, guessControl)
@@ -148,7 +141,7 @@ package object viabilityLanguages {
     def initialSlice = {
       val firstSlice = initialSteps.FirstKdTree.firstKdTree
       deleteFile(outputFile(1))
-      val output: Output = Resource.fromFile(outputFile(0))
+      val output: Output = Resource.fromFile(outputFile(1))
       kdTreeToFile(firstSlice, output)
       firstSlice
     }
@@ -161,6 +154,8 @@ package object viabilityLanguages {
         deleteFile(outputFile(step))
         val output: Output = Resource.fromFile(outputFile(step))
         kdTreeToFile(newSlice, output)
+
+        println(diff(newSlice, slice))
         newSlice
     }
   }
@@ -232,7 +227,6 @@ package object viabilityLanguages {
 
 
   def main(args: Array[String]) {
-    println("Hello, world!")
     captureTube(4)(randomNG)
 
     /*
