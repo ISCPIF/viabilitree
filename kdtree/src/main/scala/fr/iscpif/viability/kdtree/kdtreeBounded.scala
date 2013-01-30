@@ -9,8 +9,7 @@ import scala.collection.mutable.ListBuffer
 import scala.util.Random
 import com.sun.corba.se.impl.orb.ParserTable.TestAcceptor1
 import scala.util.logging
-import annotation.tailrec
-
+import com.rits.cloning.Cloner
 
 
 package object kdtreeBounded extends App {
@@ -27,6 +26,7 @@ package object kdtreeBounded extends App {
     val zone: Zone
 
     def path: Path = reversePath.reverse
+
     lazy val reversePath: Path = parent match {
       case None => Seq.empty
       case Some(parent) => {
@@ -62,6 +62,7 @@ package object kdtreeBounded extends App {
 
   trait Fork extends Node {
     val divisionCoordinate: Int
+
     protected var _lowChild: Node = null
     protected var _highChild: Node = null
 
@@ -83,7 +84,6 @@ package object kdtreeBounded extends App {
 
     def lowChild = if (childrenDefined) _lowChild else throw new RuntimeException("Children are not defined. (1)")
     def highChild = if (childrenDefined) _highChild else throw new RuntimeException("Children are not defined. (2)")
-
   }
 
   // TODO: the control is specific to the language Model problem, and the [def] for label too
@@ -571,6 +571,11 @@ package object kdtreeBounded extends App {
         insideVolume(fork.lowChild, nodeZone.divideLow(fork.divisionCoordinate)) +
           insideVolume(fork.highChild, nodeZone.divideHigh(fork.divisionCoordinate))
     }
+  }
+
+  def clone(node: Node) = {
+    val cloner = new Cloner
+    cloner.deepClone(node)
   }
 
 }
