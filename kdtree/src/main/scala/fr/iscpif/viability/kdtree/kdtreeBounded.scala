@@ -556,22 +556,17 @@ package object kdtreeBounded extends App {
   def labelledLeafExtractor(node: Node, label: Boolean): List[Leaf] =
     leafExtractor(node).filter(l => l.label == label)
 
-  //TODO: Delete.
-  def insideVolumeBis(node: Node): Double = {
-    val leaves = labelledLeafExtractor(node, true)
-    var volume: Double = 0.0
-    leaves.foreach(leaf => volume += zoneVolume(leaf.zone))
-    volume
-  }
 
-  def insideVolume(node: Node, nodeZone: Zone): Double = {
+  def volumeKdTree(node: Node): Double = {
     node match {
-      case leaf: Leaf => if(leaf.label == true) zoneVolume(nodeZone) else 0
-      case fork: Fork =>
-        insideVolume(fork.lowChild, nodeZone.divideLow(fork.divisionCoordinate)) +
-          insideVolume(fork.highChild, nodeZone.divideHigh(fork.divisionCoordinate))
+      case leaf: Leaf => if(leaf.label == true) zoneVolume(node.zone) else 0
+      case fork: Fork => volumeKdTree(fork.lowChild) + volumeKdTree(fork.highChild)
     }
   }
+
+  /////
+
+
 
   def clone(node: Node) = {
     val cloner = new Cloner
