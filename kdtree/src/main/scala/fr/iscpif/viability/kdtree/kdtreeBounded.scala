@@ -578,6 +578,16 @@ package object kdtreeBounded extends App {
     cloner.deepClone(node)
   }
 
+  def diff(n1: Node, n2: Node) =
+    leaves(n1).count(l => !n2.isInKdTree(l.testPoint))
+
+  def leaves(n: Node): List[Leaf] =
+    n match {
+      case f: Fork => leaves(f.lowChild) ++ leaves(f.highChild)
+      case l: Leaf => List(l)
+    }
+
+
 }
 
 
