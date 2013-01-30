@@ -155,7 +155,7 @@ package object viabilityLanguages {
         val output: Output = Resource.fromFile(outputFile(step))
         kdTreeToFile(newSlice, output)
 
-        println(diff(newSlice, slice))
+        println(diff(newSlice, slice) + "," + (diff(slice, newSlice)))
         newSlice
     }
   }
@@ -227,7 +227,7 @@ package object viabilityLanguages {
 
 
   def main(args: Array[String]) {
-    captureTube(4)(randomNG)
+    captureTube(10)(randomNG)
 
     /*
     val state: State = Array(48.0/99, 50.0/99, 68.0/99)

@@ -48,7 +48,7 @@ package object kdtreeBounded extends App {
 
     def isInKdTree(point: Point): Boolean = {
       this match {
-        case leaf: Leaf => if ((leaf.label == true) && leaf.zone.contains(point)) true else false
+        case leaf: Leaf => leaf.label && leaf.zone.contains(point)
         case fork: Fork =>
           if (!fork.zone.contains(point)) false
           else {
