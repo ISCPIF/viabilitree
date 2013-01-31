@@ -25,7 +25,7 @@ package object viabilityLanguages {
 
   val stateDimension = 3
   val controlDimension = 1
-  val maxDepth = 15
+  val maxDepth = 12
   val numberOfControlTests = 20
   val randomNG = new Random(3)
   val timeStep: Double = 1
@@ -56,21 +56,40 @@ package object viabilityLanguages {
   // time interval between two slices. [epsilon] is used to avoid numerical problems: analytically we'll get s\in [0+epsilon, 1-epsilon]
   def validControlInterval(state: State) = {
     val epsilon = pow(10, -10)
-    val interval1 = new Interval((epsilon-state.s)/timeStep, (1-state.s-epsilon)/timeStep)
-    val interval2 = new Interval(-0.1, 0.1)
-    new Interval(max(interval1.min, interval2.min), min(interval1.max, interval2.max))
+    //val interval1 = new Interval((epsilon-state.s)/timeStep, (1-state.s-epsilon)/timeStep)
+    val interval1 = new Interval(-state.s/timeStep, (1-state.s)/timeStep)
+    if(interval1.max <= -0.1 || interval1.min >= 1.0 || abs(interval1.max - interval1.min) < epsilon) None
+    else Some(Interval(max(interval1.min, -0.1), min(interval1.max, 0.1)))
   }
 
-  def controlTestOrder(interval: Interval): Array[Double] = {
-    val step = (interval.max - interval.min) / (numberOfControlTests - 1)
-    val controlTests = (interval.min to interval.max by step)
-    def reordering(x: Seq[Double], accumulator: Seq[Double], side: Boolean): Array[Double] = {
-      if (x == Nil) accumulator.toArray
-      else if (side) reordering(x.drop(1), accumulator :+ x(0), false)
-      else reordering(x.dropRight(1), accumulator :+ x.last, true)
-    }
-    reordering(controlTests, Nil, true)
+  def controlTestOrder(interval: Option[kdtreeBounded.Interval]): Array[Double] = {
+     interval match {
+       case None => Array(0.0)
+       case Some(intervalValue) => {
+         val step = (intervalValue.max - intervalValue.min) / (numberOfControlTests - 1)
+         def controlConstruction(min: Double, s: Double, k: Int): List[Double] = {
+           k match {
+             case 0 => List(min)
+             case n => k*step::controlConstruction(min, s, k-1)
+           }
+         }
+         val controlTests: List[Double] = controlConstruction(intervalValue.min, step, 19)
+
+         def reordering(x: List[Double], accumulator: List[Double], side: Boolean): Array[Double] = {
+           if (x == Nil) accumulator.toArray
+           else if (side) reordering(x.drop(1), accumulator :+ x(0), false)
+           else reordering(x.dropRight(1), accumulator :+ x.last, true)
+         }
+         val reorderedControls = reordering(controlTests, Nil, true)
+         reorderedControls
+       }
+     }
   }
+
+
+
+
+
 
   def randomConstrainedPoint(implicit rng: Random): Point = {
     val sigmaA = rng.nextDouble()
@@ -119,23 +138,18 @@ package object viabilityLanguages {
   }
 
   def targetIFunctionCreation(target: Node, model: Model): RichIndicatorFunction = {
-    state: State => {
+    state: State =>
+        //TODO: Should we consider this assumption?
+        //state.foreach(x => assume( 0 <= x && x<= 1))
         if (state.sigmaA + state.sigmaB > 1) None
-        else {
-          var k = 0
-          val guessControlArray = controlTestOrder(validControlInterval(state))
-          var control: Option[Double] = None
-          var controlFound = false
-          while (k < numberOfControlTests && !controlFound) {
-            val image = model(state, guessControlArray(k))
-            if (target.isInKdTree(image) == true){control = Some(guessControlArray(k)) ; controlFound = true}
-            k += 1
-          }
-          control
+        else controlTestOrder(validControlInterval(state)).find {
+          c =>
+            val image = model(state, c)
+            target.isInKdTree(image)
         }
       }
 
-  }
+
 
   def captureTube(s: Int)(implicit rng: Random): Node = {
     def outputFile(s: Int) =  dir + "kdTree" + s + "depth"+ maxDepth + "step" +timeStep+ ".csv"
@@ -157,7 +171,7 @@ package object viabilityLanguages {
         val output: Output = Resource.fromFile(outputFile(step))
         kdTreeToFile(newSlice, output)
         println("One slice created.")
-        //println(diff(newSlice, slice) + "," + (diff(slice, newSlice)))
+        println(diff(newSlice, slice) + "," + (diff(slice, newSlice)))
         newSlice
     }
   }
@@ -229,9 +243,14 @@ package object viabilityLanguages {
 
 
   def main(args: Array[String]) {
-    //captureTube(5)(randomNG)
+    captureTube(100)(randomNG)
+
+    //val interval = new Interval(0, 19)
+    //println(controlTestOrder(interval).toList)
 
 
+
+    /*
     // This point is in the first slice: one valid control should lead us to the target
     val state: State = Array(0.71875,0.21875,0.984375)
     val control = 0
@@ -243,7 +262,7 @@ package object viabilityLanguages {
 
     model.integrate(sampleTimes, integrationStep).foreach{case(t, s) =>println(t -> s.toList +
       "this state goes to the target in 0.01 time using control " + initialSteps.FirstKdTree.targetToIFunction()(s).toString())}
-
+    */
 
 
 

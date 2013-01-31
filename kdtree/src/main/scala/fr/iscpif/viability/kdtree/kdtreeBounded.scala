@@ -116,6 +116,7 @@ package object kdtreeBounded extends App {
   case class PathElement(coordinate: Int, descendant: Descendant.Descendant)
   type Path = Seq[PathElement]
 
+
   case class Interval(min: Double, max: Double) { assume(min < max) }
 
 

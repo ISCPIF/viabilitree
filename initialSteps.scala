@@ -127,12 +127,13 @@ import scala.math._
 
     // [point] belongs to [0,1]^3. If it is not the case it should have been discarded previously
     def closestGridPoint(point: State) : List[Int] = {
-      //TODO: Delete. Debug
-      //println("Computing th closest point to " + point.toList)
-      assume(point.length == 3)
-      point.foreach(x => assume( 0 <= x && x<= 1))
 
-      val pointName = List(point(0)*99, point(1)*99, point(2)*99)
+      assume(point.length == 3)
+      //TODO: Do this properly and consider this assumption. By the moment this trick avoids some numerical problem
+      //point.foreach(x => assume( 0 <= x && x<= 1))
+      val newPoint = point.map(x => if(x < 0) 0 else if(x > 1) 1 else x)
+
+      val pointName = List(newPoint(0)*99, newPoint(1)*99, newPoint(2)*99)
 
       val closestSA =
         if (pointName(0) - pointName(0).floor <= pointName(0).ceil.toInt - pointName(0)) pointName(0).floor.toInt
@@ -156,33 +157,23 @@ import scala.math._
       val treeSet = treeFormattingRich(targetPointsIterator)
 
       var projectionTreeSet: TreeSet[List[Int]] = new TreeSet[List[Int]]()(LexicographicalOrderInt)
-      treeSet.foreach(x => {
-        projectionTreeSet = projectionTreeSet + x.pointName
-      })
+      treeSet.foreach(x => projectionTreeSet = projectionTreeSet + x.pointName)
 
       //If the point is not in the definition domain we don't even execute the model
-      {state: State =>
-        if (state.sigmaA + state.sigmaB > 1) None
-        else {
-          var k = 0
-          val guessControlArray: Array[Double] = controlTestOrder(validControlInterval(state))
-          var control: Option[Double] = None
-          var controlFound = false
-          while(k< numberOfControlTests && !controlFound){
-            val image = model(state, guessControlArray(k))
-            //TODO: Delete. Debug.
-            //println("State: " + state.toList + "  Guess control: " + guessControlArray(k) + "  Image: " + image.toList)
-            if (projectionTreeSet.contains(closestGridPoint(image)) == true) {
-              control =  Some(guessControlArray(k))
-              controlFound = true
-            }
-            k +=1
+      {
+        state: State =>
+        //TODO: Should we consider this assumption?
+        //state.foreach(x => assume( 0 <= x && x<= 1))
+          if (state.sigmaA + state.sigmaB > 1) None
+          else controlTestOrder(validControlInterval(state)).find {
+            c =>
+              val image = model(state, c)
+              projectionTreeSet.contains(closestGridPoint(image))
           }
-          control
-        }
       }
-
     }
+
+
 
     val targetIFunction: RichIndicatorFunction = targetToIFunction()
     //TODO: Change to val? is it OK randomNG as input?
