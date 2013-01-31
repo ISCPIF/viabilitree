@@ -21,16 +21,16 @@ package object viabilityLanguages {
   //TODO: Review!! And create the inputs properly (in a class)
   //INITIAL ARGUMENTS
 
-  val dir = "/tmp/"
+  val dir = "../OutputKdTrees/"     //"/tmp/"
 
   val stateDimension = 3
   val controlDimension = 1
   val maxDepth = 15
   val numberOfControlTests = 20
   val randomNG = new Random(3)
-  val timeStep: Double = 0.1
+  val timeStep: Double = 0.01
 
-  val integrationStep: Double = 0.01
+  val integrationStep: Double = 0.005
   val sampleTimes: Seq[Double] = Seq(0.0, timeStep)
   val model = modelCreation(integrationStep, sampleTimes)
 
@@ -51,11 +51,11 @@ package object viabilityLanguages {
       }
   }
 
-  // TODO: Change [epsilon]
+  // TODO: Change [epsilon]. Taking it into account may avoid some errors (e.g java.lang.ArrayIndexOutOfBoundsException)
   // Since sDot = uControl(t) and s should belong to [0,1], u must be in the interval defined below. [timeStep] is the
   // time interval between two slices. [epsilon] is used to avoid numerical problems: analytically we'll get s\in [0+epsilon, 1-epsilon]
   def validControlInterval(state: State) = {
-    val epsilon = pow(10, -10)
+    val epsilon = pow(10, -8)
     new Interval((epsilon-state.s)/timeStep, (1-state.s-epsilon)/timeStep)
   }
 
@@ -136,7 +136,7 @@ package object viabilityLanguages {
   }
 
   def captureTube(s: Int)(implicit rng: Random): Node = {
-    def outputFile(s: Int) =  dir + "kdTree" + s + ".csv"
+    def outputFile(s: Int) =  dir + "kdTree" + s + "depth"+ maxDepth + "step" +timeStep+ ".csv"
 
     def initialSlice = {
       val firstSlice = initialSteps.FirstKdTree.firstKdTree
@@ -154,8 +154,8 @@ package object viabilityLanguages {
         deleteFile(outputFile(step))
         val output: Output = Resource.fromFile(outputFile(step))
         kdTreeToFile(newSlice, output)
-
-        println(diff(newSlice, slice) + "," + (diff(slice, newSlice)))
+        println("One slice created.")
+        //println(diff(newSlice, slice) + "," + (diff(slice, newSlice)))
         newSlice
     }
   }
@@ -227,17 +227,21 @@ package object viabilityLanguages {
 
 
   def main(args: Array[String]) {
-    captureTube(10)(randomNG)
+    //captureTube(5)(randomNG)
 
-    /*
-    val state: State = Array(48.0/99, 50.0/99, 68.0/99)
+
+    // This point is in the first slice: one valid control should lead us to the target
+    val state: State = Array(0.71875,0.21875,0.984375)
     val control = 0
     val model = new LanguageModel(state.sigmaA, state.sigmaB, state.s, control)
-    val sampleTimes = (0.0 to 100 by 0.1)
-    val integrationStep = 0.01
+    val sampleTimes = (0.0 to 0.05 by 0.01)
+    val integrationStep = 0.005
 
-    model.integrate(sampleTimes, integrationStep).foreach{case(t, s) =>println(t -> s.toList)}
-    */
+
+
+    model.integrate(sampleTimes, integrationStep).foreach{case(t, s) =>println(t -> s.toList +
+      "this state goes to the target in 0.01 time using control " + initialSteps.FirstKdTree.targetToIFunction()(s).toString())}
+
 
 
 
