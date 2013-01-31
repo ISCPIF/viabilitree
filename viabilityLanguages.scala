@@ -21,7 +21,7 @@ package object viabilityLanguages {
   //TODO: Review!! And create the inputs properly (in a class)
   //INITIAL ARGUMENTS
 
-  val dir = "../OutputKdTrees/"     //"/tmp/"
+  val dir = "/tmp/bassin15/"     //"/tmp/"
 
   val stateDimension = 3
   val controlDimension = 1
@@ -57,39 +57,21 @@ package object viabilityLanguages {
   def validControlInterval(state: State) = {
     val epsilon = pow(10, -10)
     //val interval1 = new Interval((epsilon-state.s)/timeStep, (1-state.s-epsilon)/timeStep)
-    val interval1 = new Interval(-state.s/timeStep, (1-state.s)/timeStep)
-    if(interval1.max <= -0.1 || interval1.min >= 1.0 || abs(interval1.max - interval1.min) < epsilon) None
+    val interval1 = new Interval(-state.s/ timeStep, (1 - state.s) / timeStep)
+    if(interval1.max <= -0.1 || interval1.min >= 0.1 || abs(interval1.max - interval1.min) < epsilon) None
     else Some(Interval(max(interval1.min, -0.1), min(interval1.max, 0.1)))
   }
 
-  def controlTestOrder(interval: Option[kdtreeBounded.Interval]): Array[Double] = {
-     interval match {
-       case None => Array(0.0)
-       case Some(intervalValue) => {
-         val step = (intervalValue.max - intervalValue.min) / (numberOfControlTests - 1)
-         def controlConstruction(min: Double, s: Double, k: Int): List[Double] = {
-           k match {
-             case 0 => List(min)
-             case n => k*step::controlConstruction(min, s, k-1)
-           }
-         }
-         val controlTests: List[Double] = controlConstruction(intervalValue.min, step, 19)
-
-         def reordering(x: List[Double], accumulator: List[Double], side: Boolean): Array[Double] = {
-           if (x == Nil) accumulator.toArray
-           else if (side) reordering(x.drop(1), accumulator :+ x(0), false)
-           else reordering(x.dropRight(1), accumulator :+ x.last, true)
-         }
-         val reorderedControls = reordering(controlTests, Nil, true)
-         reorderedControls
-       }
-     }
-  }
-
-
-
-
-
+  def controlTestOrder(interval: Option[kdtreeBounded.Interval]): Array[Double] =
+    interval match {
+      case None => Array(0.0)
+      case Some(intervalValue) =>
+        val step = (intervalValue.max - intervalValue.min) / (numberOfControlTests - 1)
+        //TODO manage odd numberOfControlTests
+        (0 until numberOfControlTests / 2).flatMap(
+           n => List(intervalValue.max - n * step, intervalValue.min + n * step)
+        ).toArray
+    }
 
   def randomConstrainedPoint(implicit rng: Random): Point = {
     val sigmaA = rng.nextDouble()
@@ -145,7 +127,7 @@ package object viabilityLanguages {
         else controlTestOrder(validControlInterval(state)).find {
           c =>
             val image = model(state, c)
-            target.isInKdTree(image)
+            target.contains(image)
         }
       }
 
@@ -241,10 +223,33 @@ package object viabilityLanguages {
 
 
   /// MAIN
+  def produceTrajectory(state: State, u: Control, node: Node)(implicit rng: Random) = {
+    val kernel = FirstKdTree.targetToIFunction
+    //val perturbedState = node.containingLeaf(state).map(_.testPoint).getOrElse(sys.error("State should be in kdTree"))
+    Iterator.iterate((state, state, u)){
+      case(_, s, _) =>
+        val newState = model(s, u)
+        if (node.contains(newState)) (state, newState, u)
+        else {
+          val leaf = node.containingLeaf(s).getOrElse(sys.error("State should be in kdTree"))
+          (leaf.testPoint, model(leaf.testPoint, leaf.control.get), leaf.control.get)
+        }
+    }.takeWhile{case (_, s, _) => !kernel(s).isDefined}.toList
+  }
 
 
   def main(args: Array[String]) {
-    captureTube(100)(randomNG)
+    //val last = captureTube(25)(randomNG)
+    //28, 48, 39
+    val perturbed = Array(23.0 / 99, 53.0 / 99, 39.0 / 99)
+    val kernel = FirstKdTree.targetToIFunction
+    println(kernel(perturbed))
+    println(model(perturbed, kernel(perturbed).get).toList)
+
+    /*produceTrajectory(perturbed, 0.0, last)(randomNG).foreach {
+      case(s1, s2, c) => println(s"s1 = $s1, s2 = $s2, c = $c")
+    }    */
+
 
     //val interval = new Interval(0, 19)
     //println(controlTestOrder(interval).toList)
