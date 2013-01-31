@@ -171,7 +171,8 @@ package object viabilityLanguages {
         val output: Output = Resource.fromFile(outputFile(step))
         kdTreeToFile(newSlice, output)
         println("One slice created.")
-        println(diff(newSlice, slice) + "," + (diff(slice, newSlice)))
+        println(volumeKdTree(newSlice))
+        //println(diff(newSlice, slice) + "," + (diff(slice, newSlice)))
         newSlice
     }
   }

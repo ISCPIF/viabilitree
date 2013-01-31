@@ -558,12 +558,12 @@ package object kdtreeBounded extends App {
     leafExtractor(node).filter(l => l.label == label)
 
 
-  def volumeKdTree(node: Node): Double = {
+  def volumeKdTree(node: Node): Double =
     node match {
-      case leaf: Leaf => if(leaf.label == true) zoneVolume(node.zone) else 0
+      case leaf: Leaf => if(leaf.label) zoneVolume(node.zone) else 0
       case fork: Fork => volumeKdTree(fork.lowChild) + volumeKdTree(fork.highChild)
     }
-  }
+
 
   /////
 
