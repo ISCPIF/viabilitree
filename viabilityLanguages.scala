@@ -21,7 +21,7 @@ package object viabilityLanguages {
   //TODO: Review!! And create the inputs properly (in a class)
   //INITIAL ARGUMENTS
 
-  val dir = "/tmp/bassin15/"     //"/tmp/"
+  val dir = "/tmp/bassin15/" //"/tmp/"
 
   val stateDimension = 3
   val controlDimension = 1
@@ -44,7 +44,7 @@ package object viabilityLanguages {
   type RichIndicatorFunction = Array[Double] => Option[Double]
 
   def conversionToIndicator(rIFunction: RichIndicatorFunction): IndicatorFunction = {
-    x:Array[Double] =>
+    x: Array[Double] =>
       rIFunction(x) match {
         case Some(_) => true
         case None => false
@@ -57,8 +57,8 @@ package object viabilityLanguages {
   def validControlInterval(state: State) = {
     val epsilon = pow(10, -10)
     //val interval1 = new Interval((epsilon-state.s)/timeStep, (1-state.s-epsilon)/timeStep)
-    val interval1 = new Interval(-state.s/ timeStep, (1 - state.s) / timeStep)
-    if(interval1.max <= -0.1 || interval1.min >= 0.1 || abs(interval1.max - interval1.min) < epsilon) None
+    val interval1 = new Interval(-state.s / timeStep, (1 - state.s) / timeStep)
+    if (interval1.max <= -0.1 || interval1.min >= 0.1 || abs(interval1.max - interval1.min) < epsilon) None
     else Some(Interval(max(interval1.min, -0.1), min(interval1.max, 0.1)))
   }
 
@@ -69,13 +69,13 @@ package object viabilityLanguages {
         val step = (intervalValue.max - intervalValue.min) / (numberOfControlTests - 1)
         //TODO manage odd numberOfControlTests
         (0 until numberOfControlTests / 2).flatMap(
-           n => List(intervalValue.max - n * step, intervalValue.min + n * step)
+          n => List(intervalValue.max - n * step, intervalValue.min + n * step)
         ).toArray
     }
 
   def randomConstrainedPoint(implicit rng: Random): Point = {
     val sigmaA = rng.nextDouble()
-    val sigmaB = rng.nextDouble()*(1-sigmaA)
+    val sigmaB = rng.nextDouble() * (1 - sigmaA)
     val s = rng.nextDouble()
     Array(sigmaA, sigmaB, s)
   }
@@ -91,7 +91,7 @@ package object viabilityLanguages {
       guessPoint = randomConstrainedPoint(rng)
       val guessControlArray = controlTestOrder(validControlInterval(guessPoint))
       var k = 0
-      while(k< numberOfControlTests && !initialPointFound){
+      while (k < numberOfControlTests && !initialPointFound) {
         guessControl = guessControlArray(k)
         val image = model(guessPoint, guessControl)
         k += 1
@@ -107,7 +107,7 @@ package object viabilityLanguages {
     val targetIFunction = conversionToIndicator(richTargetIFunction)
     val root = new Leaf {
 
-      val stateControl:(State, Double) = initialPointGuesser(targetIFunction)(rng)
+      val stateControl: (State, Double) = initialPointGuesser(targetIFunction)(rng)
       val testPoint: Point = stateControl._1
       val control: Option[Double] = Some(stateControl._2)
 
@@ -121,20 +121,20 @@ package object viabilityLanguages {
 
   def targetIFunctionCreation(target: Node, model: Model): RichIndicatorFunction = {
     state: State =>
-        //TODO: Should we consider this assumption?
-        //state.foreach(x => assume( 0 <= x && x<= 1))
-        if (state.sigmaA + state.sigmaB > 1) None
-        else controlTestOrder(validControlInterval(state)).find {
-          c =>
-            val image = model(state, c)
-            target.contains(image)
-        }
+    //TODO: Should we consider this assumption?
+    //state.foreach(x => assume( 0 <= x && x<= 1))
+      if (state.sigmaA + state.sigmaB > 1) None
+      else controlTestOrder(validControlInterval(state)).find {
+        c =>
+          val image = model(state, c)
+          target.contains(image)
       }
 
+  }
 
 
   def captureTube(s: Int)(implicit rng: Random): Node = {
-    def outputFile(s: Int) =  dir + "kdTree" + s + "depth"+ maxDepth + "step" +timeStep+ ".csv"
+    def outputFile(s: Int) = dir + "kdTree" + s + "depth" + maxDepth + "step" + timeStep + ".csv"
 
     def initialSlice = {
       val firstSlice = initialSteps.FirstKdTree.firstKdTree
@@ -172,32 +172,33 @@ package object viabilityLanguages {
     val line: List[String] =
       List(origin(0).toString(), origin(1).toString(), origin(2).toString(), lengthSA, lengthSB, lengthS)
     //val list: List[String] = List(leaf.)
-    outputResource.writeStrings(line,";")(Codec.UTF8)
+    outputResource.writeStrings(line, ";")(Codec.UTF8)
     outputResource.write("\n")
   }
 
   def kdTreeToFile(node: Node, outputResource: Output) {
     node match {
-      case leaf: Leaf => if(leaf.label == true) leafZoneToFile(leaf, outputResource)
-      case fork: Fork => kdTreeToFile(fork.lowChild, outputResource) ; kdTreeToFile(fork.highChild, outputResource)
+      case leaf: Leaf => if (leaf.label == true) leafZoneToFile(leaf, outputResource)
+      case fork: Fork => kdTreeToFile(fork.lowChild, outputResource); kdTreeToFile(fork.highChild, outputResource)
     }
   }
 
-  def deleteFile(pathName: String){
-     val path = scalax.file.Path.fromString(pathName)
-     if(path.exists) path.delete(false)
+  def deleteFile(pathName: String) {
+    val path = scalax.file.Path.fromString(pathName)
+    if (path.exists) path.delete(false)
   }
 
 
   //TEST SIMPLE FIGURES
-  def iFunctionSphere():Array[Double] => Option[Double] = {
-    point: Array[Double] =>{
+  def iFunctionSphere(): Array[Double] => Option[Double] = {
+    point: Array[Double] => {
       if (pow(point(0), 2) + pow(point(1), 2) + pow(point(2), 2) <= 1) Some(0.0)
       else None
     }
   }
-  def iFunctionSmallCube():Array[Double] => Option[Double] = {
-    point: Array[Double] =>{
+
+  def iFunctionSmallCube(): Array[Double] => Option[Double] = {
+    point: Array[Double] => {
       if (-0.5 <= point(0) && point(0) <= 0.5 && -0.5 <= point(1) && point(1) <= 0.5 && -0.5 <= point(2) && point(2) <= 0.5) Some(0.0)
       else None
     }
@@ -206,7 +207,7 @@ package object viabilityLanguages {
 
   val root = new Leaf {
 
-    val testPoint: Point = Array(0.0,0.0,0.0)
+    val testPoint: Point = Array(0.0, 0.0, 0.0)
     val control: Option[Double] = Some(0.0)
 
     val zone = new Zone {
@@ -226,79 +227,87 @@ package object viabilityLanguages {
   def produceTrajectory(state: State, u: Control, node: Node)(implicit rng: Random) = {
     val kernel = FirstKdTree.targetToIFunction
     //val perturbedState = node.containingLeaf(state).map(_.testPoint).getOrElse(sys.error("State should be in kdTree"))
-    Iterator.iterate((state, state, u)){
-      case(_, s, _) =>
+    Iterator.iterate((state, state, u)) {
+      case (_, s, _) =>
         val newState = model(s, u)
         if (node.contains(newState)) (state, newState, u)
         else {
           val leaf = node.containingLeaf(s).getOrElse(sys.error("State should be in kdTree"))
           (leaf.testPoint, model(leaf.testPoint, leaf.control.get), leaf.control.get)
         }
-    }.takeWhile{case (_, s, _) => !kernel(s).isDefined}.toList
+    }.takeWhile {
+      case (_, s, _) => !kernel(s).isDefined
+    }.toList
   }
 
 
   def main(args: Array[String]) {
     //val last = captureTube(25)(randomNG)
     //28, 48, 39
-    val perturbed = Array(23.0 / 99, 53.0 / 99, 39.0 / 99)
+    val perturbed = Array(22.0 / 99, 54.0 / 99, 39.0 / 99)
     val kernel = FirstKdTree.targetToIFunction
-    println(kernel(perturbed))
-    println(model(perturbed, kernel(perturbed).get).toList)
+    //println(kernel(perturbed))
+    //println(model(perturbed, kernel(perturbed).get).toList)
 
-    /*produceTrajectory(perturbed, 0.0, last)(randomNG).foreach {
-      case(s1, s2, c) => println(s"s1 = $s1, s2 = $s2, c = $c")
-    }    */
-
-
-    //val interval = new Interval(0, 19)
-    //println(controlTestOrder(interval).toList)
-
-
-
-    /*
-    // This point is in the first slice: one valid control should lead us to the target
-    val state: State = Array(0.71875,0.21875,0.984375)
-    val control = 0
-    val model = new LanguageModel(state.sigmaA, state.sigmaB, state.s, control)
-    val sampleTimes = (0.0 to 0.05 by 0.01)
-    val integrationStep = 0.005
-
-
-
-    model.integrate(sampleTimes, integrationStep).foreach{case(t, s) =>println(t -> s.toList +
-      "this state goes to the target in 0.01 time using control " + initialSteps.FirstKdTree.targetToIFunction()(s).toString())}
-    */
-
-
-
-
-
-
-    // Test output
-    /*
-    val leafTest: Leaf = new Leaf {
-      val reversePath = Seq.empty
-      val zone = new Zone {
-        val unitInterval = new Interval(0, 1)
-        val region: Array[Interval] = Array(unitInterval, unitInterval, unitInterval)
-      }
-      val testPoint =  Array(0.0,0.0,0.0)
-      val control = Some(0.3)//None
+    def modelCreation(integrationStep: Double, sampleTimes: Seq[Double]) = {
+      (state: State, control: Control) =>
+        assert(state.length == 3)
+        val model = new LanguageModel(state.sigmaA, state.sigmaB, state.s, control)
+        model.integrate(sampleTimes, integrationStep)
     }
-   val outputResource: Output = Resource.fromFile("LeafOutput.text")
-   leafZoneToFile(leafTest, outputResource)
-   */
 
-    //deleteFile("LeafOutput.text")
+    val newModel = modelCreation(0.01, (0.0 to 1.0 by 0.1))
+    newModel(perturbed, 0.1).foreach {
+      case (t, s) => println(s"$t,${s.toList}")
 
-
-
-
-
+    }
 
 
   }
 
 
+  /*produceTrajectory(perturbed, 0.0, last)(randomNG).foreach {
+    case(s1, s2, c) => println(s"s1 = $s1, s2 = $s2, c = $c")
+  }    */
+
+
+  //val interval = new Interval(0, 19)
+  //println(controlTestOrder(interval).toList)
+
+
+  /*
+  // This point is in the first slice: one valid control should lead us to the target
+  val state: State = Array(0.71875,0.21875,0.984375)
+  val control = 0
+  val model = new LanguageModel(state.sigmaA, state.sigmaB, state.s, control)
+  val sampleTimes = (0.0 to 0.05 by 0.01)
+  val integrationStep = 0.005
+
+
+
+  model.integrate(sampleTimes, integrationStep).foreach{case(t, s) =>println(t -> s.toList +
+    "this state goes to the target in 0.01 time using control " + initialSteps.FirstKdTree.targetToIFunction()(s).toString())}
+  */
+
+
+  // Test output
+  /*
+  val leafTest: Leaf = new Leaf {
+    val reversePath = Seq.empty
+    val zone = new Zone {
+      val unitInterval = new Interval(0, 1)
+      val region: Array[Interval] = Array(unitInterval, unitInterval, unitInterval)
+    }
+    val testPoint =  Array(0.0,0.0,0.0)
+    val control = Some(0.3)//None
+  }
+ val outputResource: Output = Resource.fromFile("LeafOutput.text")
+ leafZoneToFile(leafTest, outputResource)
+ */
+
+  //deleteFile("LeafOutput.text")
+
+
 }
+
+
