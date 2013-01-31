@@ -30,7 +30,7 @@ package object kdtreeBounded extends App {
     lazy val reversePath: Path = parent match {
       case None => Seq.empty
       case Some(parent) => {
-          parent.descendantType(this) match {
+        parent.descendantType(this) match {
           case Descendant.Low => PathElement(parent.divisionCoordinate, Descendant.Low) :: parent.reversePath.toList
           case Descendant.High => PathElement(parent.divisionCoordinate, Descendant.High) :: parent.reversePath.toList
           case Descendant.NotDescendant =>
@@ -39,24 +39,16 @@ package object kdtreeBounded extends App {
       }
     }
 
-    def isRoot: Boolean = if ( parent == None) true else false
+    def isRoot: Boolean = if (parent == None) true else false
 
     def rootCalling: Node = parent match {
       case None => this
       case Some(parent) => parent.rootCalling
     }
 
-    def isInKdTree(point: Point): Boolean = {
-      this match {
-        case leaf: Leaf => leaf.label && leaf.zone.contains(point)
-        case fork: Fork =>
-          if (!fork.zone.contains(point)) false
-          else {
-            assume(xor(fork.lowChild.zone.contains(point), fork.highChild.zone.contains(point)))
-            fork.lowChild.isInKdTree(point) || fork.highChild.isInKdTree(point)
-          }
-      }
-    }
+    def contains(point: Point) = containingLeaf(point).isDefined
+
+    def containingLeaf(point: Point): Option[Leaf]
 
   }
 
@@ -69,20 +61,27 @@ package object kdtreeBounded extends App {
     def childrenDefined: Boolean = _lowChild != null && _highChild != null
 
     def descendantType(child: Node): Descendant.Descendant = {
-      if(_lowChild == child) Descendant.Low
-      else if(highChild == child) Descendant.High
+      if (_lowChild == child) Descendant.Low
+      else if (highChild == child) Descendant.High
       else Descendant.NotDescendant
     }
+
     def attachLow(child: Node) {
       _lowChild = child
       child.parent = Some(this)
     }
+
     def attachHigh(child: Node) {
       _highChild = child
       child.parent = Some(this)
     }
 
+    def containingLeaf(point: Point): Option[Leaf] =
+      if (!zone.contains(point)) None
+      else lowChild.containingLeaf(point) orElse highChild.containingLeaf(point)
+
     def lowChild = if (childrenDefined) _lowChild else throw new RuntimeException("Children are not defined. (1)")
+
     def highChild = if (childrenDefined) _highChild else throw new RuntimeException("Children are not defined. (2)")
   }
 
@@ -91,15 +90,23 @@ package object kdtreeBounded extends App {
     //TODO: change val to def?
     val testPoint: Point
     val control: Option[Double]
+
     def label: Boolean = if (control == None) false else true
+
+    def containingLeaf(point: Point) = if (label && zone.contains(point)) Some(this) else None
   }
 
 
   object Descendant {
+
     sealed trait Descendant
+
     case object Low extends Descendant
+
     case object High extends Descendant
+
     case object NotDescendant extends Descendant
+
   }
 
   def zoneComputation(child: Node): Zone = {
@@ -114,13 +121,17 @@ package object kdtreeBounded extends App {
   }
 
   case class PathElement(coordinate: Int, descendant: Descendant.Descendant)
+
   type Path = Seq[PathElement]
 
 
-  case class Interval(min: Double, max: Double) { assume(min < max) }
+  case class Interval(min: Double, max: Double) {
+    assume(min < max)
+  }
 
 
-  trait Zone { zone: Zone =>
+  trait Zone {
+    zone: Zone =>
     //TODO: Consider IndexSeq instead of Vector. Change val to def
     val region: Array[Interval]
 
@@ -128,7 +139,7 @@ package object kdtreeBounded extends App {
       new Zone {
         //TODO: Change def to val
         val region = {
-          val aux = (zone.region(d).min + zone.region(d).max)/2
+          val aux = (zone.region(d).min + zone.region(d).max) / 2
           val low = new Interval(zone.region(d).min, aux)
           zone.region.updated(d, low)
         }
@@ -138,13 +149,15 @@ package object kdtreeBounded extends App {
       new Zone {
         //TODO: Change def to val
         val region = {
-          val aux = (zone.region(d).min + zone.region(d).max)/2
+          val aux = (zone.region(d).min + zone.region(d).max) / 2
           val high = new Interval(aux, zone.region(d).max)
           zone.region.updated(d, high)
         }
       }
 
-    def contains(point: Point): Boolean = (point zip region).forall { case(p, r) => p >= r.min && p <= r.max }
+    def contains(point: Point): Boolean = (point zip region).forall {
+      case (p, r) => p >= r.min && p <= r.max
+    }
 
     //TODO: Delete. Debug
     override def toString = region.toString()
@@ -159,7 +172,7 @@ package object kdtreeBounded extends App {
         case (Nil, _) => (commonPath.reverse, Nil, y)
         case (_, Nil) => (commonPath.reverse, x, Nil)
         case (hx :: tx, hy :: ty) =>
-          if(hx == hy) extractCommonPath0(tx, ty, hx :: commonPath)
+          if (hx == hy) extractCommonPath0(tx, ty, hx :: commonPath)
           else {
             assert(hx.coordinate == hy.coordinate)
             assert(hx.descendant != hy.descendant)
@@ -169,19 +182,28 @@ package object kdtreeBounded extends App {
     extractCommonPath0(x, y, List.empty)
   }
 
-  def xor(a: Boolean, b: Boolean )= (a || b) && !(a && b)
+  def xor(a: Boolean, b: Boolean) = (a || b) && !(a && b)
 
   //Draw a random point in a zone
   def randomPoint(zone: Zone)(implicit random: Random): Point =
-    zone.region.map (i=>  i.min + random.nextDouble * ((i.max - i.min)))
+    zone.region.map(i => i.min + random.nextDouble * ((i.max - i.min)))
 
   def randomElement[T](list: List[T])(implicit random: Random): T = list(random.nextInt(list.length))
 
 
   ////////////// CRITICAL PAIRS
-  sealed trait Sign {def opposite: Sign}
-  case object Positive extends Sign {def opposite = Negative}
-  case object Negative extends Sign {def opposite = Positive}
+  sealed trait Sign {
+    def opposite: Sign
+  }
+
+  case object Positive extends Sign {
+    def opposite = Negative
+  }
+
+  case object Negative extends Sign {
+    def opposite = Positive
+  }
+
   case class Direction(val coordinate: Int, val sign: Sign) {
     def opposite = new Direction(coordinate, sign.opposite)
   }
@@ -190,20 +212,24 @@ package object kdtreeBounded extends App {
 
     //?? TODO: Modify the structure using [with]
     sealed trait Adjacency
+
     sealed trait Adjacent extends Adjacency
+
     case object NotAdjacent extends Adjacency with AdjacencyRelation
+
     case object LeftIsLow extends Adjacent {
       def conversionToSign: Sign = Positive
     }
+
     case object LeftIsHigh extends Adjacent {
       def conversionToSign: Sign = Negative
     }
 
     sealed trait AdjacencyRelation
 
-    case class AdjacencyDirection(val coordinate: Int, val relation: Adjacent) extends AdjacencyRelation{
+    case class AdjacencyDirection(val coordinate: Int, val relation: Adjacent) extends AdjacencyRelation {
       def conversionToDirection: Direction =
-        relation match{
+        relation match {
           case LeftIsLow => new Direction(coordinate, Positive)
           case LeftIsHigh => new Direction(coordinate, Negative)
         }
@@ -214,20 +240,24 @@ package object kdtreeBounded extends App {
       if (reducedX == Nil || reducedY == Nil) throw new RuntimeException("Adjacency problem: there is a parenthood relationship.")
       if (!(nodeIsCentral(reducedX)) || !(nodeIsCentral(reducedY))) false
       else {
-        val xPruned = pruneFirstDivision(reducedX); val yPruned = pruneFirstDivision(reducedY)
-        val xSorted = descendantsByCoordinateSorted(xPruned); val ySorted = descendantsByCoordinateSorted(yPruned)
+        val xPruned = pruneFirstDivision(reducedX);
+        val yPruned = pruneFirstDivision(reducedY)
+        val xSorted = descendantsByCoordinateSorted(xPruned);
+        val ySorted = descendantsByCoordinateSorted(yPruned)
         adjacencyFromSorted(xSorted, ySorted)
       }
     }
 
     def adjacency(x: Path, y: Path): AdjacencyRelation = {
-      assert( x!= y)
+      assert(x != y)
       val (commonPath, reducedX, reducedY) = extractCommonPath(x, y)
       if (!(nodeIsCentral(reducedX)) || !(nodeIsCentral(reducedY))) NotAdjacent
       else {
-        val xPruned = pruneFirstDivision(reducedX); val yPruned = pruneFirstDivision(reducedY)
-        val xSorted = descendantsByCoordinateSorted(xPruned); val ySorted = descendantsByCoordinateSorted(yPruned)
-        if(adjacencyFromSorted(xSorted, ySorted)) reducedX(0).descendant match {
+        val xPruned = pruneFirstDivision(reducedX);
+        val yPruned = pruneFirstDivision(reducedY)
+        val xSorted = descendantsByCoordinateSorted(xPruned);
+        val ySorted = descendantsByCoordinateSorted(yPruned)
+        if (adjacencyFromSorted(xSorted, ySorted)) reducedX(0).descendant match {
           case Descendant.Low => new AdjacencyDirection(reducedX(0).coordinate, LeftIsLow)
           case Descendant.High => new AdjacencyDirection(reducedX(0).coordinate, LeftIsHigh)
           case Descendant.NotDescendant => throw new RuntimeException("Error: [Descendant.NotDescendant] should not happen.")
@@ -236,22 +266,30 @@ package object kdtreeBounded extends App {
       }
     }
 
-    def nodeIsCentral(x: Path): Boolean = x.drop(1).forall( _ != x(0) )
+    def nodeIsCentral(x: Path): Boolean = x.drop(1).forall(_ != x(0))
 
-    def pruneFirstDivision(x: Path): Path = {x.filter(_.coordinate != x(0).coordinate)}
+    def pruneFirstDivision(x: Path): Path = {
+      x.filter(_.coordinate != x(0).coordinate)
+    }
 
     def descendantsByCoordinateSorted(x: Path): Seq[(Int, Seq[Descendant.Descendant])] =
       x.groupBy(_.coordinate).toSeq.
-        sortBy{ case(k, _) => k }.
-        map{ case(k, v) => (k, v.map{ _.descendant }) }
+        sortBy {
+        case (k, _) => k
+      }.
+        map {
+        case (k, v) => (k, v.map {
+          _.descendant
+        })
+      }
 
     def compareDescendants(a: Seq[Descendant.Descendant],
                            b: Seq[Descendant.Descendant]): Boolean = {
       (a.toList, b.toList) match {
-        case(Nil, _) => true
-        case(_, Nil) => true
-        case(ha :: ta, hb :: tb) =>
-          if(ha == hb) compareDescendants(ta, tb)
+        case (Nil, _) => true
+        case (_, Nil) => true
+        case (ha :: ta, hb :: tb) =>
+          if (ha == hb) compareDescendants(ta, tb)
           else false
       }
     }
@@ -261,9 +299,9 @@ package object kdtreeBounded extends App {
       (x.toList, y.toList) match {
         case (Nil, _) => true
         case (_, Nil) => true
-        case(hx :: tx, hy :: ty) =>
-          if(hx._1 < hy._1) adjacencyFromSorted(tx, hy::ty)
-          else if(hy._1 < hx._1) adjacencyFromSorted(hx::tx, ty)
+        case (hx :: tx, hy :: ty) =>
+          if (hx._1 < hy._1) adjacencyFromSorted(tx, hy :: ty)
+          else if (hy._1 < hx._1) adjacencyFromSorted(hx :: tx, ty)
           else {
             assert(hx._1 == hy._1)
             compareDescendants(hx._2, hy._2)
@@ -283,7 +321,7 @@ package object kdtreeBounded extends App {
           case direction.coordinate =>
             if (direction.sign == Positive) bordersOfNode(fork.highChild, direction, label)
             else bordersOfNode(fork.lowChild, direction, label)
-          case _ => bordersOfNode(fork.lowChild, direction, label):::bordersOfNode(fork.highChild, direction, label)
+          case _ => bordersOfNode(fork.lowChild, direction, label) ::: bordersOfNode(fork.highChild, direction, label)
 
         }
       }
@@ -303,13 +341,13 @@ package object kdtreeBounded extends App {
     else None
   }
 
-  def zoneVolume (zone: Zone): Double = {
-    def auxFunc(x: Double, interval: Interval) = x*(interval.max - interval.min)
-    (1.0/:zone.region)(auxFunc)
+  def zoneVolume(zone: Zone): Double = {
+    def auxFunc(x: Double, interval: Interval) = x * (interval.max - interval.min)
+    (1.0 /: zone.region)(auxFunc)
   }
 
   // The critical pairs together with the coordinate of adjacency (no need to include the sign)
-  def pairsBetweenNodes(node1: Node, node2: Node): List[(Leaf, Leaf, Int)]= {
+  def pairsBetweenNodes(node1: Node, node2: Node): List[(Leaf, Leaf, Int)] = {
     val direction =
       Adjacency.adjacency(node1.path, node2.path) match {
         case Adjacency.NotAdjacent => throw new RuntimeException("Zones must be adjacent.")
@@ -317,31 +355,31 @@ package object kdtreeBounded extends App {
       }
 
     (node1, node2) match {
-      case(leaf1: Leaf, leaf2: Leaf)=>
-        if (xor (leaf1.label, leaf2.label))
+      case (leaf1: Leaf, leaf2: Leaf) =>
+        if (xor(leaf1.label, leaf2.label))
           List((leaf1, leaf2, direction.coordinate))
         else
           Nil
 
-      case(fork1: Fork, fork2: Fork)=>
-        val listAux= List(
+      case (fork1: Fork, fork2: Fork) =>
+        val listAux = List(
           (fork1.lowChild, fork2.lowChild),
           (fork1.lowChild, fork2.highChild),
           (fork1.highChild, fork2.lowChild),
           (fork1.highChild, fork2.highChild))
         def functAux(nodes: (Node, Node)) = {
           val (n1, n2) = nodes
-          if (Adjacency.adjacent(n1.path, n2.path)) (pairsBetweenNodes(n1,n2))
+          if (Adjacency.adjacent(n1.path, n2.path)) (pairsBetweenNodes(n1, n2))
           else Nil
         }
         listAux.flatMap(functAux)
 
-      case(fork: Fork, leaf: Leaf)=>
+      case (fork: Fork, leaf: Leaf) =>
         val listAux: List[Leaf] = bordersOfNode(fork, direction, (!leaf.label))
         val list: List[(Leaf, Leaf, Int)] = listAux.map(borderLeaf => (leaf, borderLeaf, direction.coordinate))
-        list.filter(x =>  Adjacency.adjacent(x._1.path, x._2.path))
+        list.filter(x => Adjacency.adjacent(x._1.path, x._2.path))
 
-      case(leaf: Leaf, fork: Fork)=>
+      case (leaf: Leaf, fork: Fork) =>
         val listAux: List[Leaf] = bordersOfNode(fork, direction.opposite, (!leaf.label))
         val list: List[(Leaf, Leaf, Int)] = listAux.map(borderLeaf => (leaf, borderLeaf, direction.coordinate))
         list.filter(x => Adjacency.adjacent(x._1.path, x._2.path))
@@ -358,12 +396,14 @@ package object kdtreeBounded extends App {
   def consistentParent(fork: Fork): Boolean = {
     fork.lowChild.parent == Some(fork) && fork.highChild.parent == Some(fork)
   }
+
   def consistentChild(child: Node): Boolean = {
     child.parent match {
       case None => throw new RuntimeException("This node is supposed to have a parent.")
       case Some(fork) => fork.lowChild == child || fork.highChild == child
     }
   }
+
   def consistency(node: Node): Boolean = {
     node match {
       case leaf: Leaf => true
@@ -374,16 +414,18 @@ package object kdtreeBounded extends App {
           consistentChild(fork.lowChild) && consistentChild(fork.highChild)
     }
   }
+
   def pathSoundness(node: Node): Boolean =
     node match {
       case leaf: Leaf => true
       case fork: Fork => fork.lowChild.path.last.coordinate == fork.highChild.path.last.coordinate &&
         pathSoundness(fork.lowChild) && pathSoundness(fork.highChild)
     }
+
   def printPaths(node: Node) {
     node match {
-      case leaf: Leaf => println(leaf.path) ; println("BRANCH END")
-      case fork: Fork => println(fork.path) ; printPaths(fork.lowChild) ; printPaths(fork.highChild)
+      case leaf: Leaf => println(leaf.path); println("BRANCH END")
+      case fork: Fork => println(fork.path); printPaths(fork.lowChild); printPaths(fork.highChild)
     }
   }
 
@@ -391,23 +433,29 @@ package object kdtreeBounded extends App {
 
   // The node together with the preferred coordinate (if another coordinate is bigger it will have no impact)
   def nodesToRefine(node: Node, depth: Int): List[(Leaf, Int)] = {
-   val leaves =
-    (node match {
-      case leaf: Leaf => {
-        leaf.label match {
-          case true => leafTouchesBoundary(leaf) match {
-            case Some(coordinate) => List((leaf, coordinate))
-            case None => List.empty
+    val leaves =
+      (node match {
+        case leaf: Leaf => {
+          leaf.label match {
+            case true => leafTouchesBoundary(leaf) match {
+              case Some(coordinate) => List((leaf, coordinate))
+              case None => List.empty
+            }
+            case false => List.empty
           }
-          case false => List.empty
         }
+        case fork: Fork =>
+          nodesToRefine(fork.lowChild, depth) ++ nodesToRefine(fork.highChild, depth) ++
+            pairsToSet(pairsBetweenNodes(fork.lowChild, fork.highChild))
+      }).filter {
+        case (leaf, _) => refinable(depth, leaf)
       }
-      case fork: Fork =>
-        nodesToRefine(fork.lowChild, depth) ++ nodesToRefine(fork.highChild, depth) ++
-          pairsToSet(pairsBetweenNodes(fork.lowChild, fork.highChild))
-    }).filter { case (leaf, _) => refinable(depth, leaf) }
 
-    leaves.groupBy{ case(l, _) => l }.toList.map{case(_, l) => l.head}
+    leaves.groupBy {
+      case (l, _) => l
+    }.toList.map {
+      case (_, l) => l.head
+    }
   }
 
   def attachToLeaf(leaf: Leaf, preferredCoordinate: Int, iFunction: RichIndicatorFunction)(implicit rng: Random): Node = {
@@ -426,7 +474,7 @@ package object kdtreeBounded extends App {
       }
     }
 
-    def generateChild(parentFork: Fork, _zone: Zone)(implicit rng: Random) =  new Leaf {
+    def generateChild(parentFork: Fork, _zone: Zone)(implicit rng: Random) = new Leaf {
       parent = Some(parentFork)
       val zone = _zone
       val testPointInZone: Boolean = zone.contains(leaf.testPoint)
@@ -479,21 +527,21 @@ package object kdtreeBounded extends App {
       case adjacencyDir: Adjacency.AdjacencyDirection => {
         val coordinate = adjacencyDir.coordinate
         (refinable(maxDepth, leaf1), refinable(maxDepth, leaf2)) match {
-          case (true, true) =>  {
+          case (true, true) => {
             attachToLeaf(leaf1, coordinate, iFunction)
             val root = attachToLeaf(leaf2, coordinate, iFunction)
             (root, true, true)
           }
-          case (true, false) =>  {
+          case (true, false) => {
             val root = attachToLeaf(leaf1, coordinate, iFunction)
             (root, true, false)
           }
-          case (false, true) =>  {
+          case (false, true) => {
             val root = attachToLeaf(leaf2, coordinate, iFunction)
             (root, false, true)
           }
           //TODO: This case is problematic if we want output Root with Childhood or Child
-          case (false, false) =>  (leaf1.rootCalling, false, false)
+          case (false, false) => (leaf1.rootCalling, false, false)
         }
       }
     }
@@ -502,14 +550,14 @@ package object kdtreeBounded extends App {
   //TODO: Use this for refine function
   // It chooses the direction to expand a node (it will be a initialNode)
   def chooseDirection(node: Node, preferredDirections: List[Direction])(implicit random: Random): Direction = {
-    val spanList: List[(Double, Int)] = node.zone.region.map(i=> i.max - i.min).toList.zipWithIndex
-    val smallestSpans: List[(Double, Int)] = spanList.filter(k=> spanList.forall(i => k._1 <= i._1))
-    val smallestCoordinates: List[Int] = smallestSpans.map(x=> x._2)
+    val spanList: List[(Double, Int)] = node.zone.region.map(i => i.max - i.min).toList.zipWithIndex
+    val smallestSpans: List[(Double, Int)] = spanList.filter(k => spanList.forall(i => k._1 <= i._1))
+    val smallestCoordinates: List[Int] = smallestSpans.map(x => x._2)
     val selectedDirections = preferredDirections.filter(k => smallestCoordinates.exists(i => i == k.coordinate))
     if (selectedDirections != Nil) randomElement(selectedDirections)
-    else{
+    else {
       val direction = randomElement(smallestCoordinates)
-      val sign = if(Random.nextBoolean()) Positive else Negative
+      val sign = if (Random.nextBoolean()) Positive else Negative
       new Direction(direction, sign)
     }
   }
@@ -539,8 +587,8 @@ package object kdtreeBounded extends App {
   def kdTreeComputation(initialNode: Node, maxDepth: Int, iFunction: RichIndicatorFunction)(implicit rng: Random): Node = {
     var leavesToRefine = nodesToRefine(initialNode, maxDepth)
     var outputRoot = initialNode
-    while (!leavesToRefine.isEmpty){
-      leavesToRefine.foreach( leafAndCoord => outputRoot = attachToLeaf(leafAndCoord._1, leafAndCoord._2, iFunction ))
+    while (!leavesToRefine.isEmpty) {
+      leavesToRefine.foreach(leafAndCoord => outputRoot = attachToLeaf(leafAndCoord._1, leafAndCoord._2, iFunction))
       leavesToRefine = nodesToRefine(outputRoot, maxDepth)
     }
     outputRoot
@@ -560,13 +608,12 @@ package object kdtreeBounded extends App {
 
   def volumeKdTree(node: Node): Double =
     node match {
-      case leaf: Leaf => if(leaf.label) zoneVolume(node.zone) else 0
+      case leaf: Leaf => if (leaf.label) zoneVolume(node.zone) else 0
       case fork: Fork => volumeKdTree(fork.lowChild) + volumeKdTree(fork.highChild)
     }
 
 
   /////
-
 
 
   def clone(node: Node) = {
@@ -575,7 +622,7 @@ package object kdtreeBounded extends App {
   }
 
   def diff(n1: Node, n2: Node) =
-    leaves(n1).count(l => !n2.isInKdTree(l.testPoint))
+    leaves(n1).count(l => !n2.contains(l.testPoint))
 
   def leaves(n: Node): List[Leaf] =
     n match {
@@ -585,9 +632,6 @@ package object kdtreeBounded extends App {
 
 
 }
-
-
-
 
 
 //////////////////////// CLEANING THE TREE
@@ -651,8 +695,7 @@ package object kdtreeBounded extends App {
 //
 
 
-
-/*********************************************************************************************/
+/** *******************************************************************************************/
 
 
 /* TODO: Delete. No longer necessary, since we expand the initialNode
@@ -681,7 +724,6 @@ package object kdtreeBounded extends App {
 //    }
 //    oneRefined
 //  }
-
 
 
 ///////////////////////// DISTANCE COMPUTATION
