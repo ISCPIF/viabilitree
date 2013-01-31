@@ -133,28 +133,20 @@ import scala.math._
       point.foreach(x => assume( 0 <= x && x<= 1))
 
       val pointName = List(point(0)*99, point(1)*99, point(2)*99)
-      val xGridPoints = (pointName(0).floor.toInt, pointName(0).ceil.toInt)
-      val yGridPoints = (pointName(1).floor.toInt, pointName(1).ceil.toInt)
-      val sGridPoints = (pointName(2).floor.toInt, pointName(2).ceil.toInt)
 
-      def projection(tuple: (Int, Int), coordinate: Int): Int = {
-        if (coordinate == 0) tuple._1
-        else if (coordinate == 1) tuple._2
-        else throw new RuntimeException("Only projections on coordinate 0 or 1 are admitted.")
-      }
-      def auxFunction(x: Double): Int = {
-        if(0 <= x && x < 0.5) 0
-        else if(0.5 <= x && x < 1) 1
-        else throw new RuntimeException("This point should belong to [0,1).")
-      }
-      val closestX: Int = auxFunction(pointName(0) - pointName(0).floor)
-      val closestY: Int = auxFunction(pointName(1) - pointName(1).floor)
-      val closestS: Int = auxFunction(pointName(2) - pointName(2).floor)
+      val closestSA =
+        if (pointName(0) - pointName(0).floor <= pointName(0).ceil.toInt - pointName(0)) pointName(0).floor.toInt
+        else pointName(0).ceil.toInt
 
-      val closestGridPoint =
-        List(projection(xGridPoints, closestX), projection(yGridPoints,closestY), projection(sGridPoints,closestS))
+      val closestSB =
+        if (pointName(1) - pointName(1).floor <= pointName(1).ceil.toInt - pointName(1)) pointName(1).floor.toInt
+        else pointName(1).ceil.toInt
 
-      closestGridPoint
+      val closestS =
+        if (pointName(2) - pointName(2).floor <= pointName(2).ceil.toInt - pointName(2)) pointName(2).floor.toInt
+        else pointName(2).ceil.toInt
+
+      List(closestSA, closestSB, closestS)
     }
 
 

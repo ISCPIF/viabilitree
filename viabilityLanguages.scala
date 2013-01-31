@@ -52,11 +52,13 @@ package object viabilityLanguages {
   }
 
   // TODO: Change [epsilon]. Taking it into account may avoid some errors (e.g java.lang.ArrayIndexOutOfBoundsException)
-  // Since sDot = uControl(t) and s should belong to [0,1], u must be in the interval defined below. [timeStep] is the
+  // Since sDot = uControl(t) and s should belong to [0,1], u must be in the interval1 defined below. [timeStep] is the
   // time interval between two slices. [epsilon] is used to avoid numerical problems: analytically we'll get s\in [0+epsilon, 1-epsilon]
   def validControlInterval(state: State) = {
     val epsilon = pow(10, -8)
-    new Interval((epsilon-state.s)/timeStep, (1-state.s-epsilon)/timeStep)
+    val interval1 = new Interval((epsilon-state.s)/timeStep, (1-state.s-epsilon)/timeStep)
+    val interval2 = new Interval(-0.1, 0.1)
+    new Interval(max(interval1.min, interval2.min), min(interval1.max, interval2.max))
   }
 
   def controlTestOrder(interval: Interval): Array[Double] = {
