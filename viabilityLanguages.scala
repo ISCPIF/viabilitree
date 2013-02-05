@@ -1,3 +1,22 @@
+/*
+ * Copyright (C) 2013 de Aldama / Reuillon
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+
 package fr.iscpif.viability
 
 // TODO: Using bounded version, should we change to the unbounded one?
@@ -244,6 +263,7 @@ package object viabilityLanguages {
   def main(args: Array[String]) {
     //val last = captureTube(25)(randomNG)
     //28, 48, 39
+    /*
     val perturbed = Array(22.0 / 99, 54.0 / 99, 39.0 / 99)
     val kernel = FirstKdTree.targetToIFunction
     //println(kernel(perturbed))
@@ -255,12 +275,15 @@ package object viabilityLanguages {
         val model = new LanguageModel(state.sigmaA, state.sigmaB, state.s, control)
         model.integrate(sampleTimes, integrationStep)
     }
-
     val newModel = modelCreation(0.01, (0.0 to 1.0 by 0.1))
     newModel(perturbed, 0.1).foreach {
       case (t, s) => println(s"$t,${s.toList}")
 
     }
+    */
+
+    //initialSteps.projectionTreeSet.contains(closestGridPoint(image))
+
 
 
   }
