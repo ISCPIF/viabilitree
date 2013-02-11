@@ -40,11 +40,10 @@ package object viabilityLanguages {
   //TODO: Review!! And create the inputs properly (in a class)
   //INITIAL ARGUMENTS
 
-  val dir = "/tmp/bassin15/" //"/tmp/"
-
+  val dir = "/tmp/logKdTree/"
   val stateDimension = 3
   val controlDimension = 1
-  val maxDepth = 12
+  val maxDepth = 18
   val numberOfControlTests = 20
   val randomNG = new Random(3)
   val timeStep: Double = 1
@@ -160,6 +159,8 @@ package object viabilityLanguages {
       deleteFile(outputFile(1))
       val output: Output = Resource.fromFile(outputFile(1))
       kdTreeToFile(firstSlice, output)
+      println("First slice created.")
+      println(volumeKdTree(firstSlice))
       firstSlice
     }
 
@@ -261,7 +262,8 @@ package object viabilityLanguages {
 
 
   def main(args: Array[String]) {
-    //val last = captureTube(25)(randomNG)
+    println("Hello world")
+    captureTube(40)(randomNG)
     //28, 48, 39
     /*
     val perturbed = Array(22.0 / 99, 54.0 / 99, 39.0 / 99)
@@ -313,22 +315,7 @@ package object viabilityLanguages {
   */
 
 
-  // Test output
-  /*
-  val leafTest: Leaf = new Leaf {
-    val reversePath = Seq.empty
-    val zone = new Zone {
-      val unitInterval = new Interval(0, 1)
-      val region: Array[Interval] = Array(unitInterval, unitInterval, unitInterval)
-    }
-    val testPoint =  Array(0.0,0.0,0.0)
-    val control = Some(0.3)//None
-  }
- val outputResource: Output = Resource.fromFile("LeafOutput.text")
- leafZoneToFile(leafTest, outputResource)
- */
 
-  //deleteFile("LeafOutput.text")
 
 
 }
