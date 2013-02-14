@@ -20,6 +20,8 @@ published by
 package fr.iscpif.viability
 
 import math._
+import scala.language.implicitConversions
+
 
 object LanguageModel {
   type State = Array[Double]
