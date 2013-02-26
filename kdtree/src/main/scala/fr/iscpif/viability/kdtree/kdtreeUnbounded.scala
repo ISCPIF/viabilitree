@@ -28,7 +28,7 @@ import scala.util.logging
 import annotation.tailrec
 
 
-
+//TODO: the unbounded version (the kdTree is refined and expanded) has only been tested with some simple tests.
 package object kdtreeUnbounded {//extends App {
   type Point = Array[Double]
   type IndicatorFunction = Point => Boolean

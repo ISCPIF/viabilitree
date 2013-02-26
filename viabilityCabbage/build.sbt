@@ -14,9 +14,10 @@ scalaVersion := "2.10.0"
 
 scalaVersion in ThisBuild := "2.10.0"
 
-//TODO
-//libraryDependencies += iscpif...cabbage
+libraryDependencies += "fr.iscpif.cabbage" % "cabbage" % "1.0-SNAPSHOT"
+
+resolvers += "Local Maven Repository" at ""+Path.userHome.asFile.toURI.toURL+".m2/repository"
 
 //libraryDependencies += "com.github.scala-incubator.io" %% "scala-io-core" % "0.2.0"
 
-//libraryDependencies += "com.github.scala-incubator.io" %% "scala-io-file" % "0.4.2"
+libraryDependencies += "com.github.scala-incubator.io" %% "scala-io-file" % "0.4.2"
