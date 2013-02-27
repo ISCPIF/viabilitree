@@ -26,7 +26,7 @@ resolvers ++= Seq(
             "Test" at "https://oss.sonatype.org/content/groups/scala-tools/"	    
 )
 
-resolvers += "Local Maven Repository" at "file://home/aldama/.m2/repository"
+//resolvers += "Local Maven Repository" at "file://home/aldama/.m2/repository"
 
 version := "1.0-SNAPSHOT"
 //version := "0.10"

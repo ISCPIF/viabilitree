@@ -8,4 +8,4 @@ version := "1.0-SNAPSHOT"
 
  resolvers += "Local Maven Repository" at ""+Path.userHome.asFile.toURI.toURL+".m2/repository" 
 
- resolvers += "n'importe quoi" at "http://maven.iscpif.fr/public/"
+ resolvers += "Good Will" at "http://maven.iscpif.fr/public/"
