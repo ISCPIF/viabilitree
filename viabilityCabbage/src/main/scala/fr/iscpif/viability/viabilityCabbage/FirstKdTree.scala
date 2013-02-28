@@ -20,6 +20,8 @@ package fr.iscpif.viability.viabilityCabbage
 
 import fr.iscpif.viability.kdtree._
 
+import scala.util.Random
+
 object FirstKdTree {
 
    val targetZone: Zone = new Zone {
@@ -45,6 +47,6 @@ object FirstKdTree {
   }
 
   val targetIFunction: RichIndicatorFunction = targetToIFunction()
-  def initialNode: Node = initialNodeCreation(targetIFunction: RichIndicatorFunction)(randomNG)
-  def firstKdTree: Node = kdTreeComputation(initialNode, maxDepth, targetIFunction)(randomNG)
+  def initialNode(rng: Random): Node = initialNodeCreation(targetIFunction, rng)
+  def firstKdTree(rng1: Random, rng2: Random): Node = kdTreeComputation(initialNode(rng1), maxDepth, targetIFunction,rng2)
 }

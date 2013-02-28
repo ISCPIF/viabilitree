@@ -20,7 +20,7 @@ package fr.iscpif.viability
 
 // TODO: Using bounded version, should we change to the unbounded one?
 import fr.iscpif.viability.kdtree._
-import fr.iscpif.cabbage.Cabbage4Viability._
+import fr.iscpif.cabbage.Cabbage4ViabilityReduced._
 import fr.iscpif.viability.viabilityCabbage.CabbageModelWrap._
 
 import math._
@@ -30,6 +30,7 @@ import scala.Some
 import scalax.io._
 import scalax.file.Path
 import scalax.io.StandardOpenOption._
+import org.apache.commons.math3.random.{RandomAdaptor, Well44497b}
 
 
 package object viabilityCabbage{
@@ -44,7 +45,7 @@ package object viabilityCabbage{
   //The maximal number of controls to test, once a state has been fixed
   val numberOfControlTests = 20
 
-  val randomNG = new Random(3)
+  //val randomNG = new Random(3)
   //Measured in minutes
   val timeStep: Double = 5
 
@@ -82,12 +83,10 @@ package object viabilityCabbage{
 
   //The temperature may vary 1 degree per minute
   def validControlInterval(state: State): Interval = {
-
-      println(state.T +" " + timeStep)
       new Interval(state.T - timeStep, state.T + timeStep)
   }
 
-  def randomConstrainedPoint(implicit rng: Random): Point = {
+  def randomConstrainedPoint(rng: Random): Point = {
     explorationZone.region.map(x => x.min + rng.nextDouble()*x.span)
   }
 
@@ -99,7 +98,7 @@ package object viabilityCabbage{
         ).toArray
     }
 
-  def initialPointGuesser(targetIFunction: IndicatorFunction)(implicit rng: Random): (State, Control) = {
+  def initialPointGuesser(targetIFunction: IndicatorFunction, rng: Random): (State, Control) = {
 
     var initialPointFound = false
     //The initialisation is meaningless, the values will be immediately overridden
@@ -127,10 +126,10 @@ package object viabilityCabbage{
     }
   }
 
-  def initialNodeCreation(richTargetIFunction: RichIndicatorFunction)(implicit rng: Random): Node = {
+  def initialNodeCreation(richTargetIFunction: RichIndicatorFunction, rng: Random): Node = {
     val targetIFunction = conversionToIndicator(richTargetIFunction)
     val root = new Leaf {
-      val stateControl: (State, Double) = initialPointGuesser(targetIFunction)(rng)
+      val stateControl: (State, Double) = initialPointGuesser(targetIFunction, rng)
       val testPoint: Point = stateControl._1
       val control: Option[Double] = Some(stateControl._2)
       //Exploration Zone
@@ -149,18 +148,18 @@ package object viabilityCabbage{
       }
   }
 
-  //TODO: MODIFY
   /*
   def captureTube(s: Int)(implicit rng: Random): Node = {
     def outputFile(s: Int) = dir + "kdTree" + s + "depth" + maxDepth + "step" + timeStep + ".csv"
 
     def initialSlice = {
-      val firstSlice = initialSteps.FirstKdTree.firstKdTree
+      val firstSlice = FirstKdTree.firstKdTree(rng)
       deleteFile(outputFile(1))
       val output: Output = Resource.fromFile(outputFile(1))
-      kdTreeToFile(firstSlice, output)
+      //TODO: Uncomment
+      //kdTreeToFile(firstSlice, output)
       println("First slice created.")
-      println(volumeKdTree(firstSlice))
+      println(firstSlice.volumeKdTree)
       firstSlice
     }
 
@@ -173,7 +172,7 @@ package object viabilityCabbage{
         val output: Output = Resource.fromFile(outputFile(step))
         kdTreeToFile(newSlice, output)
         println("One slice created.")
-        println(volumeKdTree(newSlice))
+        println(newSlice.volumeKdTree)
         //println(diff(newSlice, slice) + "," + (diff(slice, newSlice)))
         newSlice
     }
@@ -242,11 +241,13 @@ package object viabilityCabbage{
       val region: Array[Interval] = Array(interval, interval)
     }
   }
+  /*
   def test(depth: Int) {
-    val kdTreeSphere = kdTreeComputation(root, depth, iFunctionSphere())(randomNG)
-    val output: Output = Resource.fromFile("./OutputKdTrees/kdTree_Sphere_depth" + depth +".csv")
-    kdTreeToFile(kdTreeSphere, output)
+   val kdTreeSphere = kdTreeComputation(root, depth, iFunctionSphere())(randomNG)
+   val output: Output = Resource.fromFile("./OutputKdTrees/kdTree_Sphere_depth" + depth +".csv")
+   kdTreeToFile(kdTreeSphere, output)
   }
+  */
   ///////////////////
 
 
@@ -277,11 +278,10 @@ package object viabilityCabbage{
 
   def main(args: Array[String]) {
     println("Hello world")
-    println(FirstKdTree.firstKdTree.volumeKdTree)
-
-
-    //val depth = 8
-    //println(kdTreeComputation(root, depth, iFunctionCircle())(randomNG).volumeKdTree  + "  depth = " + depth)
+    //println(FirstKdTree.firstKdTree(new Random(3), new Random(5)).volumeKdTree)
+    val depth = 2
+    println(
+      kdTreeComputation(root, depth, iFunctionCircle(), new Random(3)).volumeKdTree  + "  depth = " + depth)
     //captureTube(12)(randomNG)
 
 
