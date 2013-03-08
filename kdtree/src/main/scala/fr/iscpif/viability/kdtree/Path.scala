@@ -104,7 +104,21 @@ object Path {
  ////////////
 
 
+ // Check if divisions are always Low or always High
+ def extremeDivisions(path: Path, coordinate: Int): Boolean = {
+   val filteredPath = path.filter(x => x.coordinate == coordinate)
+   val sideDivisions: List[Descendant.Descendant] = filteredPath.map(x => x.descendant).toList
 
-
+   def aux(s: List[Descendant.Descendant]): Boolean = {
+     s match {
+       case Nil => true
+       case hs :: ts =>  {
+         if(ts != Nil) {(hs == ts(0)) && (aux(ts)) }
+         else true
+       }
+     }
+   }
+   aux(sideDivisions)
+ }
 
 }

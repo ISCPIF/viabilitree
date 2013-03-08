@@ -27,15 +27,15 @@ import fr.iscpif.viability.languages.LanguageModel._
 import scala.collection.immutable.TreeSet
 import scala.math.Ordering.Implicits._
 import scala.math._
+import util.Random
 
 
- package object initialSteps {
+package object initialSteps {
 
   val dataLanguagesPath = "data-targetLanguages.dat"
 
   object InputProcessing {
     import fr.iscpif.viability.viabilityLanguages._
-
 
     trait TargetPoint{
       // The original grid divides [0, 1] from 0 to 99, i.e. (1, 1, 1) = "99 99 99".
@@ -196,8 +196,8 @@ import scala.math._
 
     val targetIFunction: RichIndicatorFunction = targetToIFunction()
     //TODO: Change to val? is it OK randomNG as input?
-    def initialNode: Node = initialNodeCreation(targetIFunction: RichIndicatorFunction)(randomNG)
-    def firstKdTree: Node = kdTreeComputation(initialNode, maxDepth, targetIFunction)(randomNG)
+    def initialNode(rng: Random): Node = initialNodeCreation(targetIFunction, rng)
+    def firstKdTree(rng: Random): Node = kdTreeComputation(initialNode(rng), maxDepth, targetIFunction, rng)
 
   }
 

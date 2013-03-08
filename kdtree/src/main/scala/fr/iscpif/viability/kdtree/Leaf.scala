@@ -21,7 +21,7 @@ published by
 
 package fr.iscpif.viability.kdtree
 
-
+import fr.iscpif.viability.kdtree.Path._
 
 // TODO: the control is specific to the language Model problem, and the [def] for label too
 trait Leaf extends Node {
@@ -33,18 +33,15 @@ trait Leaf extends Node {
 
   def containingLeaf(point: Point) = if (label && zone.contains(point)) Some(this) else None
 
+
   // This function is specific to the bounded case. The output
   // is an Option[Int] that gives the coordinate corresponding to the direction
-  def touchesBoundary(rootZone: Zone): Option[Int] = {
-    val indexedIntervals = this.zone.region.zipWithIndex
-    val borderIndexedInterval =
-      indexedIntervals.find(interval =>
-        interval._1.min == rootZone.region(interval._2).min || interval._1.max == rootZone.region(interval._2).max)
+  def touchesBoundary: Option[Int] = {
+    val path = this.reversePath
+    val range: Range = this.zone.region.indices
+    val coordinate = range.find(coordinate => extremeDivisions(path, coordinate))
+    coordinate
 
-    borderIndexedInterval match{
-      case None => None
-      case Some(x) => Some(x._2)
-    }
   }
 
   def borderLeaves(direction: Direction, _label: Boolean): List[Leaf] =
@@ -59,6 +56,11 @@ trait Leaf extends Node {
   def leafExtractor: List[Leaf] = List(this)
 
   def volumeKdTree: Double =  if (label) this.zone.volume else 0
+
+  def volumeKdTreeNormalized(referenceZone: Zone): Double = {
+    assert(zone.region.length == referenceZone.region.length)
+    if (label) this.zone.normalizedVolume(referenceZone) else 0
+  }
 
   def leaves: List[Leaf] = List(this)
 

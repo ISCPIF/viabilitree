@@ -49,19 +49,27 @@ trait Zone {
     }
 
   def contains(point: Point): Boolean = (point zip region).forall {
-    case (p, r) => p >= r.min && p <= r.max
+    case (p, r) => r.min <= p && p < r.max
   }
 
   //Draw a random point in a zone
-  def randomPoint(implicit random: Random): Point =
-    region.map(i => i.min + random.nextDouble * ((i.max - i.min)))
+  def randomPoint(rng: Random): Point =
+    region.map(i => i.min + rng.nextDouble() * ((i.max - i.min)))
 
 
   def volume: Double = {
-    def auxFunc(x: Double, interval: Interval) = x * (interval.max - interval.min)
-    (1.0 /: zone.region)(auxFunc)
+    def auxFunc(x: Double, interval: Interval) = x * interval.span
+    zone.region.foldLeft(1.0)(auxFunc)
   }
 
+  def normalizedVolume(referenceZone: Zone): Double = {
+     val referenceSpans: Array[Double] = referenceZone.region.map( x => x.span)
+     val zippedIntervals = zone.region.zip(referenceSpans)
+     val normalizedSpans: Array[Double] = zippedIntervals.map(x => x._1.span / x._2)
+    def product(x: Double, y: Double): Double = x * y
+    normalizedSpans.foldLeft(1.0)(product)
+
+  }
 
   //TODO: Delete? Debug
   override def toString = region.toString()

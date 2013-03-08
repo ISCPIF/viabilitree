@@ -58,6 +58,8 @@ trait Fork extends Node {
 
   def volumeKdTree: Double = lowChild.volumeKdTree + highChild.volumeKdTree
 
+  def volumeKdTreeNormalized(referenceZone: Zone): Double =
+    lowChild.volumeKdTreeNormalized(referenceZone) + highChild.volumeKdTreeNormalized(referenceZone)
 
   def leaves: List[Leaf] =  lowChild.leaves ++ highChild.leaves
 

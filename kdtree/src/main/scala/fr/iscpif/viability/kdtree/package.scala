@@ -42,6 +42,7 @@ package object kdtree {
   case class Interval(min: Double, max: Double) {
     assume(min < max)
     def span: Double = max - min
+    def normalizedSpan(referenceSpan: Double) = span/referenceSpan
   }
 
 
@@ -55,12 +56,12 @@ package object kdtree {
     }
 
   // The node together with the preferred coordinate (if another coordinate is bigger it will have no impact)
-  def nodesToRefine(node: Node, originalRootZone: Zone, depth: Int): List[(Leaf, Int)] = {
+  def nodesToRefine(node: Node, depth: Int): List[(Leaf, Int)] = {
     val leaves =
       (node match {
         case leaf: Leaf => {
           leaf.label match {
-            case true => leaf.touchesBoundary(originalRootZone) match {
+            case true => leaf.touchesBoundary match {
               case Some(coordinate) => List((leaf, coordinate))
               case None => List.empty
             }
@@ -68,20 +69,34 @@ package object kdtree {
           }
         }
         case fork: Fork =>
-          nodesToRefine(fork.lowChild, originalRootZone, depth) ++ nodesToRefine(fork.highChild, originalRootZone, depth) ++
+          nodesToRefine(fork.lowChild, depth) ++ nodesToRefine(fork.highChild, depth) ++
             pairsToSet(pairsBetweenNodes(fork.lowChild, fork.highChild))
       }).filter {
         case (leaf, _) => leaf.refinable(depth)
       }
 
+    //TODO: Consider the lines below
+    var auxLeaves: List[(Leaf, Int)] = Nil
+    leaves.foreach(
+      x => {
+        if (auxLeaves.forall(y => y._1 != x._1)) auxLeaves = x :: auxLeaves
+    }
+    )
+    auxLeaves
+    /*  Source of non-deterministic behaviour
     leaves.groupBy {
       case (l, _) => l
     }.toList.map {
       case (_, l) => l.head
     }
+    */
   }
 
-  def attachToLeaf(leaf: Leaf, preferredCoordinate: Int, iFunction: RichIndicatorFunction)(implicit rng: Random): Node = {
+
+  def attachToLeaf(leaf: Leaf, preferredCoordinate: Int, iFunction: RichIndicatorFunction, rng: Random): Node = {
+    //TODO: Delete. Debug
+    //println("attachToLeaf  " + leaf.volumeKdTree + " " + preferredCoordinate )
+
     //?? TODO: Delete?
     assert(leaf.zone.contains(leaf.testPoint))
 
@@ -95,20 +110,11 @@ package object kdtree {
         case Some(c) => c
       }
 
-
-    def generateChild(parentFork: Fork, _zone: Zone)(implicit rng: Random) = new Leaf {
+    def generateChild(parentFork: Fork, _zone: Zone, _testPoint: Point, _control: Option[Double]) = new Leaf {
       parent = Some(parentFork)
-      val zone = _zone
-      val testPointInZone: Boolean = zone.contains(leaf.testPoint)
-
-      lazy val testPoint =
-        if (testPointInZone) leaf.testPoint
-        else zone.randomPoint(rng)
-
-      val control =
-        if (testPointInZone) leaf.control
-        else iFunction(testPoint)
-
+      val zone =  _zone
+      val testPoint =  _testPoint
+      val control =  _control
     }
 
     val newFork = new Fork {
@@ -127,25 +133,64 @@ package object kdtree {
       }
     }
 
-    newFork.attachLow(generateChild(newFork, newFork.zone.divideLow(coordinate)))
-    newFork.attachHigh(generateChild(newFork, newFork.zone.divideHigh(coordinate)))
+    val lowZone: Zone = newFork.zone.divideLow(coordinate)
+    val highZone: Zone = newFork.zone.divideHigh(coordinate)
+
+    val lowTestPoint: Point =
+      if (lowZone.contains(leaf.testPoint)) leaf.testPoint
+      else lowZone.randomPoint(rng)
+
+    val highTestPoint: Point =
+      if (highZone.contains(leaf.testPoint)) leaf.testPoint
+      else highZone.randomPoint(rng)
+
+    val lowControl: Option[Double] =
+      if (lowZone.contains(leaf.testPoint)) leaf.control
+      else iFunction(lowTestPoint)
+
+    val highControl: Option[Double] =
+      if (highZone.contains(leaf.testPoint)) leaf.control
+      else iFunction(highTestPoint)
+
+    newFork.attachLow(generateChild(newFork, newFork.zone.divideLow(coordinate), lowTestPoint, lowControl))
+    newFork.attachHigh(generateChild(newFork, newFork.zone.divideHigh(coordinate), highTestPoint, highControl))
 
     newFork.rootCalling
   }
 
 
+
+
+
   // TODO: Change name to distinguish bounded and unbounded
   // computation of kdTree approximation. BOUNDED VERSION
-  def kdTreeComputation(initialNode: Node, maxDepth: Int, iFunction: RichIndicatorFunction)(implicit rng: Random): Node = {
-    val rootZone = initialNode.zone
-    var leavesToRefine = nodesToRefine(initialNode, rootZone, maxDepth)
+  def kdTreeComputation(initialNode: Node, maxDepth: Int, iFunction: RichIndicatorFunction, rng: Random): Node = {//(implicit rng: Random): Node = {
+//    val rootZone = initialNode.zone
+    var leavesToRefine = nodesToRefine(initialNode, maxDepth)
     var outputRoot = initialNode
     while (!leavesToRefine.isEmpty) {
-      leavesToRefine.foreach(leafAndCoord => outputRoot = attachToLeaf(leafAndCoord._1, leafAndCoord._2, iFunction))
-      leavesToRefine = nodesToRefine(outputRoot,rootZone, maxDepth)
+      leavesToRefine.foreach(
+        leafAndCoord =>
+          outputRoot = attachToLeaf(leafAndCoord._1, leafAndCoord._2, iFunction, rng)
+      )
+      //TODO: Delete. Debug
+      //println(testPointsInLeaves(outputRoot))
+
+      leavesToRefine = nodesToRefine(outputRoot, maxDepth)
     }
     outputRoot
   }
+
+  //TODO: Delete. Debug
+  def testPointsInLeaves(node: Node): List[List[Double]] = {
+    node match{
+      case leaf: Leaf => List(leaf.testPoint.toList)
+      case fork: Fork => testPointsInLeaves(fork.lowChild) ::: testPointsInLeaves(fork.highChild)
+    }
+  }
+
+
+
 
 
 

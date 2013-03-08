@@ -120,7 +120,7 @@ package object viabilityLanguages {
     (guessPoint, guessControl)
   }
 
-  def initialNodeCreation(richTargetIFunction: RichIndicatorFunction)(implicit rng: Random): Node = {
+  def initialNodeCreation(richTargetIFunction: RichIndicatorFunction, rng: Random): Node = {
     val targetIFunction = conversionToIndicator(richTargetIFunction)
     val root = new Leaf {
 
@@ -150,11 +150,11 @@ package object viabilityLanguages {
   }
 
 
-  def captureTube(s: Int)(implicit rng: Random): Node = {
+  def captureTube(s: Int, rng: Random): Node = {
     def outputFile(s: Int) = dir + "kdTree" + s + "depth" + maxDepth + "step" + timeStep + ".csv"
 
     def initialSlice = {
-      val firstSlice = initialSteps.FirstKdTree.firstKdTree
+      val firstSlice = initialSteps.FirstKdTree.firstKdTree(rng)
       deleteFile(outputFile(1))
       val output: Output = Resource.fromFile(outputFile(1))
       kdTreeToFile(firstSlice, output)
@@ -166,8 +166,8 @@ package object viabilityLanguages {
     (2 to s).foldLeft(initialSlice) {
       (slice, step) =>
         def currentIFunction: RichIndicatorFunction = targetIFunctionCreation(slice, model)
-        val initNode = initialNodeCreation(currentIFunction)
-        val newSlice = kdTreeComputation(initNode, maxDepth, currentIFunction)(rng)
+        val initNode = initialNodeCreation(currentIFunction, rng)
+        val newSlice = kdTreeComputation(initNode, maxDepth, currentIFunction, rng)
         deleteFile(outputFile(step))
         val output: Output = Resource.fromFile(outputFile(step))
         kdTreeToFile(newSlice, output)
@@ -262,7 +262,7 @@ package object viabilityLanguages {
 
   def main(args: Array[String]) {
     println("Hello world")
-    captureTube(40)(randomNG)
+    captureTube(40, randomNG)
     //28, 48, 39
     /*
     val perturbed = Array(22.0 / 99, 54.0 / 99, 39.0 / 99)

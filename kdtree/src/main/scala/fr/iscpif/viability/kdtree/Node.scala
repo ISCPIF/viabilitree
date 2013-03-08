@@ -127,6 +127,8 @@ trait Node {
 
   def volumeKdTree: Double
 
+  def volumeKdTreeNormalized(referenceZone: Zone): Double
+
   def leaves: List[Leaf]
 
   // TODO: Delete??
@@ -147,15 +149,15 @@ trait Node {
   //Only needed for the unbounded version
   //TODO: Use this for refine function
   // It chooses the direction to expand a node (it will be a initialNode)
-  def chooseDirection(preferredDirections: List[Direction])(implicit random: Random): Direction = {
+  def chooseDirection(preferredDirections: List[Direction], rng: Random): Direction = {
     val spanList: List[(Double, Int)] = zone.region.map(i => i.max - i.min).toList.zipWithIndex
     val smallestSpans: List[(Double, Int)] = spanList.filter(k => spanList.forall(i => k._1 <= i._1))
     val smallestCoordinates: List[Int] = smallestSpans.map(x => x._2)
     val selectedDirections = preferredDirections.filter(k => smallestCoordinates.exists(i => i == k.coordinate))
-    if (selectedDirections != Nil) randomElement(selectedDirections)
+    if (selectedDirections != Nil) randomElement(selectedDirections, rng)
     else {
-      val direction = randomElement(smallestCoordinates)
-      val sign = if (Random.nextBoolean()) Positive else Negative
+      val direction = randomElement(smallestCoordinates, rng)
+      val sign = if (rng.nextBoolean()) Positive else Negative
       new Direction(direction, sign)
     }
   }

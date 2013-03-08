@@ -16,15 +16,16 @@ published by
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package fr.iscpif.viability.kdtree
 
-import util.Random
+package fr.iscpif.viability
+
+import kdtree._
+import scalax.io.{Codec, Output}
+import scala.Array
 
 
-object HelperFunctions {
-  def xor(a: Boolean, b: Boolean) = (a || b) && !(a && b)
+object Export {
 
-  def randomElement[T](list: List[T], rng: Random): T = list(rng.nextInt(list.length))
 
 
 }

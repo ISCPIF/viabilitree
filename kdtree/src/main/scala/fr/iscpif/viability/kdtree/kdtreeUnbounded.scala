@@ -288,7 +288,7 @@ package object kdtreeUnbounded {//extends App {
 
   def xor(a: Boolean, b: Boolean )= (a || b) && !(a && b)
 
-  //Draw a random point in a zone
+  //Draw a rng point in a zone
   def randomPoint(zone: Zone)(implicit random: Random): Point =
     zone.region.map(i=>  i.min + random.nextDouble * ((i.max - i.min))).toArray
 
@@ -798,7 +798,7 @@ package object kdtreeUnbounded {//extends App {
 
   //TODO: Use this for refine function
   // It chooses the direction to expand a node (it will be a initialNode)
-  def chooseDirection(node: Node, preferredDirections: List[Direction])(implicit random: Random): Direction = {
+  def chooseDirection(node: Node, preferredDirections: List[Direction])(implicit rng: Random): Direction = {
     val spanList: List[(Double, Int)] = node.zone.region.map(i=> i.max - i.min).toList.zipWithIndex
     val smallestSpans: List[(Double, Int)] = spanList.filter(k=> spanList.forall(i => k._1 <= i._1))
     val smallestCoordinates: List[Int] = smallestSpans.map(x=> x._2)
@@ -806,7 +806,7 @@ package object kdtreeUnbounded {//extends App {
     if (selectedDirections != Nil) randomElement(selectedDirections)
     else{
       val direction = randomElement(smallestCoordinates)
-      val sign = if(Random.nextBoolean()) Positive else Negative
+      val sign = if(rng.nextBoolean()) Positive else Negative
       new Direction(direction, sign)
     }
   }

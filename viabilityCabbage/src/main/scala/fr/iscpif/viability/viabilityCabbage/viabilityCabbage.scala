@@ -22,6 +22,9 @@ package fr.iscpif.viability
 import fr.iscpif.viability.kdtree._
 import fr.iscpif.cabbage.Cabbage4ViabilityReduced._
 import fr.iscpif.viability.viabilityCabbage.CabbageModelWrap._
+import fr.iscpif.viability.viabilityCabbage.Import._
+import fr.iscpif.viability.viabilityCabbage.Export._
+
 
 import math._
 import Function._
@@ -31,6 +34,7 @@ import scalax.io._
 import scalax.file.Path
 import scalax.io.StandardOpenOption._
 import org.apache.commons.math3.random.{RandomAdaptor, Well44497b}
+import collection.immutable.TreeSet
 
 
 package object viabilityCabbage{
@@ -38,8 +42,8 @@ package object viabilityCabbage{
   //TODO: Review! And create the inputs properly (in a class)
   //INITIAL ARGUMENTS
 
-  val dir = "../OutputKdTrees/cabagge"
-  val maxDepth = 8
+  val dir = "../OutputKdTrees/cabbage/"
+  val maxDepth = 13
   //The maximal number of tests to find an initial point
   val numberOfGuessingPoints = 10000
   //The maximal number of controls to test, once a state has been fixed
@@ -63,6 +67,19 @@ package object viabilityCabbage{
 
     val region = Array(mvInterval, cGLSInVInterval, TInterval, ABPInterval, ABInterval, TextureInterval)
   }
+
+  val initializationZone: Zone = new Zone {
+    val mvInterval = new Interval(95, 105)
+    val cGLSInVInterval = new Interval(0.20216, 0.22344)
+    val TInterval = new Interval(80, 120)
+    val ABPInterval = new Interval(0, 5)
+    val ABInterval = new Interval(0.23, 0.27)
+    val TextureInterval = new Interval(2.6, 3.0)
+
+    val region = Array(mvInterval, cGLSInVInterval, TInterval, ABPInterval, ABInterval, TextureInterval)
+  }
+
+
 
 
   //TODO: Should it be defined elsewhere?
@@ -121,7 +138,11 @@ package object viabilityCabbage{
     }
     initialPointFound match {
       case false => throw new Exception("The number of tested points reached "+ numberOfGuessingPoints)
-      case true =>  (guessPoint, guessControl)
+      case true =>  {
+        //TODO: Delete. Debug
+        println("Number of guesses for initial point: " + numberOfGuesses)
+        (guessPoint, guessControl)
+      }
 
     }
   }
@@ -148,66 +169,63 @@ package object viabilityCabbage{
       }
   }
 
-  /*
-  def captureTube(s: Int)(implicit rng: Random): Node = {
-    def outputFile(s: Int) = dir + "kdTree" + s + "depth" + maxDepth + "step" + timeStep + ".csv"
+
+  def captureTube(s: Int, rng: Random): Node = {
+    def outputFile(s: Int) = dir + "depth" + maxDepth + "kdTree" + s  + "step" + timeStep + ".csv"
 
     def initialSlice = {
       val firstSlice = FirstKdTree.firstKdTree(rng)
       deleteFile(outputFile(1))
       val output: Output = Resource.fromFile(outputFile(1))
-      //TODO: Uncomment
-      //kdTreeToFile(firstSlice, output)
+      kdTreeToFile(firstSlice, output, "intervals+control")
       println("First slice created.")
-      println(firstSlice.volumeKdTree)
+      println("Normalized volume: " + firstSlice.volumeKdTreeNormalized(explorationZone))
       firstSlice
     }
 
     (2 to s).foldLeft(initialSlice) {
       (slice, step) =>
         def currentIFunction: RichIndicatorFunction = targetIFunctionCreation(slice, model)
-        val initNode = initialNodeCreation(currentIFunction)
-        val newSlice = kdTreeComputation(initNode, maxDepth, currentIFunction)(rng)
+        val initNode = initialNodeCreation(currentIFunction, rng)
+        val newSlice = kdTreeComputation(initNode, maxDepth, currentIFunction, rng)
         deleteFile(outputFile(step))
         val output: Output = Resource.fromFile(outputFile(step))
-        kdTreeToFile(newSlice, output)
+        kdTreeToFile(newSlice, output, "intervals+control")
         println("One slice created.")
-        println(newSlice.volumeKdTree)
+        println("Normalized volume: " + newSlice.volumeKdTreeNormalized(explorationZone))
         //println(diff(newSlice, slice) + "," + (diff(slice, newSlice)))
         newSlice
     }
   }
-  */
 
 
-  //// OUTPUT FUNCTIONS
 
-  def leafZoneToFile(leaf: Leaf, outputResource: Output) {
-    //val output: Output = Resource.fromFile(outputFile)
-    assert(leaf.zone.region.length == 3)
-    val intervals = leaf.zone.region
-    val origin = Array(intervals(0).min, intervals(1).min, intervals(2).min)
-    val lengthSA = (intervals(0).max - intervals(0).min).toString()
-    val lengthSB = (intervals(1).max - intervals(1).min).toString()
-    val lengthS = (intervals(2).max - intervals(2).min).toString()
-    val line: List[String] =
-      List(origin(0).toString(), origin(1).toString(), origin(2).toString(), lengthSA, lengthSB, lengthS)
-    //val list: List[String] = List(leaf.)
-    outputResource.writeStrings(line, ";")(Codec.UTF8)
-    outputResource.write("\n")
-  }
 
-  def kdTreeToFile(node: Node, outputResource: Output) {
-    node match {
-      case leaf: Leaf => if (leaf.label == true) leafZoneToFile(leaf, outputResource)
-      case fork: Fork => kdTreeToFile(fork.lowChild, outputResource); kdTreeToFile(fork.highChild, outputResource)
+  // TODO: Consider true intersection: if a cube intersects the boundary of the initialization zone we should cut it (not remove it)
+  def strongIntersectionWithInitializationZone(tree: TreeSet[ZoneAndControl], initZone: Zone): TreeSet[ZoneAndControl] = {
+    def oneIntervalNotContained(z: ZoneAndControl): Boolean = {
+      val indexedIntervals = z.zone.region.zipWithIndex
+      indexedIntervals.exists(x => x._1.min  < initZone.region(x._2).min || x._1.max  > initZone.region(x._2).max)
     }
+    tree.filterNot( x => oneIntervalNotContained(x))
+
   }
 
-  def deleteFile(pathName: String) {
-    val path = scalax.file.Path.fromString(pathName)
-    if (path.exists) path.delete(false)
+  // TODO: Consider true intersection: if a cube intersects the boundary of the initialization zone we should cut it (not keep it)
+  def weakIntersectionWithInitializationZone(tree: TreeSet[ZoneAndControl], initZone: Zone): TreeSet[ZoneAndControl] = {
+    def oneIntervalNotIntersects(z: ZoneAndControl): Boolean = {
+      val indexedIntervals = z.zone.region.zipWithIndex
+      indexedIntervals.exists(x => x._1.min  > initZone.region(x._2).max || x._1.max  < initZone.region(x._2).min)
+    }
+    tree.filter(x => oneIntervalNotIntersects(x))
+
   }
+
+
+
+
+
+
 
 
   ////////////TEST SIMPLE FIGURES
@@ -278,11 +296,16 @@ package object viabilityCabbage{
 
   def main(args: Array[String]) {
     println("Hello world")
-    //println(FirstKdTree.firstKdTree(new Random(3), new Random(5)).volumeKdTree)
-    val depth = 2
-    println(
-      kdTreeComputation(root, depth, iFunctionCircle(), new Random(3)).volumeKdTree  + "  depth = " + depth)
-    //captureTube(12)(randomNG)
+    captureTube(6, new Random(3))
+    println("Depth " + maxDepth)
+
+
+    // TESTS
+    //val test = FirstKdTree.firstKdTree(new Random(3)).volumeKdTreeNormalized(explorationZone)
+    //println("Normalized volume: " + test)
+    //val depth = 10
+    //println(kdTreeComputation(root, depth, iFunctionCircle(), new Random(3)).volumeKdTree  + "  depth = " + depth)
+
 
 
 

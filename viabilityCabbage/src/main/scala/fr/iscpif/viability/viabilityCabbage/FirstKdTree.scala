@@ -48,5 +48,5 @@ object FirstKdTree {
 
   val targetIFunction: RichIndicatorFunction = targetToIFunction()
   def initialNode(rng: Random): Node = initialNodeCreation(targetIFunction, rng)
-  def firstKdTree(rng1: Random, rng2: Random): Node = kdTreeComputation(initialNode(rng1), maxDepth, targetIFunction,rng2)
+  def firstKdTree(rng: Random): Node = kdTreeComputation(initialNode(rng), maxDepth, targetIFunction,rng)
 }
