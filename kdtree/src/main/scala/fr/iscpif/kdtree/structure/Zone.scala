@@ -18,7 +18,7 @@ published by
 
 
 
-package fr.iscpif.viability.kdtree
+package fr.iscpif.kdtree.structure
 
 import util.Random
 

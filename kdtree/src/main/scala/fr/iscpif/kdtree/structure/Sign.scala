@@ -16,7 +16,7 @@ published by
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package fr.iscpif.viability.kdtree
+package fr.iscpif.kdtree.structure
 
 
 sealed trait Sign {

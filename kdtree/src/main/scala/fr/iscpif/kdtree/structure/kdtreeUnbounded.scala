@@ -17,7 +17,7 @@ published by
  */
 
 
-package fr.iscpif.viability
+package fr.iscpif.kdtree.structure
 
 import math._
 import Function._

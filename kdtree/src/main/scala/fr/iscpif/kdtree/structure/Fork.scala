@@ -17,34 +17,36 @@ published by
  */
 
 
-package fr.iscpif.viability.kdtree
+package fr.iscpif.kdtree.structure
 
+// TODO: covariant/contravariant problem.
+// If we use Fork[+T] (covariant) then there is a problem: T is contravariant if it occurs as a parameter of a function
+trait Fork[T] extends Node[T] { fork =>
 
-trait Fork extends Node {
    val divisionCoordinate: Int
 
-    protected var _lowChild: Node = null
-    protected var _highChild: Node = null
+    protected var _lowChild: Node[T] = null
+    protected var _highChild: Node[T] = null
 
     def childrenDefined: Boolean = _lowChild != null && _highChild != null
 
-    def descendantType(child: Node): Descendant.Descendant = {
+    def descendantType(child: Node[T]): Descendant.Descendant = {
       if (_lowChild == child) Descendant.Low
       else if (highChild == child) Descendant.High
       else Descendant.NotDescendant
     }
 
-    def attachLow(child: Node) {
+    def attachLow(child: Node[T]) {
       _lowChild = child
       child.parent = Some(this)
     }
 
-    def attachHigh(child: Node) {
+    def attachHigh(child: Node[T]) {
       _highChild = child
       child.parent = Some(this)
     }
 
-    def containingLeaf(point: Point): Option[Leaf] =
+    def containingLeaf(point: Point): Option[Leaf[T]] =
       if (!zone.contains(point)) None
       else lowChild.containingLeaf(point) orElse highChild.containingLeaf(point)
 
@@ -53,24 +55,39 @@ trait Fork extends Node {
     def highChild = if (childrenDefined) _highChild else throw new RuntimeException("Children are not defined. (2)")
 
 
-  def leafExtractor: List[Leaf] = lowChild.leafExtractor ::: highChild.leafExtractor
 
 
-  def volumeKdTree: Double = lowChild.volumeKdTree + highChild.volumeKdTree
-
-  def volumeKdTreeNormalized(referenceZone: Zone): Double =
-    lowChild.volumeKdTreeNormalized(referenceZone) + highChild.volumeKdTreeNormalized(referenceZone)
-
-  def leaves: List[Leaf] =  lowChild.leaves ++ highChild.leaves
 
 
-  def borderLeaves(direction: Direction, label: Boolean): List[Leaf] =
+
+
+
+  def leaves: Iterable[Leaf[T]] =  lowChild.leaves ++ highChild.leaves
+
+
+  def borderLeaves(direction: Direction): Iterable[Leaf[T]] =
     divisionCoordinate match {
       case direction.coordinate =>
-        if (direction.sign == Positive) highChild.borderLeaves(direction, label)
-        else lowChild.borderLeaves(direction, label)
-      case _ => lowChild.borderLeaves(direction, label) ::: highChild.borderLeaves(direction, label)
+        if (direction.sign == Positive) highChild.borderLeaves(direction)
+        else lowChild.borderLeaves(direction)
+      case _ => lowChild.borderLeaves(direction).toList ::: highChild.borderLeaves(direction).toList
     }
+
+
+
+  ///////// REFINING METHODS
+
+  def insert(extendedPath: Path, content: T): Node[T] = {
+    assert(extendedPath.length == 1 + path.length && extendedPath(0).coordinate == divisionCoordinate)
+
+     extendedPath(0).descendant match {
+       case Descendant.Low => lowChild.insert(extendedPath.drop(1), content)
+       case Descendant.High => highChild.insert(extendedPath.drop(1), content)
+       case _ => throw new RuntimeException("The path should only contain \'Low\' or \'High\'. ")
+     }
+  }
+
+
 
 
 

@@ -17,7 +17,7 @@ published by
  */
 
 
-package fr.iscpif.viability
+package fr.iscpif.kdtree.structure
 
 
 //The kdTree is just refined (and not expanded)

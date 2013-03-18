@@ -1,4 +1,4 @@
-package fr.iscpif.viability.kdtree
+package fr.iscpif.kdtree.structure
 
 
 // Let us say (LeftNode, RightNode) are adjacent on coordinate k. Let lmin, lmax, rmin, rmax be the extremes of the

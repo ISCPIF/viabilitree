@@ -16,36 +16,26 @@ published by
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package fr.iscpif.viability
+
+
+package fr.iscpif.kdtree.structure
 
 
 
-import fr.iscpif.viability.kdtree._
 
-
-import math._
-import Function._
-import scala.util.Random
-
-
-package object viabilityGeneric {
-
-  //I'd like to use dependent types: "State" would be the type "Seq[Double] of length stateDimension", etc.
-  //type State = Array[Double]
-  //type Control = Array[Double]
-  //type StateControl = (State, Control)
-  //type Model = StateControl => State
-  //type IndicatorFunction = State => Boolean
+object Descendant {
+  sealed trait Descendant
+  case object Low extends Descendant
+  case object High extends Descendant
+  case object NotDescendant extends Descendant
 
 
 
-  def deleteFile(pathName: String) {
-    val path = scalax.file.Path.fromString(pathName)
-    if (path.exists) path.delete(false)
-  }
 
 
 
 }
 
+trait Descendant {
 
+}

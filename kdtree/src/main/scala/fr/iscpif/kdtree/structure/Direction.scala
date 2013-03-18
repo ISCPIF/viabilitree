@@ -17,15 +17,9 @@ published by
  */
 
 
-package fr.iscpif.viability
-
-import kdtree._
-import scalax.io.{Codec, Output}
-import scala.Array
+package fr.iscpif.kdtree.structure
 
 
-object Export {
-
-
-
+case class Direction(val coordinate: Int, val sign: Sign) {
+  def opposite = new Direction(coordinate, sign.opposite)
 }
