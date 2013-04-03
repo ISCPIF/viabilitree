@@ -20,7 +20,14 @@ published by
 
 package fr.iscpif.kdtree.structure
 
-import util.Random
+import java.util.Random
+
+object Zone {
+  def apply(intervals: Interval*) =
+    new Zone {
+      val region = intervals.toArray
+    }
+}
 
 
 trait Zone {

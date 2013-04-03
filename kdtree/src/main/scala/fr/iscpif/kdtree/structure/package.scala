@@ -17,28 +17,20 @@ published by
  */
 
 
-
-
 package fr.iscpif.kdtree
 
-import fr.iscpif.kdtree.structure.Node._
-import fr.iscpif.kdtree.structure.Node
-import fr.iscpif.kdtree.structure.Fork
-import fr.iscpif.kdtree.structure.Leaf
-
-import content.Label
-import util.Random
-
-
-
+import language.implicitConversions
 
 package object structure {
   type Point = Seq[Double]
-  type IndicatorFunction = Point => Boolean
-
-
   type Path = Seq[PathElement]
   case class PathElement(coordinate: Int, descendant: Descendant.Descendant)
+
+  implicit def tupleToInterval(t: (Double, Double)) = {
+    val (min, max) = t
+    Interval(min, max)
+  }
+
   case class Interval(min: Double, max: Double) {
     assume(min < max)
     def span: Double = max - min

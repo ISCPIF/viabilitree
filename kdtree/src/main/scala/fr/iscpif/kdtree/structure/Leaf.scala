@@ -21,6 +21,15 @@ package fr.iscpif.kdtree.structure
 
 import fr.iscpif.kdtree.structure.Path._
 
+object Leaf {
+
+  def apply[T](_content: T, intervals: Interval*) =
+   new Leaf[T] {
+     val zone = Zone(intervals: _*)
+     val content = _content
+   }
+
+}
 
 
 // TODO: covariant/contravariant problem.

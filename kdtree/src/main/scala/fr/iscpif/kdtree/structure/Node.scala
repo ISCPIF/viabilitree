@@ -28,19 +28,6 @@ import com.rits.cloning.Cloner
 import util.Random
 
 
-object Node {
-
-  //TODO: Add testPoint in content!!
-  //def diff(n1: Node, n2: Node) =
-  //  n1.leaves.count(l => !n2.contains(l.testPoint))
-
-
-
-
-}
-
-
-
 trait Node[T] { node =>
 
   var parent: Option[Fork[T]] = None

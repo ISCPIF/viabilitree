@@ -3,16 +3,12 @@ package fr.iscpif.kdtree
 import fr.iscpif.kdtree.structure._
 import HelperFunctions._
 import Path._
-import scala.Some
-import scala.Some
-import scala.Some
-import fr.iscpif.kdtree.structure.Direction
-import util.Random
+import java.util.Random
 
 
 package object content {
 
-  type Evaluator[S, T] = (Zone, S) => T
+  type Evaluator[T] = (Iterable[Zone], Random) => Iterable[T]
 
   implicit class LabelNodeDecorator[T <: Label](val n: Node[T]) {
     import n._
@@ -127,8 +123,7 @@ package object content {
   }
 
 
-  implicit class LabelTestPointNodeDecorator[T <: Label with TestPoint](val n: Node[T]) {
-    import n._
+  implicit class LabelTestPointNodeDecorator[T <: Label with TestPoint](n: Node[T]) {
 
     def zonesAndPathsToTest(leavesAndPrefCoord: Iterable[(Leaf[T], Int)]): List[(Zone, Path)] = {
       def auxFunction(leaf: Leaf[T], prefCoord: Int): (Zone, Path) = {
@@ -143,7 +138,7 @@ package object content {
           }
         val point = leaf.content.testPoint
         val lowZone = leaf.zone.divideLow(coordinate)
-        val highZone = leaf.zone.divideLow(coordinate)
+        val highZone = leaf.zone.divideHigh(coordinate)
         assert(xor(lowZone.contains(point), highZone.contains(point)))
         val zone = if (lowZone.contains(point)) lowZone  else highZone
 
@@ -158,29 +153,31 @@ package object content {
 
     }
 
+    // TODO: Change name to distinguish bounded and unbounded
+    // computation of kdTree approximation. BOUNDED VERSION
+    def compute(
+      maxDepth: Int,
+      evaluator: Evaluator[T])(implicit rng: Random): Node[T] = {
 
+      def refineStep(zonesAndPaths: Iterable[(Zone, Path)], node: Node[T]) = {
+        val zones =  zonesAndPaths.unzip._1
+        val paths = zonesAndPaths.unzip._2
+        val evaluated = paths zip evaluator(zones, rng)
+        evaluated.foldLeft(node){ case(n, (path, t)) => n.insert(path, t) }
+      }
 
-  }
+      def refine(node: Node[T]): Node[T] = {
+        val leavesToRefine = node.nodesToRefine(node, maxDepth)
+        if(leavesToRefine.isEmpty) node
+        else refine(refineStep(node.zonesAndPathsToTest(leavesToRefine), node))
+      }
 
-
-  // TODO: Change name to distinguish bounded and unbounded
-  // computation of kdTree approximation. BOUNDED VERSION
-  /*
-  def kdTreeComputation[S, T <: Label with TestPoint](initialNode: Node[T], maxDepth: Int, externalEvaluator: Evaluator, s: Int => S)(implicit rng: Random): Node[T] = {
-
-    var leavesToRefine = initialNode.nodesToRefine(initialNode, maxDepth)
-    var outputRoot = initialNode
-    while (!leavesToRefine.isEmpty) {
-      val zonesAndPaths = initialNode.zonesAndPathsToTest(leavesToRefine)
-      zonesAndPaths.zip(Iterator.continually(rng.nextLong)).
-
-      val newPathsAndContents: List[(Path, T)] = externalEvaluator(zonesAndPaths)
-      newPathsAndContents.foreach(x => outputRoot = insert(x._1, x._2))
-      leavesToRefine = outputRoot.nodesToRefine(outputRoot, maxDepth)
+      refine(n)
     }
-    outputRoot
+
   }
-  */
+
+
 
 
 
