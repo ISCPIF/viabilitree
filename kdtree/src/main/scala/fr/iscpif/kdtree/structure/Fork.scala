@@ -30,7 +30,7 @@ trait Fork[T] extends Node[T] { fork =>
 
     def childrenDefined: Boolean = _lowChild != null && _highChild != null
 
-    def descendantType(child: Node[T]): Descendant.Descendant = {
+    def descendantType(child: Node[_]): Descendant.Descendant = {
       if (_lowChild == child) Descendant.Low
       else if (highChild == child) Descendant.High
       else Descendant.NotDescendant

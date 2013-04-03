@@ -7,13 +7,13 @@ object ViabilityRootBuild extends Build {
 
  lazy val kdtree = Project(id = "kdtree", base = file("kdtree"))
  
- lazy val viability = Project(id = "viability", base = file("viability"))
+ lazy val viability = Project(id = "viability", base = file("viability")) dependsOn(kdtree)
 
  lazy val languages = Project(id = "languages", base = file("languages"))
 
- //lazy val viabilityLanguages = Project(id = "viabilityLanguages", base = file("viabilityLanguages")) aggregate(languages, kdtree) dependsOn(languages, kdtree)
+ lazy val viabilityLanguages = Project(id = "viabilityLanguages", base = file("viabilityLanguages")) dependsOn(languages, viability, kdtree)
 
- //lazy val viabilityCabbage = Project(id = "viabilityCabbage", base = file("viabilityCabbage")) dependsOn(kdtree)
+ lazy val viabilityCabbage = Project(id = "viabilityCabbage", base = file("viabilityCabbage")) dependsOn(viability, kdtree)
 
 }
 

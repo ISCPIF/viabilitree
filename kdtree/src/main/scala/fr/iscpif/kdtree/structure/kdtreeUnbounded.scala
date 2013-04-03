@@ -28,7 +28,7 @@ import scala.util.logging
 import annotation.tailrec
 
 
-//TODO: the unbounded version (the kdTree is refined and expanded) has only been tested with some simple tests.
+//TODO: This is an old version!!
 package object kdtreeUnbounded {//extends App {
   type Point = Array[Double]
   type IndicatorFunction = Point => Boolean
@@ -247,7 +247,7 @@ package object kdtreeUnbounded {//extends App {
     //val outputRoot = output._1
     /*
     val test = outputRoot2.highChild match {
-      case leaf: Leaf => (leaf.label, leaf.testPoint)
+      case leaf: Leaf => (leaf.content, leaf.testPoint)
       case _ => throw new RuntimeException("Error")
     }
     */
@@ -963,7 +963,7 @@ package object kdtreeUnbounded {//extends App {
 //    val czone = node.zone
 //    val ctree = node.tree match{
 //      case Left(leaf) =>
-//        if (leaf.label) Inside else Outside
+//        if (leaf.content) Inside else Outside
 //      case Right(inode) =>
 //        val t1 = clean(inode.child1)
 //        val t2 = clean(inode.child2)
@@ -988,16 +988,16 @@ package object kdtreeUnbounded {//extends App {
 //    cnode.ctree match {
 //      case Outside => false
 //      case Inside => true
-//      case x: CInnerNode => //label(x.cchild1,point) || label(x.cchild2,point)
+//      case x: CInnerNode => //content(x.cchild1,point) || content(x.cchild2,point)
 //        if (contains(x.cchild1.czone,point))
-//          label(x.cchild1,point)
+//          content(x.cchild1,point)
 //        else assume(contains(x.cchild2.czone,point))
-//        label(x.cchild1,point)
+//        content(x.cchild1,point)
 //    }
 //  }
 //
 //  //characteristic function to be called on the initialNode
-//  def label(cnode: CNode, point:Point) ={
+//  def content(cnode: CNode, point:Point) ={
 //    if (!contains(cnode.czone,point)) false
 //    else labelAux(cnode,point)
 //  }
@@ -1011,7 +1011,7 @@ package object kdtreeUnbounded {//extends App {
       /* TODO: Delete. No longer necessary, since we expand the initialNode
 //   Besides critical pairs, we must also refine the nodes
 //   - that are on the border of the initialNode zone
-//   - and have a Inside label.
+//   - and have a Inside content.
 //   Those nodes are determined thanks to [borders_of_node].
 //   */
 //  def refineBorders(maxDepth:Int, iFunction:Model, node:Node)= {
@@ -1067,22 +1067,22 @@ package object kdtreeUnbounded {//extends App {
 
 //  /*
   /*It searches the closest point to [point] that is in a [Inside] zone
-//  if [label] is [true], or in a [Outside] zone if [label] is [false]. That is,
-//  it computes, for all [Inside]/[Outside] zones (depending on [label]), the
+//  if [content] is [true], or in a [Outside] zone if [content] is [false]. That is,
+//  it computes, for all [Inside]/[Outside] zones (depending on [content]), the
 //  max distance between [point] and a point in this zone, and returns the min
 //  of those.
-//  If [label] is [true] (respect. [false]) it is assumed that [point] is not
+//  If [content] is [true] (respect. [false]) it is assumed that [point] is not
 //  contained in a [Inside] zone (respect. [Outside])
 //   */
 //   def distanceToBoundary
 
 //   (** [distance_to_boundary ctree true point] searches for the closest point to [point]
-//   that is in a red zone (resp. in a blue zone if [label] is [false]).
+//   that is in a red zone (resp. in a blue zone if [content] is [false]).
 //   In other words, this is equivalent to computing, for all red zones,
 //   the max distance between [point] and a point of this zone, and returning the minimum.
 //   *)
-//   let distance_to_boundary ctree label point =
-//   (* invariant: there is a point in the tree, of color [label], at distance at most [higher_bound] *)
+//   let distance_to_boundary ctree content point =
+//   (* invariant: there is a point in the tree, of color [content], at distance at most [higher_bound] *)
 //   let higher_bound = ref infinity in
 //   let update_bound high =
 //   (* given that there is a point at distance at most [high]... *)
@@ -1091,8 +1091,8 @@ package object kdtreeUnbounded {//extends App {
 //   let fifo = Queue.create () in
 //   Queue.add ctree fifo;
 //   let handle node = match node.ctree with
-//   | Blue -> if    label then () else update_bound (fst (distance_to_zone node.czone point))
-//   | Red -> if not label then () else update_bound (fst (distance_to_zone node.czone point))
+//   | Blue -> if    content then () else update_bound (fst (distance_to_zone node.czone point))
+//   | Red -> if not content then () else update_bound (fst (distance_to_zone node.czone point))
 //   | CInner_node n ->
 //   (* n is divided, so it contains one blue and one red node: *)
 //   update_bound (snd (distance_to_zone node.czone point));

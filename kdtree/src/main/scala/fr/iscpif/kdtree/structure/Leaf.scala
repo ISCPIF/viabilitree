@@ -33,7 +33,7 @@ trait Leaf[T] extends Node[T] { leaf =>
   //val testPoint: Point
   //val control: Option[Double]
 
-  //def label: Boolean = if (control == None) false else true
+  //def content: Boolean = if (control == None) false else true
 
   def containingLeaf(point: Point): Option[Leaf[T]] = if (zone.contains(point)) Some(this) else None
 

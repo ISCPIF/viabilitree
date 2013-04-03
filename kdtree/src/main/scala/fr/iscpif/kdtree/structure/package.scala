@@ -26,7 +26,7 @@ import fr.iscpif.kdtree.structure.Node
 import fr.iscpif.kdtree.structure.Fork
 import fr.iscpif.kdtree.structure.Leaf
 
-import label.Label
+import content.Label
 import util.Random
 
 

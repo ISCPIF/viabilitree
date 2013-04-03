@@ -1,4 +1,4 @@
-package fr.iscpif.kdtree.label
+package fr.iscpif.kdtree.content
 
 
 trait Label {
