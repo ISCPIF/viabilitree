@@ -78,7 +78,7 @@ trait Fork[T] extends Node[T] { fork =>
   ///////// REFINING METHODS
 
   def insert(extendedPath: Path, content: T): Node[T] = {
-    assert(extendedPath.length == 1 + path.length && extendedPath(0).coordinate == divisionCoordinate)
+    assert(extendedPath(0).coordinate == divisionCoordinate)
 
      extendedPath(0).descendant match {
        case Descendant.Low => lowChild.insert(extendedPath.drop(1), content)

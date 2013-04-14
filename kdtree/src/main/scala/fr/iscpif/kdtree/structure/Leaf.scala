@@ -20,6 +20,8 @@ published by
 package fr.iscpif.kdtree.structure
 
 import fr.iscpif.kdtree.structure.Path._
+import fr.iscpif.kdtree.content.Label
+import fr.iscpif.kdtree.content.TestPoint
 
 object Leaf {
 
@@ -74,11 +76,11 @@ trait Leaf[T] extends Node[T] { leaf =>
 
   ///////// REFINING METHODS
 
-
   def insert(extendedPath: Path, content: T): Node[T] = {
     assert(extendedPath.length == 1)
 
     val coordinate = extendedPath.last.coordinate
+    val descendant = extendedPath.last.descendant
 
     val newFork = new Fork[T] {
       val divisionCoordinate = extendedPath.last.coordinate
@@ -101,17 +103,25 @@ trait Leaf[T] extends Node[T] { leaf =>
 
     def generateChild(parentFork: Fork[T], _zone: Zone, _content: T) = new Leaf[T] {
       parent = Some(parentFork)
-      val zone =  _zone
+      val zone = _zone
       val content = _content
 
     }
 
-    newFork.attachLow(generateChild(newFork, lowZone, content))
-    newFork.attachHigh(generateChild(newFork, highZone, content))
 
-    newFork.rootCalling
+    if (descendant == Descendant.Low) {
+      newFork.attachLow(generateChild(newFork, lowZone, content))
+      newFork.attachHigh(generateChild(newFork, highZone, leaf.content))
+      newFork.rootCalling
+    }
 
+    else if (descendant == Descendant.High) {
+      newFork.attachLow(generateChild(newFork, lowZone, leaf.content))
+      newFork.attachHigh(generateChild(newFork, highZone, content))
+      newFork.rootCalling
+    }
 
+    else throw new RuntimeException("Descendant should be low or high.")
 
   }
 
@@ -122,6 +132,10 @@ trait Leaf[T] extends Node[T] { leaf =>
 
   ///////DEBUG HELPERS
   def consistency = true
+
+
+
+
 
 
 

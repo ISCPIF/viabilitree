@@ -40,8 +40,10 @@ object Circle extends App {
 
   implicit val rng = new Random(42)
 
-  val res = originalNode.compute(10, evaluator)
+  val res: Node[Content] = originalNode.compute(15, evaluator)
 
   println(res.volume)
+
+
 
 }

@@ -82,9 +82,9 @@ package object content {
 
 
     // The node together with the preferred coordinate (if another coordinate is bigger it will have no impact)
-    def nodesToRefine(node: Node[T], depth: Int): Iterable[(Leaf[T], Int)] = {
+    def nodesToRefine(depth: Int): Iterable[(Leaf[T], Int)] = {
       val leaves =
-        (node match {
+        (n match {
           case leaf: Leaf[T] => {
             leaf.content.label match {
               case true => leaf.touchesBoundary match {
@@ -95,7 +95,7 @@ package object content {
             }
           }
           case fork: Fork[T] =>
-            nodesToRefine(fork.lowChild, depth) ++ nodesToRefine(fork.highChild, depth) ++
+            fork.lowChild.nodesToRefine(depth) ++ fork.highChild.nodesToRefine(depth) ++
               pairsToSet(pairsBetweenNodes(fork.lowChild, fork.highChild))
         }).filter {
           case (leaf, _) => leaf.refinable(depth)
@@ -127,6 +127,8 @@ package object content {
 
     def zonesAndPathsToTest(leavesAndPrefCoord: Iterable[(Leaf[T], Int)]): List[(Zone, Path)] = {
       def auxFunction(leaf: Leaf[T], prefCoord: Int): (Zone, Path) = {
+        assert(leaf.contains(leaf.content.testPoint))
+
         //compute the coordinate to split and the span of the zone in this coordinate
         val divisionsOnPreferredCoordinate: Int = leaf.numberOfDivisionsInCoordinate(prefCoord)
         val range: Range = leaf.zone.region.indices
@@ -140,11 +142,13 @@ package object content {
         val lowZone = leaf.zone.divideLow(coordinate)
         val highZone = leaf.zone.divideHigh(coordinate)
         assert(xor(lowZone.contains(point), highZone.contains(point)))
-        val zone = if (lowZone.contains(point)) lowZone  else highZone
+
+        //The new zone to test will be the one that does not contain the point of the current leaf
+        val zone = if (lowZone.contains(point)) highZone  else lowZone
 
         val extendedPath: Path =
-          if (lowZone.contains(point)) (PathElement(coordinate, Descendant.Low) :: leaf.reversePath.toList).reverse
-          else (PathElement(coordinate, Descendant.High) :: leaf.reversePath.toList).reverse
+          if (lowZone.contains(point)) (PathElement(coordinate, Descendant.High) :: leaf.reversePath.toList).reverse
+          else (PathElement(coordinate, Descendant.Low) :: leaf.reversePath.toList).reverse
 
         (zone, extendedPath)
       }
@@ -160,15 +164,15 @@ package object content {
       evaluator: Evaluator[T])(implicit rng: Random): Node[T] = {
 
       def refineStep(zonesAndPaths: Iterable[(Zone, Path)], node: Node[T]) = {
-        val zones =  zonesAndPaths.unzip._1
+        val zones = zonesAndPaths.unzip._1
         val paths = zonesAndPaths.unzip._2
         val evaluated = paths zip evaluator(zones, rng)
         evaluated.foldLeft(node){ case(n, (path, t)) => n.insert(path, t) }
       }
 
       def refine(node: Node[T]): Node[T] = {
-        val leavesToRefine = node.nodesToRefine(node, maxDepth)
-        if(leavesToRefine.isEmpty) node
+        val leavesToRefine = node.nodesToRefine(maxDepth)
+        if(leavesToRefine.isEmpty) {println("no leaves to refine: " + leavesToRefine.isEmpty) ; node }
         else refine(refineStep(node.zonesAndPathsToTest(leavesToRefine), node))
       }
 
