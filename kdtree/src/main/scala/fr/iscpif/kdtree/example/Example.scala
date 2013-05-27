@@ -20,6 +20,7 @@ package fr.iscpif.kdtree.example
 import fr.iscpif.kdtree.structure._
 import fr.iscpif.kdtree.content._
 import scala.util.Random
+import org.apache.commons.math3.random._
 
 trait Example {
 
@@ -32,12 +33,14 @@ trait Example {
 
     (ps zip seeds).par.map {
       case (z, seed) =>
-        val point = sampler(z, new Random(seed))
+        val point = sampler(z, random(seed))
         Content(point, oracle(point))
     }.seq
   }
 
   def oracle(p: Point): Boolean
+
+  def random(seed: Long) = new Random(new RandomAdaptor(new Well44497b(seed)))
 
   def zone: Seq[Interval]
   def point: Point
