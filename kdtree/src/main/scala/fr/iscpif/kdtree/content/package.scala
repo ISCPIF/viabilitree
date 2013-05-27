@@ -135,7 +135,7 @@ package object content {
         val lowZone = leaf.zone.divideLow(coordinate)
         val highZone = leaf.zone.divideHigh(coordinate)
 
-        if (!xor(lowZone.contains(point), highZone.contains(point))) error(s"Neither zone ${lowZone} and ${highZone} contain ${point}")
+        if (!xor(lowZone.contains(point), highZone.contains(point))) sys.error(s"Neither zone ${lowZone} and ${highZone} contain ${point}")
 
         //The new zone to test will be the one that does not contain the point of the current leaf
         val zone = if (lowZone.contains(point)) highZone else lowZone
