@@ -35,8 +35,11 @@ object Circle extends App with Example {
 
   def point = Seq(0.0, 0.0, 0.0)
 
-  def depth = 18
+  def depth = 15
+
+  val res = run
 
   println(res.volume)
+  println(res.dilate.volume)
 
 }

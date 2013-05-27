@@ -24,9 +24,8 @@ import org.apache.commons.math3.random._
 
 trait Example {
 
-  sealed case class Content(testPoint: Point, label: Boolean) extends Label with TestPoint {
-    def relabel(l: Boolean) = copy(label = l)
-  }
+  case class Content(testPoint: Point, label: Boolean) extends Label with TestPoint
+  implicit def relabel(c: Content, label: Boolean) = c.copy(label = label)
 
   def sampler(z: Zone, rng: Random) = z.randomPoint(rng)
 
@@ -49,12 +48,16 @@ trait Example {
 
   def depth: Int
 
-  def originalNode =
-    Leaf(
-      Content(point, label = true),
-      zone: _*
-    )
-
-  def res(implicit rng: Random): Node[Content] = originalNode.compute(depth, evaluator)
+  def run(implicit rng: Random): Tree[Content] = {
+    val originalTree =
+      Tree(
+        Leaf(
+          Content(point, label = true),
+          zone: _*
+        ),
+        depth
+      )
+    originalTree.compute(evaluator)
+  }
 
 }

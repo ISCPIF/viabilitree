@@ -118,12 +118,14 @@ package object content {
 
   implicit class LabelTreeDecorator[T <: Label](val t: Tree[T]) {
 
-    def dilate: Tree[T] = {
+    def volume = t.root.volume
+
+    def dilate(implicit relabel: (T, Boolean) => T): Tree[T] = {
       val leaves = t.leavesToReasign()
       leaves.foldLeft(t.root) {
-        (currentTree, leaf) =>
-          assert(currentTree == t)
-          currentTree.replace(leaf.path, leaf.content.relabel(true))
+        (currentRoot, leaf) =>
+          assert(currentRoot == t.root)
+          currentRoot.replace(leaf.path, relabel(leaf.content, true))
       }
       t
     }
@@ -217,11 +219,12 @@ package object content {
 
     }
 
+  }
+
+  implicit class LabelTestPointTreeDecorator[T <: Label with TestPoint](t: Tree[T]) {
     // TODO: Change name to distinguish bounded and unbounded
     // computation of kdTree approximation. BOUNDED VERSION
-    def compute(
-      maxDepth: Int,
-      evaluator: Evaluator[T])(implicit rng: Random): Node[T] = {
+    def compute(evaluator: Evaluator[T])(implicit rng: Random): Tree[T] = {
 
       def refineStep(zonesAndPaths: Iterable[(Zone, Path)], node: Node[T]) = {
         val zones = zonesAndPaths.unzip._1
@@ -231,14 +234,13 @@ package object content {
       }
 
       def refine(node: Node[T]): Node[T] = {
-        val leavesToRefine = node.leavesToRefine(maxDepth)
+        val leavesToRefine = node.leavesToRefine(t.depth)
         if (leavesToRefine.isEmpty) node
         else refine(refineStep(node.zonesAndPathsToTest(leavesToRefine), node))
       }
 
-      refine(n)
+      Tree(refine(t.root), t.depth)
     }
-
   }
 
 }
