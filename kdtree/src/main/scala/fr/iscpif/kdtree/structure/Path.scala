@@ -18,7 +18,6 @@ published by
 
 package fr.iscpif.kdtree.structure
 
-
 object Path {
 
   /////// FUNCTIONS TO COMPUTE ADJACENCY
@@ -59,7 +58,6 @@ object Path {
     }
   }
 
-
   def nodeIsCentral(x: Path): Boolean = x.drop(1).forall(_ != x(0))
 
   def pruneFirstDivision(x: Path): Path = {
@@ -69,13 +67,13 @@ object Path {
   def descendantsByCoordinateSorted(x: Path): Seq[(Int, Seq[Descendant.Descendant])] =
     x.groupBy(_.coordinate).toSeq.
       sortBy {
-      case (k, _) => k
-    }.
+        case (k, _) => k
+      }.
       map {
-      case (k, v) => (k, v.map {
-        _.descendant
-      })
-    }
+        case (k, v) => (k, v.map {
+          _.descendant
+        })
+      }
 
   def extractCommonPath(x: Path, y: Path): (Path, Path, Path) = {
     def extractCommonPath0(x: Path, y: Path, commonPath: List[PathElement]): (Path, Path, Path) =
@@ -95,7 +93,7 @@ object Path {
   }
 
   def compareDescendants(a: Seq[Descendant.Descendant],
-                         b: Seq[Descendant.Descendant]): Boolean = {
+    b: Seq[Descendant.Descendant]): Boolean = {
     (a.toList, b.toList) match {
       case (Nil, _) => true
       case (_, Nil) => true
@@ -106,7 +104,7 @@ object Path {
   }
 
   def adjacencyFromSorted(x: Seq[(Int, Seq[Descendant.Descendant])],
-                          y: Seq[(Int, Seq[Descendant.Descendant])]): Boolean = {
+    y: Seq[(Int, Seq[Descendant.Descendant])]): Boolean = {
     (x.toList, y.toList) match {
       case (Nil, _) => true
       case (_, Nil) => true
@@ -120,24 +118,23 @@ object Path {
     }
   }
 
- ////////////
+  ////////////
 
+  // Check if divisions are always Low or always High
+  def extremeDivisions(path: Path, coordinate: Int): Boolean = {
+    val filteredPath = path.filter(x => x.coordinate == coordinate)
+    val sideDivisions: List[Descendant.Descendant] = filteredPath.map(x => x.descendant).toList
 
- // Check if divisions are always Low or always High
- def extremeDivisions(path: Path, coordinate: Int): Boolean = {
-   val filteredPath = path.filter(x => x.coordinate == coordinate)
-   val sideDivisions: List[Descendant.Descendant] = filteredPath.map(x => x.descendant).toList
-
-   def aux(s: List[Descendant.Descendant]): Boolean = {
-     s match {
-       case Nil => true
-       case hs :: ts =>  {
-         if(ts != Nil) {(hs == ts(0)) && (aux(ts)) }
-         else true
-       }
-     }
-   }
-   aux(sideDivisions)
- }
+    def aux(s: List[Descendant.Descendant]): Boolean = {
+      s match {
+        case Nil => true
+        case hs :: ts => {
+          if (ts != Nil) { (hs == ts(0)) && (aux(ts)) }
+          else true
+        }
+      }
+    }
+    aux(sideDivisions)
+  }
 
 }

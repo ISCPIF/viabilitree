@@ -16,17 +16,14 @@ published by
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 package fr.iscpif.kdtree.structure
 
 import fr.iscpif.kdtree.structure.HelperFunctions._
 import fr.iscpif.kdtree.structure.Path._
 import fr.iscpif.kdtree.structure._
 
-
 import com.rits.cloning.Cloner
 import util.Random
-
 
 trait Node[T] { node =>
 
@@ -71,8 +68,8 @@ trait Node[T] { node =>
   def borderLeaves(direction: Direction): Iterable[Leaf[T]]
 
   def numberOfDivisionsInCoordinate(coordinate: Int): Int = {
-    val divisionCoordinates: Seq[Int] = reversePath.map( x => x.coordinate)
-    divisionCoordinates.filter( x => x == coordinate).size
+    val divisionCoordinates: Seq[Int] = reversePath.map(x => x.coordinate)
+    divisionCoordinates.filter(x => x == coordinate).size
   }
 
   //Only needed for the unbounded version
@@ -91,12 +88,9 @@ trait Node[T] { node =>
     }
   }
 
-
   ///////// REFINING METHODS
 
   def insert(extendedPath: Path, content: T): Node[T]
-
-
 
   ////////// DEBUG HELPERS
   def isChildOfParent: Boolean = {
@@ -107,7 +101,6 @@ trait Node[T] { node =>
   }
 
   def consistency: Boolean
-
 
   def pathSoundness(node: Node[T]): Boolean =
     node match {
@@ -124,7 +117,5 @@ trait Node[T] { node =>
   }
 
   /////////////
-
-
 
 }

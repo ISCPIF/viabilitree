@@ -1,6 +1,5 @@
 package fr.iscpif.kdtree.structure
 
-
 // Let us say (LeftNode, RightNode) are adjacent on coordinate k. Let lmin, lmax, rmin, rmax be the extremes of the
 // intervals corresponding to coordinate k. Then either lmax = rmin [LeftIsLow], or lmin = rmax [LeftIsHigh]
 sealed trait Adjacency
@@ -13,7 +12,6 @@ case object LeftIsHigh extends Adjacency {
   def conversionToSign: Sign = Negative
 }
 
-
 case class AdjacencyDirection(coordinate: Int, relation: Adjacency) {
   def conversionToDirection: Direction =
     relation match {
@@ -21,7 +19,4 @@ case class AdjacencyDirection(coordinate: Int, relation: Adjacency) {
       case LeftIsHigh => new Direction(coordinate, Negative)
     }
 }
-
-
-
 

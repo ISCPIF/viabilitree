@@ -18,11 +18,9 @@ published by
 
 package fr.iscpif.kdtree.structure
 
-
 sealed trait Sign {
   def opposite: Sign
 }
-
 
 case object Positive extends Sign {
   def opposite = Negative

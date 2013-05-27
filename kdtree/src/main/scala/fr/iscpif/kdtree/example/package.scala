@@ -1,9 +1,8 @@
 /*
- * Copyright (C) 2013 de Aldama / Reuillon
+ * Copyright (C) 27/05/13 Romain Reuillon
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
-published by
+ * it under the terms of the GNU Affero General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
@@ -16,8 +15,10 @@ published by
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package fr.iscpif.kdtree.structure
+package fr.iscpif.kdtree
 
-case class Direction(val coordinate: Int, val sign: Sign) {
-  def opposite = new Direction(coordinate, sign.opposite)
+import scala.util.Random
+
+package object example {
+  implicit lazy val rng = new Random(42)
 }

@@ -16,7 +16,6 @@ published by
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 package fr.iscpif.kdtree.structure
 
 import fr.iscpif.kdtree.structure.Path._
@@ -26,18 +25,16 @@ import fr.iscpif.kdtree.content.TestPoint
 object Leaf {
 
   def apply[T](_content: T, intervals: Interval*) =
-   new Leaf[T] {
-     val zone = Zone(intervals: _*)
-     val content = _content
-   }
+    new Leaf[T] {
+      val zone = Zone(intervals: _*)
+      val content = _content
+    }
 
 }
-
 
 // TODO: covariant/contravariant problem.
 // If we use Leaf[+T] (covariant) then there is a problem: T is contravariant if it occurs as a parameter of a function
 trait Leaf[T] extends Node[T] { leaf =>
-
 
   def content: T
 
@@ -47,7 +44,6 @@ trait Leaf[T] extends Node[T] { leaf =>
   //def content: Boolean = if (control == None) false else true
 
   def containingLeaf(point: Point): Option[Leaf[T]] = if (zone.contains(point)) Some(this) else None
-
 
   // This function is specific to the bounded case. The output
   // is an Option[Int] that gives the coordinate corresponding to the direction
@@ -61,18 +57,13 @@ trait Leaf[T] extends Node[T] { leaf =>
 
   def borderLeaves(direction: Direction): Iterable[Leaf[T]] = List(this)
 
-
   //TODO: Define refinable by coordinate: the maxDepth could be different for each coordinate. But think before about convergence
   def refinable(maxDepth: Int) = {
     //zoneVolume(leaf.zone) > 1 / pow(2, maxDepth)
     this.path.length <= maxDepth
   }
 
-
-
   def leaves: Iterable[Leaf[T]] = List(this)
-
-
 
   ///////// REFINING METHODS
 
@@ -100,7 +91,6 @@ trait Leaf[T] extends Node[T] { leaf =>
     val lowZone: Zone = newFork.zone.divideLow(coordinate)
     val highZone: Zone = newFork.zone.divideHigh(coordinate)
 
-
     def generateChild(parentFork: Fork[T], _zone: Zone, _content: T) = new Leaf[T] {
       parent = Some(parentFork)
       val zone = _zone
@@ -108,35 +98,19 @@ trait Leaf[T] extends Node[T] { leaf =>
 
     }
 
-
     if (descendant == Descendant.Low) {
       newFork.attachLow(generateChild(newFork, lowZone, content))
       newFork.attachHigh(generateChild(newFork, highZone, leaf.content))
       newFork.rootCalling
-    }
-
-    else if (descendant == Descendant.High) {
+    } else if (descendant == Descendant.High) {
       newFork.attachLow(generateChild(newFork, lowZone, leaf.content))
       newFork.attachHigh(generateChild(newFork, highZone, content))
       newFork.rootCalling
-    }
-
-    else throw new RuntimeException("Descendant should be low or high.")
+    } else throw new RuntimeException("Descendant should be low or high.")
 
   }
 
-
-
-
-
-
   ///////DEBUG HELPERS
   def consistency = true
-
-
-
-
-
-
 
 }

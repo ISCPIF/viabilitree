@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 03/04/13 Romain Reuillon
+ * Copyright (C) 27/05/13 Romain Reuillon
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -19,24 +19,37 @@ package fr.iscpif.kdtree.example
 
 import fr.iscpif.kdtree.structure._
 import fr.iscpif.kdtree.content._
-import math._
+import scala.util.Random
 
-object Circle extends App with Example {
+trait Example {
 
-  def oracle(p: Point) =
-    pow(p(0), 2) + pow(p(1), 2) + pow(p(2), 2) <= pow(1, 2)
+  case class Content(testPoint: Point, label: Boolean) extends Label with TestPoint
 
-  def zone =
-    Seq(
-      (-2.0, 2.0),
-      (-2.0, 2.0),
-      (-2.0, 2.0)
+  def sampler(z: Zone, rng: Random) = z.randomPoint(rng)
+
+  def evaluator(ps: Iterable[Zone], rng: Random) = {
+    val seeds = Iterable.fill(ps.size)(rng.nextLong)
+
+    (ps zip seeds).par.map {
+      case (z, seed) =>
+        val point = sampler(z, new Random(seed))
+        Content(point, oracle(point))
+    }.seq
+  }
+
+  def oracle(p: Point): Boolean
+
+  def zone: Seq[Interval]
+  def point: Point
+
+  def depth: Int
+
+  def originalNode =
+    Leaf(
+      Content(point, label = true),
+      zone: _*
     )
 
-  def point = Seq(0.0, 0.0)
-
-  def depth = 15
-
-  println(res.volume)
+  lazy val res: Node[Content] = originalNode.compute(depth, evaluator)
 
 }

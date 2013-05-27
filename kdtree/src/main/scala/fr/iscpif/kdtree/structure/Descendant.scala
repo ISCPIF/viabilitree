@@ -16,19 +16,13 @@ published by
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
 package fr.iscpif.kdtree.structure
-
-
-
 
 object Descendant {
   sealed trait Descendant
   case object Low extends Descendant
   case object High extends Descendant
   case object NotDescendant extends Descendant
-
 
 }
 

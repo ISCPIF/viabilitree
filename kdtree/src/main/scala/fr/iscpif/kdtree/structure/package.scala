@@ -16,7 +16,6 @@ published by
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 package fr.iscpif.kdtree
 
 import language.implicitConversions
@@ -34,11 +33,8 @@ package object structure {
   case class Interval(min: Double, max: Double) {
     assume(min < max)
     def span: Double = max - min
-    def normalizedSpan(referenceSpan: Double) = span/referenceSpan
+    def normalizedSpan(referenceSpan: Double) = span / referenceSpan
   }
-
-
-
 
   //////////////////// REFINING
 
@@ -46,21 +42,5 @@ package object structure {
     pairs.flatMap {
       case (l1, l2, i) => List(l1 -> i, l2 -> i)
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 }

@@ -16,11 +16,9 @@ published by
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
 package fr.iscpif.kdtree.structure
 
-import java.util.Random
+import scala.util.Random
 
 object Zone {
   def apply(intervals: Interval*) =
@@ -28,7 +26,6 @@ object Zone {
       val region = intervals.toArray
     }
 }
-
 
 trait Zone {
   zone: Zone =>
@@ -63,16 +60,15 @@ trait Zone {
   def randomPoint(rng: Random): Point =
     region.map(i => i.min + rng.nextDouble() * ((i.max - i.min)))
 
-
   def volume: Double = {
     def auxFunc(x: Double, interval: Interval) = x * interval.span
     zone.region.foldLeft(1.0)(auxFunc)
   }
 
   def normalizedVolume(referenceZone: Zone): Double = {
-     val referenceSpans: Array[Double] = referenceZone.region.map( x => x.span)
-     val zippedIntervals = zone.region.zip(referenceSpans)
-     val normalizedSpans: Array[Double] = zippedIntervals.map(x => x._1.span / x._2)
+    val referenceSpans: Array[Double] = referenceZone.region.map(x => x.span)
+    val zippedIntervals = zone.region.zip(referenceSpans)
+    val normalizedSpans: Array[Double] = zippedIntervals.map(x => x._1.span / x._2)
     def product(x: Double, y: Double): Double = x * y
     normalizedSpans.foldLeft(1.0)(product)
 
@@ -80,8 +76,5 @@ trait Zone {
 
   //TODO: Delete? Debug
   override def toString = region.toString()
-
-
-
 
 }
