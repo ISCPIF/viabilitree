@@ -53,6 +53,6 @@ trait Example {
       zone: _*
     )
 
-  lazy val res: Node[Content] = originalNode.compute(depth, evaluator)
+  def res(implicit rng: Random): Node[Content] = originalNode.compute(depth, evaluator)
 
 }

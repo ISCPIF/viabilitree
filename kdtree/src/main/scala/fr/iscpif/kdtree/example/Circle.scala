@@ -35,7 +35,7 @@ object Circle extends App with Example {
 
   def point = Seq(0.0, 0.0, 0.0)
 
-  def depth = 15
+  def depth = 18
 
   println(res.volume)
 
