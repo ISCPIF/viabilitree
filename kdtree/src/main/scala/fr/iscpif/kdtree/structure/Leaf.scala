@@ -72,7 +72,7 @@ trait Leaf[T] extends Node[T] { leaf =>
       case Some(p) =>
         val newLeaf = Leaf[T](content)
         newLeaf.parent = Some(p)
-        p.reassignChild(p, newLeaf)
+        p.reassignChild(this, newLeaf)
         newLeaf.rootCalling
     }
   }
