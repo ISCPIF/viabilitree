@@ -33,7 +33,7 @@ object Circle extends App with Example {
       (-2.0, 2.0)
     )
 
-  def point = Seq(0.0, 0.0)
+  def point = Seq(0.0, 0.0, 0.0)
 
   def depth = 15
 
