@@ -41,7 +41,7 @@ package object content {
       val direction =
         adjacency(node1.path, node2.path) match {
           case None => throw new RuntimeException("Zones must be adjacent.")
-          case Some(x) => x.conversionToDirection
+          case Some(x) => x.toDirection
         }
 
       (node1, node2) match {
@@ -57,12 +57,11 @@ package object content {
             (fork1.lowChild, fork2.highChild),
             (fork1.highChild, fork2.lowChild),
             (fork1.highChild, fork2.highChild))
-          def functAux(nodes: (Node[T], Node[T])) = {
-            val (n1, n2) = nodes
-            if (adjacent(n1.path, n2.path)) (pairsBetweenNodes(n1, n2))
-            else Nil
+          listAux.flatMap {
+            case (n1, n2) =>
+              if (adjacent(n1.path, n2.path)) (pairsBetweenNodes(n1, n2))
+              else Nil
           }
-          listAux.flatMap(functAux)
 
         case (fork: Fork[T], leaf: Leaf[T]) =>
           //TODO: Use leaves(content) ??
@@ -78,7 +77,8 @@ package object content {
     }
 
     // The node together with the preferred coordinate (if another coordinate is bigger it will have no impact)
-    def nodesToRefine(depth: Int): Iterable[(Leaf[T], Int)] = {
+    // Former node to refine
+    def leavesToRefine(depth: Int): Iterable[(Leaf[T], Int)] = {
       val leaves =
         (n match {
           case leaf: Leaf[T] => {
@@ -91,7 +91,7 @@ package object content {
             }
           }
           case fork: Fork[T] =>
-            fork.lowChild.nodesToRefine(depth) ++ fork.highChild.nodesToRefine(depth) ++
+            fork.lowChild.leavesToRefine(depth) ++ fork.highChild.leavesToRefine(depth) ++
               pairsToSet(pairsBetweenNodes(fork.lowChild, fork.highChild))
         }).filter {
           case (leaf, _) => leaf.refinable(depth)
@@ -114,6 +114,62 @@ package object content {
       */
     }
 
+  }
+
+  implicit class LabelTreeDecorator[T <: Label](val t: Tree[T]) {
+    def leavesToRefine: Iterable[(Leaf[T], Int)] = t.root.leavesToRefine(t.depth)
+
+    def leavesToReasign: Iterable[Leaf[T]] = leavesToReasign(t.root)
+
+    def leavesToReasign(n: Node[T]): Iterable[Leaf[T]] = {
+      val leaves = n match {
+        case leaf: Leaf[T] => List.empty[Leaf[T]]
+        case fork: Fork[T] =>
+          leavesToReasign(fork.lowChild) ++ leavesToReasign(fork.highChild) ++
+            criticalLeavesBetweenNodes(fork.lowChild, fork.highChild)
+      }
+      leaves.filterNot(_.content.label).toSeq.distinct
+    }
+
+    def criticalLeavesBetweenNodes(node1: Node[T], node2: Node[T]): Iterable[Leaf[T]] = {
+      val direction =
+        adjacency(node1.path, node2.path) match {
+          case None => throw new RuntimeException("Zones must be adjacent.")
+          case Some(x) => x.toDirection
+        }
+
+      def borderLeaves(leaf: Leaf[T], fork: Fork[T]) = {
+        if (t.isAtomic(leaf)) {
+          val borderLeaves = fork.borderLeaves(direction.opposite).filter(x => x.content.label != leaf.content.label)
+          borderLeaves.flatMap {
+            borderLeaf => if (adjacent(leaf.path, borderLeaf.path)) List(leaf, borderLeaf) else Nil
+          }
+        } else Nil
+      }
+
+      (node1, node2) match {
+        case (leaf1: Leaf[T], leaf2: Leaf[T]) =>
+          if (t.isAtomic(leaf1) && t.isAtomic(leaf2) && xor(leaf1.content.label, leaf2.content.label))
+            List(leaf1, leaf2)
+          else Nil
+
+        case (fork1: Fork[T], fork2: Fork[T]) =>
+          val listAux = List(
+            (fork1.lowChild, fork2.lowChild),
+            (fork1.lowChild, fork2.highChild),
+            (fork1.highChild, fork2.lowChild),
+            (fork1.highChild, fork2.highChild))
+
+          listAux.flatMap {
+            case (n1, n2) =>
+              if (adjacent(n1.path, n2.path)) criticalLeavesBetweenNodes(n1, n2)
+              else Nil
+          }
+
+        case (fork: Fork[T], leaf: Leaf[T]) => borderLeaves(leaf, fork)
+        case (leaf: Leaf[T], fork: Fork[T]) => borderLeaves(leaf, fork)
+      }
+    }
   }
 
   implicit class LabelTestPointNodeDecorator[T <: Label with TestPoint](n: Node[T]) {
@@ -165,7 +221,7 @@ package object content {
       }
 
       def refine(node: Node[T]): Node[T] = {
-        val leavesToRefine = node.nodesToRefine(maxDepth)
+        val leavesToRefine = node.leavesToRefine(maxDepth)
         if (leavesToRefine.isEmpty) node
         else refine(refineStep(node.zonesAndPathsToTest(leavesToRefine), node))
       }

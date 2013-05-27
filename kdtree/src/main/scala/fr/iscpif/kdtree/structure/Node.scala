@@ -44,6 +44,8 @@ trait Node[T] { node =>
     }
   }
 
+  def depth = reversePath.size
+
   def isRoot: Boolean = if (parent == None) true else false
 
   def rootCalling: Node[T] = parent match {

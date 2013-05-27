@@ -13,7 +13,7 @@ case object LeftIsHigh extends Adjacency {
 }
 
 case class AdjacencyDirection(coordinate: Int, relation: Adjacency) {
-  def conversionToDirection: Direction =
+  def toDirection: Direction =
     relation match {
       case LeftIsLow => new Direction(coordinate, Positive)
       case LeftIsHigh => new Direction(coordinate, Negative)
