@@ -29,6 +29,13 @@ trait Fork[T] extends Node[T] { fork =>
 
   def childrenDefined: Boolean = _lowChild != null && _highChild != null
 
+  def reassignChild(from: Node[T], to: Node[T]) =
+    descendantType(from) match {
+      case Descendant.Low => attachLow(to)
+      case Descendant.High => attachHigh(to)
+      case Descendant.NotDescendant => throw new RuntimeException("The original leaf should be lowChild or highChild")
+    }
+
   def descendantType(child: Node[_]): Descendant.Descendant = {
     if (_lowChild == child) Descendant.Low
     else if (highChild == child) Descendant.High
@@ -61,6 +68,24 @@ trait Fork[T] extends Node[T] { fork =>
         if (direction.sign == Positive) highChild.borderLeaves(direction)
         else lowChild.borderLeaves(direction)
       case _ => lowChild.borderLeaves(direction).toList ::: highChild.borderLeaves(direction).toList
+    }
+
+  def replace(path: Path, content: T): Node[T] =
+    path.toList match {
+      case Nil =>
+        val newLeaf = Leaf[T](content)
+        parent match {
+          case None => newLeaf
+          case Some(p) =>
+            p reassignChild (this, newLeaf)
+            newLeaf.rootCalling
+        }
+      case h :: t =>
+        h.descendant match {
+          case Descendant.Low => lowChild.replace(t, content)
+          case Descendant.High => highChild.replace(t, content)
+          case _ => sys.error("Descendant child expected")
+        }
     }
 
   ///////// REFINING METHODS

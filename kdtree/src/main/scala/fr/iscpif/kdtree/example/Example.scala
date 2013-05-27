@@ -24,7 +24,9 @@ import org.apache.commons.math3.random._
 
 trait Example {
 
-  case class Content(testPoint: Point, label: Boolean) extends Label with TestPoint
+  sealed case class Content(testPoint: Point, label: Boolean) extends Label with TestPoint {
+    def relabel(l: Boolean) = copy(label = l)
+  }
 
   def sampler(z: Zone, rng: Random) = z.randomPoint(rng)
 

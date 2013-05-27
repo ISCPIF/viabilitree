@@ -65,7 +65,17 @@ trait Leaf[T] extends Node[T] { leaf =>
 
   def leaves: Iterable[Leaf[T]] = List(this)
 
-  ///////// REFINING METHODS
+  def replace(path: Path, content: T): Node[T] = {
+    assert(path.isEmpty)
+    parent match {
+      case None => Leaf[T](content)
+      case Some(p) =>
+        val newLeaf = Leaf[T](content)
+        newLeaf.parent = Some(p)
+        p.reassignChild(p, newLeaf)
+        newLeaf.rootCalling
+    }
+  }
 
   def insert(extendedPath: Path, content: T): Node[T] = {
     assert(extendedPath.length == 1)
@@ -81,11 +91,7 @@ trait Leaf[T] extends Node[T] { leaf =>
 
     newFork.parent match {
       case None =>
-      case Some(parentValue) => parentValue.descendantType(this) match {
-        case Descendant.Low => parentValue.attachLow(newFork)
-        case Descendant.High => parentValue.attachHigh(newFork)
-        case Descendant.NotDescendant => throw new RuntimeException("The original leaf should be lowChild or HighChild")
-      }
+      case Some(parentValue) => parentValue.reassignChild(this, newFork)
     }
 
     val lowZone: Zone = newFork.zone.divideLow(coordinate)

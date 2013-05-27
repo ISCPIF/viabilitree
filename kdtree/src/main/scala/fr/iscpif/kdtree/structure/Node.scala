@@ -93,6 +93,7 @@ trait Node[T] { node =>
   ///////// REFINING METHODS
 
   def insert(extendedPath: Path, content: T): Node[T]
+  def replace(path: Path, content: T): Node[T]
 
   ////////// DEBUG HELPERS
   def isChildOfParent: Boolean = {

@@ -117,19 +117,29 @@ package object content {
   }
 
   implicit class LabelTreeDecorator[T <: Label](val t: Tree[T]) {
+
+    def dilate: Tree[T] = {
+      val leaves = t.leavesToReasign()
+      leaves.foldLeft(t.root) {
+        (currentTree, leaf) =>
+          assert(currentTree == t)
+          currentTree.replace(leaf.path, leaf.content.relabel(true))
+      }
+      t
+    }
+
     def leavesToRefine: Iterable[(Leaf[T], Int)] = t.root.leavesToRefine(t.depth)
 
-    def leavesToReasign: Iterable[Leaf[T]] = leavesToReasign(t.root)
+    def leavesToReasign(n: Node[T] = t.root): Iterable[Leaf[T]] =
+      criticalLeaves(n).filter(!_.content.label).toSeq
 
-    def leavesToReasign(n: Node[T]): Iterable[Leaf[T]] = {
-      val leaves = n match {
+    def criticalLeaves(n: Node[T] = t.root) =
+      (n match {
         case leaf: Leaf[T] => List.empty[Leaf[T]]
         case fork: Fork[T] =>
           leavesToReasign(fork.lowChild) ++ leavesToReasign(fork.highChild) ++
             criticalLeavesBetweenNodes(fork.lowChild, fork.highChild)
-      }
-      leaves.filterNot(_.content.label).toSeq.distinct
-    }
+      }).toSeq.distinct
 
     def criticalLeavesBetweenNodes(node1: Node[T], node2: Node[T]): Iterable[Leaf[T]] = {
       val direction =
