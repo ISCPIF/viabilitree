@@ -132,7 +132,9 @@ package object content {
 
     def leavesToRefine: Iterable[(Leaf[T], Int)] = t.root.leavesToRefine(t.depth)
 
-    def leavesToReasign(n: Node[T] = t.root): Iterable[Leaf[T]] =
+    def leavesToReasign = leavesToReasign(t.root)
+
+    def leavesToReasign(n: Node[T]): Iterable[Leaf[T]] =
       criticalLeaves(n).filter(!_.content.label).toSeq
 
     def criticalLeaves(n: Node[T] = t.root) =
