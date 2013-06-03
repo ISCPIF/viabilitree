@@ -57,11 +57,7 @@ trait Leaf[T] extends Node[T] { leaf =>
 
   def borderLeaves(direction: Direction): Iterable[Leaf[T]] = List(this)
 
-  //TODO: Define refinable by coordinate: the maxDepth could be different for each coordinate. But think before about convergence
-  def refinable(maxDepth: Int) = {
-    //zoneVolume(leaf.zone) > 1 / pow(2, maxDepth)
-    this.path.length <= maxDepth
-  }
+  def refinable(maxDepth: Int) = path.length < maxDepth
 
   def leaves: Iterable[Leaf[T]] = List(this)
 
