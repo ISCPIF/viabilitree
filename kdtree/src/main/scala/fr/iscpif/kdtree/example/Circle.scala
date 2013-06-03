@@ -24,7 +24,7 @@ import math._
 object Circle extends App with Example {
 
   def oracle(p: Point) =
-    pow(p(0), 2) + pow(p(1), 2) + pow(p(2), 2) <= pow(1, 2)
+    pow(p(0), 2) + pow(p(1), 2) + pow(p(2), 2) <= pow(1, 3)
 
   def zone =
     Seq(
@@ -39,7 +39,15 @@ object Circle extends App with Example {
 
   val res = run
 
-  println(res.volume)
-  println(res.dilate.volume)
+  println("Nb leaves " + res.leaves.size)
+  println("Nb atomic leaves " + res.atomicLeaves.size)
+  println("Nb true atomic leaves " + res.atomicLeaves.filter(_.content.label).size)
+  println("Volume " + res.volume)
+
+  val dilated = res.dilate
+
+  println("Nb atomic leaves " + dilated.atomicLeaves.size)
+  println("Nb true atomic leaves " + dilated.atomicLeaves.filter(_.content.label).size)
+  println("Volume " + dilated.volume)
 
 }

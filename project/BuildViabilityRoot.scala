@@ -7,7 +7,9 @@ object ViabilityRootBuild extends Build {
  
  lazy val kdtree = Project(id = "kdtree", base = file("kdtree"))
  
- lazy val visualisation = Project(id = "visualisation", base = file("visualisation")) dependsOn(kdtree)
+ lazy val visualisation = Project(id = "visualisation", base = file("visualisation")) dependsOn(kdtree) settings (
+   libraryDependencies ++= Seq("com.github.scala-incubator.io" %% "scala-io-file" % "0.4.2")
+   )
 
  lazy val viability = Project(id = "viability", base = file("viability")) dependsOn(kdtree)
 
