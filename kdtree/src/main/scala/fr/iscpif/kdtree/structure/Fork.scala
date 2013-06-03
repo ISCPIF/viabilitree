@@ -65,8 +65,10 @@ trait Fork[T] extends Node[T] { fork =>
   def borderLeaves(direction: Direction): Iterable[Leaf[T]] =
     divisionCoordinate match {
       case direction.coordinate =>
-        if (direction.sign == Positive) highChild.borderLeaves(direction)
-        else lowChild.borderLeaves(direction)
+        direction.sign match {
+          case Positive => highChild.borderLeaves(direction)
+          case Negative => lowChild.borderLeaves(direction)
+        }
       case _ => lowChild.borderLeaves(direction).toList ::: highChild.borderLeaves(direction).toList
     }
 

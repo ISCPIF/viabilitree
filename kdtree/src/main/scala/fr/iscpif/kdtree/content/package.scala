@@ -83,7 +83,7 @@ package object content {
     def volume = t.root.volume
 
     def dilate(implicit relabel: (T, Boolean) => T): Tree[T] = {
-      val leaves = t.leavesToReasign
+      val leaves = t.leavesToReassign
       leaves.foldLeft(t.root) {
         (currentRoot, leaf) =>
           assert(currentRoot == t.root)
@@ -92,33 +92,37 @@ package object content {
       t
     }
 
-    def leavesToReasign: Iterable[Leaf[T]] = leavesToReasign(t.root)
+    def leavesToReassign: Iterable[Leaf[T]] = leavesToReassign(t.root)
 
-    def leavesToReasign(n: Node[T]): Iterable[Leaf[T]] =
-      criticalLeaves(n).filter(!_.content.label).toSeq
+    def leavesToReassign(n: Node[T]): Iterable[Leaf[T]] =
+      criticalLeaves(n).filter(!_.content.label).toSeq.distinct
 
     def criticalLeaves(n: Node[T] = t.root) =
       (n match {
-        case leaf: Leaf[T] => List.empty[Leaf[T]]
+        case leaf: Leaf[T] => List.empty
         case fork: Fork[T] =>
-          leavesToReasign(fork.lowChild) ++ leavesToReasign(fork.highChild) ++
+          leavesToReassign(fork.lowChild) ++ leavesToReassign(fork.highChild) ++
             criticalLeavesBetweenNodes(fork.lowChild, fork.highChild)
       }).toSeq.distinct
 
     def criticalLeavesBetweenNodes(node1: Node[T], node2: Node[T]): Iterable[Leaf[T]] = {
-      val direction =
-        adjacency(node1.path, node2.path) match {
-          case None => throw new RuntimeException("Zones must be adjacent.")
-          case Some(x) => x.toDirection
-        }
-
       def borderLeaves(leaf: Leaf[T], fork: Fork[T]) = {
         if (t.isAtomic(leaf)) {
-          val borderLeaves = fork.borderLeaves(direction.opposite).filter(x => x.content.label != leaf.content.label)
+          val direction =
+            adjacency(fork.path, leaf.path) match {
+              case None => throw new RuntimeException("Zones must be adjacent.")
+              case Some(x) => x.toDirection
+            }
+
+          val borderLeaves = fork.borderLeaves(direction).filter(
+            x => x.content.label != leaf.content.label
+          )
           borderLeaves.flatMap {
-            borderLeaf => if (adjacent(leaf.path, borderLeaf.path)) List(leaf, borderLeaf) else Nil
+            borderLeaf =>
+              if (adjacent(leaf.path, borderLeaf.path)) List(leaf, borderLeaf)
+              else List.empty
           }
-        } else Nil
+        } else List.empty
       }
 
       (node1, node2) match {

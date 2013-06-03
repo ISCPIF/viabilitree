@@ -18,6 +18,6 @@ published by
 
 package fr.iscpif.kdtree.structure
 
-case class Direction(val coordinate: Int, val sign: Sign) {
+case class Direction(coordinate: Int, sign: Sign) {
   def opposite = new Direction(coordinate, sign.opposite)
 }
