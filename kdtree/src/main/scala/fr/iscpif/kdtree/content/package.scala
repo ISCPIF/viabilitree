@@ -121,7 +121,7 @@ package object content {
     def volume = t.root.volume
 
     def dilate(implicit relabel: (T, Boolean) => T): Tree[T] = {
-      val leaves = t.leavesToReasign()
+      val leaves = t.leavesToReasign
       leaves.foldLeft(t.root) {
         (currentRoot, leaf) =>
           assert(currentRoot == t.root)
