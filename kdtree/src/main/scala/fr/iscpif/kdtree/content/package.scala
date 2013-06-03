@@ -9,6 +9,46 @@ package object content {
 
   type Evaluator[T] = (Iterable[Zone], Random) => Iterable[T]
 
+  // The critical pairs together with the coordinate of adjacency (no need to include the sign)
+  def pairsBetweenNodes[T <: Label](node1: Node[T], node2: Node[T]): Iterable[(Leaf[T], Leaf[T], Int)] = {
+    val direction =
+      adjacency(node1.path, node2.path) match {
+        case None => throw new RuntimeException("Zones must be adjacent.")
+        case Some(x) => x.toDirection
+      }
+
+    (node1, node2) match {
+      case (leaf1: Leaf[T], leaf2: Leaf[T]) =>
+        if (xor(leaf1.content.label, leaf2.content.label))
+          List((leaf1, leaf2, direction.coordinate))
+        else
+          Nil
+
+      case (fork1: Fork[T], fork2: Fork[T]) =>
+        val listAux = List(
+          (fork1.lowChild, fork2.lowChild),
+          (fork1.lowChild, fork2.highChild),
+          (fork1.highChild, fork2.lowChild),
+          (fork1.highChild, fork2.highChild))
+        listAux.flatMap {
+          case (n1, n2) =>
+            if (adjacent(n1.path, n2.path)) (pairsBetweenNodes(n1, n2))
+            else Nil
+        }
+
+      case (fork: Fork[T], leaf: Leaf[T]) =>
+        //TODO: Use leaves(content) ??
+        val listAux: Iterable[Leaf[T]] = fork.borderLeaves(direction).filter(x => x.content.label == !leaf.content.label)
+        val list: Iterable[(Leaf[T], Leaf[T], Int)] = listAux.map(borderLeaf => (leaf, borderLeaf, direction.coordinate))
+        list.filter(x => adjacent(x._1.path, x._2.path))
+
+      case (leaf: Leaf[T], fork: Fork[T]) =>
+        val listAux: Iterable[Leaf[T]] = fork.borderLeaves(direction.opposite).filter(x => x.content.label == !leaf.content.label)
+        val list: Iterable[(Leaf[T], Leaf[T], Int)] = listAux.map(borderLeaf => (leaf, borderLeaf, direction.coordinate))
+        list.filter(x => adjacent(x._1.path, x._2.path))
+    }
+  }
+
   implicit class LabelNodeDecorator[T <: Label](val n: Node[T]) {
     import n._
 
@@ -36,84 +76,6 @@ package object content {
     def containingColoredLeaf(point: Point, label: Boolean): Option[Leaf[T]] =
       containingLeaf(point).filter(_.content.label == label)
 
-    // The critical pairs together with the coordinate of adjacency (no need to include the sign)
-    def pairsBetweenNodes(node1: Node[T], node2: Node[T]): Iterable[(Leaf[T], Leaf[T], Int)] = {
-      val direction =
-        adjacency(node1.path, node2.path) match {
-          case None => throw new RuntimeException("Zones must be adjacent.")
-          case Some(x) => x.toDirection
-        }
-
-      (node1, node2) match {
-        case (leaf1: Leaf[T], leaf2: Leaf[T]) =>
-          if (xor(leaf1.content.label, leaf2.content.label))
-            List((leaf1, leaf2, direction.coordinate))
-          else
-            Nil
-
-        case (fork1: Fork[T], fork2: Fork[T]) =>
-          val listAux = List(
-            (fork1.lowChild, fork2.lowChild),
-            (fork1.lowChild, fork2.highChild),
-            (fork1.highChild, fork2.lowChild),
-            (fork1.highChild, fork2.highChild))
-          listAux.flatMap {
-            case (n1, n2) =>
-              if (adjacent(n1.path, n2.path)) (pairsBetweenNodes(n1, n2))
-              else Nil
-          }
-
-        case (fork: Fork[T], leaf: Leaf[T]) =>
-          //TODO: Use leaves(content) ??
-          val listAux: Iterable[Leaf[T]] = fork.borderLeaves(direction).filter(x => x.content.label == !leaf.content.label)
-          val list: Iterable[(Leaf[T], Leaf[T], Int)] = listAux.map(borderLeaf => (leaf, borderLeaf, direction.coordinate))
-          list.filter(x => adjacent(x._1.path, x._2.path))
-
-        case (leaf: Leaf[T], fork: Fork[T]) =>
-          val listAux: Iterable[Leaf[T]] = fork.borderLeaves(direction.opposite).filter(x => x.content.label == !leaf.content.label)
-          val list: Iterable[(Leaf[T], Leaf[T], Int)] = listAux.map(borderLeaf => (leaf, borderLeaf, direction.coordinate))
-          list.filter(x => adjacent(x._1.path, x._2.path))
-      }
-    }
-
-    // The node together with the preferred coordinate (if another coordinate is bigger it will have no impact)
-    // Former node to refine
-    def leavesToRefine(depth: Int): Iterable[(Leaf[T], Int)] = {
-      val leaves =
-        (n match {
-          case leaf: Leaf[T] => {
-            leaf.content.label match {
-              case true => leaf.touchesBoundary match {
-                case Some(coordinate) => List((leaf, coordinate))
-                case None => List.empty
-              }
-              case false => List.empty
-            }
-          }
-          case fork: Fork[T] =>
-            fork.lowChild.leavesToRefine(depth) ++ fork.highChild.leavesToRefine(depth) ++
-              pairsToSet(pairsBetweenNodes(fork.lowChild, fork.highChild))
-        }).filter {
-          case (leaf, _) => leaf.refinable(depth)
-        }
-
-      //TODO: Consider the lines below
-      var auxLeaves: List[(Leaf[T], Int)] = Nil
-      leaves.foreach(
-        x => {
-          if (auxLeaves.forall(y => y._1 != x._1)) auxLeaves = x :: auxLeaves
-        }
-      )
-      auxLeaves
-      /*  Source of non-deterministic behaviour (thanks Romain, 2 wasted journeys)
-      leaves.groupBy {
-        case (l, _) => l
-      }.toList.map {
-        case (_, l) => l.head
-      }
-      */
-    }
-
   }
 
   implicit class LabelTreeDecorator[T <: Label](val t: Tree[T]) {
@@ -129,8 +91,6 @@ package object content {
       }
       t
     }
-
-    def leavesToRefine: Iterable[(Leaf[T], Int)] = t.root.leavesToRefine(t.depth)
 
     def leavesToReasign: Iterable[Leaf[T]] = leavesToReasign(t.root)
 
@@ -184,6 +144,47 @@ package object content {
         case (leaf: Leaf[T], fork: Fork[T]) => borderLeaves(leaf, fork)
       }
     }
+
+    def leavesToRefine: Iterable[(Leaf[T], Int)] = leavesToRefine(t.root)
+
+    // The node together with the preferred coordinate (if another coordinate is bigger it will have no impact)
+    // Former node to refine
+    def leavesToRefine(n: Node[T]): Iterable[(Leaf[T], Int)] = {
+      val leaves =
+        (n match {
+          case leaf: Leaf[T] => {
+            leaf.content.label match {
+              case true => leaf.touchesBoundary match {
+                case Some(coordinate) => List((leaf, coordinate))
+                case None => List.empty
+              }
+              case false => List.empty
+            }
+          }
+          case fork: Fork[T] =>
+            leavesToRefine(fork.lowChild) ++ leavesToRefine(fork.highChild) ++
+              pairsToSet(pairsBetweenNodes(fork.lowChild, fork.highChild))
+        }).filterNot {
+          case (leaf, _) => t.isAtomic(leaf)
+        }
+
+      //TODO: Consider the lines below
+      var auxLeaves: List[(Leaf[T], Int)] = Nil
+      leaves.foreach(
+        x => {
+          if (auxLeaves.forall(y => y._1 != x._1)) auxLeaves = x :: auxLeaves
+        }
+      )
+      auxLeaves
+      /*  Source of non-deterministic behaviour (thanks Romain, 2 wasted journeys)
+      leaves.groupBy {
+        case (l, _) => l
+      }.toList.map {
+        case (_, l) => l.head
+      }
+      */
+    }
+
   }
 
   implicit class LabelTestPointNodeDecorator[T <: Label with TestPoint](n: Node[T]) {
@@ -236,9 +237,9 @@ package object content {
       }
 
       def refine(node: Node[T]): Node[T] = {
-        val leavesToRefine = node.leavesToRefine(t.depth)
-        if (leavesToRefine.isEmpty) node
-        else refine(refineStep(node.zonesAndPathsToTest(leavesToRefine), node))
+        val toRefine = t.leavesToRefine(node)
+        if (toRefine.isEmpty) node
+        else refine(refineStep(node.zonesAndPathsToTest(toRefine), node))
       }
 
       Tree(refine(t.root), t.depth)
