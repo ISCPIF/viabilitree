@@ -21,7 +21,7 @@ package fr.iscpif.kdtree.structure
 import scala.util.Random
 
 object Zone {
-  def apply(intervals: Interval*) =
+  def apply(intervals: Seq[Interval]) =
     new Zone {
       val region = intervals.toArray
     }
@@ -60,10 +60,10 @@ trait Zone {
   def randomPoint(rng: Random): Point =
     region.map(i => i.min + rng.nextDouble() * ((i.max - i.min)))
 
-  def volume: Double = {
-    def auxFunc(x: Double, interval: Interval) = x * interval.span
-    zone.region.foldLeft(1.0)(auxFunc)
-  }
+  def volume: Double =
+    zone.region.foldLeft(1.0)(
+      (x, interval) => x * interval.span
+    )
 
   def normalizedVolume(referenceZone: Zone): Double = {
     val referenceSpans: Array[Double] = referenceZone.region.map(x => x.span)

@@ -24,9 +24,9 @@ import fr.iscpif.kdtree.content.TestPoint
 
 object Leaf {
 
-  def apply[T](_content: T, intervals: Interval*) =
+  def apply[T](_content: T, _zone: Zone) =
     new Leaf[T] {
-      val zone = Zone(intervals: _*)
+      val zone = _zone
       val content = _content
     }
 
@@ -64,9 +64,9 @@ trait Leaf[T] extends Node[T] { leaf =>
   def replace(path: Path, content: T): Node[T] = {
     assert(path.isEmpty)
     parent match {
-      case None => Leaf[T](content)
+      case None => Leaf[T](content, zone)
       case Some(p) =>
-        val newLeaf = Leaf[T](content)
+        val newLeaf = Leaf[T](content, zone)
         newLeaf.parent = Some(p)
         p.reassignChild(this, newLeaf)
         newLeaf.rootCalling

@@ -53,7 +53,7 @@ trait Example {
       Tree(
         Leaf(
           Content(point, label = true),
-          zone: _*
+          Zone(zone)
         ),
         depth
       )

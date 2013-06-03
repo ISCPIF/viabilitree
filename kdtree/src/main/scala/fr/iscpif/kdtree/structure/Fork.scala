@@ -73,7 +73,7 @@ trait Fork[T] extends Node[T] { fork =>
   def replace(path: Path, content: T): Node[T] =
     path.toList match {
       case Nil =>
-        val newLeaf = Leaf[T](content)
+        val newLeaf = Leaf[T](content, zone)
         parent match {
           case None => newLeaf
           case Some(p) =>
