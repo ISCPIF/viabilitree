@@ -3,10 +3,12 @@ import Keys._
 
 object ViabilityRootBuild extends Build { 
 
- //lazy val viabilityRoot = Project(id = "viabilityRoot", base = file(".")) aggregate(viabilityLanguages, viabilityCabbage) dependsOn(viabilityLanguages, viabilityCabbage, kdtree)
+ lazy val all = Project(id = "all", base = file(".")) aggregate(kdtree, visualisation) dependsOn(kdtree, visualisation)
  
  lazy val kdtree = Project(id = "kdtree", base = file("kdtree"))
  
+ lazy val visualisation = Project(id = "visualisation", base = file("visualisation")) dependsOn(kdtree)
+
  lazy val viability = Project(id = "viability", base = file("viability")) dependsOn(kdtree)
 
  lazy val languages = Project(id = "languages", base = file("languages"))

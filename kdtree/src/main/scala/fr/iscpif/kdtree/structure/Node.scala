@@ -103,8 +103,6 @@ trait Node[T] { node =>
     }
   }
 
-  def consistency: Boolean
-
   def pathSoundness(node: Node[T]): Boolean =
     node match {
       case leaf: Leaf[T] => true

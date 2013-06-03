@@ -32,17 +32,9 @@ object Leaf {
 
 }
 
-// TODO: covariant/contravariant problem.
-// If we use Leaf[+T] (covariant) then there is a problem: T is contravariant if it occurs as a parameter of a function
 trait Leaf[T] extends Node[T] { leaf =>
 
   def content: T
-
-  //val testPoint: Point
-  //val control: Option[Double]
-
-  //def content: Boolean = if (control == None) false else true
-
   def containingLeaf(point: Point): Option[Leaf[T]] = if (zone.contains(point)) Some(this) else None
 
   // This function is specific to the bounded case. The output
@@ -110,8 +102,5 @@ trait Leaf[T] extends Node[T] { leaf =>
     } else throw new RuntimeException("Descendant should be low or high.")
 
   }
-
-  ///////DEBUG HELPERS
-  def consistency = true
 
 }

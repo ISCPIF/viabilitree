@@ -30,4 +30,5 @@ trait Tree[T] {
   def root: Node[T]
   def isAtomic(l: Leaf[T]) = l.depth >= depth
   def atomicLeaves = root.leaves.filter(isAtomic)
+  def dimension = root.zone.region.size
 }
