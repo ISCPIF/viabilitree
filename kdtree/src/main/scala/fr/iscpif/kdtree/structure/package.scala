@@ -43,4 +43,6 @@ package object structure {
       case (l1, l2, i) => List(l1 -> i, l2 -> i)
     }
 
+  implicit def treeToNode[T](t: Tree[T]) = t.root
+
 }
