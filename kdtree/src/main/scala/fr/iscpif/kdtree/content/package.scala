@@ -173,13 +173,13 @@ package object content {
         }
 
       //TODO: Consider the lines below
-      var auxLeaves: List[(Leaf[T], Int)] = Nil
+      var distinctLeaves: List[(Leaf[T], Int)] = Nil
       leaves.foreach(
         x => {
-          if (auxLeaves.forall(y => y._1 != x._1)) auxLeaves = x :: auxLeaves
+          if (distinctLeaves.forall(y => y._1 != x._1)) distinctLeaves = x :: distinctLeaves
         }
       )
-      auxLeaves
+      distinctLeaves
       /*  Source of non-deterministic behaviour (thanks Romain, 2 wasted journeys)
       leaves.groupBy {
         case (l, _) => l
