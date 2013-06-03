@@ -29,4 +29,5 @@ trait Tree[T] {
   def depth: Int
   def root: Node[T]
   def isAtomic(l: Leaf[T]) = l.depth >= depth
+  def terminalLeaves = root.leaves.filter(_.path.length == depth)
 }
