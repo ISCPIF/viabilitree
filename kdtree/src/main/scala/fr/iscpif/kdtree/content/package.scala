@@ -114,19 +114,17 @@ package object content {
               case Some(x) => x.toDirection
             }
 
-          val borderLeaves = fork.borderLeaves(direction).filter(
-            x => x.content.label != leaf.content.label
-          )
-          borderLeaves.flatMap {
-            borderLeaf =>
-              if (adjacent(leaf.path, borderLeaf.path)) List(leaf, borderLeaf)
-              else List.empty
-          }
+          fork.borderLeaves(direction).filter(
+            x => x.content.label != leaf.content.label && adjacent(leaf.path, x.path)
+          ).flatMap {
+              borderLeaf => List(leaf, borderLeaf)
+            }
         } else List.empty
       }
 
       (node1, node2) match {
         case (leaf1: Leaf[T], leaf2: Leaf[T]) =>
+          assert(adjacent(leaf1.path, leaf2.path))
           if (t.isAtomic(leaf1) && t.isAtomic(leaf2) && xor(leaf1.content.label, leaf2.content.label))
             List(leaf1, leaf2)
           else Nil

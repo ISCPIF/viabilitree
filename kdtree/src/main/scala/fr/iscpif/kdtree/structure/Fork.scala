@@ -18,8 +18,6 @@ published by
 
 package fr.iscpif.kdtree.structure
 
-// TODO: covariant/contravariant problem.
-// If we use Fork[+T] (covariant) then there is a problem: T is contravariant if it occurs as a parameter of a function
 trait Fork[T] extends Node[T] { fork =>
 
   val divisionCoordinate: Int
@@ -102,16 +100,8 @@ trait Fork[T] extends Node[T] { fork =>
     }
   }
 
-  ////// DEBUG HELPERS
   def isParentOfChildren: Boolean = {
     _lowChild.parent == Some(this) && _highChild.parent == Some(this)
   }
-
-  def consistency: Boolean = {
-    this.childrenDefined && this.isParentOfChildren &&
-      this.lowChild.consistency && this.highChild.consistency &&
-      this.lowChild.isChildOfParent && this.highChild.isChildOfParent
-  }
-  ///////////
 
 }
