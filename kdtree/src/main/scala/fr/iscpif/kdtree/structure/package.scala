@@ -35,6 +35,22 @@ package object structure {
     def span: Double = max - min
     def normalizedSpan(referenceSpan: Double) = span / referenceSpan
   }
+ // TODO pour le test d'adjacence A virer sinon
+
+  def includes(a:Interval, b:Interval) ={
+    assert (a.min < a.max && b.min < b.max)
+    (a.min < b.min || equivalence(a.min, b.min)) && (a.max > b.max || equivalence(a.max, b.max))
+  }
+
+  def equivalence(a:Double, b:Double):Boolean ={
+    val eps = 10e-10
+    if (a == 0) (b.abs <= eps)
+    else if (b == 0) (a.abs <= eps)
+    else (a-b).abs <= (a.abs + b.abs) * eps
+  }
+
+
+
 
   //////////////////// REFINING
 

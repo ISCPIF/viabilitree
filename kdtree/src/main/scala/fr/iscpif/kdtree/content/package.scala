@@ -84,6 +84,7 @@ package object content {
 
     def dilate(implicit relabel: (T, Boolean) => T): Tree[T] = {
       val leaves = t.leavesToReassign
+      println("taille feuilles " + leaves.size)
       leaves.foldLeft(t.root) {
         (currentRoot, leaf) =>
           assert(currentRoot == t.root)
@@ -114,19 +115,31 @@ package object content {
               case Some(x) => x.toDirection
             }
 
-          fork.borderLeaves(direction).filter(
-            x => x.content.label != leaf.content.label && adjacent(leaf.path, x.path)
-          ).flatMap {
-              borderLeaf => List(leaf, borderLeaf)
-            }
+          val test = fork.borderLeaves(direction).filter(
+            x => (x.content.label != leaf.content.label ) && adjacent(leaf.path, x.path)
+          )
+
+           // assert(test.size <= 1)
+            if (test.size != 0) {
+//              println("feuille "+ leaf.zone)
+ //             println("border "+ test.head.zone)
+             test.flatMap {
+               borderLeaf => List(leaf, borderLeaf)
+             }
+             }
+            else  List.empty
         } else List.empty
       }
 
       (node1, node2) match {
         case (leaf1: Leaf[T], leaf2: Leaf[T]) =>
           assert(adjacent(leaf1.path, leaf2.path))
-          if (t.isAtomic(leaf1) && t.isAtomic(leaf2) && xor(leaf1.content.label, leaf2.content.label))
-            List(leaf1, leaf2)
+          // test pour voir si c'est effectivement le cas
+
+          if (t.isAtomic(leaf1) && t.isAtomic(leaf2) && xor(leaf1.content.label, leaf2.content.label))     {
+            assert(Zone.adjacentZones(leaf1.zone, leaf2.zone),{println(leaf1.zone.region.toList); println(leaf2.zone.region.toList)})
+          List(leaf1, leaf2)
+          }
           else Nil
 
         case (fork1: Fork[T], fork2: Fork[T]) =>
