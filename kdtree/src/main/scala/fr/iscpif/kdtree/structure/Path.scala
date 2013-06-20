@@ -97,7 +97,10 @@ object Path {
         else if (hy._1 < hx._1) adjacencyFromSorted(hx :: tx, ty)
         else {
           assert(hx._1 == hy._1)
-          compareDescendants(hx._2, hy._2)
+          if (compareDescendants(hx._2, hy._2) ) {
+            adjacencyFromSorted(tx, ty)
+          }
+          else false
         }
     }
   }

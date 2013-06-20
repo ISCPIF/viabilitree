@@ -19,6 +19,7 @@ package object content {
 
     (node1, node2) match {
       case (leaf1: Leaf[T], leaf2: Leaf[T]) =>
+        assert(Zone.adjacentZones(leaf1.zone, leaf2.zone),{println("TEST" + leaf1.zone.region.toList); println("TEST" + leaf2.zone.region.toList)})
         if (xor(leaf1.content.label, leaf2.content.label))
           List((leaf1, leaf2, direction.coordinate))
         else
@@ -134,11 +135,8 @@ package object content {
       (node1, node2) match {
         case (leaf1: Leaf[T], leaf2: Leaf[T]) =>
           assert(adjacent(leaf1.path, leaf2.path))
-          //TODO test pour voir si c'est effectivement le cas
-          if (t.isAtomic(leaf1) && t.isAtomic(leaf2) && xor(leaf1.content.label, leaf2.content.label))     {
-//            assert(Zone.adjacentZones(leaf1.zone, leaf2.zone),{println(leaf1.zone.region.toList); println(leaf2.zone.region.toList)})
-          List(leaf1, leaf2)
-          }
+          //TODO test adjacency  if true assert(Zone.adjacentZones(leaf1.zone, leaf2.zone),{println(leaf1.zone.region.toList); println(leaf2.zone.region.toList)})
+          if (t.isAtomic(leaf1) && t.isAtomic(leaf2) && xor(leaf1.content.label, leaf2.content.label))   List(leaf1, leaf2)
           else Nil
 
         case (fork1: Fork[T], fork2: Fork[T]) =>
