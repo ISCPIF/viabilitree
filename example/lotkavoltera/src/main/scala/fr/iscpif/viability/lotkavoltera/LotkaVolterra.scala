@@ -1,13 +1,13 @@
-package lotkavoltera
+package fr.iscpif.viability.lotkavoltera
 
-object LotkaVolterra extends App {
+object LotkaVoltera {
 
   val alpha = 2.0
   val beta = 0.4
   val gamma = 1.0
   val delta = 0.1
 
-  val timeStep = 0.001
+  val timeStep = 0.01
 
   def xDot(state: Array[Double], t: Double) = state(0) * (alpha - beta * state(1))
   def yDot(state: Array[Double], t: Double) = -state(1) * (gamma - delta * state(0))
