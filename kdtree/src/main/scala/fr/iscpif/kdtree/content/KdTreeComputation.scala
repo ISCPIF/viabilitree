@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 27/05/13 Romain Reuillon
+ * Copyright (C) 24/06/13 Romain Reuillon
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -15,35 +15,33 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package fr.iscpif.kdtree.example
+package fr.iscpif.kdtree.content
 
 import fr.iscpif.kdtree.structure._
-import fr.iscpif.kdtree.content._
 import scala.util.Random
-import org.apache.commons.math3.random._
+import org.apache.commons.math3.random.{ Well44497b, RandomAdaptor }
 
-trait Example extends KdTreeComputation {
+trait KdTreeComputation {
 
-  case class Content(testPoint: Point, label: Boolean) extends Label with TestPoint
+  type T <: Label with TestPoint
 
-  type T = Content
+  def sampler(z: Zone, rng: Random) = z.randomPoint(rng)
 
-  implicit def relabel(c: Content, label: Boolean) = c.copy(label = label)
+  def evaluator(ps: Iterable[Zone], rng: Random) = {
+    val seeds = Iterable.fill(ps.size)(rng.nextLong)
 
-  def contentBuilder(p: Point) = Content(p, oracle(p))
-  def oracle(p: Point): Boolean
+    (ps zip seeds).par.map {
+      case (z, seed) =>
+        val point = sampler(z, random(seed))
+        contentBuilder(point)
+    }.seq
+  }
 
-  def originalTree =
-    Tree(
-      Leaf(
-        Content(point, label = true),
-        Zone(zone)
-      ),
-      depth
-    )
+  def contentBuilder(p: Point): T
+  def originalTree: Tree[T]
+  def random(seed: Long) = new Random(new RandomAdaptor(new Well44497b(seed)))
 
-  def zone: Seq[Interval]
-  def point: Point
-  def depth: Int
+  def run(implicit rng: Random): Tree[T] =
+    originalTree.compute(evaluator)
 
 }
