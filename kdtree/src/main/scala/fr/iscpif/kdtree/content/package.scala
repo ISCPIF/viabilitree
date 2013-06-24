@@ -83,14 +83,15 @@ package object content {
 
     def volume = t.root.volume
 
-    def dilate(implicit relabel: (T, Boolean) => T): Tree[T] = {
-      val leaves = t.leavesToReassign
+    def dilate(implicit relabel: (T, Boolean) => T, m: Manifest[T]): Tree[T] = {
+      val newT = t.clone
+      val leaves = newT.leavesToReassign
       leaves.foldLeft(t.root) {
         (currentRoot, leaf) =>
-          assert(currentRoot == t.root)
+          assert(currentRoot == newT.root)
           currentRoot.replace(leaf.path, relabel(leaf.content, true))
       }
-      t
+      newT
     }
 
     def leavesToReassign: Iterable[Leaf[T]] = leavesToReassign(t.root)
