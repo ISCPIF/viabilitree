@@ -85,7 +85,6 @@ package object content {
 
     def dilate(implicit relabel: (T, Boolean) => T): Tree[T] = {
       val leaves = t.leavesToReassign
-      println("taille feuilles " + leaves.size)
       leaves.foldLeft(t.root) {
         (currentRoot, leaf) =>
           assert(currentRoot == t.root)
