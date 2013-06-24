@@ -25,7 +25,3 @@ object Descendant {
   case object NotDescendant extends Descendant
 
 }
-
-trait Descendant {
-
-}
