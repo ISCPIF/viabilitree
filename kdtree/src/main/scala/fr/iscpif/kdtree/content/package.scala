@@ -19,7 +19,7 @@ package object content {
 
     (node1, node2) match {
       case (leaf1: Leaf[T], leaf2: Leaf[T]) =>
-        assert(Zone.adjacentZones(leaf1.zone, leaf2.zone),{println("TEST" + leaf1.zone.region.toList); println("TEST" + leaf2.zone.region.toList)})
+        assert(Zone.adjacentZones(leaf1.zone, leaf2.zone))
         if (xor(leaf1.content.label, leaf2.content.label))
           List((leaf1, leaf2, direction.coordinate))
         else
@@ -33,7 +33,7 @@ package object content {
           (fork1.highChild, fork2.highChild))
         listAux.flatMap {
           case (n1, n2) =>
-            if (adjacent(n1.path, n2.path)) (pairsBetweenNodes(n1, n2))
+            if (adjacent(n1.path, n2.path)) pairsBetweenNodes(n1, n2)
             else Nil
         }
 
@@ -117,18 +117,14 @@ package object content {
             }
 
           val test = fork.borderLeaves(direction).filter(
-            x => (x.content.label != leaf.content.label ) && adjacent(leaf.path, x.path)
+            x => (x.content.label != leaf.content.label) && adjacent(leaf.path, x.path)
           )
 
-           // assert(test.size <= 1)
-            if (test.size != 0) {
-//              println("feuille "+ leaf.zone)
- //             println("border "+ test.head.zone)
-             test.flatMap {
-               borderLeaf => List(leaf, borderLeaf)
-             }
-             }
-            else  List.empty
+          if (test.size != 0)
+            test.flatMap {
+              borderLeaf => List(leaf, borderLeaf)
+            }
+          else List.empty
         } else List.empty
       }
 
@@ -136,7 +132,7 @@ package object content {
         case (leaf1: Leaf[T], leaf2: Leaf[T]) =>
           assert(adjacent(leaf1.path, leaf2.path))
           //TODO test adjacency  if true assert(Zone.adjacentZones(leaf1.zone, leaf2.zone),{println(leaf1.zone.region.toList); println(leaf2.zone.region.toList)})
-          if (t.isAtomic(leaf1) && t.isAtomic(leaf2) && xor(leaf1.content.label, leaf2.content.label))   List(leaf1, leaf2)
+          if (t.isAtomic(leaf1) && t.isAtomic(leaf2) && xor(leaf1.content.label, leaf2.content.label)) List(leaf1, leaf2)
           else Nil
 
         case (fork1: Fork[T], fork2: Fork[T]) =>

@@ -102,7 +102,7 @@ trait Leaf[T] extends Node[T] { leaf =>
     } else throw new RuntimeException("Descendant should be low or high.")
 
   }
-/* def touches(leaf: Leaf[T]): Boolean = {
+  /* def touches(leaf: Leaf[T]): Boolean = {
    val dim = this.zone.region.length
    var test1 = this.zone.region
    var test2 = leaf.zone.region
