@@ -3,6 +3,8 @@ import Keys._
 
 object ViabilityRootBuild extends Build { 
 
+ override def settings = super.settings ++ Seq(scalaVersion := "2.10.2")
+
  lazy val all = Project(id = "all", base = file(".")) aggregate(kdtree, visualisation, viability) dependsOn(kdtree, visualisation, viability)
  
  lazy val kdtree = Project(id = "kdtree", base = file("kdtree"))
@@ -12,13 +14,6 @@ object ViabilityRootBuild extends Build {
    )
 
  lazy val viability = Project(id = "viability", base = file("viability")) dependsOn(kdtree)
-
- lazy val languages = Project(id = "languages", base = file("languages"))
-
- lazy val viabilityLanguages = Project(id = "viabilityLanguages", base = file("viabilityLanguages")) dependsOn(languages, viability, kdtree)
-
- lazy val viabilityCabbage = Project(id = "viabilityCabbage", base = file("viabilityCabbage")) dependsOn(viability, kdtree)
-
 
 }
 
