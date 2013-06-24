@@ -36,9 +36,11 @@ trait Tree[T] {
   def dimension = root.zone.region.size
 
   def clone(implicit m: Manifest[T]) = {
-    val clonner = new Cloner
-    clonner.registerImmutable(m.runtimeClass)
-    clonner.deepClone(this)
+    val cloner = new Cloner
+    cloner.registerImmutable(m.runtimeClass)
+    cloner.dontCloneInstanceOf(classOf[Descendant.Descendant])
+    cloner.dontCloneInstanceOf(None.getClass)
+    cloner.deepClone(this)
   }
 
 }

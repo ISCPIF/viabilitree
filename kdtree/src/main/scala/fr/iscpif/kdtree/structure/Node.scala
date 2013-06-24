@@ -32,7 +32,7 @@ trait Node[T] { node =>
 
   def path: Path = reversePath.reverse
 
-  lazy val reversePath: Path = parent match {
+  @transient lazy val reversePath: Path = parent match {
     case None => Seq.empty
     case Some(parent) => {
       parent.descendantType(this) match {

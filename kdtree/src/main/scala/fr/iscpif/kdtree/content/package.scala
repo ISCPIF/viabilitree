@@ -86,7 +86,7 @@ package object content {
     def dilate(implicit relabel: (T, Boolean) => T, m: Manifest[T]): Tree[T] = {
       val newT = t.clone
       val leaves = newT.leavesToReassign
-      leaves.foldLeft(t.root) {
+      leaves.foldLeft(newT.root) {
         (currentRoot, leaf) =>
           assert(currentRoot == newT.root)
           currentRoot.replace(leaf.path, relabel(leaf.content, true))
