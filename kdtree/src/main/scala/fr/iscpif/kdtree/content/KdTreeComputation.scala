@@ -38,10 +38,9 @@ trait KdTreeComputation {
   }
 
   def contentBuilder(p: Point): T
-  def originalTree: Tree[T]
   def random(seed: Long) = new Random(new RandomAdaptor(new Well44497b(seed)))
 
-  def run(implicit rng: Random): Tree[T] =
-    originalTree.compute(evaluator)
+  def compute(tree: Tree[T])(implicit rng: Random): Tree[T] =
+    tree.compute(evaluator)
 
 }

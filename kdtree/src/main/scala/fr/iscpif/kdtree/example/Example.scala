@@ -46,4 +46,6 @@ trait Example extends KdTreeComputation {
   def point: Point
   def depth: Int
 
+  def run(implicit rng: Random) = compute(originalTree)
+
 }
