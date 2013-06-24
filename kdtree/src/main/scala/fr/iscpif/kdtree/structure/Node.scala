@@ -59,14 +59,6 @@ trait Node[T] { node =>
 
   def leaves: Iterable[Leaf[T]]
 
-  // TODO: Delete??
-  /*
-  def clone = {
-    val cloner = new Cloner
-    cloner.deepClone(this)
-  }
-  */
-
   def borderLeaves(direction: Direction): Iterable[Leaf[T]]
 
   def numberOfDivisionsInCoordinate(coordinate: Int): Int = {
