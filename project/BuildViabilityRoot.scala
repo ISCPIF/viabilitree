@@ -3,7 +3,7 @@ import Keys._
 
 object ViabilityRootBuild extends Build { 
 
- lazy val all = Project(id = "all", base = file(".")) aggregate(kdtree, visualisation) dependsOn(kdtree, visualisation)
+ lazy val all = Project(id = "all", base = file(".")) aggregate(kdtree, visualisation, viability) dependsOn(kdtree, visualisation, viability)
  
  lazy val kdtree = Project(id = "kdtree", base = file("kdtree"))
  
