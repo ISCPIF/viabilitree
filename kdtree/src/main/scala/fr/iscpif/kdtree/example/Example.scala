@@ -20,7 +20,6 @@ package fr.iscpif.kdtree.example
 import fr.iscpif.kdtree.structure._
 import fr.iscpif.kdtree.content._
 import scala.util.Random
-import org.apache.commons.math3.random._
 
 trait Example extends KdTreeComputation {
 
