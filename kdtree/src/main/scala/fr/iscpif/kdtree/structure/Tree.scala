@@ -17,6 +17,8 @@
 
 package fr.iscpif.kdtree.structure
 
+import com.rits.cloning.Cloner
+
 object Tree {
   def apply[T](_root: Node[T], _depth: Int) =
     new Tree[T] {
@@ -26,9 +28,19 @@ object Tree {
 }
 
 trait Tree[T] {
+
   def depth: Int
   def root: Node[T]
   def isAtomic(l: Leaf[T]) = l.depth >= depth
   def atomicLeaves = root.leaves.filter(isAtomic)
   def dimension = root.zone.region.size
+
+  def clone(implicit m: Manifest[T]) = {
+    val cloner = new Cloner
+    cloner.registerImmutable(m.runtimeClass)
+    cloner.dontCloneInstanceOf(classOf[Descendant.Descendant])
+    cloner.dontCloneInstanceOf(None.getClass)
+    cloner.deepClone(this)
+  }
+
 }

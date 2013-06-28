@@ -1,9 +1,8 @@
 /*
- * Copyright (C) 2013 de Aldama / Reuillon
+ * Copyright (C) 24/06/13 Romain Reuillon
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
-published by
+ * it under the terms of the GNU Affero General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
@@ -16,12 +15,8 @@ published by
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package fr.iscpif.kdtree.structure
+package fr.iscpif.viability
 
-object Descendant {
-  sealed trait Descendant
-  case object Low extends Descendant
-  case object High extends Descendant
-  case object NotDescendant extends Descendant
+object Viability {
 
 }

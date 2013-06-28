@@ -35,19 +35,19 @@ object Circle extends App with Example {
 
   def point = Seq(0.0, 0.0, 0.0)
 
-  def depth = 12
+  def depth = 15
 
   val res = run
 
-  println("Nb leaves " + res.leaves.size)
-  println("Nb atomic leaves " + res.atomicLeaves.size)
-  println("Nb true atomic leaves " + res.atomicLeaves.filter(_.content.label).size)
-  println("Volume " + res.volume)
+  // println("Nb leaves " + res.leaves.size)
+  // println("Nb atomic leaves " + res.atomicLeaves.size)
+  // println("Nb true atomic leaves " + res.atomicLeaves.filter(_.content.label).size)
+  // println("Volume " + res.volume)
 
   val dilated = res.dilate
 
-  println("Nb atomic leaves " + dilated.atomicLeaves.size)
-  println("Nb true atomic leaves " + dilated.atomicLeaves.filter(_.content.label).size)
-  println("Volume " + dilated.volume)
+  // println("Nb atomic leaves " + dilated.atomicLeaves.size)
+  // println("Nb true atomic leaves " + dilated.atomicLeaves.filter(_.content.label).size)
+  // println("Volume " + dilated.volume)
 
 }

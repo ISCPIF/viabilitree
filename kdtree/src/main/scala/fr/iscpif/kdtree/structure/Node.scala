@@ -32,7 +32,7 @@ trait Node[T] { node =>
 
   def path: Path = reversePath.reverse
 
-  lazy val reversePath: Path = parent match {
+  @transient lazy val reversePath: Path = parent match {
     case None => Seq.empty
     case Some(parent) => {
       parent.descendantType(this) match {
@@ -58,14 +58,6 @@ trait Node[T] { node =>
   def containingLeaf(point: Point): Option[Leaf[T]]
 
   def leaves: Iterable[Leaf[T]]
-
-  // TODO: Delete??
-  /*
-  def clone = {
-    val cloner = new Cloner
-    cloner.deepClone(this)
-  }
-  */
 
   def borderLeaves(direction: Direction): Iterable[Leaf[T]]
 

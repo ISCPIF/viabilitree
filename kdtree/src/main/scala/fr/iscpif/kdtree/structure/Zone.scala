@@ -26,18 +26,18 @@ object Zone {
       val region = intervals.toArray
     }
   // TODO pour le test d'adjacence à virer sinon avec le includes de Interval et le equivalence
-  def adjacencyDirAux (zone1:Zone, zone2:Zone) ={
+  def adjacencyDirAux(zone1: Zone, zone2: Zone) = {
     var result: Option[Direction] = None
     var adjacentZones = true
-    for(i<- 0 to zone1.region.length-1){
-      if (!(includes(zone1.region(i),zone2.region(i))||includes(zone2.region(i),zone1.region(i)))){
-        result match{
+    for (i <- 0 to zone1.region.length - 1) {
+      if (!(includes(zone1.region(i), zone2.region(i)) || includes(zone2.region(i), zone1.region(i)))) {
+        result match {
           //There is more than one direction where intervals are not included
           case Some(_) => adjacentZones = false
           //test if adjacent intervals:
           case None =>
-            if (equivalence(zone1.region(i).max, zone2.region(i).min)) result = Some(Direction(i,Positive))
-            else if (equivalence(zone2.region(i).max, zone1.region(i).min)) result = Some(Direction(i,Negative))
+            if (equivalence(zone1.region(i).max, zone2.region(i).min)) result = Some(Direction(i, Positive))
+            else if (equivalence(zone2.region(i).max, zone1.region(i).min)) result = Some(Direction(i, Negative))
             else adjacentZones = false
         }
       }
@@ -45,13 +45,12 @@ object Zone {
     if (adjacentZones) result else None
   }
 
-  def adjacentZones(zone1:Zone, zone2:Zone) = {
-    adjacencyDirAux(zone1,zone2) match{
+  def adjacentZones(zone1: Zone, zone2: Zone) = {
+    adjacencyDirAux(zone1, zone2) match {
       case Some(_) => true
       case None => false
     }
   }
-
 
 }
 
