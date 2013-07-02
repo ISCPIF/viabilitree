@@ -83,6 +83,20 @@ package object content {
 
     def volume = t.root.volume
 
+/*
+    def dilate(implicit relabel: (T, Boolean) => T, m: Manifest[T]): Tree[T] = {
+      val newT = t.clone
+      val leaves = newT.leavesToReassign
+      leaves.foldLeft(newT.root) {
+        (currentRoot, leaf) =>
+          assert(currentRoot == newT.root)
+          currentRoot.replace(leaf.path, relabel(leaf.content, true))
+      }
+      newT
+    }
+*/
+
+
     def dilate(implicit relabel: (T, Boolean) => T, m: Manifest[T]): Tree[T] = {
       val newT = t.clone
       val leaves = newT.leavesToReassign(newT.root,false)
@@ -93,6 +107,7 @@ package object content {
       }
       newT
     }
+
 
     def erode(implicit relabel: (T, Boolean) => T, m: Manifest[T]): Tree[T] = {
       val newT = t.clone
@@ -105,10 +120,16 @@ package object content {
       newT
     }
 
-//    def leavesToReassign: Iterable[Leaf[T]] = leavesToReassign(t.root)
+
+    //    def leavesToReassign: Iterable[Leaf[T]] = leavesToReassign(t.root)
+
+//    def leavesToReassign(n: Node[T]): Iterable[Leaf[T]] =
+//      criticalLeaves(n).filter(!_.content.label).toSeq.distinct
+
 
     def leavesToReassign(n: Node[T], label: Boolean): Iterable[Leaf[T]] =
       criticalLeaves(n,label).filter(_.content.label==label).toSeq.distinct
+
 
     def criticalLeaves(n: Node[T] = t.root,label: Boolean) =
       (n match {
@@ -117,6 +138,16 @@ package object content {
           leavesToReassign(fork.lowChild,label) ++ leavesToReassign(fork.highChild,label) ++
             criticalLeavesBetweenNodes(fork.lowChild, fork.highChild)
       }).toSeq.distinct
+
+/*
+    def criticalLeaves(n: Node[T] = t.root) =
+      (n match {
+        case leaf: Leaf[T] => List.empty
+        case fork: Fork[T] =>
+          leavesToReassign(fork.lowChild) ++ leavesToReassign(fork.highChild) ++
+            criticalLeavesBetweenNodes(fork.lowChild, fork.highChild)
+      }).toSeq.distinct
+*/
 
     def criticalLeavesBetweenNodes(node1: Node[T], node2: Node[T]): Iterable[Leaf[T]] = {
       def borderLeaves(leaf: Leaf[T], fork: Fork[T]) = {
