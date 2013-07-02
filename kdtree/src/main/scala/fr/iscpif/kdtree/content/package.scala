@@ -85,7 +85,7 @@ package object content {
 
     def dilate(implicit relabel: (T, Boolean) => T, m: Manifest[T]): Tree[T] = {
       val newT = t.clone
-      val leaves = newT.leavesToReassign
+      val leaves = newT.leavesToReassign(newT.root,false)
       leaves.foldLeft(newT.root) {
         (currentRoot, leaf) =>
           assert(currentRoot == newT.root)
@@ -94,16 +94,27 @@ package object content {
       newT
     }
 
-    def leavesToReassign: Iterable[Leaf[T]] = leavesToReassign(t.root)
+    def erode(implicit relabel: (T, Boolean) => T, m: Manifest[T]): Tree[T] = {
+      val newT = t.clone
+      val leaves = newT.leavesToReassign(newT.root,true)
+      leaves.foldLeft(newT.root) {
+        (currentRoot, leaf) =>
+          assert(currentRoot == newT.root)
+          currentRoot.replace(leaf.path, relabel(leaf.content, false))
+      }
+      newT
+    }
 
-    def leavesToReassign(n: Node[T]): Iterable[Leaf[T]] =
-      criticalLeaves(n).filter(!_.content.label).toSeq.distinct
+//    def leavesToReassign: Iterable[Leaf[T]] = leavesToReassign(t.root)
 
-    def criticalLeaves(n: Node[T] = t.root) =
+    def leavesToReassign(n: Node[T], label: Boolean): Iterable[Leaf[T]] =
+      criticalLeaves(n,label).filter(_.content.label==label).toSeq.distinct
+
+    def criticalLeaves(n: Node[T] = t.root,label: Boolean) =
       (n match {
         case leaf: Leaf[T] => List.empty
         case fork: Fork[T] =>
-          leavesToReassign(fork.lowChild) ++ leavesToReassign(fork.highChild) ++
+          leavesToReassign(fork.lowChild,label) ++ leavesToReassign(fork.highChild,label) ++
             criticalLeavesBetweenNodes(fork.lowChild, fork.highChild)
       }).toSeq.distinct
 

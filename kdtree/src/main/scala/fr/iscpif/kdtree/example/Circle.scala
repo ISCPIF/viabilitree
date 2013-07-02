@@ -42,12 +42,14 @@ object Circle extends App with Example {
   // println("Nb leaves " + res.leaves.size)
   // println("Nb atomic leaves " + res.atomicLeaves.size)
   // println("Nb true atomic leaves " + res.atomicLeaves.filter(_.content.label).size)
-  // println("Volume " + res.volume)
+   println("Volume " + res.volume)
 
   val dilated = res.dilate
 
   // println("Nb atomic leaves " + dilated.atomicLeaves.size)
   // println("Nb true atomic leaves " + dilated.atomicLeaves.filter(_.content.label).size)
-  // println("Volume " + dilated.volume)
+   println("Volume dilaté " + dilated.volume)
 
+  val eroded = res.erode
+  println("Volume érodé " + eroded.volume)
 }
