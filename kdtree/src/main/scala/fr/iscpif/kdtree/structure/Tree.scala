@@ -20,7 +20,11 @@ package fr.iscpif.kdtree.structure
 import com.rits.cloning.Cloner
 
 object Tree {
-  def apply[T](_root: Node[T], _depth: Int) =
+
+  def apply[T](content: T, zone: Zone, depth: Int): Tree[T] =
+    apply(Leaf(content, zone), depth)
+
+  def apply[T](_root: Node[T], _depth: Int): Tree[T] =
     new Tree[T] {
       val root = _root
       val depth = _depth
@@ -34,6 +38,10 @@ trait Tree[T] {
   def isAtomic(l: Leaf[T]) = l.depth >= depth
   def atomicLeaves = root.leaves.filter(isAtomic)
   def dimension = root.zone.region.size
+  def leaf(path: Path) = root.leaf(path)
+
+  // TODO implement lazy computations of leaves, possible thanks to immutable tree
+  //def leaves: Iterable[Leaf[T]]
 
   def clone(implicit m: Manifest[T]) = {
     val cloner = new Cloner

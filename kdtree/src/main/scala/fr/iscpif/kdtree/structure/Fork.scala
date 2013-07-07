@@ -70,7 +70,7 @@ trait Fork[T] extends Node[T] { fork =>
       case _ => lowChild.borderLeaves(direction).toList ::: highChild.borderLeaves(direction).toList
     }
 
-  def replace(path: Path, content: T): Node[T] =
+  def replace(path: Path, content: T) =
     path.toList match {
       case Nil =>
         val newLeaf = Leaf[T](content, zone)
@@ -90,8 +90,8 @@ trait Fork[T] extends Node[T] { fork =>
 
   ///////// REFINING METHODS
 
-  def insert(extendedPath: Path, content: T): Node[T] = {
-    assert(extendedPath(0).coordinate == divisionCoordinate)
+  def insert(extendedPath: Path, content: T) = {
+    assert(extendedPath(0).coordinate == divisionCoordinate, s"Path $extendedPath doesn't math the current tree, head coodinate should be $divisionCoordinate")
 
     extendedPath(0).descendant match {
       case Descendant.Low => lowChild.insert(extendedPath.drop(1), content)
@@ -103,5 +103,15 @@ trait Fork[T] extends Node[T] { fork =>
   def isParentOfChildren: Boolean = {
     _lowChild.parent == Some(this) && _highChild.parent == Some(this)
   }
+
+  def leaf(path: Path): Option[Leaf[T]] =
+    if (path.isEmpty) None
+    else {
+      path.head.descendant match {
+        case Descendant.Low => lowChild.leaf(path.tail)
+        case Descendant.High => highChild.leaf(path.tail)
+        case _ => sys.error("Not supposed to be empty")
+      }
+    }
 
 }

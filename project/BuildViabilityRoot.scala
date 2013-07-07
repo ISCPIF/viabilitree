@@ -5,7 +5,7 @@ object ViabilityRootBuild extends Build {
 
  override def settings = super.settings ++ Seq(scalaVersion := "2.10.2")
 
- lazy val all = Project(id = "all", base = file(".")) aggregate(kdtree, visualisation, viability) dependsOn(kdtree, visualisation, viability, lotkavoltera)
+ lazy val all = Project(id = "all", base = file(".")) aggregate(kdtree, visualisation, viability, lotkavoltera) dependsOn(kdtree, visualisation, viability, lotkavoltera)
  
  lazy val kdtree = Project(id = "kdtree", base = file("kdtree"))
  

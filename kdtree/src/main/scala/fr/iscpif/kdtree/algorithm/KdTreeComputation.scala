@@ -15,32 +15,33 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package fr.iscpif.kdtree.content
+package fr.iscpif.kdtree.algorithm
 
 import fr.iscpif.kdtree.structure._
+import fr.iscpif.kdtree.content._
 import scala.util.Random
-import org.apache.commons.math3.random.{ Well44497b, RandomAdaptor }
+import fr.iscpif.kdtree.content.{ TestPoint, Label }
 
-trait KdTreeComputation {
+trait KdTreeComputation extends Sampler with Evaluator {
 
-  type T <: Label with TestPoint
+  type CONTENT <: Label with TestPoint
 
-  def sampler(z: Zone, rng: Random) = z.randomPoint(rng)
+  def apply(tree: Tree[CONTENT], contentBuilder: Point => CONTENT)(implicit rng: Random, m: Manifest[CONTENT]): Tree[CONTENT] = {
+    def refine(tree: Tree[CONTENT]): Tree[CONTENT] = {
+      import mutable._
 
-  def evaluator(ps: Iterable[Zone], rng: Random) = {
-    val seeds = Iterable.fill(ps.size)(rng.nextLong)
+      val leavesToRefine = tree.leavesToRefine(tree)
 
-    (ps zip seeds).par.map {
-      case (z, seed) =>
-        val point = sampler(z, random(seed))
-        contentBuilder(point)
-    }.seq
+      if (leavesToRefine.isEmpty) tree
+      else refine(
+        tree.evaluateAndInsert(
+          tree.root.zonesAndPathsToTest(leavesToRefine),
+          evaluator(contentBuilder)
+        )
+      )
+    }
+
+    refine(tree.clone)
   }
-
-  def contentBuilder(p: Point): T
-  def random(seed: Long) = new Random(new RandomAdaptor(new Well44497b(seed)))
-
-  def compute(tree: Tree[T])(implicit rng: Random): Tree[T] =
-    tree.compute(evaluator)
 
 }

@@ -7,7 +7,7 @@ import scala.util.Random
 
 package object content {
 
-  type Evaluator[T] = (Iterable[Zone], Random) => Iterable[T]
+  type Relabeliser[T] = (T, T => Boolean) => T
 
   // The critical pairs together with the coordinate of adjacency (no need to include the sign)
   def pairsBetweenNodes[T <: Label](node1: Node[T], node2: Node[T]): Iterable[(Leaf[T], Leaf[T], Int)] = {
@@ -51,18 +51,19 @@ package object content {
   }
 
   implicit class LabelNodeDecorator[T <: Label](val n: Node[T]) {
+
     import n._
 
-    def leavesColored(label: Boolean): Iterable[Leaf[T]] = leaves.filter(_.content.label == label)
+    def leavesLabeled(label: Boolean): Iterable[Leaf[T]] = leaves.filter(_.content.label == label)
 
-    def borderLeavesColored(direction: Direction, label: Boolean) =
+    def borderLeavesLabeled(direction: Direction, label: Boolean) =
       borderLeaves(direction).filter(_.content.label == label)
 
     // It is supposed to be applied on the root
     def preferredDirections: List[Direction] = {
       assert(parent == None)
       def preferableDirection(direction: Direction): Boolean =
-        if (borderLeaves(direction).filter(x => x.content.label == true) != Nil) true else false
+        if (borderLeaves(direction).filter(x => x.content.label) != Nil) true else false
       val positiveDirections: List[Direction] = zone.region.indices.toList.map(c => new Direction(c, Positive))
       val negativeDirections: List[Direction] = zone.region.indices.toList.map(c => new Direction(c, Negative))
       val preferredPDirections = positiveDirections.filter(d => preferableDirection(d))
@@ -70,9 +71,9 @@ package object content {
       preferredPDirections ::: preferredNDirections
     }
 
-    def volume: Double = leavesColored(true).map(_.zone.volume).sum
+    def volume: Double = leavesLabeled(label = true).map(_.zone.volume).sum
 
-    def normalizedVolume: Double = leavesColored(true).map(_.zone.normalizedVolume(zone)).sum
+    def normalizedVolume: Double = leavesLabeled(label = true).map(_.zone.normalizedVolume(zone)).sum
 
     def containingColoredLeaf(point: Point, label: Boolean): Option[Leaf[T]] =
       containingLeaf(point).filter(_.content.label == label)
@@ -83,71 +84,46 @@ package object content {
 
     def volume = t.root.volume
 
-/*
-    def dilate(implicit relabel: (T, Boolean) => T, m: Manifest[T]): Tree[T] = {
+    def reassign(update: T => T)(implicit m: Manifest[T]) = {
       val newT = t.clone
-      val leaves = newT.leavesToReassign
-      leaves.foldLeft(newT.root) {
-        (currentRoot, leaf) =>
-          assert(currentRoot == newT.root)
-          currentRoot.replace(leaf.path, relabel(leaf.content, true))
-      }
-      newT
-    }
-*/
-
-
-    def dilate(implicit relabel: (T, Boolean) => T, m: Manifest[T]): Tree[T] = {
-      val newT = t.clone
-      val leaves = newT.leavesToReassign(newT.root,false)
-      leaves.foldLeft(newT.root) {
-        (currentRoot, leaf) =>
-          assert(currentRoot == newT.root)
-          currentRoot.replace(leaf.path, relabel(leaf.content, true))
+      newT.leaves.foreach {
+        l => newT.replace(l.path, update(l.content))
       }
       newT
     }
 
-
-    def erode(implicit relabel: (T, Boolean) => T, m: Manifest[T]): Tree[T] = {
+    def dilate(implicit relabel: Relabeliser[T], m: Manifest[T]): Tree[T] = {
       val newT = t.clone
-      val leaves = newT.leavesToReassign(newT.root,true)
-      leaves.foldLeft(newT.root) {
-        (currentRoot, leaf) =>
-          assert(currentRoot == newT.root)
-          currentRoot.replace(leaf.path, relabel(leaf.content, false))
+      val leaves = newT.leavesToReassign(newT.root, label = false)
+      var currentRoot = newT.root
+      leaves.foreach {
+        leaf =>
+          currentRoot = newT.root.replace(leaf.path, relabel(leaf.content, _ => true)).rootCalling
       }
-      newT
+      Tree(currentRoot, newT.depth)
     }
 
-
-    //    def leavesToReassign: Iterable[Leaf[T]] = leavesToReassign(t.root)
-
-//    def leavesToReassign(n: Node[T]): Iterable[Leaf[T]] =
-//      criticalLeaves(n).filter(!_.content.label).toSeq.distinct
-
+    def erode(implicit relabel: Relabeliser[T], m: Manifest[T]): Tree[T] = {
+      val newT = t.clone
+      val leaves = newT.leavesToReassign(newT.root, label = true)
+      var currentRoot = newT.root
+      leaves.foreach {
+        leaf =>
+          currentRoot = newT.root.replace(leaf.path, relabel(leaf.content, _ => false)).rootCalling
+      }
+      Tree(currentRoot, newT.depth)
+    }
 
     def leavesToReassign(n: Node[T], label: Boolean): Iterable[Leaf[T]] =
-      criticalLeaves(n,label).filter(_.content.label==label).toSeq.distinct
+      criticalLeaves(n, label = label).filter(_.content.label == label).toSeq.distinct
 
-
-    def criticalLeaves(n: Node[T] = t.root,label: Boolean) =
+    def criticalLeaves(n: Node[T] = t.root, label: Boolean) =
       (n match {
         case leaf: Leaf[T] => List.empty
         case fork: Fork[T] =>
-          leavesToReassign(fork.lowChild,label) ++ leavesToReassign(fork.highChild,label) ++
+          leavesToReassign(fork.lowChild, label) ++ leavesToReassign(fork.highChild, label) ++
             criticalLeavesBetweenNodes(fork.lowChild, fork.highChild)
       }).toSeq.distinct
-
-/*
-    def criticalLeaves(n: Node[T] = t.root) =
-      (n match {
-        case leaf: Leaf[T] => List.empty
-        case fork: Fork[T] =>
-          leavesToReassign(fork.lowChild) ++ leavesToReassign(fork.highChild) ++
-            criticalLeavesBetweenNodes(fork.lowChild, fork.highChild)
-      }).toSeq.distinct
-*/
 
     def criticalLeavesBetweenNodes(node1: Node[T], node2: Node[T]): Iterable[Leaf[T]] = {
       def borderLeaves(leaf: Leaf[T], fork: Fork[T]) = {
@@ -237,63 +213,52 @@ package object content {
 
   }
 
+  implicit class TestPointLeafDecorator[T <: TestPoint](l: Leaf[T]) {
+    def emptyExtendedZoneAndPath(coordinate: Int) =
+      if (l.zone.divideLow(coordinate).contains(l.content.testPoint)) (l.zone.divideHigh(coordinate), l.extendedHighPath(coordinate))
+      else (l.zone.divideLow(coordinate), l.extendedLowPath(coordinate))
+  }
+
   implicit class LabelTestPointNodeDecorator[T <: Label with TestPoint](n: Node[T]) {
 
     def zonesAndPathsToTest(leavesAndPrefCoord: Iterable[(Leaf[T], Int)]): List[(Zone, Path)] = {
       def auxFunction(leaf: Leaf[T], prefCoord: Int): (Zone, Path) = {
         assert(leaf.contains(leaf.content.testPoint))
 
-        //compute the coordinate to split and the span of the zone in this coordinate
-        val divisionsOnPreferredCoordinate: Int = leaf.numberOfDivisionsInCoordinate(prefCoord)
-        val range: Range = leaf.zone.region.indices
-        val optionCoordinate = range.find(c => leaf.numberOfDivisionsInCoordinate(c) < divisionsOnPreferredCoordinate)
-        val coordinate =
-          optionCoordinate match {
-            case None => prefCoord
-            case Some(c) => c
-          }
-        val point = leaf.content.testPoint
-        val lowZone = leaf.zone.divideLow(coordinate)
-        val highZone = leaf.zone.divideHigh(coordinate)
+        val minCoord = leaf.minimalCoordinates
 
-        if (!xor(lowZone.contains(point), highZone.contains(point))) sys.error(s"Neither zone ${lowZone} and ${highZone} contain ${point}")
+        val coordinate =
+          minCoord.exists(_ == prefCoord) match {
+            case true => prefCoord
+            case false => minCoord.head
+          }
 
         //The new zone to test will be the one that does not contain the point of the current leaf
-        val zone = if (lowZone.contains(point)) highZone else lowZone
-
-        val extendedPath: Path =
-          if (lowZone.contains(point)) (PathElement(coordinate, Descendant.High) :: leaf.reversePath.toList).reverse
-          else (PathElement(coordinate, Descendant.Low) :: leaf.reversePath.toList).reverse
-
-        (zone, extendedPath)
+        leaf.emptyExtendedZoneAndPath(coordinate)
       }
 
       leavesAndPrefCoord.toList.map(x => auxFunction(x._1, x._2))
-
     }
 
   }
 
-  implicit class LabelTestPointTreeDecorator[T <: Label with TestPoint](t: Tree[T]) {
-    // TODO: Change name to distinguish bounded and unbounded
-    // computation of kdTree approximation. BOUNDED VERSION
-    def compute(evaluator: Evaluator[T])(implicit rng: Random): Tree[T] = {
+  object mutable {
 
-      def refineStep(zonesAndPaths: Iterable[(Zone, Path)], node: Node[T]) = {
-        val zones = zonesAndPaths.unzip._1
-        val paths = zonesAndPaths.unzip._2
-        val evaluated = paths zip evaluator(zones, rng)
-        evaluated.foldLeft(node) { case (n, (path, t)) => n.insert(path, t) }
+    implicit class MutableTreeDecorator[T](t: Tree[T]) {
+      def evaluateAndInsert(
+        zonesAndPaths: Iterable[(Zone, Path)],
+        evaluator: (Seq[Zone], Random) => Seq[T])(implicit rng: Random) = {
+        val (zones, paths) = zonesAndPaths.unzip
+        val evaluated = paths zip evaluator(zones.toSeq, rng)
+        var currentRoot = t.root
+        evaluated.foreach {
+          case (path, content) =>
+            currentRoot = currentRoot.insert(path, content).rootCalling
+        }
+        Tree(currentRoot, t.depth)
       }
-
-      def refine(node: Node[T]): Node[T] = {
-        val toRefine = t.leavesToRefine(node)
-        if (toRefine.isEmpty) node
-        else refine(refineStep(node.zonesAndPathsToTest(toRefine), node))
-      }
-
-      Tree(refine(t.root), t.depth)
     }
+
   }
 
 }

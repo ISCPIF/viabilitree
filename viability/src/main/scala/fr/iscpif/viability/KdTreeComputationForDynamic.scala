@@ -19,32 +19,95 @@ package fr.iscpif.viability
 
 import fr.iscpif.kdtree.structure._
 import fr.iscpif.kdtree.content._
+import math._
+import scala.util.Random
+import fr.iscpif.kdtree.algorithm.KdTreeComputation
 
 trait KdTreeComputationForDynamic extends KdTreeComputation {
 
-  case class Content(testPoint: Point, result: Point, label: Boolean) extends Label with TestPoint
-  implicit def relabel(c: Content, label: Boolean) = c.copy(label = label)
+  type CONTENT <: TestPoint with ResultPoint with Label
 
-  type T = Content
+  implicit val relabel: Relabeliser[CONTENT]
 
   def dynamic(p: Point): Point
-  def viable(p: Point): Boolean =
-    dilatedTree.root.containingLeaf(p).map(_.content.label).getOrElse(false)
+  def dimension: Int
+  def lipschitz: Option[Double] = None
 
-  lazy val dilatedTree = {
-    def dilate(t: Tree[T], nb: Int): Tree[T] =
+  def dilatedTree(tree: Tree[CONTENT])(implicit m: Manifest[CONTENT]) = {
+    def dilate(t: Tree[CONTENT], nb: Int): Tree[CONTENT] =
       if (nb >= 0) t
       else dilate(t.dilate, nb - 1)
-    dilate(currentTree, dilations)
+    dilate(tree, dilations)
   }
 
-  def dilations: Int
-  def currentTree: Tree[T]
-  def mu: Double
+  def dilations: Int =
+    lipschitz match {
+      case Some(l) => (floor(l * sqrt(dimension) / 2) + 1).toInt
+      case None => 0
+    }
 
-  def contentBuilder(p: Point): T = {
-    val result = dynamic(p)
-    Content(p, result, viable(result))
+  def buildContent(from: Point, result: Point, viable: Boolean): CONTENT
+
+  def apply(tree: Tree[CONTENT])(implicit rng: Random, m: Manifest[CONTENT]): Option[Tree[CONTENT]] = {
+    val dilated = dilatedTree(tree)
+
+    def viable(p: Point): Boolean =
+      dilated.root.containingLeaf(p).map(_.content.label).getOrElse(false)
+
+    def contentBuilder(p: Point): CONTENT = {
+      val result = dynamic(p)
+      buildContent(p, result, viable(result))
+    }
+
+    def reassignTree(implicit relabel: Relabeliser[CONTENT]) =
+      tree.reassign(
+        t =>
+          if (t.label) relabel(t, t => viable(t.result))
+          else t
+      )
+
+    val reassignedTree = reassignTree
+    findViablePoint(reassignedTree, contentBuilder).map(tree => super.apply(tree, contentBuilder))
   }
 
+  def findViablePoint(t: Tree[CONTENT], contentBuilder: Point => CONTENT)(implicit rng: Random, m: Manifest[CONTENT]): Option[Tree[CONTENT]] = {
+
+    // TODO implement lazy computations of leaves
+    if (t.leaves.exists(l => l.content.label)) Some(t)
+    else {
+      val newT = t.clone
+      import mutable._
+
+      val leaves =
+        newT.leaves.
+          filterNot(newT.isAtomic).
+          toSeq.sortBy(_.path.length).
+          reverse
+
+      def refineNonAtomicLeaves(l: List[Leaf[CONTENT]], tree: Tree[CONTENT]): Option[Tree[CONTENT]] =
+        l match {
+          case Nil => None
+          case l @ (h1 :: _) =>
+            val (bigLeaves, smallLeaves) = l.partition(_.path.length == h1.path.length)
+
+            def divide(toDivide: List[Leaf[CONTENT]], divided: List[Leaf[CONTENT]], tree: Tree[CONTENT]): (List[Leaf[CONTENT]], Tree[CONTENT], Boolean) =
+              toDivide match {
+                case Nil => (divided, tree, false)
+                case h2 :: tail =>
+                  val divisionCoordinate = h2.minimalCoordinates.head
+                  val zptt = h2.emptyExtendedZoneAndPath(divisionCoordinate)
+                  val newT = tree.evaluateAndInsert(Seq(zptt), evaluator(contentBuilder))
+                  val leaf = newT.leaf(zptt._2)
+                  if (leaf.map(_.content.label).getOrElse(false)) (h2 :: divided, tree, true)
+                  else divide(tail, h2 :: divided, tree)
+              }
+
+            val (divided, tree, found) = divide(bigLeaves, List.empty, newT)
+            if (found) Some(tree)
+            else if (!smallLeaves.isEmpty) refineNonAtomicLeaves(divided ::: smallLeaves, tree)
+            else refineNonAtomicLeaves(divided.filterNot(tree.isAtomic), tree)
+        }
+      refineNonAtomicLeaves(leaves.toList, newT)
+    }
+  }
 }

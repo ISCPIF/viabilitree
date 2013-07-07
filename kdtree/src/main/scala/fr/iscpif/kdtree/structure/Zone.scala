@@ -58,13 +58,14 @@ trait Zone {
   zone: Zone =>
   //TODO: Consider IndexSeq instead of Vector. Change val to def
   val region: Array[Interval]
+  def dimension = region.size
 
   def divideLow(d: Int): Zone =
     new Zone {
       //TODO: Change def to val
       val region = {
         val aux = (zone.region(d).min + zone.region(d).max) / 2
-        val low = new Interval(zone.region(d).min, aux)
+        val low = Interval(zone.region(d).min, aux)
         zone.region.updated(d, low)
       }
     }
@@ -74,7 +75,7 @@ trait Zone {
       //TODO: Change def to val
       val region = {
         val aux = (zone.region(d).min + zone.region(d).max) / 2
-        val high = new Interval(aux, zone.region(d).max)
+        val high = Interval(aux, zone.region(d).max)
         zone.region.updated(d, high)
       }
     }

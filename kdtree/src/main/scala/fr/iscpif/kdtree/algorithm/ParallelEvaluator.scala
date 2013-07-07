@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 24/06/13 Romain Reuillon
+ * Copyright (C) 07/07/13 Romain Reuillon
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -15,8 +15,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package fr.iscpif.viability
+package fr.iscpif.kdtree.algorithm
 
-object Viability {
+import fr.iscpif.kdtree.structure._
+import scala.util.Random
+import org.apache.commons.math3.random.{ Well44497b, RandomAdaptor }
+
+trait ParallelEvaluator extends Evaluator with Sampler {
+
+  def evaluator(contentBuilder: Point => CONTENT)(ps: Seq[Zone], rng: Random) = {
+    val seeds = Iterable.fill(ps.size)(rng.nextLong)
+
+    (ps zip seeds).par.map {
+      case (z, seed) =>
+        val point = sampler(z, random(seed))
+        contentBuilder(point)
+    }.seq
+  }
+
+  def random(seed: Long) = new Random(new RandomAdaptor(new Well44497b(seed)))
 
 }

@@ -20,8 +20,9 @@ package fr.iscpif.kdtree.example
 import fr.iscpif.kdtree.structure._
 import fr.iscpif.kdtree.content._
 import math._
+import fr.iscpif.kdtree.algorithm.OracleApproximation
 
-object Circle extends App with Example {
+object Circle extends App with OracleApproximation {
 
   def oracle(p: Point) =
     pow(p(0), 2) + pow(p(1), 2) + pow(p(2), 2) <= pow(1, 3)
@@ -35,21 +36,24 @@ object Circle extends App with Example {
 
   def point = Seq(0.0, 0.0, 0.0)
 
-  def depth = 15
+  def depth = 12
 
-  val res = run
+  val res = apply
 
-  // println("Nb leaves " + res.leaves.size)
-  // println("Nb atomic leaves " + res.atomicLeaves.size)
-  // println("Nb true atomic leaves " + res.atomicLeaves.filter(_.content.label).size)
-   println("Volume " + res.volume)
+  println("Nb leaves " + res.leaves.size)
+  println("Nb atomic leaves " + res.atomicLeaves.size)
+  println("Nb true atomic leaves " + res.atomicLeaves.filter(_.content.label).size)
+  println("Volume " + res.volume)
 
   val dilated = res.dilate
 
-  // println("Nb atomic leaves " + dilated.atomicLeaves.size)
-  // println("Nb true atomic leaves " + dilated.atomicLeaves.filter(_.content.label).size)
-   println("Volume dilaté " + dilated.volume)
+  println("Nb atomic leaves " + dilated.atomicLeaves.size)
+  println("Nb true atomic leaves " + dilated.atomicLeaves.filter(_.content.label).size)
+  println("Volume dilaté " + dilated.volume)
 
   val eroded = res.erode
+
+  println("Nb atomic leaves " + eroded.atomicLeaves.size)
+  println("Nb true atomic leaves " + eroded.atomicLeaves.filter(_.content.label).size)
   println("Volume érodé " + eroded.volume)
 }

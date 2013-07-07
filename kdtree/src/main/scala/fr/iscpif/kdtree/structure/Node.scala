@@ -109,6 +109,8 @@ trait Node[T] { node =>
     }
   }
 
+  def leaf(path: Path): Option[Leaf[T]]
+
   /////////////
 
 }

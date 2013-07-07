@@ -32,7 +32,7 @@ object Leaf {
 
 }
 
-trait Leaf[T] extends Node[T] { leaf =>
+trait Leaf[T] extends Node[T] { self =>
 
   def content: T
   def containingLeaf(point: Point): Option[Leaf[T]] = if (zone.contains(point)) Some(this) else None
@@ -60,19 +60,19 @@ trait Leaf[T] extends Node[T] { leaf =>
         val newLeaf = Leaf[T](content, zone)
         newLeaf.parent = Some(p)
         p.reassignChild(this, newLeaf)
-        newLeaf.rootCalling
+        newLeaf
     }
   }
 
-  def insert(extendedPath: Path, content: T): Node[T] = {
-    assert(extendedPath.length == 1)
+  def insert(extendedPath: Path, content: T) = {
+    assert(extendedPath.length == 1, s"$extendedPath should be of length 1")
 
     val coordinate = extendedPath.last.coordinate
     val descendant = extendedPath.last.descendant
 
     val newFork = new Fork[T] {
       val divisionCoordinate = extendedPath.last.coordinate
-      val zone: Zone = leaf.zone
+      val zone: Zone = self.zone
     }
     newFork.parent = this.parent
 
@@ -88,20 +88,37 @@ trait Leaf[T] extends Node[T] { leaf =>
       parent = Some(parentFork)
       val zone = _zone
       val content = _content
-
     }
 
     if (descendant == Descendant.Low) {
       newFork.attachLow(generateChild(newFork, lowZone, content))
-      newFork.attachHigh(generateChild(newFork, highZone, leaf.content))
-      newFork.rootCalling
+      newFork.attachHigh(generateChild(newFork, highZone, self.content))
+      newFork
     } else if (descendant == Descendant.High) {
-      newFork.attachLow(generateChild(newFork, lowZone, leaf.content))
+      newFork.attachLow(generateChild(newFork, lowZone, self.content))
       newFork.attachHigh(generateChild(newFork, highZone, content))
-      newFork.rootCalling
+      newFork
     } else throw new RuntimeException("Descendant should be low or high.")
 
   }
+
+  def extendedLowPath(coordinate: Int) =
+    (PathElement(coordinate, Descendant.Low) :: reversePath.toList).reverse
+
+  def extendedHighPath(coordinate: Int) =
+    (PathElement(coordinate, Descendant.High) :: reversePath.toList).reverse
+
+  def minimalCoordinates = {
+    val coordCardinals = path.groupBy(_.coordinate).map { case (k, v) => k -> v.size }
+    val allCoords = (0 until zone.dimension).map { d => coordCardinals.getOrElse(d, 0) }
+    val minCardinal = allCoords.min
+    allCoords.zipWithIndex.filter { case (c, _) => c == minCardinal }.map { case (_, i) => i }.sorted
+  }
+
+  def leaf(path: Path): Option[Leaf[T]] =
+    if (path.isEmpty) Some(this)
+    else None
+
   /* def touches(leaf: Leaf[T]): Boolean = {
    val dim = this.zone.region.length
    var test1 = this.zone.region
