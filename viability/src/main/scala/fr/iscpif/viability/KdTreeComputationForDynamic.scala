@@ -67,47 +67,8 @@ trait KdTreeComputationForDynamic extends KdTreeComputation {
       )
 
     val reassignedTree = reassignTree
-    findViablePoint(reassignedTree, contentBuilder).map(tree => super.apply(tree, contentBuilder))
+
+    findTrueLabel(reassignedTree, contentBuilder).map(tree => super.apply(tree, contentBuilder))
   }
 
-  def findViablePoint(t: Tree[CONTENT], contentBuilder: Point => CONTENT)(implicit rng: Random, m: Manifest[CONTENT]): Option[Tree[CONTENT]] = {
-
-    // TODO implement lazy computations of leaves
-    if (t.leaves.exists(l => l.content.label)) Some(t)
-    else {
-      val newT = t.clone
-      import mutable._
-
-      val leaves =
-        newT.leaves.
-          filterNot(newT.isAtomic).
-          toSeq.sortBy(_.path.length).
-          reverse
-
-      def refineNonAtomicLeaves(l: List[Leaf[CONTENT]], tree: Tree[CONTENT]): Option[Tree[CONTENT]] =
-        l match {
-          case Nil => None
-          case l @ (h1 :: _) =>
-            val (bigLeaves, smallLeaves) = l.partition(_.path.length == h1.path.length)
-
-            def divide(toDivide: List[Leaf[CONTENT]], divided: List[Leaf[CONTENT]], tree: Tree[CONTENT]): (List[Leaf[CONTENT]], Tree[CONTENT], Boolean) =
-              toDivide match {
-                case Nil => (divided, tree, false)
-                case h2 :: tail =>
-                  val divisionCoordinate = h2.minimalCoordinates.head
-                  val zptt = h2.emptyExtendedZoneAndPath(divisionCoordinate)
-                  val newT = tree.evaluateAndInsert(Seq(zptt), evaluator(contentBuilder))
-                  val leaf = newT.leaf(zptt._2)
-                  if (leaf.map(_.content.label).getOrElse(false)) (h2 :: divided, tree, true)
-                  else divide(tail, h2 :: divided, tree)
-              }
-
-            val (divided, tree, found) = divide(bigLeaves, List.empty, newT)
-            if (found) Some(tree)
-            else if (!smallLeaves.isEmpty) refineNonAtomicLeaves(divided ::: smallLeaves, tree)
-            else refineNonAtomicLeaves(divided.filterNot(tree.isAtomic), tree)
-        }
-      refineNonAtomicLeaves(leaves.toList, newT)
-    }
-  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 03/04/13 Romain Reuillon
+ * Copyright (C) 08/07/13 Romain Reuillon
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -17,15 +17,13 @@
 
 package fr.iscpif.kdtree.example
 
+import fr.iscpif.kdtree.algorithm.{ ZoneInput, OracleApproximation }
 import fr.iscpif.kdtree.structure._
-import fr.iscpif.kdtree.content._
-import math._
-import fr.iscpif.kdtree.algorithm._
+import scala.math._
 
-object Circle extends App with OracleApproximation with ZoneInput {
+object Rectangle extends App with OracleApproximation with ZoneInput {
 
-  def oracle(p: Point) =
-    pow(p(0), 2) + pow(p(1), 2) + pow(p(2), 2) <= pow(1, 3)
+  def oracle(p: Point) = p.forall(c => c >= -1.2 && c <= 0.8)
 
   def zone =
     Seq(
@@ -34,9 +32,7 @@ object Circle extends App with OracleApproximation with ZoneInput {
       (-2.0, 2.0)
     )
 
-  def point = Seq(0.0, 0.0, 0.0)
-
-  def depth = 12
+  def depth = 15
 
   val res = apply(zone, depth).get
 
@@ -57,3 +53,4 @@ object Circle extends App with OracleApproximation with ZoneInput {
   println("Nb true atomic leaves " + eroded.atomicLeaves.filter(_.content.label).size)
   println("Volume érodé " + eroded.volume)
 }
+

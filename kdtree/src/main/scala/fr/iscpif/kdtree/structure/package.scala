@@ -30,6 +30,11 @@ package object structure {
     Interval(min, max)
   }
 
+  implicit def intervalsToZone(intervals: Seq[(Double, Double)]) =
+    Zone(
+      intervals.map { case (min, max) => Interval(min, max) }
+    )
+
   case class Interval(min: Double, max: Double) {
     assume(min < max)
     def span: Double = max - min

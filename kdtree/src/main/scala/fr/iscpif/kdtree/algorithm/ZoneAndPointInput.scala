@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 27/05/13 Romain Reuillon
+ * Copyright (C) 08/07/13 Romain Reuillon
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -18,21 +18,22 @@
 package fr.iscpif.kdtree.algorithm
 
 import fr.iscpif.kdtree.structure._
-import fr.iscpif.kdtree.content._
 import scala.util.Random
 
-trait OracleApproximation extends KdTreeComputation with RandomSampler with ParallelEvaluator {
+trait ZoneAndPointInput { self: KdTreeComputation =>
 
-  case class Content(testPoint: Point, label: Boolean) extends Label with TestPoint
-  implicit val relabeliser: Relabeliser[Content] = (c: Content, label: Content => Boolean) => c.copy(label = label(c))
+  def apply(zone: Zone, point: Point, depth: Int)(implicit contentBuilder: Point => CONTENT, rng: Random, m: Manifest[CONTENT]): Tree[CONTENT] = {
 
-  type CONTENT = Content
+    def tree =
+      Tree(
+        Leaf(
+          contentBuilder(point),
+          zone
+        ),
+        depth
+      )
 
-  implicit def contentBuilder(p: Point) = Content(p, oracle(p))
-  def oracle(p: Point): Boolean
-
-  def seed = 42
-
-  implicit lazy val rng = new Random(seed)
+    apply(tree, contentBuilder)
+  }
 
 }
