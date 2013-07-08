@@ -15,26 +15,41 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package fr.iscpif.kdtree.algorithm
+package fr.iscpif.viability.lotkavoltera
 
+import fr.iscpif.viability._
+import fr.iscpif.kdtree.algorithm._
 import fr.iscpif.kdtree.structure._
 import scala.util.Random
+import fr.iscpif.kdtree.visualisation._
+import scalax.io._
 
-trait ZoneAndPointInput extends Input { self: KdTreeComputation =>
+object LotkaVolterraKernel extends App
+    with ViabilityKernel
+    with ZoneInput
+    with ParallelEvaluator
+    with RandomSampler {
 
-  def zone: Zone
-  def point: Point
-  def depth: Int
+  val time = 1.0
 
-  def initialTree(implicit rng: Random, m: Manifest[CONTENT]): Option[Tree[CONTENT]] =
-    Some(
-      Tree(
-        Leaf(
-          initialContentBuilder(point),
-          zone
-        ),
-        depth
-      )
+  def k(p: Point) = p.forall(c => c >= 8 && c <= 25)
+
+  def dynamic(p: Point) = LotkaVoltera(p(0), p(1), time)
+
+  def zone =
+    Seq(
+      (0.0, 30.0),
+      (0.0, 30.0)
     )
+
+  def depth = 12
+
+  def dimension = 2
+
+  implicit lazy val rng = new Random(42)
+
+  val bassin = apply.get
+
+  println(bassin.volume)
 
 }

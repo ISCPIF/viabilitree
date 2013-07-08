@@ -21,7 +21,7 @@ import fr.iscpif.kdtree.structure._
 import fr.iscpif.kdtree.content._
 import scala.util.Random
 
-trait OracleApproximation extends KdTreeComputation with RandomSampler with ParallelEvaluator {
+trait OracleApproximation extends KdTreeComputation with RandomSampler with ParallelEvaluator with Input {
 
   case class Content(testPoint: Point, label: Boolean) extends Label with TestPoint
   implicit val relabeliser: Relabeliser[Content] = (c: Content, label: Content => Boolean) => c.copy(label = label(c))
@@ -29,10 +29,16 @@ trait OracleApproximation extends KdTreeComputation with RandomSampler with Para
   type CONTENT = Content
 
   implicit def contentBuilder(p: Point) = Content(p, oracle(p))
+
+  def initialContentBuilder(p: Point): CONTENT = contentBuilder(p)
+
   def oracle(p: Point): Boolean
 
   def seed = 42
 
   implicit lazy val rng = new Random(seed)
+
+  def apply(implicit rng: Random, m: Manifest[CONTENT]): Option[Tree[CONTENT]] =
+    initialTree.map(t => apply(t, initialContentBuilder(_)))
 
 }

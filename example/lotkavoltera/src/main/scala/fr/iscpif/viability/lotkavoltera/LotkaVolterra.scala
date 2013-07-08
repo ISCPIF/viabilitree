@@ -1,5 +1,7 @@
 package fr.iscpif.viability.lotkavoltera
 
+import fr.iscpif.viability.differential._
+
 object LotkaVoltera {
 
   val alpha = 2.0
@@ -16,7 +18,7 @@ object LotkaVoltera {
 
   def apply(x: Double, y: Double, time: Double) = {
     val res = dynamic.integrate(Array(x, y), timeStep, Seq(0.0, time)).last._2.toSeq
-    (res(0), res(1))
+    Seq(res(0), res(1))
   }
 
 }

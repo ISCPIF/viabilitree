@@ -20,16 +20,17 @@ package fr.iscpif.kdtree.algorithm
 import fr.iscpif.kdtree.structure._
 import scala.util.Random
 
-trait ZoneInput { self: KdTreeComputation =>
+trait ZoneInput extends Input { this: KdTreeComputation =>
 
-  def apply(zone: Zone, depth: Int)(implicit contentBuilder: Point => CONTENT, rng: Random, m: Manifest[CONTENT]): Option[Tree[CONTENT]] = {
+  def zone: Zone
+  def depth: Int
+
+  def initialTree(implicit rng: Random, m: Manifest[CONTENT]): Option[Tree[CONTENT]] = {
     val point = sampler(zone, rng)
-    val content = contentBuilder(point)
+    val content = initialContentBuilder(point)
 
     val tree = Tree(Leaf[CONTENT](content, zone), depth)
-    val newT = findTrueLabel(tree, contentBuilder)
-
-    newT.map { apply(_, contentBuilder) }
+    findTrueLabel(tree, initialContentBuilder)
   }
 
 }

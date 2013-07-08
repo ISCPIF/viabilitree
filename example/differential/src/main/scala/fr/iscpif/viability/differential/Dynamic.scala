@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package fr.iscpif.viability.lotkavoltera
+package fr.iscpif.viability.differential
 
 import org.apache.commons.math3.ode._
 import nonstiff._

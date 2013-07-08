@@ -38,7 +38,7 @@ object Circle extends App with OracleApproximation with ZoneInput {
 
   def depth = 12
 
-  val res = apply(zone, depth).get
+  val res = apply.get
 
   println("Nb leaves " + res.leaves.size)
   println("Nb atomic leaves " + res.atomicLeaves.size)

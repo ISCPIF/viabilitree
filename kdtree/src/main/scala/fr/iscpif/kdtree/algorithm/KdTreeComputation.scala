@@ -22,7 +22,7 @@ import fr.iscpif.kdtree.content._
 import scala.util.Random
 import fr.iscpif.kdtree.content.{ TestPoint, Label }
 
-trait KdTreeComputation extends Sampler with Evaluator {
+trait KdTreeComputation extends Sampler with Evaluator with Content {
 
   type CONTENT <: Label with TestPoint
 

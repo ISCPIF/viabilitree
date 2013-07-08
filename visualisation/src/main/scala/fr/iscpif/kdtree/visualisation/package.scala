@@ -31,6 +31,7 @@ package object visualisation {
         tree.leaves.filter(_.content.label).map {
           l =>
             val intervals = l.zone.region
+            assert(intervals.size == 3, s"Dimension of the space should be 3, found ${intervals.size}")
             val ix = intervals(x)
             val iy = intervals(y)
             val iz = intervals(z)

@@ -20,26 +20,36 @@ package fr.iscpif.viability
 import fr.iscpif.kdtree.structure._
 import scala.util.Random
 import fr.iscpif.kdtree.content._
+import fr.iscpif.kdtree.algorithm._
 
-trait ViabilityKernel extends ViabilityContent {
+trait ViabilityKernel extends KdTreeComputationForDynamic with ViabilityContent with Input {
 
-  def K(p: Point): Boolean
-  def root: Zone
-  def depth: Int
+  def k(p: Point): Boolean
   def dynamic(p: Point): Point
-  def lipschitz: Option[Double] = None
 
-  def apply(implicit rng: Random) = {
+  def initialContentBuilder(p: Point): CONTENT = buildContent(p, dynamic(p), k(p))
 
+  def apply(implicit rng: Random, m: Manifest[CONTENT]): Option[Tree[CONTENT]] = {
+    def step(tree: Tree[CONTENT], s: Int = 0): Option[Tree[CONTENT]] = {
+      val newT = apply(tree)
+      newT match {
+        case None => None
+        case Some(t) =>
+          endOfStep(s, t)
+
+          if (sameVolume(t, tree)) Some(t)
+          else step(t, s + 1)
+      }
+    }
+
+    initialTree.
+      map(apply(_, initialContentBuilder(_))).
+      flatMap(step(_))
   }
-
-  /*def initialTree(implicit rng: Random) = {
-
-    Tree[Content]()
-
-  }*/
 
   def sameVolume[T <: Label](t1: Tree[T], t2: Tree[T]) =
     t1.volume == t2.volume
+
+  def endOfStep(s: Int, t: Tree[CONTENT]) = {}
 
 }

@@ -19,11 +19,16 @@ package fr.iscpif.viability
 
 import fr.iscpif.kdtree.structure._
 import fr.iscpif.kdtree.content._
+import fr.iscpif.kdtree.algorithm.Input
+import scala.util.Random
 
 trait ViabilityContent {
   implicit val relabel: Relabeliser[Content] = (c: Content, label: Content => Boolean) => c.copy(label = label(c))
-  case class Content(testPoint: Point, result: Point, label: Boolean) extends Label with TestPoint
+  case class Content(testPoint: Point, result: Point, label: Boolean) extends Label with ResultPoint with TestPoint
 
-  type T = Content
+  def buildContent(from: Point, result: Point, viable: Boolean): CONTENT =
+    Content(from, result, viable)
+
+  type CONTENT = Content
 }
 

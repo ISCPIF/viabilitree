@@ -15,26 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package fr.iscpif.kdtree.algorithm
+package fr.iscpif.kdtree.structure
 
-import fr.iscpif.kdtree.structure._
-import scala.util.Random
-
-trait ZoneAndPointInput extends Input { self: KdTreeComputation =>
-
-  def zone: Zone
-  def point: Point
-  def depth: Int
-
-  def initialTree(implicit rng: Random, m: Manifest[CONTENT]): Option[Tree[CONTENT]] =
-    Some(
-      Tree(
-        Leaf(
-          initialContentBuilder(point),
-          zone
-        ),
-        depth
-      )
-    )
-
+trait Content {
+  type CONTENT
 }

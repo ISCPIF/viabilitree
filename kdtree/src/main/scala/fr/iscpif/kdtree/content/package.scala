@@ -211,6 +211,9 @@ package object content {
       */
     }
 
+    // TODO Choose whether if p has not been found return false
+    def label(p: Point) = t.containingLeaf(p).map(_.content.label).getOrElse(false)
+
   }
 
   implicit class TestPointLeafDecorator[T <: TestPoint](l: Leaf[T]) {

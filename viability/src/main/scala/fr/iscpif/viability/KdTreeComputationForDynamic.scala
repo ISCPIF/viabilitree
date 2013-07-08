@@ -51,24 +51,23 @@ trait KdTreeComputationForDynamic extends KdTreeComputation {
   def apply(tree: Tree[CONTENT])(implicit rng: Random, m: Manifest[CONTENT]): Option[Tree[CONTENT]] = {
     val dilated = dilatedTree(tree)
 
-    def viable(p: Point): Boolean =
-      dilated.root.containingLeaf(p).map(_.content.label).getOrElse(false)
+    def viable(p: Point): Boolean = dilated.label(p)
 
     def contentBuilder(p: Point): CONTENT = {
       val result = dynamic(p)
       buildContent(p, result, viable(result))
     }
 
-    def reassignTree(implicit relabel: Relabeliser[CONTENT]) =
+    val reassignedTree =
       tree.reassign(
         t =>
           if (t.label) relabel(t, t => viable(t.result))
           else t
       )
 
-    val reassignedTree = reassignTree
-
-    findTrueLabel(reassignedTree, contentBuilder).map(tree => super.apply(tree, contentBuilder))
+    findTrueLabel(reassignedTree, contentBuilder).map {
+      tree => apply(tree, contentBuilder(_))
+    }
   }
 
 }
