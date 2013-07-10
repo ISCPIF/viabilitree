@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package fr.iscpif.viability.cyclic
+package example.cyclic.src.main.scala.fr.iscpif.viability.cyclic
 
 import fr.iscpif.viability._
 import fr.iscpif.kdtree.algorithm._
@@ -24,7 +24,8 @@ import scala.util.Random
 import fr.iscpif.kdtree.visualisation._
 import scalax.io._
 
-object CyclicDynamicKernel extends App
+
+object CyclicDynamicKernelDimTwo extends App
     with ViabilityKernel
     with ZoneInput
     with ParallelEvaluator
@@ -33,31 +34,29 @@ object CyclicDynamicKernel extends App
   val time = 0.1
 
   def k(p: Point) =
-    p(2) >= 0 && p(2) <= 1 &&
       p(1) >= 0 && p(1) <= 1 &&
       p(0) >= -3 && p(0) <= 3
 
-  def dynamic(p: Point) = CyclicDynamic(p, time)
+  def dynamic(p: Point) = CyclicDynamicTwo(p, time)
 
   def zone =
     Seq(
       (-4.0, 4.0),
-      (-4.0, 4.0),
       (-4.0, 4.0)
     )
 
-  def depth = 21
+  def depth = 10
 
-  def dimension = 3
+  def dimension = 2
 
   override def endOfStep(s: Int, t: Tree[CONTENT]) =
-    t.saveVTK(Resource.fromFile(s"/tmp/cycle$s.vtk"))
+    t.saveVTK2D(Resource.fromFile(s"/tmp/cycle2D$s.vtk"))
 
   implicit lazy val rng = new Random(42)
 
   val bassin = apply.get
 
   println(bassin.volume)
-  bassin.saveVTK(Resource.fromFile("/tmp/cycle.vtk"))
+  bassin.saveVTK2D(Resource.fromFile("/tmp/cycle2D.vtk"))
 
 }

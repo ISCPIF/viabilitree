@@ -23,6 +23,69 @@ import scalax.io._
 
 package object visualisation {
 
+  implicit class VTKTree2D[T <: Label](tree: Tree[T]) {
+    def saveVTK2D(output: Output): Unit = saveVTK2D(output, 0, 1)
+
+    def saveVTK2D(output: Output, x: Int, y: Int): Unit = {
+      def coords =
+        tree.leaves.filter(_.content.label).map {
+          l =>
+            val intervals = l.zone.region
+            assert(intervals.size == 2, s"Dimension of the space should be 2, found ${intervals.size}")
+            val ix = intervals(x)
+            val iy = intervals(y)
+            Seq(ix.min, iy.min, ix.span, iy.span)
+        }
+
+      def points(l: Seq[Double]) = {
+        val (x, y, dx, dy) = (l(0), l(1), l(2), l(3))
+        val (xmax, ymax) = (x + dx, y + dy)
+
+
+        List(
+          List(x, y, 0.0),
+          List(xmax, y, 0.0),
+          List(x, ymax, 0.0),
+          List(xmax, ymax, 0.0)
+        )
+      }
+
+      val toWrite = coords.map(points)
+
+      output.write("""# vtk DataFile Version 2.0
+2D
+ASCII
+DATASET UNSTRUCTURED_GRID""")
+
+      output.write(s"\nPOINTS ${toWrite.size * 4} float\n")
+
+      toWrite.flatten.foreach {
+        p =>
+          output.writeStrings(p.map(_.toString), " ")
+          output.write("\n")
+      }
+
+      output.write(s"CELLS ${toWrite.size} ${toWrite.size * 5}\n")
+
+      Iterator.iterate(0)(_ + 1).grouped(4).take(toWrite.size).foreach {
+        c =>
+          output.write("4 ")
+          output.writeStrings(c.map(_.toString), " ")
+          output.write("\n")
+      }
+
+      output.write(s"CELL_TYPES ${toWrite.size}\n")
+      (0 until toWrite.size).foreach {
+        i => output.write(s"8 ")
+      }
+      output.write("\n")
+    }
+}
+
+
+  //
+  //
+
   implicit class VTKTree[T <: Label](tree: Tree[T]) {
     def saveVTK(output: Output): Unit = saveVTK(output, 0, 1, 2)
 
@@ -86,6 +149,5 @@ DATASET UNSTRUCTURED_GRID""")
     }
 
   }
-
 }
 
