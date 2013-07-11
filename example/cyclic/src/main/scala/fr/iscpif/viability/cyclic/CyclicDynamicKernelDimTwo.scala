@@ -34,7 +34,7 @@ object CyclicDynamicKernelDimTwo extends App
   val time = 0.1
 
   def k(p: Point) =
-      p(1) >= 0 && p(1) <= 1 &&
+      p(1) >= -0.5 && p(1) <= 0.5 &&
       p(0) >= -3 && p(0) <= 3
 
   def dynamic(p: Point) = CyclicDynamicTwo(p, time)
@@ -45,12 +45,12 @@ object CyclicDynamicKernelDimTwo extends App
       (-4.0, 4.0)
     )
 
-  def depth = 10
+  def depth = 20
 
   def dimension = 2
 
   override def endOfStep(s: Int, t: Tree[CONTENT]) =
-    t.saveVTK2D(Resource.fromFile(s"/tmp/cycle2D$s.vtk"))
+    t.saveVTK2D(Resource.fromFile(s"/tmp/cycle2Dd${depth}s$s.vtk"))
 
   implicit lazy val rng = new Random(42)
 
