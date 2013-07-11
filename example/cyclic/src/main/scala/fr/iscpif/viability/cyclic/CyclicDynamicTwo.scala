@@ -1,4 +1,4 @@
-package example.cyclic.src.main.scala.fr.iscpif.viability.cyclic
+package fr.iscpif.viability.cyclic
 
 import fr.iscpif.viability.differential._
 
