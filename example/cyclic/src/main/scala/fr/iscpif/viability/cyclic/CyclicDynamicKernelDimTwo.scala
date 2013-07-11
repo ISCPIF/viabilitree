@@ -44,18 +44,20 @@ object CyclicDynamicKernelDimTwo extends App
       (-4.0, 4.0)
     )
 
-  def depth = 30
+  def depth = 20
 
   def dimension = 2
 
+  override def dilations: Int = 1
+
   override def endOfStep(s: Int, t: Tree[CONTENT]) =
-    t.saveVTK2D(Resource.fromFile(s"/tmp/cycle2Dd${depth}s$s.vtk"))
+    t.saveVTK2D(Resource.fromFile(s"/tmp/cycle/cycle2Dd${depth}s$s.vtk"))
 
   implicit lazy val rng = new Random(42)
 
   val bassin = apply.get
 
   println(bassin.volume)
-  bassin.saveVTK2D(Resource.fromFile("/tmp/cycle2D.vtk"))
+  bassin.saveVTK2D(Resource.fromFile("/tmp/cycle/cycle2D.vtk"))
 
 }

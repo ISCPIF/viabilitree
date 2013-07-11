@@ -29,6 +29,8 @@ trait ViabilityKernel extends KdTreeComputationForDynamic with ViabilityContent 
 
   def initialContentBuilder(p: Point): CONTENT = buildContent(p, dynamic(p), k(p))
 
+  def shouldBeReassigned(c: CONTENT): Boolean = c.label
+
   def apply(implicit rng: Random, m: Manifest[CONTENT]): Option[Tree[CONTENT]] = {
     def step(tree: Tree[CONTENT], s: Int = 0): Option[Tree[CONTENT]] = {
       val newT = apply(tree)
