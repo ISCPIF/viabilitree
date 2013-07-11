@@ -41,7 +41,6 @@ package object visualisation {
         val (x, y, dx, dy) = (l(0), l(1), l(2), l(3))
         val (xmax, ymax) = (x + dx, y + dy)
 
-
         List(
           List(x, y, 0.0),
           List(xmax, y, 0.0),
@@ -80,8 +79,7 @@ DATASET UNSTRUCTURED_GRID""")
       }
       output.write("\n")
     }
-}
-
+  }
 
   //
   //
