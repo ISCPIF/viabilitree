@@ -4,7 +4,7 @@ import fr.iscpif.viability.differential._
 
 object CyclicDynamicTwo {
 
- def dim = 2
+  def dim = 2
   val timeStep = 0.0001
 
   def xDot(state: Array[Double], t: Double) = -state(1)

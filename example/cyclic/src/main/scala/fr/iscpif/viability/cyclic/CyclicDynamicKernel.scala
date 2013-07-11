@@ -51,13 +51,13 @@ object CyclicDynamicKernel extends App
   def dimension = 3
 
   override def endOfStep(s: Int, t: Tree[CONTENT]) =
-    t.saveVTK(Resource.fromFile(s"/tmp/cycle$s.vtk"))
+    t.saveVTK3D(Resource.fromFile(s"/tmp/cycle$s.vtk"))
 
   implicit lazy val rng = new Random(42)
 
   val bassin = apply.get
 
   println(bassin.volume)
-  bassin.saveVTK(Resource.fromFile("/tmp/cycle.vtk"))
+  bassin.saveVTK3D(Resource.fromFile("/tmp/cycle.vtk"))
 
 }

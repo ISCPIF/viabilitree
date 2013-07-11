@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package example.cyclic.src.main.scala.fr.iscpif.viability.cyclic
+package fr.iscpif.viability.cyclic
 
 import fr.iscpif.viability._
 import fr.iscpif.kdtree.algorithm._
@@ -23,7 +23,6 @@ import fr.iscpif.kdtree.structure._
 import scala.util.Random
 import fr.iscpif.kdtree.visualisation._
 import scalax.io._
-
 
 object CyclicDynamicKernelDimTwo extends App
     with ViabilityKernel
@@ -34,7 +33,7 @@ object CyclicDynamicKernelDimTwo extends App
   val time = 0.1
 
   def k(p: Point) =
-      p(1) >= -0.5 && p(1) <= 0.5 &&
+    p(1) >= -0.5 && p(1) <= 0.5 &&
       p(0) >= -3 && p(0) <= 3
 
   def dynamic(p: Point) = CyclicDynamicTwo(p, time)
@@ -45,7 +44,7 @@ object CyclicDynamicKernelDimTwo extends App
       (-4.0, 4.0)
     )
 
-  def depth = 20
+  def depth = 30
 
   def dimension = 2
 
