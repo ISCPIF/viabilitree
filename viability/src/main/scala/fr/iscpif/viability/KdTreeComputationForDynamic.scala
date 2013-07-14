@@ -35,7 +35,7 @@ trait KdTreeComputationForDynamic extends KdTreeComputation {
 
   def dilatedTree(tree: Tree[CONTENT])(implicit m: Manifest[CONTENT]) = {
     def dilate(t: Tree[CONTENT], nb: Int): Tree[CONTENT] =
-      if (nb >= 0) t
+      if (nb <= 0) t
       else dilate(t.dilate, nb - 1)
     dilate(tree, dilations)
   }
