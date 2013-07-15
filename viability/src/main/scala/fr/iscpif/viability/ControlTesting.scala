@@ -22,7 +22,8 @@ import fr.iscpif.kdtree.content._
 
 trait ControlTesting extends Dynamic with Content {
 
-  type CONTENT <: Label
+  type CONTENT <: Label with Control
 
   def findViableControl(contentBuilderFromControl: Point => CONTENT): CONTENT
+
 }

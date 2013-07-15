@@ -20,6 +20,7 @@ package fr.iscpif.viability
 import fr.iscpif.kdtree.structure._
 
 trait NoControlTesting extends ControlTesting {
+
   def findViableControl(contentBuilderFromControl: Point => CONTENT): CONTENT =
     contentBuilderFromControl(Seq.empty)
 

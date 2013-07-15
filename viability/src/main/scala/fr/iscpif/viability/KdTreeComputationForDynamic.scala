@@ -60,18 +60,18 @@ trait KdTreeComputationForDynamic extends KdTreeComputation with Dynamic with Co
 
     def viable(p: Point): Boolean = dilated.label(p)
 
-    def relabelContent(content: CONTENT): CONTENT =
+    def relabelContent(content: CONTENT, viable: Point => Boolean, contentBuilderFromControl: Point => CONTENT): CONTENT =
       content.control match {
-        case None => findViableControl(contentBuilder(viable)(content.testPoint))
+        case None => findViableControl(contentBuilderFromControl)
         case Some((control, result)) =>
           if (viable(result)) content
-          else findViableControl(contentBuilder(viable)(content.testPoint))
+          else findViableControl(contentBuilderFromControl)
       }
 
     val reassignedTree =
       tree.reassign(
         content =>
-          if (shouldBeReassigned(content)) relabelContent(content)
+          if (shouldBeReassigned(content)) relabelContent(content, viable, contentBuilder(viable)(content.testPoint))
           else content
       )
 
