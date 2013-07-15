@@ -25,12 +25,12 @@ trait ZoneInput extends Input { this: KdTreeComputation =>
   def zone: Zone
   def depth: Int
 
-  def initialTree(implicit rng: Random, m: Manifest[CONTENT]): Option[Tree[CONTENT]] = {
+  def initialTree(contentBuilder: Point => CONTENT)(implicit rng: Random, m: Manifest[CONTENT]): Option[Tree[CONTENT]] = {
     val point = sampler(zone, rng)
-    val content = initialContentBuilder(point)
+    val content = contentBuilder(point)
 
     val tree = Tree(Leaf[CONTENT](content, zone), depth)
-    findTrueLabel(tree, initialContentBuilder)
+    findTrueLabel(tree, contentBuilder)
   }
 
 }

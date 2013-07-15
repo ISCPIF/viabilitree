@@ -25,9 +25,6 @@ import fr.iscpif.kdtree.algorithm._
 trait ViabilityKernel extends KdTreeComputationForDynamic with ViabilityContent with Input {
 
   def k(p: Point): Boolean
-  def dynamic(p: Point): Point
-
-  def initialContentBuilder(p: Point): CONTENT = buildContent(p, dynamic(p), k(p))
 
   def shouldBeReassigned(c: CONTENT): Boolean = c.label
 
@@ -44,7 +41,9 @@ trait ViabilityKernel extends KdTreeComputationForDynamic with ViabilityContent 
       }
     }
 
-    initialTree.
+    def initialContentBuilder(p: Point): CONTENT = findViableControl(contentBuilder(k)(p))
+
+    initialTree(initialContentBuilder(_)).
       map(apply(_, initialContentBuilder(_))).
       flatMap(step(_))
   }

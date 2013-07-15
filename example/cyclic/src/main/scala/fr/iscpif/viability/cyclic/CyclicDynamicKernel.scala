@@ -28,7 +28,8 @@ object CyclicDynamicKernel extends App
     with ViabilityKernel
     with ZoneInput
     with ParallelEvaluator
-    with RandomSampler {
+    with RandomSampler
+    with NoControlTesting {
 
   val time = 0.1
 

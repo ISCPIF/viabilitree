@@ -26,11 +26,11 @@ trait ZoneAndPointInput extends Input { self: KdTreeComputation =>
   def point: Point
   def depth: Int
 
-  def initialTree(implicit rng: Random, m: Manifest[CONTENT]): Option[Tree[CONTENT]] =
+  def initialTree(contentBuilder: Point => CONTENT)(implicit rng: Random, m: Manifest[CONTENT]): Option[Tree[CONTENT]] =
     Some(
       Tree(
         Leaf(
-          initialContentBuilder(point),
+          contentBuilder(point),
           zone
         ),
         depth

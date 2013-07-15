@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 05/07/13 Romain Reuillon
+ * Copyright (C) 14/07/13 Romain Reuillon
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -15,10 +15,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package fr.iscpif.kdtree.content
+package fr.iscpif.viability
 
 import fr.iscpif.kdtree.structure._
 
-trait ResultPoint {
-  def result: Point
+trait RangeControlTesting extends ControlTesting {
+
+  def controls: Iterable[Point]
+
+  override def findViableControl(contentBuilderFromControl: Point => CONTENT): CONTENT = {
+    assert(!controls.isEmpty, "Control list cannot be empty")
+    val tested = controls.view.map(contentBuilderFromControl)
+    tested.find { _.label } match {
+      case Some(content) => content
+      case None => tested.head
+    }
+  }
+
 }

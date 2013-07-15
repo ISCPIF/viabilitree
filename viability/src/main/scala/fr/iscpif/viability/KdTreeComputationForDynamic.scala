@@ -23,14 +23,16 @@ import math._
 import scala.util.Random
 import fr.iscpif.kdtree.algorithm.KdTreeComputation
 
-trait KdTreeComputationForDynamic extends KdTreeComputation {
+trait KdTreeComputationForDynamic extends KdTreeComputation with Dynamic with ControlTesting {
 
-  type CONTENT <: TestPoint with ResultPoint with Label
+  type CONTENT <: TestPoint with Control
 
-  implicit val relabel: Relabeliser[CONTENT]
+  implicit def relabeliser: Relabeliser[CONTENT]
 
-  def dynamic(p: Point): Point
+  def buildContent(from: Point, control: Option[(Point, Point)]): CONTENT
+
   def dimension: Int
+
   def lipschitz: Option[Double] = None
 
   def dilatedTree(tree: Tree[CONTENT])(implicit m: Manifest[CONTENT]) = {
@@ -46,30 +48,42 @@ trait KdTreeComputationForDynamic extends KdTreeComputation {
       case None => 0
     }
 
-  def buildContent(from: Point, result: Point, viable: Boolean): CONTENT
-
   def shouldBeReassigned(c: CONTENT): Boolean
+
+  def contentBuilder(viable: Point => Boolean)(p: Point)(control: Point) = {
+    val resultPoint = dynamic(p, control)
+    if (viable(resultPoint)) buildContent(p, Some(control -> resultPoint)) else buildContent(p, None)
+  }
 
   def apply(tree: Tree[CONTENT])(implicit rng: Random, m: Manifest[CONTENT]): Option[Tree[CONTENT]] = {
     val dilated = dilatedTree(tree)
 
     def viable(p: Point): Boolean = dilated.label(p)
 
-    def contentBuilder(p: Point): CONTENT = {
-      val result = dynamic(p)
-      buildContent(p, result, viable(result))
-    }
+    def relabelContent(content: CONTENT): CONTENT =
+      content.control match {
+        case None => findViableControl(contentBuilder(viable)(content.testPoint))
+        case Some((control, result)) =>
+          if (viable(result)) content
+          else findViableControl(contentBuilder(viable)(content.testPoint))
+      }
 
     val reassignedTree =
       tree.reassign(
         content =>
-          if (shouldBeReassigned(content)) relabel(content, t => viable(t.result))
+          if (shouldBeReassigned(content)) relabelContent(content)
           else content
       )
 
-    findTrueLabel(reassignedTree, contentBuilder).map {
-      tree => apply(tree, contentBuilder(_))
-    }
+    findTrueLabel(
+      reassignedTree,
+      p => findViableControl(contentBuilder(viable)(p))
+    ).map {
+        tree =>
+          apply(
+            tree,
+            p => findViableControl(contentBuilder(viable)(p)))
+      }
   }
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 05/07/13 Romain Reuillon
+ * Copyright (C) 14/07/13 Romain Reuillon
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -19,15 +19,10 @@ package fr.iscpif.viability
 
 import fr.iscpif.kdtree.structure._
 import fr.iscpif.kdtree.content._
-import fr.iscpif.kdtree.algorithm.Input
-import scala.util.Random
 
-trait ViabilityContent {
-  implicit val relabeliser: Relabeliser[CONTENT] = (c: Content, label: Content => Boolean) => c.copy(control = None)
-  case class Content(testPoint: Point, control: Option[(Point, Point)]) extends TestPoint with Control
+trait ControlTesting extends Dynamic with Content {
 
-  def buildContent(from: Point, control: Option[(Point, Point)]): CONTENT = Content(from, control)
+  type CONTENT <: Label
 
-  type CONTENT = Content
+  def findViableControl(contentBuilderFromControl: Point => CONTENT): CONTENT
 }
-

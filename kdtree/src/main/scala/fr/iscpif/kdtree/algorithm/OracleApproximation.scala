@@ -28,9 +28,7 @@ trait OracleApproximation extends KdTreeComputation with RandomSampler with Para
 
   type CONTENT = Content
 
-  implicit def contentBuilder(p: Point) = Content(p, oracle(p))
-
-  def initialContentBuilder(p: Point): CONTENT = contentBuilder(p)
+  def contentBuilder(p: Point) = Content(p, oracle(p))
 
   def oracle(p: Point): Boolean
 
@@ -39,6 +37,6 @@ trait OracleApproximation extends KdTreeComputation with RandomSampler with Para
   implicit lazy val rng = new Random(seed)
 
   def apply(implicit rng: Random, m: Manifest[CONTENT]): Option[Tree[CONTENT]] =
-    initialTree.map(t => apply(t, initialContentBuilder(_)))
+    initialTree(p => contentBuilder(p)).map(t => apply(t, p => contentBuilder(p)))
 
 }

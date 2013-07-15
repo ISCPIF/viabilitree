@@ -21,6 +21,5 @@ import scala.util.Random
 import fr.iscpif.kdtree.structure._
 
 trait Input extends Content {
-  def initialContentBuilder(p: Point): CONTENT
-  def initialTree(implicit rng: Random, m: Manifest[CONTENT]): Option[Tree[CONTENT]]
+  def initialTree(contentBuilder: Point => CONTENT)(implicit rng: Random, m: Manifest[CONTENT]): Option[Tree[CONTENT]]
 }
