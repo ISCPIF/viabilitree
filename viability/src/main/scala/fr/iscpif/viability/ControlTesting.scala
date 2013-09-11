@@ -47,7 +47,6 @@ trait ControlTesting <: Dynamic with Content with SearchControlHeuristic with Co
     def testControlIndex(ctrlIndex: Int) = {
       val control = controls(ctrlIndex)
       val resultPoint = dynamic(content.testPoint, control)
-
       ctrlIndex -> resultPoint
     }
 
@@ -66,7 +65,7 @@ trait ControlTesting <: Dynamic with Content with SearchControlHeuristic with Co
       case None =>
         val searched =
           remainingControls(content.controlMax).view.map(testControlIndex).find {
-            case (_, resultPoint) => viable(resultPoint)
+            case (i, resultPoint) => viable(resultPoint)
           }
         searched match {
           case Some((control, result)) =>

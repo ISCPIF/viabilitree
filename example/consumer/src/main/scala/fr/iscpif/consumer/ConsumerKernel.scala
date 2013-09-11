@@ -24,38 +24,19 @@ import fr.iscpif.kdtree.content._
 import fr.iscpif.kdtree.visualisation._
 import scala.util.Random
 import scalax.io.Resource
+import math._
 
-object ConsumerViability extends App
-    with ViabilityKernel
-    with ZoneInput
-    with ParallelEvaluator
-    with RandomSampler
-    with ConstantControlHeuristic {
-
-  def controls = (-0.5 to 0.5 by 0.1).map(Seq(_))
-
-  def k(p: Point) = p(0) <= 2 && p(1) <= 3
+object ConsumerKernel extends App with OracleApproximation with ZoneAndPointInput {
+  def oracle(p: Point) = {
+    p(1) <= p(0) + 0.5 * (1 - exp((p(0) - 2) / 0.5)) &&
+      p(1) >= p(0) - 0.5 * (1 - exp(-p(0) / 0.5))
+  }
 
   def zone = Seq((0.0, 2.0), (0.0, 3.0))
 
+  def point = Seq(0.001, 0.001)
+
   def depth = 10
 
-  def dynamic(point: Point, control: Point) = Consumer(point, control)
-
-  def dimension = 2
-
-  implicit lazy val rng = new Random(42)
-
-  /*controls.map {
-    c =>
-      println(c)
-      Consumer(Seq(1.95, 1.85), c)
-  }.foreach(println)   */
-
-  for {
-    (b, s) <- apply.zipWithIndex
-  } b.saveVTK2D(Resource.fromFile(s"/tmp/consumer/consumer$s.vtk"))   */
-
-  //println(bassin.volume)
-
+  apply.get.saveVTK2D(Resource.fromFile(s"/tmp/consumer/kernel.vtk"))
 }
