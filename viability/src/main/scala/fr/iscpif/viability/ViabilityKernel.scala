@@ -22,35 +22,31 @@ import scala.util.Random
 import fr.iscpif.kdtree.content._
 import fr.iscpif.kdtree.algorithm._
 
-trait ViabilityKernel extends KdTreeComputationForDynamic with ViabilityContent with Input {
+trait ViabilityKernel extends KdTreeComputationForDynamic with ControlledDynamicContent with Input {
 
   def k(p: Point): Boolean
 
   def shouldBeReassigned(c: CONTENT): Boolean = c.label
 
-  def apply(implicit rng: Random, m: Manifest[CONTENT]): Option[Tree[CONTENT]] = {
-    def step(tree: Tree[CONTENT], s: Int = 0): Option[Tree[CONTENT]] = {
-      val newT = apply(tree)
-      newT match {
-        case None => None
-        case Some(t) =>
-          endOfStep(s, t)
+  def apply(implicit rng: Random, m: Manifest[CONTENT]): Iterator[Tree[CONTENT]] = trees
 
-          if (sameVolume(t, tree)) Some(t)
-          else step(t, s + 1)
-      }
-    }
+  def trees(implicit rng: Random, m: Manifest[CONTENT]): Iterator[Tree[CONTENT]] = {
+    def tree = initialTree(p => Content(p, None, None, true, 0))
 
-    def initialContentBuilder(p: Point): CONTENT = findViableControl(contentBuilder(k)(p))
-
-    initialTree(initialContentBuilder(_)).
-      map(apply(_, initialContentBuilder(_))).
-      flatMap(step(_))
+    Iterator.iterate(tree -> false) {
+      case (tree, _) =>
+        tree match {
+          case None => None -> true
+          case Some(tree) =>
+            val newTree = timeStep(tree)
+            newTree match {
+              case None => None -> true
+              case Some(nt) => newTree -> sameVolume(nt, tree)
+            }
+        }
+    }.takeWhile { case (_, stop) => !stop }.flatMap { case (t, _) => t }
   }
 
-  def sameVolume[T <: Label](t1: Tree[T], t2: Tree[T]) =
-    t1.volume == t2.volume
-
-  def endOfStep(s: Int, t: Tree[CONTENT]) = {}
+  def sameVolume[T <: Label](t1: Tree[T], t2: Tree[T]) = t1.volume == t2.volume
 
 }

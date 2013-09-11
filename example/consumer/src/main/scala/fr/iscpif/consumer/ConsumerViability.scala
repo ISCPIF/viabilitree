@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 05/07/13 Romain Reuillon
+ * Copyright (C) 11/09/13 Romain Reuillon
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -15,19 +15,36 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package fr.iscpif.viability
+package fr.iscpif.consumer
 
+import fr.iscpif.viability._
+import fr.iscpif.kdtree.algorithm._
 import fr.iscpif.kdtree.structure._
-import fr.iscpif.kdtree.content._
-import fr.iscpif.kdtree.algorithm.Input
 import scala.util.Random
 
-trait ViabilityContent {
-  implicit val relabeliser: Relabeliser[CONTENT] = (c: Content, label: Content => Boolean) => c.copy(control = None)
-  case class Content(testPoint: Point, control: Option[(Point, Point)]) extends TestPoint with Control
+object ConsumerViability extends App
+    with ViabilityKernel
+    with ZoneInput
+    with ParallelEvaluator
+    with RandomSampler
+    with ConstantControlHeuristic {
 
-  def buildContent(from: Point, control: Option[(Point, Point)]): CONTENT = Content(from, control)
+  def controls = (-0.5 to 0.5 by 0.1).map(Seq(_))
 
-  type CONTENT = Content
+  def k(p: Point) = p(0) <= 2 && p(1) <= 3
+
+  def zone = Seq((0.0, 2.0), (0.0, 3.0))
+
+  def depth = 10
+
+  def dynamic(point: Point, control: Point) = Consumer(point, control)
+
+  def dimension = 2
+
+  implicit lazy val rng = new Random(42)
+
+  //val bassin = apply.last
+
+  //println(bassin.volume)
+
 }
-

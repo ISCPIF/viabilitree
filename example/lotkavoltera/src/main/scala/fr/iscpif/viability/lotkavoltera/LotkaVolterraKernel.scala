@@ -24,33 +24,33 @@ import scala.util.Random
 import fr.iscpif.kdtree.visualisation._
 import scalax.io._
 
-object LotkaVolterraKernel extends App
-    with ViabilityKernel
-    with ZoneInput
-    with ParallelEvaluator
-    with RandomSampler
-    with NoControlTesting {
-
-  val time = 1.0
-
-  def k(p: Point) = p.forall(c => c >= 8 && c <= 25)
-
-  def dynamic(p: Point) = LotkaVoltera(p(0), p(1), time)
-
-  def zone =
-    Seq(
-      (0.0, 30.0),
-      (0.0, 30.0)
-    )
-
-  def depth = 12
-
-  def dimension = 2
-
-  implicit lazy val rng = new Random(42)
-
-  val bassin = apply.get
-
-  println(bassin.volume)
-
-}
+//object LotkaVolterraKernel extends App
+//    with ViabilityKernel
+//    with ZoneInput
+//    with ParallelEvaluator
+//    with RandomSampler
+//    with NoControlTesting {
+//
+//  val time = 1.0
+//
+//  def k(p: Point) = p.forall(c => c >= 8 && c <= 25)
+//
+//  def dynamic(p: Point) = LotkaVoltera(p(0), p(1), time)
+//
+//  def zone =
+//    Seq(
+//      (0.0, 30.0),
+//      (0.0, 30.0)
+//    )
+//
+//  def depth = 12
+//
+//  def dimension = 2
+//
+//  implicit lazy val rng = new Random(42)
+//
+//  val bassin = apply.get
+//
+//  println(bassin.volume)
+//
+//}

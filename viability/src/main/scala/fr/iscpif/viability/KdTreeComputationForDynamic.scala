@@ -23,13 +23,7 @@ import math._
 import scala.util.Random
 import fr.iscpif.kdtree.algorithm.KdTreeComputation
 
-trait KdTreeComputationForDynamic extends KdTreeComputation with Dynamic with ControlTesting {
-
-  type CONTENT <: TestPoint with Control
-
-  implicit def relabeliser: Relabeliser[CONTENT]
-
-  def buildContent(from: Point, control: Option[(Point, Point)]): CONTENT
+trait KdTreeComputationForDynamic extends KdTreeComputation with Dynamic with ControlTesting with ControlledDynamicContent {
 
   def dimension: Int
 
@@ -50,40 +44,22 @@ trait KdTreeComputationForDynamic extends KdTreeComputation with Dynamic with Co
 
   def shouldBeReassigned(c: CONTENT): Boolean
 
-  def contentBuilder(viable: Point => Boolean)(p: Point)(control: Point) = {
-    val resultPoint = dynamic(p, control)
-    if (viable(resultPoint)) buildContent(p, Some(control -> resultPoint)) else buildContent(p, None)
-  }
-
-  def apply(tree: Tree[CONTENT])(implicit rng: Random, m: Manifest[CONTENT]): Option[Tree[CONTENT]] = {
+  def timeStep(tree: Tree[CONTENT])(implicit rng: Random, m: Manifest[CONTENT]): Option[Tree[CONTENT]] = {
     val dilated = dilatedTree(tree)
 
     def viable(p: Point): Boolean = dilated.label(p)
 
-    def relabelContent(content: CONTENT, viable: Point => Boolean, contentBuilderFromControl: Point => CONTENT): CONTENT =
-      content.control match {
-        case None => findViableControl(contentBuilderFromControl)
-        case Some((control, result)) =>
-          if (viable(result)) content
-          else findViableControl(contentBuilderFromControl)
-      }
-
     val reassignedTree =
       tree.reassign(
         content =>
-          if (shouldBeReassigned(content)) relabelContent(content, viable, contentBuilder(viable)(content.testPoint))
+          if (shouldBeReassigned(content)) findViableControl(content, viable, tree)
           else content
       )
 
-    findTrueLabel(
-      reassignedTree,
-      p => findViableControl(contentBuilder(viable)(p))
-    ).map {
-        tree =>
-          apply(
-            tree,
-            p => findViableControl(contentBuilder(viable)(p)))
-      }
+    def contentBuilder(p: Point) = exhaustiveFindViableControl(p, viable)
+
+    findTrueLabel(reassignedTree, contentBuilder).map { tree => learnBoundary(tree, contentBuilder) }
   }
 
+  def apply(tree: Tree[CONTENT])(implicit rng: Random, m: Manifest[CONTENT]): Option[Tree[CONTENT]] = timeStep(tree)
 }

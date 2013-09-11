@@ -26,7 +26,10 @@ trait KdTreeComputation extends Sampler with Evaluator with Content {
 
   type CONTENT <: Label with TestPoint
 
-  def apply(tree: Tree[CONTENT], contentBuilder: Point => CONTENT)(implicit rng: Random, m: Manifest[CONTENT]): Tree[CONTENT] = {
+  def apply(tree: Tree[CONTENT], contentBuilder: Point => CONTENT)(implicit rng: Random, m: Manifest[CONTENT]): Tree[CONTENT] =
+    learnBoundary(tree, contentBuilder)
+
+  def learnBoundary(tree: Tree[CONTENT], contentBuilder: Point => CONTENT)(implicit rng: Random, m: Manifest[CONTENT]): Tree[CONTENT] = {
     def refine(tree: Tree[CONTENT]): Tree[CONTENT] = {
       import mutable._
 
@@ -58,6 +61,8 @@ trait KdTreeComputation extends Sampler with Evaluator with Content {
           toSeq.sortBy(_.path.length).
           reverse
 
+      // TODO refine is sequential maybe costly if kernel is empty, refine all bigest leaves in parallel?
+      // TODO heuristic guess of control?
       def refineNonAtomicLeaves(l: List[Leaf[CONTENT]], tree: Tree[CONTENT]): Option[Tree[CONTENT]] =
         l match {
           case Nil => None

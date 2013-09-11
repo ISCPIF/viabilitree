@@ -20,6 +20,7 @@ package fr.iscpif.kdtree.algorithm
 import scala.util.Random
 import fr.iscpif.kdtree.structure._
 
+// TODO new subtrait for non rectangular inputs
 trait Input extends Content {
   def initialTree(contentBuilder: Point => CONTENT)(implicit rng: Random, m: Manifest[CONTENT]): Option[Tree[CONTENT]]
 }

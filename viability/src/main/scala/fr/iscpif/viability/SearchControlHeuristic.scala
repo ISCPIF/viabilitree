@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 14/07/13 Romain Reuillon
+ * Copyright (C) 11/09/13 Romain Reuillon
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -19,13 +19,7 @@ package fr.iscpif.viability
 
 import fr.iscpif.kdtree.structure._
 
-trait NoControlTesting extends ControlTesting {
-
-  def findViableControl(contentBuilderFromControl: Point => CONTENT): CONTENT =
-    contentBuilderFromControl(Seq.empty)
-
-  def dynamic(p: Point): Point
-
-  def dynamic(p: Point, c: Point) = dynamic(p)
-
+trait SearchControlHeuristic {
+  type CONTENT
+  def guessControl(p: CONTENT, tree: Tree[CONTENT]): Seq[Int]
 }
