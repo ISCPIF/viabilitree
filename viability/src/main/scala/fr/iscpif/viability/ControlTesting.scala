@@ -34,6 +34,19 @@ trait ControlTesting <: Dynamic with Content with SearchControlHeuristic with Co
       }.find {
         case (_, result) => viable(result)
       }
+    //TODO debug
+    if (point(0)>=1.8 && point(0)<=2 && point(1)>=1.6 && point(1)<=1.9 ){
+      viableControls match {
+        case Some((index, resultPoint)) =>
+          println("TestPoint: " + point.toString() + " Control: " + index.toString() +" ResultPoint: " + resultPoint.toString() )
+          println("Viable dans exhaustiveFindViableControl:" + viable(resultPoint))
+        case None =>
+          println("TestPoint: " + point.toString() + "Non viable dans la recherche exhaustive")
+          controls.map{ control =>
+          val result = dynamic(point, control)
+          println("preuve : " + control.toString() + " résultat " + result )}
+      }
+      }
     viableControls match {
       case Some((index, resultPoint)) =>
         Content(point, Some(index), Some(resultPoint), true, index)
@@ -67,6 +80,21 @@ trait ControlTesting <: Dynamic with Content with SearchControlHeuristic with Co
           remainingControls(content.controlMax).view.map(testControlIndex).find {
             case (i, resultPoint) => viable(resultPoint)
           }
+      //TODO debug
+        if (content.testPoint(0)>=1.8 && content.testPoint(0)<=2 && content.testPoint(1)>=1.6 && content.testPoint(1)<=1.9 ){
+          searched match {
+            case Some((index, resultPoint)) =>
+              println("TestPoint: " + content.testPoint.toString() + " Control: " + index.toString() +" ResultPoint: " + resultPoint.toString() )
+              println("Viable dans exhaustiveFindViableControl:" + viable(resultPoint))
+            case None =>
+              println("TestPoint: " + content.testPoint.toString() + "Non viable dans la recherche exhaustive de findViableControl")
+              remainingControls(content.controlMax).view.map { index : Int =>
+                val control = controls(index)
+                val result = dynamic(content.testPoint, control)
+                println("preuve : " + control.toString() + " résultat " + result )}
+          }
+        }
+
         searched match {
           case Some((control, result)) =>
             Content(content.testPoint, Some(control), Some(result), true, control + 1)

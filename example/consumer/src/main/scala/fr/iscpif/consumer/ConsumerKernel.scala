@@ -26,17 +26,24 @@ import scala.util.Random
 import scalax.io.Resource
 import math._
 
-object ConsumerKernel extends App with OracleApproximation with ZoneAndPointInput {
+object
+ConsumerKernel extends App with OracleApproximation with ZoneAndPointInput {
+  val b = 2.0
+  val e = 3.0
+  val c = 0.5
+
   def oracle(p: Point) = {
-    p(1) <= p(0) + 0.5 * (1 - exp((p(0) - 2) / 0.5)) &&
-      p(1) >= p(0) - 0.5 * (1 - exp(-p(0) / 0.5))
+  //  if (p(1)  >= b)   p(0) >= p(1) - c + (c * exp(-p(1) / c))    &&
+   // p(0) <= max(p(1) + c  - (c * exp(- (2 - p(1)) / c)),b)  &&  p(0)>=0 &&
+    //  p(0) >= p(1) - c + (c * exp(-p(1) / c))     &&  p(1)<=e && p(1)>=0
+    true
   }
 
-  def zone = Seq((0.0, 2.0), (0.0, 3.0))
+  def zone = Seq((0.0, b), (0.0, e))
 
   def point = Seq(0.001, 0.001)
 
-  def depth = 10
+  def depth = 14
 
-  apply.get.saveVTK2D(Resource.fromFile(s"/tmp/consumer/kernel.vtk"))
+  apply.get.saveVTK2D(Resource.fromFile(s"/tmp/consumer/kernelV${depth}.vtk"))
 }

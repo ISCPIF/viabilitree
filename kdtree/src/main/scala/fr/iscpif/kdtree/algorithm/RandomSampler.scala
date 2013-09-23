@@ -20,6 +20,7 @@ package fr.iscpif.kdtree.algorithm
 import fr.iscpif.kdtree.structure._
 import scala.util.Random
 
+//TODO extends Sampler
 trait RandomSampler {
   def sampler(z: Zone, rng: Random) = z.randomPoint(rng)
 }

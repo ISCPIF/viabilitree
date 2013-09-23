@@ -20,6 +20,7 @@ package fr.iscpif.kdtree.algorithm
 import fr.iscpif.kdtree.structure._
 import scala.util.Random
 
+// TODO change structure. It should be the generalization of both GridSampler and RandomSampler
 trait Sampler {
   def sampler(z: Zone, rng: Random): Point
 }

@@ -103,6 +103,8 @@ trait Zone {
   }
 
   //TODO: Delete? Debug
-  override def toString = region.toString()
-
+  override def toString() = {
+    val arr :Array[String] = zone.region.map(x => x.min + " " + x.max)
+    arr.toSeq.toString
+  }
 }

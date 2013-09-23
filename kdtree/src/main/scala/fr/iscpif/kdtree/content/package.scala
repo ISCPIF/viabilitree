@@ -226,7 +226,7 @@ package object content {
 
     def zonesAndPathsToTest(leavesAndPrefCoord: Iterable[(Leaf[T], Int)]): List[(Zone, Path)] = {
       def auxFunction(leaf: Leaf[T], prefCoord: Int): (Zone, Path) = {
-        assert(leaf.contains(leaf.content.testPoint))
+        assert(leaf.contains(leaf.content.testPoint), "TestPoint: " + leaf.content.testPoint + "  Leaf: " + leaf.zone.region.map(x => println(x.min + " " + x.max)))
 
         val minCoord = leaf.minimalCoordinates
 
