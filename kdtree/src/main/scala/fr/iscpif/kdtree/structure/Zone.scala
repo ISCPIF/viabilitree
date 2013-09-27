@@ -102,9 +102,5 @@ trait Zone {
 
   }
 
-  //TODO: Delete? Debug
-  override def toString() = {
-    val arr :Array[String] = zone.region.map(x => x.min + " " + x.max)
-    arr.toSeq.toString
-  }
+  override def toString = zone.region.mkString(",")
 }

@@ -104,7 +104,8 @@ trait Node[T] { node =>
 
   def printPaths(node: Node[T]) {
     node match {
-      case leaf: Leaf[T] => println(leaf.path); println("BRANCH END")
+      case leaf: Leaf[T] =>
+        println(leaf.path); println("BRANCH END")
       case fork: Fork[T] => println(fork.path); printPaths(fork.lowChild); printPaths(fork.highChild)
     }
   }

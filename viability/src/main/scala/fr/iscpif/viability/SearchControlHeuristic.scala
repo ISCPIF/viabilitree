@@ -21,5 +21,5 @@ import fr.iscpif.kdtree.structure._
 
 trait SearchControlHeuristic {
   type CONTENT
-  def guessControl(p: CONTENT, tree: Tree[CONTENT]): Seq[Int]
+  def guessControl(p: CONTENT, tree: Tree[CONTENT]): Seq[Int] = Seq.empty
 }

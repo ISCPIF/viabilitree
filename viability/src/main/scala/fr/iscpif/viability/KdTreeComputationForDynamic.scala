@@ -45,8 +45,6 @@ trait KdTreeComputationForDynamic extends KdTreeComputation with Dynamic with Co
   def shouldBeReassigned(c: CONTENT): Boolean
 
   def timeStep(tree: Tree[CONTENT])(implicit rng: Random, m: Manifest[CONTENT]): Option[Tree[CONTENT]] = {
-    //TODO delete Romain
-    println("time step : start ++++++++++++++++++++++++++++++++++++++")
     val dilated = dilatedTree(tree)
 
     def viable(p: Point): Boolean = dilated.label(p)
@@ -57,8 +55,6 @@ trait KdTreeComputationForDynamic extends KdTreeComputation with Dynamic with Co
           if (shouldBeReassigned(content)) findViableControl(content, viable, tree)
           else content
       )
-
-    println("end reassign begin findTrueLabel +++")
 
     def contentBuilder(p: Point) = exhaustiveFindViableControl(p, viable)
 

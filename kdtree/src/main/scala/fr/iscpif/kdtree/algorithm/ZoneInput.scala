@@ -24,6 +24,7 @@ trait ZoneInput extends Input { this: KdTreeComputation =>
 
   def zone: Zone
   def depth: Int
+  def dimensions = zone.region.length
 
   def initialTree(contentBuilder: Point => CONTENT)(implicit rng: Random, m: Manifest[CONTENT]): Option[Tree[CONTENT]] = {
     val point = sampler(zone, rng)

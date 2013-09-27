@@ -6,7 +6,7 @@ import fr.iscpif.kdtree.structure._
 object Consumer {
 
   val integrationStep = 0.002
-  val timeStep = 0.2
+  val timeStep = 0.1
 
   def apply(state: Point, control: Point) = {
     def xDot(state: Array[Double], t: Double) = state(0) - state(1)

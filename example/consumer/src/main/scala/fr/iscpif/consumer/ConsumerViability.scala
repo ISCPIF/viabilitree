@@ -29,12 +29,13 @@ object ConsumerViability extends App
     with ViabilityKernel
     with ZoneInput
     with ParallelEvaluator
-    with GridSampler
-    with ConstantControlHeuristic {
+    with GridSampler {
+
+  override def dilations = 2
 
   def controls = (-0.5 to 0.5 by 0.1).map(Seq(_))
 
-  def k(p: Point) = p(0)>=0 && p(0) <= 2 && p(1) <= 3  && p(1)>=0
+  def k(p: Point) = p(0) >= 0.0 && p(0) <= 2.0 && p(1) <= 3.0 && p(1) >= 0.0
 
   def zone = Seq((0.0, 2.0), (0.0, 3.0))
 
@@ -46,8 +47,12 @@ object ConsumerViability extends App
 
   def initialZone = zone
 
-
   implicit lazy val rng = new Random(42)
+
+  /*controls.foreach {
+    c =>
+      println(dynamic(Seq(1.685, 2.225), c))
+  }*/
 
   /*controls.map {
     c =>
@@ -55,12 +60,17 @@ object ConsumerViability extends App
       Consumer(Seq(1.95, 1.85), c)
   }.foreach(println)   */
 
+  /*val point = Seq(1.685, 2.225)
 
-
+  println(cellNumberToGridPoint(cellNumbers(point)))
+  println((point(0) >= 1.68 && point(0) <= 1.69 && point(1) >= 2.22 && point(1) <= 2.24))
+    */
   for {
     (b, s) <- apply.zipWithIndex
-  } b.saveVTK2D(Resource.fromFile(s"/tmp/consumer/consumerGRID${depth}s$s.vtk"))
-
+  } {
+    println(s)
+    b.saveVTK2D(Resource.fromFile(s"/tmp/consumer/consumerGRID${depth}s$s.vtk"))
+  }
   //println(bassin.volume)
 
 }

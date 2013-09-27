@@ -26,15 +26,14 @@ import scala.util.Random
 import scalax.io.Resource
 import math._
 
-object
-ConsumerKernel extends App with OracleApproximation with ZoneAndPointInput {
+object ConsumerKernel extends App with OracleApproximation with ZoneAndPointInput {
   val b = 2.0
   val e = 3.0
   val c = 0.5
 
   def oracle(p: Point) = {
-  //  if (p(1)  >= b)   p(0) >= p(1) - c + (c * exp(-p(1) / c))    &&
-   // p(0) <= max(p(1) + c  - (c * exp(- (2 - p(1)) / c)),b)  &&  p(0)>=0 &&
+    //  if (p(1)  >= b)   p(0) >= p(1) - c + (c * exp(-p(1) / c))    &&
+    // p(0) <= max(p(1) + c  - (c * exp(- (2 - p(1)) / c)),b)  &&  p(0)>=0 &&
     //  p(0) >= p(1) - c + (c * exp(-p(1) / c))     &&  p(1)<=e && p(1)>=0
     true
   }

@@ -30,16 +30,13 @@ trait KdTreeComputation extends Sampler with Evaluator with Content {
     learnBoundary(tree, contentBuilder)
 
   def learnBoundary(tree: Tree[CONTENT], contentBuilder: Point => CONTENT)(implicit rng: Random, m: Manifest[CONTENT]): Tree[CONTENT] = {
-    //TODO delete Romain
-    println("learnBoundary dans KdTreeComputation +++")
-
     def refine(tree: Tree[CONTENT]): Tree[CONTENT] = {
       import mutable._
 
       val leavesToRefine = tree.leavesToRefine(tree)
 
       if (leavesToRefine.isEmpty) tree
-      else    refine(
+      else refine(
         tree.evaluateAndInsert(
           tree.root.zonesAndPathsToTest(leavesToRefine),
           evaluator(contentBuilder)

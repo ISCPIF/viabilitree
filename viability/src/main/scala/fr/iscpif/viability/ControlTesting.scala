@@ -23,8 +23,6 @@ import fr.iscpif.kdtree.content._
 trait ControlTesting <: Dynamic with Content with SearchControlHeuristic with ControlledDynamicContent {
 
   def controls: Seq[Point]
-  //def testControl(p: Point, ctrl: Point): Boolean
-
   private def remainingControls(first: Int) = (first until controls.size)
 
   def exhaustiveFindViableControl(point: Point, viable: Point => Boolean): CONTENT = {
@@ -34,74 +32,51 @@ trait ControlTesting <: Dynamic with Content with SearchControlHeuristic with Co
       }.find {
         case (_, result) => viable(result)
       }
-    //TODO debug
-    if (point(0)>=1.8 && point(0)<=2 && point(1)>=1.6 && point(1)<=1.9 ){
-      viableControls match {
-        case Some((index, resultPoint)) =>
-          println("TestPoint: " + point.toString() + " Control: " + index.toString() +" ResultPoint: " + resultPoint.toString() )
-          println("Viable dans exhaustiveFindViableControl:" + viable(resultPoint))
-        case None =>
-          println("TestPoint: " + point.toString() + "Non viable dans la recherche exhaustive")
-          controls.map{ control =>
-          val result = dynamic(point, control)
-          println("preuve : " + control.toString() + " résultat " + result )}
-      }
-      }
+
     viableControls match {
       case Some((index, resultPoint)) =>
         Content(point, Some(index), Some(resultPoint), true, index)
       case None =>
         Content(point, None, None, false, controls.size)
     }
+
   }
 
-  def findViableControl(content: CONTENT, viable: Point => Boolean, tree: Tree[CONTENT]): CONTENT = {
+  def findViableControl(content: CONTENT, viable: Point => Boolean, tree: Tree[CONTENT]): CONTENT =
+    if (content.resultPoint.map(viable) getOrElse false) content
+    else {
+      def testControlIndex(ctrlIndex: Int) = {
+        val control = controls(ctrlIndex)
+        val resultPoint = dynamic(content.testPoint, control)
+        ctrlIndex -> resultPoint
+      }
 
-    def testControlIndex(ctrlIndex: Int) = {
-      val control = controls(ctrlIndex)
-      val resultPoint = dynamic(content.testPoint, control)
-      ctrlIndex -> resultPoint
-    }
+      val guessed = guessControl(content, tree).view.flatMap {
+        ctrlIndex =>
+          // If negative value test min of Int
+          if (ctrlIndex < content.controlMax) None
+          else Some(testControlIndex(ctrlIndex))
+      }.find {
+        case (control, resultPoint) => viable(resultPoint)
+      }
 
-    val guessed = guessControl(content, tree).view.flatMap {
-      ctrlIndex =>
-        // If negative value test min of Int
-        if (ctrlIndex < content.controlMax) None
-        else Some(testControlIndex(ctrlIndex))
-    }.find {
-      case (control, resultPoint) => viable(resultPoint)
-    }
+      guessed match {
+        case Some((control, result)) =>
+          Content(content.testPoint, Some(control), Some(result), true, content.controlMax)
+        case None =>
+          val searched =
+            remainingControls(content.controlMax).view.map(testControlIndex).find {
+              case (i, resultPoint) => viable(resultPoint)
+            }
 
-    guessed match {
-      case Some((control, result)) =>
-        Content(content.testPoint, Some(control), Some(result), true, content.controlMax)
-      case None =>
-        val searched =
-          remainingControls(content.controlMax).view.map(testControlIndex).find {
-            case (i, resultPoint) => viable(resultPoint)
-          }
-      //TODO debug
-        if (content.testPoint(0)>=1.8 && content.testPoint(0)<=2 && content.testPoint(1)>=1.6 && content.testPoint(1)<=1.9 ){
           searched match {
-            case Some((index, resultPoint)) =>
-              println("TestPoint: " + content.testPoint.toString() + " Control: " + index.toString() +" ResultPoint: " + resultPoint.toString() )
-              println("Viable dans exhaustiveFindViableControl:" + viable(resultPoint))
+            case Some((control, result)) =>
+              Content(content.testPoint, Some(control), Some(result), true, control + 1)
             case None =>
-              println("TestPoint: " + content.testPoint.toString() + "Non viable dans la recherche exhaustive de findViableControl")
-              remainingControls(content.controlMax).view.map { index : Int =>
-                val control = controls(index)
-                val result = dynamic(content.testPoint, control)
-                println("preuve : " + control.toString() + " résultat " + result )}
+              Content(content.testPoint, None, None, false, controls.size)
           }
-        }
+      }
 
-        searched match {
-          case Some((control, result)) =>
-            Content(content.testPoint, Some(control), Some(result), true, control + 1)
-          case None =>
-            Content(content.testPoint, None, None, false, controls.size)
-        }
     }
-  }
 
 }
