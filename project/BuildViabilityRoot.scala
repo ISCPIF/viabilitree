@@ -5,7 +5,7 @@ object ViabilityRootBuild extends Build {
 
  override def settings = super.settings ++ Seq(scalaVersion := "2.10.2")
 
- lazy val all = Project(id = "all", base = file(".")) aggregate(kdtree, visualisation, viability, lotkavoltera, consumer) dependsOn(kdtree, visualisation, viability, lotkavoltera, cyclic, consumer)
+ lazy val all = Project(id = "all", base = file(".")) aggregate(kdtree, visualisation, viability, lotkavoltera, consumer, population) dependsOn(kdtree, visualisation, viability, lotkavoltera, cyclic, consumer)
  
  lazy val kdtree = Project(id = "kdtree", base = file("kdtree"))
  
@@ -22,5 +22,7 @@ object ViabilityRootBuild extends Build {
   lazy val differential = Project(id = "differential", base = file("example/differential"))
  
   lazy val consumer = Project(id = "consumer", base = file("example/consumer")) dependsOn(viability, visualisation, differential)
+
+  lazy val population = Project(id = "population", base = file("example/population")) dependsOn(viability, visualisation, differential)
 } 
 

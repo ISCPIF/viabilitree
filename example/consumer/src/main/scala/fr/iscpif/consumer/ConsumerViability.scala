@@ -49,28 +49,11 @@ object ConsumerViability extends App
 
   implicit lazy val rng = new Random(42)
 
-  /*controls.foreach {
-    c =>
-      println(dynamic(Seq(1.685, 2.225), c))
-  }*/
-
-  /*controls.map {
-    c =>
-      println(c)
-      Consumer(Seq(1.95, 1.85), c)
-  }.foreach(println)   */
-
-  /*val point = Seq(1.685, 2.225)
-
-  println(cellNumberToGridPoint(cellNumbers(point)))
-  println((point(0) >= 1.68 && point(0) <= 1.69 && point(1) >= 2.22 && point(1) <= 2.24))
-    */
   for {
     (b, s) <- apply.zipWithIndex
   } {
     println(s)
     b.saveVTK2D(Resource.fromFile(s"/tmp/consumer/consumerGRID${depth}s$s.vtk"))
   }
-  //println(bassin.volume)
 
 }
