@@ -32,17 +32,16 @@ object ConsumerKernel extends App with OracleApproximation with ZoneAndPointInpu
   val c = 0.5
 
   def oracle(p: Point) = {
-    //  if (p(1)  >= b)   p(0) >= p(1) - c + (c * exp(-p(1) / c))    &&
-    // p(0) <= max(p(1) + c  - (c * exp(- (2 - p(1)) / c)),b)  &&  p(0)>=0 &&
-    //  p(0) >= p(1) - c + (c * exp(-p(1) / c))     &&  p(1)<=e && p(1)>=0
-    true
+    ( p(1) <=b && p(0) >= p(1) - c + (c * exp(-p(1) / c))     &&
+      p(0) <= p(1) + c  - (c * exp((p(1)-b) / c))  )   ||
+      ( p(1) >= b  &&   (p(0) >= p(1) - c + (c * exp(-p(1) / c))))
   }
 
   def zone = Seq((0.0, b), (0.0, e))
 
   def point = Seq(0.001, 0.001)
 
-  def depth = 14
+  def depth = 16
 
   apply.get.saveVTK2D(Resource.fromFile(s"/tmp/consumer/kernelV${depth}.vtk"))
 }
