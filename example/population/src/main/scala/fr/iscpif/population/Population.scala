@@ -16,8 +16,8 @@ object Population {
   val integrationStep = 0.001
   val timeStep = 0.02
 */
-  val integrationStep = 0.0001
-  val timeStep = 0.01
+  val integrationStep = 0.01
+  val timeStep = 0.1
 
   def apply(state: Point, control: Point) = {
     def xDot(state: Array[Double], t: Double) = state(1) * state(0)
