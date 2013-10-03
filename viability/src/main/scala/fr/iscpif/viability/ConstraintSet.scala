@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 08/07/13 Romain Reuillon
+ * Copyright (C) 03/10/13 Romain Reuillon
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -15,23 +15,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package fr.iscpif.kdtree.algorithm
+package fr.iscpif.viability
 
 import fr.iscpif.kdtree.structure._
 import scala.util.Random
 
-trait ZoneInput extends Input { this: KdTreeComputation =>
-
-  def zone: Zone
-  def depth: Int
-  //def dimension = zone.region.length
-
-  def initialTree(contentBuilder: Point => CONTENT)(implicit rng: Random, m: Manifest[CONTENT]): Option[Tree[CONTENT]] = {
-    val point = sampler(zone, rng)
-    val content = contentBuilder(point)
-
-    val tree = Tree(Leaf[CONTENT](content, zone), depth)
-    findTrueLabel(tree, contentBuilder)
+trait ConstraintSet { this: ViabilityKernel =>
+  def constraints(p: Point): Boolean
+  override def k(p: Point) = constraints(p)
+  override def learnConstraintSet(tree: Tree[CONTENT])(implicit rng: Random) = {
+    def contentBuilder(p: Point) = Content(p, None, None, k(p), 0)
+    learnBoundary(tree, contentBuilder)
   }
 
 }

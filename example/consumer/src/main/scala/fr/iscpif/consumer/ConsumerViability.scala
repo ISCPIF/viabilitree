@@ -35,8 +35,6 @@ object ConsumerViability extends App
 
   def controls = (-0.5 to 0.5 by 0.1).map(Seq(_))
 
-  def k(p: Point) = p(0) >= 0.0 && p(0) <= 2.0 && p(1) <= 3.0 && p(1) >= 0.0
-
   def zone = Seq((0.0, 2.0), (0.0, 3.0))
 
   def depth = 16

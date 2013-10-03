@@ -24,15 +24,18 @@ import fr.iscpif.kdtree.algorithm._
 
 trait ViabilityKernel extends KdTreeComputationForDynamic with ControlledDynamicContent with Input {
 
-  def k(p: Point): Boolean
+  def zone: Zone
 
   def shouldBeReassigned(c: CONTENT): Boolean = c.label
+
+  def learnConstraintSet(tree: Tree[CONTENT])(implicit rng: Random) = tree
+  protected[viability] def k(p: Point): Boolean = zone.contains(p)
 
   def apply(implicit rng: Random, m: Manifest[CONTENT]): Iterator[Tree[CONTENT]] = trees
 
   def trees(implicit rng: Random, m: Manifest[CONTENT]): Iterator[Tree[CONTENT]] = {
     def tree =
-      initialTree(exhaustiveFindViableControl(_, k))
+      initialTree(exhaustiveFindViableControl(_, k)).map(learnConstraintSet)
 
     Iterator.iterate(tree -> false) {
       case (tree, _) =>

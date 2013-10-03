@@ -27,8 +27,6 @@ object PopulationViability extends App
   def d = -2.0
   def e = 2.0
 
-  def k(p: Point): Boolean = p(0) >= a && p(0) <= b && p(1) <= e && p(1) >= d
-
   def depth: Int = 16
 
   def zone = Seq((a, b), (d, e))

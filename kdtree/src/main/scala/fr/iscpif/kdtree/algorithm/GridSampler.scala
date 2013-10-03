@@ -9,13 +9,13 @@ trait GridSampler extends RandomSampler {
 
   def depth: Int
   def zone: Zone
-  def dimensions: Int
+  def dimension: Int
 
-  private def numberOfDivision: Int = depth / dimensions
+  private def numberOfDivision: Int = depth / dimension
   private def numberCells: Int = powOf2(numberOfDivision)
   private def powOf2(p: Int) = 1 << p
 
-  assert(depth % dimensions == 0)
+  assert(depth % dimension == 0)
 
   override def sampler(z: Zone, rng: Random): Point =
     cellNumberToGridPoint(cellNumbers(z.randomPoint(rng)))
