@@ -5,7 +5,7 @@ import fr.iscpif.kdtree.structure._
 
 object CyclicDynamicTwo {
 
-  val timeStep = 0.0001
+  val timeStep = 0.01
   val integrationStep = 0.00001
 
   def apply(state: Point, control: Point) = {
