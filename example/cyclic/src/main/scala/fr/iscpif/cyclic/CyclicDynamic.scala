@@ -8,9 +8,8 @@ object CyclicDynamic {
   val integrationStep = 0.00001
   val timeStep = 0.0001
 
-
-//TODO debug
-/*
+  //TODO debug
+  /*
   def apply(v: Seq[Double], time: Double) =
     dynamic.integrate(v.toArray, timeStep, Seq(0.0, time)).last._2.toSeq
 */
@@ -23,7 +22,6 @@ object CyclicDynamic {
     val res = dynamic.integrate(state.toArray, integrationStep, Seq(0.0, timeStep)).last._2.toSeq
     res.toSeq
   }
-
 
 }
 

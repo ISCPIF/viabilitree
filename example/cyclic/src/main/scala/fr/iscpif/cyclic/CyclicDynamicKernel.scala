@@ -27,7 +27,7 @@ import scala.math._
 
 //object CyclicDynamicKernel  extends App with OracleApproximation with ZoneAndPointInput {
 
- /* def oracle(p: Point): Boolean = {
+/* def oracle(p: Point): Boolean = {
      p(2) >= -0.5 && p(2) <= 0.5 &&
      p(1) >= -1 && p(1) <= 1 &&
      p(0) >= -1 && p(0) <= 1
@@ -41,7 +41,6 @@ import scala.math._
 
   apply.get.saveVTK2D(Resource.fromFile(s"/tmp/cyclic/kernelViab${depth}.vtk"))*/
 //}
-
 
 //
 //  val time = 0.1

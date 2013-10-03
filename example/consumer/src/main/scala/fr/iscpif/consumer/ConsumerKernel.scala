@@ -32,9 +32,9 @@ object ConsumerKernel extends App with OracleApproximation with ZoneAndPointInpu
   val c = 0.5
 
   def oracle(p: Point) = {
-    ( p(1) <=b && p(0) >= p(1) - c + (c * exp(-p(1) / c))     &&
-      p(0) <= p(1) + c  - (c * exp((p(1)-b) / c))  )   ||
-      ( p(1) >= b  &&   (p(0) >= p(1) - c + (c * exp(-p(1) / c))))
+    (p(1) <= b && p(0) >= p(1) - c + (c * exp(-p(1) / c)) &&
+      p(0) <= p(1) + c - (c * exp((p(1) - b) / c))) ||
+      (p(1) >= b && (p(0) >= p(1) - c + (c * exp(-p(1) / c))))
   }
 
   def zone = Seq((0.0, b), (0.0, e))

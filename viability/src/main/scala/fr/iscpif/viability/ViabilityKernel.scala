@@ -31,7 +31,8 @@ trait ViabilityKernel extends KdTreeComputationForDynamic with ControlledDynamic
   def apply(implicit rng: Random, m: Manifest[CONTENT]): Iterator[Tree[CONTENT]] = trees
 
   def trees(implicit rng: Random, m: Manifest[CONTENT]): Iterator[Tree[CONTENT]] = {
-    def tree = initialTree(p => Content(p, None, None, true, 0))
+    def tree =
+      initialTree(exhaustiveFindViableControl(_, k))
 
     Iterator.iterate(tree -> false) {
       case (tree, _) =>

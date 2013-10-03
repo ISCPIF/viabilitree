@@ -22,10 +22,10 @@ object PopulationKernel extends App with OracleApproximation with ZoneAndPointIn
   val c = 0.5
   val d = -2.0
   val e = 2.0
-/*
+  /*
 for these parameters, for every value of x in [a,b], there is a value of y such that (x,y) is in the kernel
  */
-/*
+  /*
   def oracle(p: _root_.fr.iscpif.kdtree.structure.Point): Boolean = {
     p(0)>= a && p(0)<= b &&
       p(1)>= -sqrt(2*c*log(b/p(0)))  &&    p(1)<= sqrt(2*c*log(p(0)/a))
@@ -33,8 +33,8 @@ for these parameters, for every value of x in [a,b], there is a value of y such 
 */
 
   def oracle(p: _root_.fr.iscpif.kdtree.structure.Point): Boolean = {
-    p(0)>= a && p(0)<= b &&
-      p(1)<= sqrt(2*c*log(b/p(0)))  &&    p(1)>= -sqrt(2*c*log(p(0)/a))
+    p(0) >= a && p(0) <= b &&
+      p(1) <= sqrt(2 * c * log(b / p(0))) && p(1) >= -sqrt(2 * c * log(p(0) / a))
   }
 
   def zone: Zone = Seq((a, b), (d, e))
