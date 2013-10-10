@@ -1,5 +1,9 @@
 package fr.iscpif.lake
 
+import fr.iscpif.kdtree.structure._
+import scala.math._
+import fr.iscpif.viability.differential.Dynamic
+
 /*
  * Copyright (C) 10/10/13 Isabelle Alvarez
  *
@@ -16,26 +20,23 @@ package fr.iscpif.lake
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+object LakeAndTime {
 
-import fr.iscpif.viability.differential._
-import fr.iscpif.kdtree.structure._
-import math._
-
-object Lake {
   val integrationStep = 0.01
   val timeStep = 0.1
   val  b =0.8
   val r = 1.0
   val m = 1.0
+  val alpha = 10
 
   def apply(state: Point, control: Point) = {
     def xDot(state: Array[Double], t: Double) = control(0)
     // TODO to avoid unnecessary approximation when m=1
     // def yDot(state: Array[Double], t: Double) = b*state(1)-r*math.pow(state(1),8)/(pow(m,8)+pow(state(1),8))
     def yDot(state: Array[Double], t: Double) = state(0) -(b*state(1)-r*math.pow(state(1),8)/(1+pow(state(1),8)))
-    val dynamic = Dynamic(xDot, yDot)
+    def tDot(state: Array[Double], t: Double) = - alpha
+    val dynamic = Dynamic(xDot, yDot, tDot)
     val res = dynamic.integrate(state.toArray, integrationStep, Seq(0.0, timeStep)).last._2.toSeq
     res.toSeq
-  }
-
+}
 }

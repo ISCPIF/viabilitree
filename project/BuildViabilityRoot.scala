@@ -24,5 +24,7 @@ object ViabilityRootBuild extends Build {
   lazy val consumer = Project(id = "consumer", base = file("example/consumer")) dependsOn(viability, visualisation, differential)
 
   lazy val population = Project(id = "population", base = file("example/population")) dependsOn(viability, visualisation, differential)
-} 
+
+  lazy val lake = Project(id = "lake", base = file("example/lake")) dependsOn(viability, visualisation, differential)
+}
 
