@@ -1,13 +1,5 @@
 package fr.iscpif.population
 
-/**
- * Created with IntelliJ IDEA.
- * User: ia
- * Date: 30/09/13
- * Time: 11:10
- * To change this template use File | Settings | File Templates.
- */
-
 import fr.iscpif.viability._
 import fr.iscpif.kdtree.algorithm._
 import fr.iscpif.kdtree.structure._
@@ -19,7 +11,6 @@ import scalax.io.Resource
 object PopulationViability extends App
     with ViabilityKernel
     with ZoneInput
-    with ParallelEvaluator
     with GridSampler {
   def a = 0.2
   def b = 3.0
@@ -27,7 +18,7 @@ object PopulationViability extends App
   def d = -2.0
   def e = 2.0
 
-  def depth: Int = 16
+  def depth: Int = 18
 
   def zone = Seq((a, b), (d, e))
   //  def zone = Seq((a-0.01, b+0.01), (d-0.01, e+0.01))
@@ -36,7 +27,7 @@ object PopulationViability extends App
   //  def zone = Seq((0.0, 2.0), (0.0, 3.0))
 
   def dynamic(point: Point, control: Point) = Population(point, control)
-  def controls = (-0.5 to 0.5 by 0.002).map(Seq(_))
+  lazy val controls = (-0.5 to 0.5 by 0.02).map(Seq(_))
 
   def dimension = 2
 
@@ -54,14 +45,18 @@ object PopulationViability extends App
   }
 */
 
+  val begin = System.currentTimeMillis()
+
   val listeResult = apply.zipWithIndex
   listeResult.foreach {
     case (b, s) =>
       //if (listeResult.hasNext && (s % 10 != 0)) println("on passe")
       //else {
-        println(s"step $s")
-        b.saveVTK2D(Resource.fromFile(s"/tmp/population/population${depth}ts0.01s${s}.vtk"))
-      //}
+      println(s"step $s")
+      if (s % 20 == 0 || !listeResult.hasNext) b.saveVTK2D(Resource.fromFile(s"/tmp/population/population${s}.vtk"))
+    //}
   }
+
+  println(System.currentTimeMillis - begin)
 
 }

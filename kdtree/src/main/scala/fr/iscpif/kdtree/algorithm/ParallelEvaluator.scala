@@ -21,9 +21,9 @@ import fr.iscpif.kdtree.structure._
 import scala.util.Random
 import org.apache.commons.math3.random.{ Well44497b, RandomAdaptor }
 
-trait ParallelEvaluator extends Evaluator with Sampler {
+trait ParallelEvaluator extends Evaluator {
 
-  def evaluator(contentBuilder: Point => CONTENT)(ps: Seq[Zone], rng: Random) = {
+  override def evaluator(contentBuilder: Point => CONTENT)(ps: Seq[Zone], rng: Random) = {
     val seeds = Iterable.fill(ps.size)(rng.nextLong)
 
     (ps zip seeds).par.map {

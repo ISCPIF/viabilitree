@@ -20,7 +20,8 @@ package fr.iscpif.kdtree.algorithm
 import fr.iscpif.kdtree.structure._
 import scala.util.Random
 
-trait Evaluator {
+trait Evaluator <: Sampler {
   type CONTENT
-  def evaluator(contentBuilder: Point => CONTENT)(ps: Seq[Zone], rng: Random): Seq[CONTENT]
+  def evaluator(contentBuilder: Point => CONTENT)(ps: Seq[Zone], rng: Random): Seq[CONTENT] =
+    ps.seq.map { z => contentBuilder(sampler(z, rng)) }
 }
