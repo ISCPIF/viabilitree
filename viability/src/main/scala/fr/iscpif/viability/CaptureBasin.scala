@@ -1,11 +1,9 @@
 package fr.iscpif.viability
 
-
 import fr.iscpif.kdtree.structure._
 import scala.util.Random
 import fr.iscpif.kdtree.content._
 import fr.iscpif.kdtree.algorithm._
-
 
 /*
  * Copyright (C) 10/10/13 Isabelle Alvarez
@@ -27,7 +25,7 @@ trait CaptureBasin extends KdTreeComputationForDynamic with ControlledDynamicCon
 
   def zone: Zone
 
-  def inputPoint : Point
+  def inputPoint: Point
 
   def target(p: Point): Boolean
 
@@ -35,8 +33,7 @@ trait CaptureBasin extends KdTreeComputationForDynamic with ControlledDynamicCon
 
   def shouldBeReassigned(c: CONTENT): Boolean = !c.label
 
-
-  def learnTarget(tree: Tree[CONTENT])(implicit rng: Random) =  {
+  def learnTarget(tree: Tree[CONTENT])(implicit rng: Random) = {
     def contentBuilder(p: Point) = Content(p, None, None, target(p), 0)
     learnBoundary(tree, contentBuilder)
   }
@@ -48,18 +45,16 @@ trait CaptureBasin extends KdTreeComputationForDynamic with ControlledDynamicCon
     Some(
       Tree(
         Leaf(
-          contentBuilder(sampler(zone,rng)),
+          contentBuilder(sampler(zone, rng)),
           zone
         ),
         depth
       )
     )
 
-
-  override  def findTrueLabel(t: Tree[CONTENT], contentBuilder: Point => CONTENT)(implicit rng: Random, m: Manifest[CONTENT]): Option[Tree[CONTENT]] = {
+  override def findTrueLabel(t: Tree[CONTENT], contentBuilder: Point => CONTENT)(implicit rng: Random, m: Manifest[CONTENT]): Option[Tree[CONTENT]] = {
     Some(t)
   }
-
 
   def apply(implicit rng: Random, m: Manifest[CONTENT]): Iterator[Tree[CONTENT]] = trees
 
@@ -70,7 +65,6 @@ trait CaptureBasin extends KdTreeComputationForDynamic with ControlledDynamicCon
       case Some(t) => (t.leaves.exists(l => l.content.label))
       case None => false
     }, "Bad Target")
-
 
     Iterator.iterate(tree -> false) {
       case (tree, _) =>

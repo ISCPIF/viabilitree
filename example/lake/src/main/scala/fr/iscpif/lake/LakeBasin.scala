@@ -1,7 +1,7 @@
 package fr.iscpif.lake
 
 import fr.iscpif.viability.ViabilityKernel
-import fr.iscpif.kdtree.algorithm.{GridSampler, ParallelEvaluator, ZoneInput}
+import fr.iscpif.kdtree.algorithm.{ GridSampler, ParallelEvaluator, ZoneInput }
 import fr.iscpif.kdtree.structure._
 import scala.util.Random
 import scalax.io.Resource
@@ -24,61 +24,59 @@ import fr.iscpif.kdtree.visualisation._
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 //TODO to rewrite with BasinCapture implementation
-object LakeBasin   extends App
-with ViabilityKernel
-with ZoneInput
-with ParallelEvaluator
-with GridSampler {  x => {
+object LakeBasin extends App
+    with ViabilityKernel
+    with ZoneInput
+    with ParallelEvaluator
+    with GridSampler { x => {
 
-  def controls = (-0.09 to 0.09 by 0.01).map(Seq(_))
+    def controls = (-0.09 to 0.09 by 0.01).map(Seq(_))
 
-  def zone = Seq((0.1, 1.0), (0.0, 1.4), (0.0, 10.0))
+    def zone = Seq((0.1, 1.0), (0.0, 1.4), (0.0, 10.0))
 
-  def depth = 18
+    def depth = 18
 
-  val kernel = new LakeViability {
+    val kernel = new LakeViability {
 
-     def controls = x.controls
-     def zone: Seq[Interval] = x.zone.region.take(2)
-     def depth = 18
-     def dynamic(point: Point, control: Point) = Lake(point, control)
-     def dimension = 2
-    //  def initialZone = Seq((0, 1.5), (0.0, 2))
-   }
+      def controls = x.controls
+      def zone: Seq[Interval] = x.zone.region.take(2)
+      def depth = 18
+      def dynamic(point: Point, control: Point) = Lake(point, control)
+      def dimension = 2
+      //  def initialZone = Seq((0, 1.5), (0.0, 2))
+    }
 
+    def controls = (-0.09 to 0.09 by 0.01).map(Seq(_))
 
-  def controls = (-0.09 to 0.09 by 0.01).map(Seq(_))
+    def zone = Seq((0.1, 1.0), (0.0, 1.4), (0.0, 10.0))
 
-  def zone = Seq((0.1, 1.0), (0.0, 1.4), (0.0, 10.0))
+    def depth = 18
 
-  def depth = 18
+    def dynamic(point: Point, control: Point) = LakeAndTime(point, control)
 
-  def dynamic(point: Point, control: Point) = LakeAndTime(point, control)
+    def dimension = 3
 
-  def dimension = 3
+    def initialZone = Seq((0.1, 1.0), (0.0, 1.4), (0.0, 10))
 
-  def initialZone = Seq((0.1, 1.0), (0.0, 1.4), (0.0, 10))
+    implicit lazy val rng = new Random(42)
 
-  implicit lazy val rng = new Random(42)
+    val listeResult = apply.zipWithIndex
+    listeResult.foreach {
+      case (b, s) =>
+        //if (listeResult.hasNext && (s % 10 != 0)) println("on passe")
+        //else {
+        println(s"step $s")
+        if (s % 1 == 0 || !listeResult.hasNext) b.saveVTK3D(Resource.fromFile(s"/tmp/lake/lakeBasin${s}.vtk"))
+      //}
+    }
 
-  val listeResult = apply.zipWithIndex
-  listeResult.foreach {
-    case (b, s) =>
-      //if (listeResult.hasNext && (s % 10 != 0)) println("on passe")
-      //else {
-      println(s"step $s")
-      if (s % 1 == 0 || !listeResult.hasNext) b.saveVTK3D(Resource.fromFile(s"/tmp/lake/lakeBasin${s}.vtk"))
-    //}
-  }
-
-/*  for {
+    /*  for {
     (b, s) <- apply.zipWithIndex
   } {
     println(s)
     b.saveVTK3D(Resource.fromFile(s"/tmp/lake/Lake${depth}s$s.vtk"))
   }*/
-}
-
+  }
 
 }
 

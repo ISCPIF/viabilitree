@@ -24,7 +24,7 @@ object LakeAndTime {
 
   val integrationStep = 0.01
   val timeStep = 0.1
-  val  b =0.8
+  val b = 0.8
   val r = 1.0
   val m = 1.0
   val alpha = 10
@@ -33,10 +33,10 @@ object LakeAndTime {
     def xDot(state: Array[Double], t: Double) = control(0)
     // TODO to avoid unnecessary approximation when m=1
     // def yDot(state: Array[Double], t: Double) = b*state(1)-r*math.pow(state(1),8)/(pow(m,8)+pow(state(1),8))
-    def yDot(state: Array[Double], t: Double) = state(0) -(b*state(1)-r*math.pow(state(1),8)/(1+pow(state(1),8)))
-    def tDot(state: Array[Double], t: Double) = - alpha
+    def yDot(state: Array[Double], t: Double) = state(0) - (b * state(1) - r * math.pow(state(1), 8) / (1 + pow(state(1), 8)))
+    def tDot(state: Array[Double], t: Double) = -alpha
     val dynamic = Dynamic(xDot, yDot, tDot)
     val res = dynamic.integrate(state.toArray, integrationStep, Seq(0.0, timeStep)).last._2.toSeq
     res.toSeq
-}
+  }
 }
