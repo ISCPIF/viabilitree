@@ -31,6 +31,8 @@ trait CaptureBasin extends KdTreeComputationForDynamic
 
   def target(p: Point): Boolean
 
+  def pointInTarget: Point
+
   def depth: Int
 
   def shouldBeReassigned(c: CONTENT): Boolean = !c.label
@@ -41,12 +43,12 @@ trait CaptureBasin extends KdTreeComputationForDynamic
     p => defined(p) && tree.label(p)
 
   def learnTarget(implicit rng: Random): Option[Tree[CONTENT]] = {
-    def initialContentBuilder(p: Point) = Content(p, None, None, defined(p) && zone.contains(p), 0)
+    //def initialContentBuilder(p: Point) = Content(p, None, None, defined(p) && zone.contains(p), 0)
 
     def initialTree(contentBuilder: Point => CONTENT)(implicit rng: Random, m: Manifest[CONTENT]): Tree[CONTENT] =
       Tree(
         Leaf(
-          contentBuilder(sampler(zone, rng)),
+          contentBuilder(align(pointInTarget)),
           zone
         ),
         depth
@@ -54,7 +56,7 @@ trait CaptureBasin extends KdTreeComputationForDynamic
 
     def contentBuilder(p: Point) = Content(p, None, None, target(p), 0)
 
-    val learntTarget = learnBoundary(initialTree(initialContentBuilder), contentBuilder)
+    val learntTarget = learnBoundary(initialTree(contentBuilder), contentBuilder)
     if (learntTarget.leaves.exists(l => l.content.label)) Some(learntTarget) else None
   }
 

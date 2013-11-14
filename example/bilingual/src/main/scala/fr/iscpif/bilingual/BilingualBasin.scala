@@ -42,6 +42,8 @@ object BilingualBasin extends App with CaptureBasin with GridSampler {
   def target(p: Point): Boolean =
     fileTarget.contains(p.map(c => math.round(c * 99).toInt))
 
+  def pointInTarget = Seq(70.0 / 99, 24.0 / 99, 1.0 / 99)
+
   def zone = Seq(0.0 -> 1.0, 0.0 -> 1.0, 0.0 -> 1.0)
 
   def depth = 18

@@ -23,4 +23,5 @@ import scala.util.Random
 // TODO change structure. It should be the generalization of both GridSampler and RandomSampler
 trait Sampler {
   def sampler(z: Zone, rng: Random): Point
+  def align(p: Point): Point = p
 }

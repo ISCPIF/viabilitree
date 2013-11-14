@@ -21,6 +21,6 @@ import fr.iscpif.kdtree.structure._
 import scala.util.Random
 
 //TODO extends Sampler
-trait RandomSampler {
+trait RandomSampler extends Sampler {
   def sampler(z: Zone, rng: Random) = z.randomPoint(rng)
 }

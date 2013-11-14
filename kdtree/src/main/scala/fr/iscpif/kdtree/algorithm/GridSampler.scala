@@ -5,7 +5,7 @@ import scala.util.Random
 
 //TODO do it nicely from path instead of zone
 //TODO use superclass sampler method if possible
-trait GridSampler extends RandomSampler {
+trait GridSampler extends Sampler {
 
   def depth: Int
   def zone: Zone
@@ -17,8 +17,9 @@ trait GridSampler extends RandomSampler {
 
   assert(depth % dimension == 0)
 
-  override def sampler(z: Zone, rng: Random): Point =
-    cellNumberToGridPoint(cellNumbers(z.randomPoint(rng)))
+  def sampler(z: Zone, rng: Random): Point = align(z.randomPoint(rng))
+
+  override def align(p: Point) = cellNumberToGridPoint(cellNumbers(p))
 
   def cellNumbers(point: Point) = {
     (point zip zone.region).map {

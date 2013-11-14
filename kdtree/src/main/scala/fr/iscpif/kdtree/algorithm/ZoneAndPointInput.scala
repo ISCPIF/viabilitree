@@ -30,7 +30,7 @@ trait ZoneAndPointInput extends Input { self: KdTreeComputation =>
     Some(
       Tree(
         Leaf(
-          contentBuilder(point),
+          contentBuilder(align(point)),
           zone
         ),
         depth
