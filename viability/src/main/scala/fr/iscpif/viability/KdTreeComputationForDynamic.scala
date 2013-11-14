@@ -44,10 +44,10 @@ trait KdTreeComputationForDynamic extends KdTreeComputation with Dynamic with Co
 
   def shouldBeReassigned(c: CONTENT): Boolean
 
-  def timeStep(tree: Tree[CONTENT])(implicit rng: Random, m: Manifest[CONTENT]): Option[Tree[CONTENT]] = {
-    val dilated = dilatedTree(tree)
+  def viableFunction(tree: Tree[CONTENT]) = tree.label(_)
 
-    def viable(p: Point): Boolean = dilated.label(p)
+  def timeStep(tree: Tree[CONTENT])(implicit rng: Random, m: Manifest[CONTENT]): Option[Tree[CONTENT]] = {
+    val viable = viableFunction(dilatedTree(tree))
 
     val reassignedTree =
       tree.reassign(

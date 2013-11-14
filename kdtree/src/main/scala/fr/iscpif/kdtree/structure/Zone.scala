@@ -21,7 +21,8 @@ package fr.iscpif.kdtree.structure
 import scala.util.Random
 
 object Zone {
-  def apply(intervals: Seq[Interval]) =
+
+  def apply(intervals: Seq[Interval]): Zone =
     new Zone {
       val region = intervals.toArray
     }

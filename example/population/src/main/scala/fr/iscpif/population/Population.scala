@@ -14,7 +14,7 @@ import fr.iscpif.kdtree.structure._
 object Population {
   /*
   val integrationStep = 0.001
-  val timeStep = 0.02
+  val integrationStep = 0.02
 */
   val integrationStep = 0.01
   val timeStep = 0.1

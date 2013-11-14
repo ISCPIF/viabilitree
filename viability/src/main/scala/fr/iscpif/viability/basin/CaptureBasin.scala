@@ -35,8 +35,13 @@ trait CaptureBasin extends KdTreeComputationForDynamic
 
   def shouldBeReassigned(c: CONTENT): Boolean = !c.label
 
+  def defined(p: Point): Boolean = true
+
+  override def viableFunction(tree: Tree[CONTENT]) =
+    p => defined(p) && tree.label(p)
+
   def learnTarget(implicit rng: Random): Option[Tree[CONTENT]] = {
-    def initialContentBuilder(p: Point) = Content(p, None, None, zone.contains(p), 0)
+    def initialContentBuilder(p: Point) = Content(p, None, None, defined(p) && zone.contains(p), 0)
 
     def initialTree(contentBuilder: Point => CONTENT)(implicit rng: Random, m: Manifest[CONTENT]): Tree[CONTENT] =
       Tree(

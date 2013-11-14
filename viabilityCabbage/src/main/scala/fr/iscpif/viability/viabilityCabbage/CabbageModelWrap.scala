@@ -22,7 +22,7 @@ object CabbageModelWrap {
         assert(state.length == 6)
         val model = new Cabbage4ViabilityReduced(state.mv,state.cGLSInV,state.T,state.ABp,state.AB,state.Texture,controlFunction)
 
-        //The state we get one timeStep forward
+        //The state we get one integrationStep forward
         model.integrate(sampleTimes, integrationStep)(1)._2
     }
   }

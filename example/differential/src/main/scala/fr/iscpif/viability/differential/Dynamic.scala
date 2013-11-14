@@ -14,8 +14,11 @@ object Dynamic {
 
 class Dynamic(equations: (Array[Double], Double) => Double*) extends FirstOrderDifferentialEquations {
 
-  def integrate(y0: Array[Double], timeStep: Double, samples: Seq[Double]) = {
-    val integrator = new ClassicalRungeKuttaIntegrator(timeStep)
+  def integrate(y0: Array[Double], integrationStep: Double, step: Double): Seq[Double] =
+    integrate(y0, integrationStep, Seq(0.0, step)).last._2.toSeq
+
+  def integrate(y0: Array[Double], integrationStep: Double, samples: Seq[Double]) = {
+    val integrator = new ClassicalRungeKuttaIntegrator(integrationStep)
 
     samples.tail.foldLeft((samples.head, y0) :: Nil) {
       case (ys, s) => {

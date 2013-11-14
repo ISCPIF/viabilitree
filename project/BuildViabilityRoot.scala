@@ -7,7 +7,7 @@ object ViabilityRootBuild extends Build {
   override def settings = 
     super.settings ++ Seq(scalaVersion := "2.10.3")
 
-  lazy val all = Project(id = "all", base = file(".")) aggregate(kdtree, visualisation, viability, lotkavoltera, consumer, population) dependsOn(kdtree, visualisation, viability, lotkavoltera, cyclic, consumer)
+//  lazy val all = Project(id = "all", base = file(".")) aggregate(kdtree, visualisation, viability, lotkavoltera, cyclic, consumer, lake, bilingual)
  
   lazy val kdtree = Project(id = "kdtree", base = file("kdtree"))
  
@@ -28,6 +28,8 @@ object ViabilityRootBuild extends Build {
   lazy val population = Project(id = "population", base = file("example/population"), settings = osgi) dependsOn(viability, visualisation, differential)
 
   lazy val lake = Project(id = "lake", base = file("example/lake"), settings = osgi) dependsOn(viability, visualisation, differential)
+
+  lazy val bilingual = Project(id = "bilingual", base = file("example/bilingual"), settings = osgi) dependsOn(viability, visualisation, differential)
 
   def osgi = Project.defaultSettings ++ exports(Seq("fr.iscpif.*"), Seq("*;resolution:=optional"), Seq("!scala.*", "*"))
 
