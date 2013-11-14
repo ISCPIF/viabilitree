@@ -5,7 +5,7 @@ import com.typesafe.sbt.osgi.SbtOsgi.{OsgiKeys, osgiSettings}
 object ViabilityRootBuild extends Build { 
 
   override def settings = 
-    super.settings ++ Seq(scalaVersion := "2.10.2")
+    super.settings ++ Seq(scalaVersion := "2.10.3")
 
   lazy val all = Project(id = "all", base = file(".")) aggregate(kdtree, visualisation, viability, lotkavoltera, consumer, population) dependsOn(kdtree, visualisation, viability, lotkavoltera, cyclic, consumer)
  

@@ -24,6 +24,7 @@ import _root_.fr.iscpif.kdtree.content._
 import _root_.fr.iscpif.kdtree.visualisation._
 import scala.util.Random
 import scalax.io.Resource
+import fr.iscpif.viability.kernel.{ ViabilityKernel, ConstraintSet }
 
 object CyclicViability2D extends App with ViabilityKernel with ZoneInput with ParallelEvaluator with GridSampler with ConstraintSet {
 

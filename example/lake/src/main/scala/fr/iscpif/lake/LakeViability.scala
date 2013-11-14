@@ -1,7 +1,6 @@
 package fr.iscpif.lake
 
 import scala.App
-import fr.iscpif.viability.{ ConstraintSet, ViabilityKernel }
 import fr.iscpif.kdtree.algorithm.{ GridSampler, ParallelEvaluator, ZoneInput }
 import fr.iscpif.kdtree.structure._
 import fr.iscpif.kdtree.visualisation._
@@ -9,6 +8,7 @@ import fr.iscpif.kdtree.content._
 import fr.iscpif.kdtree._
 import scala.util.Random
 import scalax.io.Resource
+import fr.iscpif.viability.kernel.ViabilityKernel
 
 /*
  * Copyright (C) 10/10/13 Isabelle Alvarez

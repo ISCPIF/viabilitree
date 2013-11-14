@@ -24,6 +24,7 @@ import fr.iscpif.kdtree.content._
 import fr.iscpif.kdtree.visualisation._
 import scala.util.Random
 import scalax.io.Resource
+import fr.iscpif.viability.kernel.ViabilityKernel
 
 object ConsumerViability extends App
     with ViabilityKernel

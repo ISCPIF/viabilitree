@@ -15,21 +15,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package fr.iscpif.viability
+package fr.iscpif.viability.kernel
 
 import fr.iscpif.kdtree.structure._
 import scala.util.Random
 import fr.iscpif.kdtree.content._
 import fr.iscpif.kdtree.algorithm._
+import fr.iscpif.viability.{ K, ControlledDynamicContent, KdTreeComputationForDynamic }
 
-trait ViabilityKernel extends KdTreeComputationForDynamic with ControlledDynamicContent with Input {
-
-  def zone: Zone
+trait ViabilityKernel extends KdTreeComputationForDynamic
+    with ControlledDynamicContent
+    with Input
+    with K {
 
   def shouldBeReassigned(c: CONTENT): Boolean = c.label
 
   def learnConstraintSet(tree: Tree[CONTENT])(implicit rng: Random) = tree
-  protected[viability] def k(p: Point): Boolean = zone.contains(p)
 
   def apply(implicit rng: Random, m: Manifest[CONTENT]): Iterator[Tree[CONTENT]] = trees
 

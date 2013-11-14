@@ -18,11 +18,11 @@
 package fr.iscpif.cyclic
 
 import _root_.fr.iscpif.kdtree.algorithm.{ GridSampler, ParallelEvaluator, ZoneInput }
-import fr.iscpif.viability.{ ConstraintSet, ViabilityKernel }
 import _root_.fr.iscpif.kdtree.structure._
 import scala.util.Random
 import scalax.io.Resource
 import _root_.fr.iscpif.kdtree.visualisation._
+import fr.iscpif.viability.kernel.{ ViabilityKernel, ConstraintSet }
 
 object CyclicViability extends App with ViabilityKernel with ZoneInput with ParallelEvaluator with GridSampler with ConstraintSet {
 

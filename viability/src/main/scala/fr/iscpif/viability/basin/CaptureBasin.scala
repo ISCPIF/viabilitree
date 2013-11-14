@@ -1,9 +1,12 @@
-package fr.iscpif.viability
+package fr.iscpif.viability.basin
 
 import fr.iscpif.kdtree.structure._
 import scala.util.Random
 import fr.iscpif.kdtree.content._
 import fr.iscpif.kdtree.algorithm._
+import fr.iscpif.viability.{ ControlledDynamicContent, KdTreeComputationForDynamic }
+import scala.Predef._
+import scala.Some
 
 /*
  * Copyright (C) 10/10/13 Isabelle Alvarez
@@ -21,11 +24,10 @@ import fr.iscpif.kdtree.algorithm._
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-trait CaptureBasin extends KdTreeComputationForDynamic with ControlledDynamicContent with Input {
+trait CaptureBasin extends KdTreeComputationForDynamic
+    with ControlledDynamicContent {
 
   def zone: Zone
-
-  def inputPoint: Point
 
   def target(p: Point): Boolean
 
@@ -33,16 +35,10 @@ trait CaptureBasin extends KdTreeComputationForDynamic with ControlledDynamicCon
 
   def shouldBeReassigned(c: CONTENT): Boolean = !c.label
 
-  def learnTarget(tree: Tree[CONTENT])(implicit rng: Random) = {
-    def contentBuilder(p: Point) = Content(p, None, None, target(p), 0)
-    learnBoundary(tree, contentBuilder)
-  }
-  protected[viability] def k(p: Point): Boolean = zone.contains(p)
+  def learnTarget(implicit rng: Random): Option[Tree[CONTENT]] = {
+    def initialContentBuilder(p: Point) = Content(p, None, None, zone.contains(p), 0)
 
-  def initialContentBuilder(p: Point) = Content(p, None, None, k(p), 0)
-
-  override def initialTree(contentBuilder: Point => CONTENT)(implicit rng: Random, m: Manifest[CONTENT]): Option[Tree[CONTENT]] =
-    Some(
+    def initialTree(contentBuilder: Point => CONTENT)(implicit rng: Random, m: Manifest[CONTENT]): Tree[CONTENT] =
       Tree(
         Leaf(
           contentBuilder(sampler(zone, rng)),
@@ -50,21 +46,19 @@ trait CaptureBasin extends KdTreeComputationForDynamic with ControlledDynamicCon
         ),
         depth
       )
-    )
 
-  override def findTrueLabel(t: Tree[CONTENT], contentBuilder: Point => CONTENT)(implicit rng: Random, m: Manifest[CONTENT]): Option[Tree[CONTENT]] = {
-    Some(t)
+    def contentBuilder(p: Point) = Content(p, None, None, target(p), 0)
+
+    val learntTarget = learnBoundary(initialTree(initialContentBuilder), contentBuilder)
+    if (learntTarget.leaves.exists(l => l.content.label)) Some(learntTarget) else None
   }
+
+  override def findTrueLabel(t: Tree[CONTENT], contentBuilder: Point => CONTENT)(implicit rng: Random, m: Manifest[CONTENT]): Option[Tree[CONTENT]] = Some(t)
 
   def apply(implicit rng: Random, m: Manifest[CONTENT]): Iterator[Tree[CONTENT]] = trees
 
   def trees(implicit rng: Random, m: Manifest[CONTENT]): Iterator[Tree[CONTENT]] = {
-    def tree =
-      initialTree(initialContentBuilder).map(learnTarget)
-    assert(tree match {
-      case Some(t) => (t.leaves.exists(l => l.content.label))
-      case None => false
-    }, "Bad Target")
+    def tree = learnTarget
 
     Iterator.iterate(tree -> false) {
       case (tree, _) =>
