@@ -24,7 +24,6 @@ import fr.iscpif.kdtree.algorithm._
 import fr.iscpif.viability.{ K, ControlledDynamicContent, KdTreeComputationForDynamic }
 
 trait ViabilityKernel extends KdTreeComputationForDynamic
-    with ControlledDynamicContent
     with Input
     with K {
 

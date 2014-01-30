@@ -24,8 +24,7 @@ import scala.Some
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-trait CaptureBasin extends KdTreeComputationForDynamic
-    with ControlledDynamicContent {
+trait CaptureBasin extends KdTreeComputationForDynamic {
 
   def zone: Zone
 
