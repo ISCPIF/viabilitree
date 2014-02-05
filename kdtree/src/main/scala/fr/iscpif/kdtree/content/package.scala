@@ -178,15 +178,15 @@ package object content {
     def leavesToRefine(n: Node[T]): Iterable[(Leaf[T], Int)] = {
       val leaves =
         (n match {
-          case leaf: Leaf[T] => {
+          case leaf: Leaf[T] =>
             leaf.content.label match {
-              case true => leaf.touchesBoundary match {
-                case Some(coordinate) => List((leaf, coordinate))
-                case None => List.empty
-              }
+              case true =>
+                leaf.touchesBoundary match {
+                  case Some(coordinate) => List((leaf, coordinate))
+                  case None => List.empty
+                }
               case false => List.empty
             }
-          }
           case fork: Fork[T] =>
             leavesToRefine(fork.lowChild) ++ leavesToRefine(fork.highChild) ++
               pairsToSet(pairsBetweenNodes(fork.lowChild, fork.highChild))

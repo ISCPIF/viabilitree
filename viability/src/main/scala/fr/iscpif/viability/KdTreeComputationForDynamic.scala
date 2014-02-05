@@ -22,6 +22,7 @@ import fr.iscpif.kdtree.content._
 import math._
 import scala.util.Random
 import fr.iscpif.kdtree.algorithm.KdTreeComputation
+import fr.iscpif.viability.control.{ ControlledDynamicContent, ControlTesting }
 
 trait KdTreeComputationForDynamic extends KdTreeComputation with Dynamic with ControlTesting with ControlledDynamicContent {
 
@@ -52,8 +53,10 @@ trait KdTreeComputationForDynamic extends KdTreeComputation with Dynamic with Co
     val reassignedTree =
       tree.reassign(
         content =>
-          if (shouldBeReassigned(content)) findViableControl(content, viable, tree)
-          else content
+          if (shouldBeReassigned(content)) {
+            val label = findViableControl(content, viable, tree)
+            label
+          } else content
       )
 
     def contentBuilder(p: Point) = exhaustiveFindViableControl(p, viable)

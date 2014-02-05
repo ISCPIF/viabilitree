@@ -21,11 +21,13 @@ import fr.iscpif.kdtree.structure._
 import scala.util.Random
 import fr.iscpif.kdtree.content._
 import fr.iscpif.kdtree.algorithm._
-import fr.iscpif.viability.{ K, ControlledDynamicContent, KdTreeComputationForDynamic }
+import fr.iscpif.viability.{ K, KdTreeComputationForDynamic }
+import fr.iscpif.viability.control.MemorisedControlTesting
 
-trait ViabilityKernel extends KdTreeComputationForDynamic
+trait ViabilityKernel <: KdTreeComputationForDynamic
     with Input
-    with K {
+    with K
+    with MemorisedControlTesting {
 
   def shouldBeReassigned(c: CONTENT): Boolean = c.label
 

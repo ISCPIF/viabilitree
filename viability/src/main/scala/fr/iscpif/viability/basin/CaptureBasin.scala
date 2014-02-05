@@ -4,9 +4,10 @@ import fr.iscpif.kdtree.structure._
 import scala.util.Random
 import fr.iscpif.kdtree.content._
 import fr.iscpif.kdtree.algorithm._
-import fr.iscpif.viability.{ ControlledDynamicContent, KdTreeComputationForDynamic }
+import fr.iscpif.viability.KdTreeComputationForDynamic
 import scala.Predef._
 import scala.Some
+import fr.iscpif.viability.control.ExhaustiveControlTesting
 
 /*
  * Copyright (C) 10/10/13 Isabelle Alvarez
@@ -24,7 +25,7 @@ import scala.Some
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-trait CaptureBasin extends KdTreeComputationForDynamic {
+trait CaptureBasin <: KdTreeComputationForDynamic with ExhaustiveControlTesting {
 
   def zone: Zone
 
@@ -69,12 +70,16 @@ trait CaptureBasin extends KdTreeComputationForDynamic {
     Iterator.iterate(tree -> false) {
       case (tree, _) =>
         tree match {
-          case None => None -> true
+          case None =>
+            None -> true
           case Some(tree) =>
             val newTree = timeStep(tree)
             newTree match {
-              case None => None -> true
-              case Some(nt) => newTree -> sameVolume(nt, tree)
+              case None =>
+                None -> true
+              case Some(nt) =>
+                val stop = sameVolume(nt, tree)
+                newTree -> stop
             }
         }
     }.takeWhile { case (_, stop) => !stop }.flatMap { case (t, _) => t }

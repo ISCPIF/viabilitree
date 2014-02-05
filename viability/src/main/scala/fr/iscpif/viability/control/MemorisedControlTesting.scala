@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 14/07/13 Romain Reuillon
+ * Copyright (C) 05/02/14 Romain Reuillon
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -15,32 +15,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package fr.iscpif.viability
+package fr.iscpif.viability.control
 
 import fr.iscpif.kdtree.structure._
-import fr.iscpif.kdtree.content._
 
-trait ControlTesting <: Dynamic with Content with SearchControlHeuristic with ControlledDynamicContent {
+trait MemorisedControlTesting <: ControlTesting with Content with SearchControlHeuristic {
 
-  def controls: Seq[Point]
   private def remainingControls(first: Int) = (first until controls.size)
-
-  def exhaustiveFindViableControl(point: Point, viable: Point => Boolean): CONTENT = {
-    val viableControls =
-      controls.view.zipWithIndex.map {
-        case (control, index) => index -> dynamic(point, control)
-      }.find {
-        case (_, result) => viable(result)
-      }
-
-    viableControls match {
-      case Some((index, resultPoint)) =>
-        Content(point, Some(index), Some(resultPoint), true, index)
-      case None =>
-        Content(point, None, None, false, controls.size)
-    }
-
-  }
 
   def findViableControl(content: CONTENT, viable: Point => Boolean, tree: Tree[CONTENT]): CONTENT =
     if (content.resultPoint.map(viable) getOrElse false) content

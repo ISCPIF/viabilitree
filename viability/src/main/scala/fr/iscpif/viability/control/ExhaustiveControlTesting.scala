@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 05/07/13 Romain Reuillon
+ * Copyright (C) 05/02/14 Romain Reuillon
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -15,22 +15,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package fr.iscpif.viability
+package fr.iscpif.viability.control
 
 import fr.iscpif.kdtree.structure._
-import fr.iscpif.kdtree.content._
 
-trait ControlledDynamicContent {
-  implicit val relabeliser: Relabeliser[CONTENT] =
-    (c: Content, label: Content => Boolean) => c.copy(label = label(c))
+trait ExhaustiveControlTesting <: ControlTesting {
 
-  case class Content(
-    testPoint: Point,
-    control: Option[Int],
-    resultPoint: Option[Point],
-    label: Boolean,
-    controlMax: Int) extends TestPoint with Control with Label
+  def findViableControl(content: CONTENT, viable: Point => Boolean, tree: Tree[CONTENT]): CONTENT =
+    exhaustiveFindViableControl(content.testPoint, viable)
 
-  type CONTENT = Content
 }
-

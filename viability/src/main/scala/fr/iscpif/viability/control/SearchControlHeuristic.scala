@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package fr.iscpif.viability
+package fr.iscpif.viability.control
 
 import fr.iscpif.kdtree.structure._
 

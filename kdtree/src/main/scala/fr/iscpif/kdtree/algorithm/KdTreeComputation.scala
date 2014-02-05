@@ -36,12 +36,13 @@ trait KdTreeComputation extends Sampler with Evaluator with Content {
       val leavesToRefine = tree.leavesToRefine(tree)
 
       if (leavesToRefine.isEmpty) tree
-      else refine(
-        tree.evaluateAndInsert(
-          tree.root.zonesAndPathsToTest(leavesToRefine),
-          evaluator(contentBuilder)
+      else
+        refine(
+          tree.evaluateAndInsert(
+            tree.root.zonesAndPathsToTest(leavesToRefine),
+            evaluator(contentBuilder)
+          )
         )
-      )
     }
 
     refine(tree.clone)
