@@ -43,10 +43,10 @@ trait CaptureBasin <: KdTreeComputationForDynamic with ExhaustiveControlTesting 
     if (!defined(point)) notViable(point) else f
 
   override def findViableControl(content: CONTENT, viable: Point => Boolean, tree: Tree[CONTENT]): CONTENT =
-    viableDefined(content.testPoint) { findViableControl(content, viable, tree) }
+    viableDefined(content.testPoint) { super.findViableControl(content, viable, tree) }
 
   override def exhaustiveFindViableControl(point: Point, viable: Point => Boolean): CONTENT =
-    viableDefined(point) { exhaustiveFindViableControl(point, viable) }
+    viableDefined(point) { super.exhaustiveFindViableControl(point, viable) }
 
   override def viableFunction(tree: Tree[CONTENT]) =
     p => defined(p) && tree.label(p)
