@@ -20,7 +20,7 @@ package fr.iscpif.kdtree.algorithm
 import fr.iscpif.kdtree.structure._
 import scala.util.Random
 
-trait ZoneInput extends Input { this: KdTreeComputation =>
+trait ZoneInput <: Input { this: KdTreeComputation =>
 
   def zone: Zone
   def depth: Int

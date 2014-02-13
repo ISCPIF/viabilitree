@@ -59,6 +59,7 @@ trait KdTreeComputationForDynamic extends KdTreeComputation with Dynamic with Co
           } else content
       )
 
+    //TODO: May want to use (tree => findViableControl) function in order to benefit from optimised heuristic for viable control research.
     def contentBuilder(p: Point) = exhaustiveFindViableControl(p, viable)
 
     findTrueLabel(reassignedTree, contentBuilder).map { tree => learnBoundary(tree, contentBuilder) }

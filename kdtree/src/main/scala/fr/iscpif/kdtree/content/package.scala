@@ -11,11 +11,14 @@ package object content {
 
   // The critical pairs together with the coordinate of adjacency (no need to include the sign)
   def pairsBetweenNodes[T <: Label](node1: Node[T], node2: Node[T]): Iterable[(Leaf[T], Leaf[T], Int)] = {
-    val direction =
+    lazy val direction =
       adjacency(node1.path, node2.path) match {
         case None => throw new RuntimeException("Zones must be adjacent.")
         case Some(x) => x.toDirection
       }
+
+    def adjacentOppositeLeaves(leaf: Leaf[T], fork: Fork[T]) =
+      fork.borderLeaves(direction).filter(leaf2 => leaf2.content.label == !leaf.content.label).filter(leaf2 => adjacent(leaf.path, leaf2.path))
 
     (node1, node2) match {
       case (leaf1: Leaf[T], leaf2: Leaf[T]) =>
@@ -26,28 +29,23 @@ package object content {
           Nil
 
       case (fork1: Fork[T], fork2: Fork[T]) =>
-        val listAux = List(
+        List(
           (fork1.lowChild, fork2.lowChild),
           (fork1.lowChild, fork2.highChild),
           (fork1.highChild, fork2.lowChild),
-          (fork1.highChild, fork2.highChild))
-        listAux.flatMap {
-          case (n1, n2) =>
-            if (adjacent(n1.path, n2.path)) pairsBetweenNodes(n1, n2)
-            else Nil
-        }
+          (fork1.highChild, fork2.highChild)
+        ).flatMap {
+            case (n1, n2) =>
+              if (adjacent(n1.path, n2.path)) pairsBetweenNodes(n1, n2)
+              else Nil
+          }
 
       case (fork: Fork[T], leaf: Leaf[T]) =>
-        //TODO: Use leaves(content) ??
-        val listAux: Iterable[Leaf[T]] = fork.borderLeaves(direction).filter(x => x.content.label == !leaf.content.label)
-        val list: Iterable[(Leaf[T], Leaf[T], Int)] = listAux.map(borderLeaf => (leaf, borderLeaf, direction.coordinate))
-        list.filter(x => adjacent(x._1.path, x._2.path))
-
+        adjacentOppositeLeaves(leaf, fork).map(borderLeaf => (leaf, borderLeaf, direction.coordinate))
       case (leaf: Leaf[T], fork: Fork[T]) =>
-        val listAux: Iterable[Leaf[T]] = fork.borderLeaves(direction.opposite).filter(x => x.content.label == !leaf.content.label)
-        val list: Iterable[(Leaf[T], Leaf[T], Int)] = listAux.map(borderLeaf => (leaf, borderLeaf, direction.coordinate))
-        list.filter(x => adjacent(x._1.path, x._2.path))
+        adjacentOppositeLeaves(leaf, fork).map(borderLeaf => (leaf, borderLeaf, direction.coordinate))
     }
+
   }
 
   implicit class LabelNodeDecorator[T <: Label](val n: Node[T]) {
@@ -224,24 +222,22 @@ package object content {
 
   implicit class LabelTestPointNodeDecorator[T <: Label with TestPoint](n: Node[T]) {
 
-    def zonesAndPathsToTest(leavesAndPrefCoord: Iterable[(Leaf[T], Int)]): List[(Zone, Path)] = {
-      def auxFunction(leaf: Leaf[T], prefCoord: Int): (Zone, Path) = {
-        assert(leaf.contains(leaf.content.testPoint), "TestPoint: " + leaf.content.testPoint + "  Leaf: " + leaf.zone.region.map(x => println(x.min + " " + x.max)))
+    def zonesAndPathsToTest(leavesAndPrefCoord: Iterable[(Leaf[T], Int)]): List[(Zone, Path)] =
+      leavesAndPrefCoord.toList.map {
+        case (leaf, prefCoord) =>
+          assert(leaf.contains(leaf.content.testPoint), "TestPoint: " + leaf.content.testPoint + "  Leaf: " + leaf.zone.region.map(x => println(x.min + " " + x.max)))
 
-        val minCoord = leaf.minimalCoordinates
+          val minCoord = leaf.minimalCoordinates
 
-        val coordinate =
-          minCoord.exists(_ == prefCoord) match {
-            case true => prefCoord
-            case false => minCoord.head
-          }
+          val coordinate =
+            minCoord.exists(_ == prefCoord) match {
+              case true => prefCoord
+              case false => minCoord.head
+            }
 
-        //The new zone to test will be the one that does not contain the point of the current leaf
-        leaf.emptyExtendedZoneAndPath(coordinate)
+          //The new zone to test will be the one that does not contain the point of the current leaf
+          leaf.emptyExtendedZoneAndPath(coordinate)
       }
-
-      leavesAndPrefCoord.toList.map(x => auxFunction(x._1, x._2))
-    }
 
   }
 

@@ -23,9 +23,4 @@ import scala.util.Random
 trait ConstraintSet { this: ViabilityKernel =>
   def constraints(p: Point): Boolean
   override def k(p: Point) = constraints(p)
-  override def learnConstraintSet(tree: Tree[CONTENT])(implicit rng: Random) = {
-    def contentBuilder(p: Point) = Content(p, None, None, k(p), 0)
-    learnBoundary(tree, contentBuilder)
-  }
-
 }

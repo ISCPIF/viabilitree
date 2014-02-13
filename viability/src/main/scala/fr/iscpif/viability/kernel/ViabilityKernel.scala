@@ -31,13 +31,16 @@ trait ViabilityKernel <: KdTreeComputationForDynamic
 
   def shouldBeReassigned(c: CONTENT): Boolean = c.label
 
-  def learnConstraintSet(tree: Tree[CONTENT])(implicit rng: Random) = tree
-
   def apply(implicit rng: Random, m: Manifest[CONTENT]): Iterator[Tree[CONTENT]] = trees
 
   def trees(implicit rng: Random, m: Manifest[CONTENT]): Iterator[Tree[CONTENT]] = {
-    def tree =
-      initialTree(exhaustiveFindViableControl(_, k)).map(learnConstraintSet)
+
+    def tree = {
+      def contentBuilder(p: Point) = exhaustiveFindViableControl(p, k)
+      initialTree(contentBuilder).map {
+        learnBoundary(_, contentBuilder)
+      }
+    }
 
     Iterator.iterate(tree -> false) {
       case (tree, _) =>
