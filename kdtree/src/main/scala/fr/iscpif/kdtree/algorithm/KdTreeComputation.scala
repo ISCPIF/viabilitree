@@ -20,11 +20,14 @@ package fr.iscpif.kdtree.algorithm
 import fr.iscpif.kdtree.structure._
 import fr.iscpif.kdtree.content._
 import scala.util.Random
-import fr.iscpif.kdtree.content.{ TestPoint, Label }
+import scalaz.Lens
 
 trait KdTreeComputation extends Sampler with Evaluator with Content {
 
   type CONTENT <: Label with TestPoint
+
+  def buildContent(point: Point, label: Boolean): CONTENT
+  def label: Lens[CONTENT, Boolean]
 
   def apply(tree: Tree[CONTENT], contentBuilder: Point => CONTENT)(implicit rng: Random, m: Manifest[CONTENT]): Tree[CONTENT] =
     learnBoundary(tree, contentBuilder)
@@ -32,7 +35,6 @@ trait KdTreeComputation extends Sampler with Evaluator with Content {
   def learnBoundary(tree: Tree[CONTENT], contentBuilder: Point => CONTENT)(implicit rng: Random, m: Manifest[CONTENT]): Tree[CONTENT] = {
     def refine(tree: Tree[CONTENT]): Tree[CONTENT] = {
       import mutable._
-
       val leavesToRefine = tree.leavesToRefine(tree)
 
       if (leavesToRefine.isEmpty) tree
@@ -44,8 +46,33 @@ trait KdTreeComputation extends Sampler with Evaluator with Content {
           )
         )
     }
-
     refine(tree.clone)
+  }
+
+  //TODO might beneficiate from a mutable verison of learnBoundary
+  def dilate(t: Tree[CONTENT])(implicit rng: Random, m: Manifest[CONTENT]): Tree[CONTENT] = {
+    val newT = t.clone
+    val leaves = newT.leavesToReassign(newT.root, label = false)
+    var currentRoot = newT.root
+    leaves.foreach {
+      leaf =>
+        currentRoot = newT.root.replace(leaf.path, label.set(leaf.content, true)).rootCalling
+    }
+    //Tree(currentRoot, newT.depth)
+    val dilated = Tree(currentRoot, newT.depth)
+    learnBoundary(dilated, buildContent(_, false))
+  }
+
+  def erode(t: Tree[CONTENT])(implicit rng: Random, m: Manifest[CONTENT]): Tree[CONTENT] = {
+    val newT = t.clone
+    val leaves = newT.leavesToReassign(newT.root, label = true)
+    var currentRoot = newT.root
+    leaves.foreach {
+      leaf =>
+        currentRoot = newT.root.replace(leaf.path, label.set(leaf.content, false)).rootCalling
+    }
+    val eroded = Tree(currentRoot, newT.depth)
+    learnBoundary(eroded, buildContent(_, true))
   }
 
   def findTrueLabel(t: Tree[CONTENT], contentBuilder: Point => CONTENT)(implicit rng: Random, m: Manifest[CONTENT]): Option[Tree[CONTENT]] = {

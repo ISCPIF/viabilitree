@@ -32,13 +32,13 @@ object ConsumerViability extends App
     with ParallelEvaluator
     with GridSampler {
 
-  override def dilations = 2
+  override def dilations = 0
 
   def controls = (-0.5 to 0.5 by 0.1).map(Seq(_))
 
   def zone = Seq((0.0, 2.0), (0.0, 3.0))
 
-  def depth = 16
+  def depth = 20
 
   def dynamic(point: Point, control: Point) = Consumer(point, control)
 
@@ -52,7 +52,7 @@ object ConsumerViability extends App
 
   for {
     (b, s) <- it.zipWithIndex
-    if s % 10 == 0 || !it.hasNext
+    //if s % 10 == 0 || !it.hasNext
   } {
     println(s)
     b.saveVTK2D(Resource.fromFile(s"/tmp/consumer/consumerGRID${depth}s$s.vtk"))

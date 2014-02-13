@@ -20,15 +20,19 @@ package fr.iscpif.kdtree.algorithm
 import fr.iscpif.kdtree.structure._
 import fr.iscpif.kdtree.content._
 import scala.util.Random
+import scalaz.Lens
 
 trait OracleApproximation extends KdTreeComputation with RandomSampler with ParallelEvaluator with Input {
 
   case class Content(testPoint: Point, label: Boolean) extends Label with TestPoint
-  implicit val relabeliser: Relabeliser[Content] = (c: Content, label: Content => Boolean) => c.copy(label = label(c))
 
   type CONTENT = Content
 
   def contentBuilder(p: Point) = Content(p, oracle(p))
+  def buildContent(point: Point, label: Boolean): CONTENT = Content(point, label)
+
+  def label: Lens[CONTENT, Boolean] =
+    Lens.lensu((c, v) => c.copy(label = v), _.label)
 
   def oracle(p: Point): Boolean
 

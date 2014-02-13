@@ -41,13 +41,13 @@ object Rectangle extends App with OracleApproximation with ZoneInput {
   println("Nb true atomic leaves " + res.atomicLeaves.filter(_.content.label).size)
   println("Volume " + res.volume)
 
-  val dilated = res.dilate
+  val dilated = dilate(res)
 
   println("Nb atomic leaves " + dilated.atomicLeaves.size)
   println("Nb true atomic leaves " + dilated.atomicLeaves.filter(_.content.label).size)
   println("Volume dilaté " + dilated.volume)
 
-  val eroded = res.erode
+  val eroded = erode(res)
 
   println("Nb atomic leaves " + eroded.atomicLeaves.size)
   println("Nb true atomic leaves " + eroded.atomicLeaves.filter(_.content.label).size)

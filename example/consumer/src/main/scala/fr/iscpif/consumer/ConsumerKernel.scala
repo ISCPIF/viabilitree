@@ -43,5 +43,9 @@ object ConsumerKernel extends App with OracleApproximation with ZoneAndPointInpu
 
   def depth = 16
 
-  apply.get.saveVTK2D(Resource.fromFile(s"/tmp/consumer/kernelV${depth}.vtk"))
+  val kernel = apply.get
+
+  kernel.saveVTK2D(Resource.fromFile(s"/tmp/consumer/kernelV${depth}.vtk"))
+  dilate(dilate(kernel)).saveVTK2D(Resource.fromFile(s"/tmp/consumer/kernel_dilatedV${depth}.vtk"))
+
 }

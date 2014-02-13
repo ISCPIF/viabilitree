@@ -19,10 +19,9 @@ package fr.iscpif.viability.control
 
 import fr.iscpif.kdtree.structure._
 import fr.iscpif.kdtree.content._
+import scalaz.Lens
 
 trait ControlledDynamicContent {
-  implicit val relabeliser: Relabeliser[CONTENT] =
-    (c: Content, label: Content => Boolean) => c.copy(label = label(c))
 
   case class Content(
     testPoint: Point,
@@ -30,6 +29,12 @@ trait ControlledDynamicContent {
     resultPoint: Option[Point],
     label: Boolean,
     controlMax: Int) extends TestPoint with Control with Label
+
+  def buildContent(point: Point, label: Boolean): CONTENT =
+    Content(point, None, None, label, 0)
+
+  def label: Lens[CONTENT, Boolean] =
+    Lens.lensu((c, v) => c.copy(label = v), _.label)
 
   type CONTENT = Content
 }

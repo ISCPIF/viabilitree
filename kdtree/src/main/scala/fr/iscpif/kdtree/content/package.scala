@@ -7,7 +7,7 @@ import scala.util.Random
 
 package object content {
 
-  type Relabeliser[T] = (T, T => Boolean) => T
+  //type Relabeliser[T] = (T, T => Boolean) => T
 
   // The critical pairs together with the coordinate of adjacency (no need to include the sign)
   def pairsBetweenNodes[T <: Label](node1: Node[T], node2: Node[T]): Iterable[(Leaf[T], Leaf[T], Int)] = {
@@ -88,28 +88,6 @@ package object content {
         l => newT.replace(l.path, update(l.content))
       }
       newT
-    }
-
-    def dilate(implicit relabel: Relabeliser[T], m: Manifest[T]): Tree[T] = {
-      val newT = t.clone
-      val leaves = newT.leavesToReassign(newT.root, label = false)
-      var currentRoot = newT.root
-      leaves.foreach {
-        leaf =>
-          currentRoot = newT.root.replace(leaf.path, relabel(leaf.content, _ => true)).rootCalling
-      }
-      Tree(currentRoot, newT.depth)
-    }
-
-    def erode(implicit relabel: Relabeliser[T], m: Manifest[T]): Tree[T] = {
-      val newT = t.clone
-      val leaves = newT.leavesToReassign(newT.root, label = true)
-      var currentRoot = newT.root
-      leaves.foreach {
-        leaf =>
-          currentRoot = newT.root.replace(leaf.path, relabel(leaf.content, _ => false)).rootCalling
-      }
-      Tree(currentRoot, newT.depth)
     }
 
     def leavesToReassign(n: Node[T], label: Boolean): Iterable[Leaf[T]] =
