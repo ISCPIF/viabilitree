@@ -23,8 +23,8 @@ import math._
 
 object Bilingual {
 
-  val integrationStep = 0.1
-  val timeStep = 1
+  val integrationStep = 0.01
+  val timeStep = 0.1
 
   val a: Double = 1.31
 

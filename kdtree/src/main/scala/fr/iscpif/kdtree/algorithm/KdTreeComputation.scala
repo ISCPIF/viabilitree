@@ -86,8 +86,7 @@ trait KdTreeComputation extends Sampler with Evaluator with Content {
       val leaves =
         newT.leaves.
           filterNot(newT.isAtomic).
-          toSeq.sortBy(_.path.length).
-          reverse
+          toSeq.sortBy(_.path.length)
 
       // TODO refine is sequential maybe costly if kernel is empty, refine all bigest leaves in parallel?
       // TODO heuristic guess of control?

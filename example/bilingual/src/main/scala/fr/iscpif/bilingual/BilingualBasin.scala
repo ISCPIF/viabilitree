@@ -50,7 +50,7 @@ object BilingualBasin extends App with CaptureBasin with GridSampler {
 
   def dynamic(point: Point, control: Point) = Bilingual(point, control)
 
-  def controls = (-0.1 to 0.1 by 0.01).map(Seq(_))
+  def controls = (-0.1 to 0.1 by 0.005).map(Seq(_))
 
   def dimension = 3
 
