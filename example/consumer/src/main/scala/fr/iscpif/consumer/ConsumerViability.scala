@@ -52,7 +52,7 @@ object ConsumerViability extends App
 
   for {
     (b, s) <- it.zipWithIndex
-    //if s % 10 == 0 || !it.hasNext
+    if s % 10 == 0 || !it.hasNext
   } {
     println(s)
     b.saveVTK2D(Resource.fromFile(s"/tmp/consumer/consumerGRID${depth}s$s.vtk"))

@@ -17,6 +17,8 @@
 
 package fr.iscpif.viability.kernel
 
+import fr.iscpif.kdtree.content._
+
 import fr.iscpif.kdtree.structure._
 import scala.util.Random
 import fr.iscpif.kdtree.content._
@@ -35,14 +37,15 @@ trait ViabilityKernel <: KdTreeComputationForDynamic
 
   def trees(implicit rng: Random, m: Manifest[CONTENT]): Iterator[Tree[CONTENT]] = {
 
-    def tree = {
+    def tree0 = {
       def contentBuilder(p: Point) = exhaustiveFindViableControl(p, k)
       initialTree(contentBuilder).map {
-        learnBoundary(_, contentBuilder)
+        tree =>
+          learnBoundary(tree, contentBuilder)
       }
     }
 
-    Iterator.iterate(tree -> false) {
+    Iterator.iterate(tree0 -> false) {
       case (tree, _) =>
         tree match {
           case None => None -> true

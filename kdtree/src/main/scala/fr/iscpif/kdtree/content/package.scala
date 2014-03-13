@@ -17,7 +17,7 @@ package object content {
         case Some(x) => x.toDirection
       }
 
-    def adjacentOppositeLeaves(leaf: Leaf[T], fork: Fork[T]) =
+    def adjacentOppositeLeaves(leaf: Leaf[T], fork: Fork[T], direction: Direction) =
       fork.borderLeaves(direction).filter(leaf2 => leaf2.content.label == !leaf.content.label).filter(leaf2 => adjacent(leaf.path, leaf2.path))
 
     (node1, node2) match {
@@ -41,11 +41,10 @@ package object content {
           }
 
       case (fork: Fork[T], leaf: Leaf[T]) =>
-        adjacentOppositeLeaves(leaf, fork).map(borderLeaf => (leaf, borderLeaf, direction.coordinate))
+        adjacentOppositeLeaves(leaf, fork, direction).map(borderLeaf => (leaf, borderLeaf, direction.coordinate))
       case (leaf: Leaf[T], fork: Fork[T]) =>
-        adjacentOppositeLeaves(leaf, fork).map(borderLeaf => (leaf, borderLeaf, direction.coordinate))
+        adjacentOppositeLeaves(leaf, fork, direction.opposite).map(borderLeaf => (leaf, borderLeaf, direction.coordinate))
     }
-
   }
 
   implicit class LabelNodeDecorator[T <: Label](val n: Node[T]) {
@@ -91,19 +90,19 @@ package object content {
     }
 
     def leavesToReassign(n: Node[T], label: Boolean): Iterable[Leaf[T]] =
-      criticalLeaves(n, label = label).filter(_.content.label == label).toSeq.distinct
+      criticalLeaves(n).filter(_.content.label == label).toSeq.distinct
 
-    def criticalLeaves(n: Node[T] = t.root, label: Boolean) =
+    def criticalLeaves(n: Node[T] = t.root, includeNonAtomic: Boolean = false): Iterable[Leaf[T]] =
       (n match {
         case leaf: Leaf[T] => List.empty
         case fork: Fork[T] =>
-          leavesToReassign(fork.lowChild, label) ++ leavesToReassign(fork.highChild, label) ++
-            criticalLeavesBetweenNodes(fork.lowChild, fork.highChild)
+          criticalLeaves(fork.lowChild, includeNonAtomic) ++ criticalLeaves(fork.highChild, includeNonAtomic) ++
+            criticalLeavesBetweenNodes(fork.lowChild, fork.highChild, includeNonAtomic)
       }).toSeq.distinct
 
-    def criticalLeavesBetweenNodes(node1: Node[T], node2: Node[T]): Iterable[Leaf[T]] = {
+    def criticalLeavesBetweenNodes(node1: Node[T], node2: Node[T], includeNonAtomic: Boolean = false): Iterable[Leaf[T]] = {
       def borderLeaves(leaf: Leaf[T], fork: Fork[T]) = {
-        if (t.isAtomic(leaf)) {
+        if (t.isAtomic(leaf) || includeNonAtomic) {
           val direction =
             adjacency(fork.path, leaf.path) match {
               case None => throw new RuntimeException("Zones must be adjacent.")
@@ -126,7 +125,8 @@ package object content {
         case (leaf1: Leaf[T], leaf2: Leaf[T]) =>
           assert(adjacent(leaf1.path, leaf2.path))
           //TODO test adjacency  if true assert(Zone.adjacentZones(leaf1.zone, leaf2.zone),{println(leaf1.zone.region.toList); println(leaf2.zone.region.toList)})
-          if (t.isAtomic(leaf1) && t.isAtomic(leaf2) && xor(leaf1.content.label, leaf2.content.label)) List(leaf1, leaf2)
+          if ((includeNonAtomic || (t.isAtomic(leaf1) && t.isAtomic(leaf2))) &&
+            xor(leaf1.content.label, leaf2.content.label)) List(leaf1, leaf2)
           else Nil
 
         case (fork1: Fork[T], fork2: Fork[T]) =>
@@ -138,7 +138,7 @@ package object content {
 
           listAux.flatMap {
             case (n1, n2) =>
-              if (adjacent(n1.path, n2.path)) criticalLeavesBetweenNodes(n1, n2)
+              if (adjacent(n1.path, n2.path)) criticalLeavesBetweenNodes(n1, n2, includeNonAtomic)
               else Nil
           }
 
