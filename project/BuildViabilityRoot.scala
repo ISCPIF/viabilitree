@@ -5,14 +5,14 @@ import com.typesafe.sbt.osgi.SbtOsgi.{OsgiKeys, osgiSettings}
 object ViabilityRootBuild extends Build { 
 
   override def settings = 
-    super.settings ++ Seq(scalaVersion := "2.10.3")
+    super.settings ++ Seq(scalaVersion := "2.11.2")
 
   lazy val kdtree = Project(id = "kdtree", base = file("kdtree")) settings (
-    libraryDependencies += "org.scalaz" %% "scalaz-core" % "7.0.3"
+    libraryDependencies += "org.scalaz" %% "scalaz-core" % "7.0.6"
   )
  
   lazy val visualisation = Project(id = "visualisation", base = file("visualisation")) dependsOn(kdtree) settings (
-    libraryDependencies += "com.github.scala-incubator.io" %% "scala-io-file" % "0.4.2"
+    libraryDependencies += "com.github.scala-incubator.io" %% "scala-io-file" % "0.4.3"
   )
 
   lazy val viability = Project(id = "viability", base = file("viability")) dependsOn(kdtree)
