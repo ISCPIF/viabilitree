@@ -40,3 +40,16 @@ object ViabilityRootBuild extends Build {
   )
 }
 
+
+trait Libraries {
+
+  lazy val monocleVersion = "0.4.0"
+
+  lazy val monocle = Seq(
+    "com.github.julien-truffaut"  %%  "monocle-core"    % monocleVersion,
+    "com.github.julien-truffaut"  %%  "monocle-generic" % monocleVersion,
+    "com.github.julien-truffaut"  %%  "monocle-macro"   % monocleVersion
+  )
+
+}
+
