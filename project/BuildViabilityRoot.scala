@@ -2,13 +2,13 @@ import sbt._
 import Keys._
 import com.typesafe.sbt.osgi.SbtOsgi.{OsgiKeys, osgiSettings}
 
-object ViabilityRootBuild extends Build { 
+object ViabilityRootBuild extends Build with Libraries {
 
   override def settings = 
     super.settings ++ Seq(scalaVersion := "2.11.2")
 
   lazy val kdtree = Project(id = "kdtree", base = file("kdtree")) settings (
-    libraryDependencies += "org.scalaz" %% "scalaz-core" % "7.0.6"
+    libraryDependencies ++= monocle
   )
  
   lazy val visualisation = Project(id = "visualisation", base = file("visualisation")) dependsOn(kdtree) settings (
@@ -43,7 +43,7 @@ object ViabilityRootBuild extends Build {
 
 trait Libraries {
 
-  lazy val monocleVersion = "0.4.0"
+  lazy val monocleVersion = "0.5.1"
 
   lazy val monocle = Seq(
     "com.github.julien-truffaut"  %%  "monocle-core"    % monocleVersion,
