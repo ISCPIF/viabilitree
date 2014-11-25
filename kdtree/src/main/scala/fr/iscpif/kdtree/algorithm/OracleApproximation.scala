@@ -20,7 +20,7 @@ package fr.iscpif.kdtree.algorithm
 import fr.iscpif.kdtree.structure._
 import fr.iscpif.kdtree.content._
 import scala.util.Random
-import scalaz.Lens
+import monocle.Macro._
 
 trait OracleApproximation extends KdTreeComputation with RandomSampler with ParallelEvaluator with Input {
 
@@ -31,8 +31,7 @@ trait OracleApproximation extends KdTreeComputation with RandomSampler with Para
   def contentBuilder(p: Point) = Content(p, oracle(p))
   def buildContent(point: Point, label: Boolean): CONTENT = Content(point, label)
 
-  def label: Lens[CONTENT, Boolean] =
-    Lens.lensu((c, v) => c.copy(label = v), _.label)
+  def label = mkLens[CONTENT, Boolean]("label")
 
   def oracle(p: Point): Boolean
 

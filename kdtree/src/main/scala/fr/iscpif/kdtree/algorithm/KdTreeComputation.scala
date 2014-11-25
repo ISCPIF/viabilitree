@@ -19,15 +19,15 @@ package fr.iscpif.kdtree.algorithm
 
 import fr.iscpif.kdtree.structure._
 import fr.iscpif.kdtree.content._
+import monocle.SimpleLens
 import scala.util.Random
-import scalaz.Lens
 
 trait KdTreeComputation extends Sampler with Evaluator with Content {
 
   type CONTENT <: Label with TestPoint
 
   def buildContent(point: Point, label: Boolean): CONTENT
-  def label: Lens[CONTENT, Boolean]
+  def label: SimpleLens[CONTENT, Boolean]
 
   def apply(tree: Tree[CONTENT], contentBuilder: Point => CONTENT)(implicit rng: Random, m: Manifest[CONTENT]): Tree[CONTENT] =
     learnBoundary(tree, contentBuilder)
