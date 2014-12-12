@@ -51,7 +51,7 @@ object LakeViability
     (b, s) <- apply.zipWithIndex
   } {
     println(s)
-    b.saveVTK2D(Resource.fromFile(s"/tmp/lake/Lake${depth}s$s.vtk"))
+    b.saveVTK2D(Resource.fromFile(s"/tmp/lake2/Lake${depth}mu${dilations}s$s.vtk"))
   }
 
 }
