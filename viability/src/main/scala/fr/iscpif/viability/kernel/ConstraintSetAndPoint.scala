@@ -8,5 +8,5 @@ import fr.iscpif.viability.kernel.ViabilityKernel
  */
 trait ConstraintSetAndPoint <: ConstraintSet { this: ViabilityKernel =>
   def pointInConstraints: Point
-  assert(constraints(pointInConstraints))
+  assert(constraints(pointInConstraints), s"$pointInConstraints dans les contraintes !")
 }

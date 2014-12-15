@@ -10,6 +10,8 @@ import scala.util.Random
 
 /**
  * Created by ia on 12/12/2014.
+ * Inside the traditional Zone, set a constraint set with the indicator function constraint
+ * AND use a point inside the constraint set to learn the first tree
  */
 trait ViabilityKernelWithConstraints <: ViabilityKernel
 with ConstraintSetAndPoint {
