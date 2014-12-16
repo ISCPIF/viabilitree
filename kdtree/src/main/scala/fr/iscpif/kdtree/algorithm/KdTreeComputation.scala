@@ -49,6 +49,14 @@ trait KdTreeComputation extends Sampler with Evaluator with Content {
     refine(tree.clone)
   }
 
+  def dilate(t: Tree[CONTENT], n: Int)(implicit rng: Random, m: Manifest[CONTENT]): Tree[CONTENT] =
+    if(n <= 0) t
+    else dilate(dilate(t), n - 1)
+
+  def erode(t: Tree[CONTENT], n: Int)(implicit rng: Random, m: Manifest[CONTENT]): Tree[CONTENT] =
+    if(n <= 0) t
+    else erode(erode(t), n - 1)
+
   //TODO might beneficiate from a mutable verison of learnBoundary
   def dilate(t: Tree[CONTENT])(implicit rng: Random, m: Manifest[CONTENT]): Tree[CONTENT] = {
     val newT = t.clone

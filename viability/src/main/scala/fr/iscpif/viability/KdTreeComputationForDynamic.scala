@@ -30,13 +30,6 @@ trait KdTreeComputationForDynamic extends KdTreeComputation with Dynamic with Co
 
   def lipschitz: Option[Double] = None
 
-  def dilatedTree(tree: Tree[CONTENT])(implicit rng: Random, m: Manifest[CONTENT]) = {
-    def recursive(t: Tree[CONTENT], nb: Int): Tree[CONTENT] =
-      if (nb <= 0) t
-      else recursive(dilate(t), nb - 1)
-    recursive(tree, dilations)
-  }
-
   def dilations: Int =
     lipschitz match {
       case Some(l) => (floor(l * sqrt(dimension) / 2) + 1).toInt
@@ -48,7 +41,7 @@ trait KdTreeComputationForDynamic extends KdTreeComputation with Dynamic with Co
   def viableFunction(tree: Tree[CONTENT]) = tree.label(_)
 
   def timeStep(tree: Tree[CONTENT])(implicit rng: Random, m: Manifest[CONTENT]): Option[Tree[CONTENT]] = {
-    val viable = viableFunction(dilatedTree(tree))
+    val viable = viableFunction(dilate(tree, dilations))
 
     val reassignedTree =
       tree.reassign(

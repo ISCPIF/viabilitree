@@ -30,7 +30,7 @@ trait ViabilityKernel <: KdTreeComputationForDynamic with MemorisedControlTestin
 
   def shouldBeReassigned(c: CONTENT): Boolean = c.label
 
-  def apply(implicit rng: Random, m: Manifest[CONTENT]): Iterator[Tree[CONTENT]] = trees
+  def apply()(implicit rng: Random, m: Manifest[CONTENT]): Iterator[Tree[CONTENT]] = trees
 
 
   /**

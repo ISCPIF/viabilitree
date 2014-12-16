@@ -1,5 +1,6 @@
 package fr.iscpif.lake
 
+import fr.iscpif.viability._
 import fr.iscpif.kdtree.algorithm._
 import fr.iscpif.kdtree.structure._
 import fr.iscpif.viability.kernel._
@@ -10,8 +11,22 @@ import scalax.io.Resource
 /**
  * Created by ia on 15/12/2014.
  */
-object LakeViabilityTest extends App
-  with ZoneInput
+object LakeViabilityTest extends App {
+
+  implicit val rng = new Random(42)
+
+  val lake = new LakeViability {
+    override def depth = 14
+  }
+
+  val viabilityKernel = lake().last
+
+  println(viabilityKernel.volume)
+  println(lake.erode(viabilityKernel).volume)
+
+
+
+  /*with ZoneInput
   with LearnK
   with ParallelEvaluator
   with GridSampler
@@ -38,5 +53,5 @@ object LakeViabilityTest extends App
     } {
       println(s)
       b.saveVTK2D(Resource.fromFile(s"/tmp/lake3/Lake${depth}mu${dilations}s$s.vtk"))
-    }
+    }*/
   }

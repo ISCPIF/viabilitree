@@ -26,33 +26,31 @@ import scala.util.Random
 import scalax.io.Resource
 import fr.iscpif.viability.kernel.{ZoneK, ViabilityKernel}
 
-object LakeViability
-    extends App
-    with ViabilityKernel
-    with ZoneInput
-    with ZoneK
-    with ParallelEvaluator
-    with GridSampler
-    with Lake {
+object LakeViabilityTest1 extends App {
 
-  override def dilations = 0
-
-  def controls = (-0.09 to 0.09 by 0.01).map(Seq(_))
-
-  def zone = Seq((0.1, 1.0), (0.0, 1.4))
-
-  def depth = 16
-
-  def dimension = 2
+  val lake = new LakeViability { }
 
   implicit lazy val rng = new Random(42)
 
   for {
-    (b, s) <- apply.zipWithIndex
+    (b, s) <- lake().zipWithIndex
   } {
     println(s)
-    b.saveVTK2D(Resource.fromFile(s"/tmp/lake2/Lake${depth}mu${dilations}s$s.vtk"))
+    b.saveVTK2D(Resource.fromFile(s"/tmp/lake${lake.depth}/mu${lake.dilations}s$s.vtk"))
   }
 
+}
+
+trait LakeViability <: ViabilityKernel
+  with ZoneInput
+  with ZoneK
+  with ParallelEvaluator
+  with GridSampler
+  with Lake {
+override def dilations = 1
+def controls = (-0.09 to 0.09 by 0.01).map(Seq(_))
+def zone = Seq((0.1, 1.0), (0.0, 1.4))
+def depth = 16
+def dimension = 2
 }
 
