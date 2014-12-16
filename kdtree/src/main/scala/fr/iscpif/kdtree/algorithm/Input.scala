@@ -22,5 +22,14 @@ import fr.iscpif.kdtree.structure._
 
 // TODO new subtrait for non rectangular inputs
 trait Input extends Content {
+  /** *
+    *
+    * Return a tree containing at least a point with a true label
+    *
+    * @param contentBuilder
+    * @param rng
+    * @param m
+    * @return
+    */
   def initialTree(contentBuilder: Point => CONTENT)(implicit rng: Random, m: Manifest[CONTENT]): Option[Tree[CONTENT]]
 }

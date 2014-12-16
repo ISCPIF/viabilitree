@@ -23,28 +23,27 @@ import fr.iscpif.kdtree.structure._
 import scala.util.Random
 import fr.iscpif.kdtree.content._
 import fr.iscpif.kdtree.algorithm._
-import fr.iscpif.viability.{ K, KdTreeComputationForDynamic }
+import fr.iscpif.viability.KdTreeComputationForDynamic
 import fr.iscpif.viability.control.MemorisedControlTesting
 
-trait ViabilityKernel <: KdTreeComputationForDynamic
-    with Input
-    with K
-    with MemorisedControlTesting {
+trait ViabilityKernel <: KdTreeComputationForDynamic with MemorisedControlTesting {
 
   def shouldBeReassigned(c: CONTENT): Boolean = c.label
 
   def apply(implicit rng: Random, m: Manifest[CONTENT]): Iterator[Tree[CONTENT]] = trees
 
+
+  /**
+   *
+   * Build the initial tree for the viability algorithm. This tree have the same shape as the trees
+   * produced all along viability kernel computation
+   *
+   * @param rng
+   * @return
+   */
+  def tree0(implicit rng: Random): Option[Tree[CONTENT]]
+
   def trees(implicit rng: Random, m: Manifest[CONTENT]): Iterator[Tree[CONTENT]] = {
-
-    def tree0 = {
-      def contentBuilder(p: Point) = exhaustiveFindViableControl(p, k)
-      initialTree(contentBuilder).map {
-        tree =>
-          learnBoundary(tree, contentBuilder)
-      }
-    }
-
     Iterator.iterate(tree0 -> false) {
       case (tree, _) =>
         tree match {

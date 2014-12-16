@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 03/10/13 Romain Reuillon
+ * Copyright (C) 2014 Romain Reuillon
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -9,18 +9,29 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 package fr.iscpif.viability.kernel
 
+import fr.iscpif.kdtree.algorithm._
 import fr.iscpif.kdtree.structure._
+import fr.iscpif.viability.K
+
 import scala.util.Random
 
-trait ConstraintSet { this: ViabilityKernel =>
-  def constraints(p: Point): Boolean
-  override def k(p: Point) = constraints(p)
+trait  ZoneK <: ViabilityKernel with K with Input {
+  def zone: Zone
+  override def k(p: Point): Boolean = zone.contains(p)
+
+  override def tree0(implicit rng: Random): Option[Tree[CONTENT]] = {
+    def contentBuilder(p: Point) = exhaustiveFindViableControl(p, k)
+    initialTree(contentBuilder).map {
+      tree => learnBoundary(tree, contentBuilder)
+    }
+  }
 }

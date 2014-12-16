@@ -1,15 +1,3 @@
-package fr.iscpif.lake
-
-import scala.App
-import fr.iscpif.kdtree.algorithm.{ GridSampler, ParallelEvaluator, ZoneInput }
-import fr.iscpif.kdtree.structure._
-import fr.iscpif.kdtree.visualisation._
-import fr.iscpif.kdtree.content._
-import fr.iscpif.kdtree._
-import scala.util.Random
-import scalax.io.Resource
-import fr.iscpif.viability.kernel.ViabilityKernel
-
 /*
  * Copyright (C) 10/10/13 Isabelle Alvarez
  *
@@ -27,10 +15,22 @@ import fr.iscpif.viability.kernel.ViabilityKernel
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+package fr.iscpif.lake
+
+import fr.iscpif.kdtree.algorithm.{ GridSampler, ParallelEvaluator, ZoneInput }
+import fr.iscpif.kdtree.structure._
+import fr.iscpif.kdtree.visualisation._
+import fr.iscpif.kdtree.content._
+import fr.iscpif.kdtree._
+import scala.util.Random
+import scalax.io.Resource
+import fr.iscpif.viability.kernel.{ZoneK, ViabilityKernel}
+
 object LakeViability
     extends App
     with ViabilityKernel
     with ZoneInput
+    with ZoneK
     with ParallelEvaluator
     with GridSampler
     with Lake {
@@ -56,17 +56,3 @@ object LakeViability
 
 }
 
-class LakeViability(val depth: Int, override val b: Double)
-    extends ViabilityKernel
-    with ZoneInput
-    with ParallelEvaluator
-    with GridSampler
-    with Lake {
-
-  def zone = Seq((0.1, 1.0), (0.0, 1.4))
-  def dimension = 2
-  def controls = (-0.09 to 0.09 by 0.01).map(Seq(_))
-
-  def volume(implicit random: Random): Double = apply.last.get.volume
-
-}

@@ -24,11 +24,12 @@ import fr.iscpif.kdtree.content._
 import fr.iscpif.kdtree.visualisation._
 import scala.util.Random
 import scalax.io.Resource
-import fr.iscpif.viability.kernel.ViabilityKernel
+import fr.iscpif.viability.kernel._
 
 object ConsumerViability extends App
     with ViabilityKernel
     with ZoneInput
+    with ZoneK
     with ParallelEvaluator
     with GridSampler {
 

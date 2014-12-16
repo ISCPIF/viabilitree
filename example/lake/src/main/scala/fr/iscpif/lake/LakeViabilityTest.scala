@@ -1,10 +1,8 @@
 package fr.iscpif.lake
 
-import fr.iscpif.kdtree.algorithm.{GridSampler, ParallelEvaluator, ZoneInput}
+import fr.iscpif.kdtree.algorithm._
 import fr.iscpif.kdtree.structure._
-import fr.iscpif.lake.Lake
-import fr.iscpif.lake.LakeViability._
-import fr.iscpif.viability.kernel.ViabilityKernelWithConstraints
+import fr.iscpif.viability.kernel._
 import fr.iscpif.kdtree.visualisation._
 import scala.util.Random
 import scalax.io.Resource
@@ -13,17 +11,14 @@ import scalax.io.Resource
  * Created by ia on 15/12/2014.
  */
 object LakeViabilityTest extends App
-  with ViabilityKernelWithConstraints
   with ZoneInput
+  with LearnK
   with ParallelEvaluator
   with GridSampler
   with Lake {
-    def constraints(p: Point) = {
-//      val result =
-  p(0) <= 0.9 && p(0) >= 0.1 && p(1) <= 1.4 && p(1) >= 0.0   &&  (p(1)<= -3.5*p(0) + 3.15 )
- //     println(result)
- //    result
-  }
+
+    def k(p: Point) =
+      p(0) <= 0.9 && p(0) >= 0.1 && p(1) <= 1.4 && p(1) >= 0.0   &&  (p(1)<= -3.5*p(0) + 3.15 )
 
   def pointInConstraints = Seq(0.2, 0.2)
 

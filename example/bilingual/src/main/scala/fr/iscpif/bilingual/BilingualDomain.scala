@@ -1,5 +1,3 @@
-package fr.iscpif.bilingual
-
 /**
  * Created with IntelliJ IDEA.
  * User: ia
@@ -7,6 +5,9 @@ package fr.iscpif.bilingual
  * Time: 21:46
  * To change this template use File | Settings | File Templates.
  */
+
+package fr.iscpif.bilingual
+
 
 import fr.iscpif.viability._
 import fr.iscpif.kdtree.algorithm._
@@ -16,11 +17,12 @@ import fr.iscpif.kdtree.visualisation._
 import scala.util.Random
 import scalax.io.Resource
 import math._
-import fr.iscpif.viability.kernel.ViabilityKernel
+import fr.iscpif.viability.kernel._
 
 object BilingualDomain extends App
 with ViabilityKernel
 with ZoneInput
+with ZoneK
 with ParallelEvaluator
 with GridSampler {
 

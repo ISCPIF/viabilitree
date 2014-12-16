@@ -7,11 +7,12 @@ import fr.iscpif.kdtree.content._
 import fr.iscpif.kdtree.visualisation._
 import scala.util.Random
 import scalax.io.Resource
-import fr.iscpif.viability.kernel.ViabilityKernel
+import fr.iscpif.viability.kernel._
 
 object PopulationViability extends App
     with ViabilityKernel
     with ZoneInput
+    with ZoneK
     with GridSampler {
   def a = 0.2
   def b = 3.0

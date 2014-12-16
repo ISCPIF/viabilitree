@@ -22,15 +22,20 @@ import _root_.fr.iscpif.kdtree.structure._
 import scala.util.Random
 import scalax.io.Resource
 import _root_.fr.iscpif.kdtree.visualisation._
-import fr.iscpif.viability.kernel.{ ViabilityKernel, ConstraintSet }
+import fr.iscpif.viability.kernel._
 
-object CyclicViability extends App with ViabilityKernel with ZoneInput with ParallelEvaluator with GridSampler with ConstraintSet {
+object CyclicViability extends App
+  with ViabilityKernel
+  with ZoneInput
+  with ParallelEvaluator
+  with GridSampler
+  with LearnK {
 
   override def dilations = 0
 
   def controls = Seq(Seq(0.0))
 
-  def constraints(p: Point) = p(0) >= -0.5 && p(0) <= 0.5 &&
+  def k(p: Point) = p(0) >= -0.5 && p(0) <= 0.5 &&
     p(1) >= -0.5 && p(1) <= 0.5 &&
     p(2) >= -1 && p(2) <= 1
 
