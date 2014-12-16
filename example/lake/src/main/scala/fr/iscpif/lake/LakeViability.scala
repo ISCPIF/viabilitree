@@ -26,9 +26,9 @@ import scala.util.Random
 import scalax.io.Resource
 import fr.iscpif.viability.kernel.{ZoneK, ViabilityKernel}
 
-object LakeViabilityTest1 extends App {
+object LakeViabilityKernel extends App {
 
-  val lake = new LakeViability { }
+  val lake = new LakeViability with ZoneK { }
 
   implicit lazy val rng = new Random(42)
 
@@ -43,11 +43,9 @@ object LakeViabilityTest1 extends App {
 
 trait LakeViability <: ViabilityKernel
   with ZoneInput
-  with ZoneK
-  with ParallelEvaluator
   with GridSampler
   with Lake {
-override def dilations = 1
+override def dilations = 0
 def controls = (-0.09 to 0.09 by 0.01).map(Seq(_))
 def zone = Seq((0.1, 1.0), (0.0, 1.4))
 def depth = 16

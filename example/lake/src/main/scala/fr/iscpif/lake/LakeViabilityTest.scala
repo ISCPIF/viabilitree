@@ -11,47 +11,32 @@ import scalax.io.Resource
 /**
  * Created by ia on 15/12/2014.
  */
-object LakeViabilityTest extends App {
+object LakeViabilityAnalysis extends App {
 
   implicit val rng = new Random(42)
 
-  val lake = new LakeViability {
-    override def depth = 14
+  val lake = new LakeViability with ZoneK {
+    override def depth = 16
   }
 
   val viabilityKernel = lake().last
+  val eroded = lake.erode(viabilityKernel, 10)
 
-  println(viabilityKernel.volume)
-  println(lake.erode(viabilityKernel).volume)
-
-
-
-  /*with ZoneInput
-  with LearnK
-  with ParallelEvaluator
-  with GridSampler
-  with Lake {
-
-    def k(p: Point) =
-      p(0) <= 0.9 && p(0) >= 0.1 && p(1) <= 1.4 && p(1) >= 0.0   &&  (p(1)<= -3.5*p(0) + 3.15 )
-
-    def pointInConstraints = Seq(0.2, 0.2)
-
-    override def dilations = 0
-
-    def controls = (-0.09 to 0.09 by 0.01).map(Seq(_))
-
-    def zone = Seq((0.1, 1.0), (0.0, 1.4))
-
-    def depth = 16
-    def dimension = 2
-
-    implicit lazy val rng = new Random(42)
-
-    for {
-      (b, s) <- apply.zipWithIndex
-    } {
-      println(s)
-      b.saveVTK2D(Resource.fromFile(s"/tmp/lake3/Lake${depth}mu${dilations}s$s.vtk"))
-    }*/
+  val lakeViabilityAnalyse =
+    new ViabilityKernel
+      with LakeViability
+      with LearnK {
+      def k(p: Point) = eroded.label(p)
   }
+
+  val output = s"/tmp/lakeAnalysis${lake.depth}/"
+  eroded.saveVTK2D(Resource.fromFile(s"${output}/eroded${lake.dilations}.vtk"))
+
+  for {
+    (k,s) <- lakeViabilityAnalyse().zipWithIndex
+  } {
+    println(s)
+    k.saveVTK2D(Resource.fromFile(s"${output}/mu${lake.dilations}s$s.vtk"))
+  }
+
+}
