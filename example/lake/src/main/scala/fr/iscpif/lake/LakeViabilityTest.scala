@@ -20,7 +20,7 @@ object LakeViabilityTest extends App
     def k(p: Point) =
       p(0) <= 0.9 && p(0) >= 0.1 && p(1) <= 1.4 && p(1) >= 0.0   &&  (p(1)<= -3.5*p(0) + 3.15 )
 
-  def pointInConstraints = Seq(0.2, 0.2)
+    def pointInConstraints = Seq(0.2, 0.2)
 
     override def dilations = 0
 

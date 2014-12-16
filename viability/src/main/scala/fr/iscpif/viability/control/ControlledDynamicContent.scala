@@ -19,6 +19,7 @@ package fr.iscpif.viability.control
 
 import fr.iscpif.kdtree.structure._
 import fr.iscpif.kdtree.content._
+import monocle.Lenser
 import monocle.Macro._
 
 trait ControlledDynamicContent {
@@ -33,7 +34,7 @@ trait ControlledDynamicContent {
   def buildContent(point: Point, label: Boolean): CONTENT =
     Content(point, None, None, label, 0)
 
-  def label = mkLens[CONTENT, Boolean]("label")
+  def label = Lenser[CONTENT](_.label)
 
   type CONTENT = Content
 }

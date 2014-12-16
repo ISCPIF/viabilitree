@@ -18,6 +18,6 @@
 package fr.iscpif.viability.control
 
 trait Control {
-  def control: Option[Int];
+  def control: Option[Int]
   def controlMax: Int
 }
