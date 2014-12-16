@@ -11,7 +11,7 @@ import scalax.io.Resource
 /**
  * Created by ia on 15/12/2014.
  */
-object LakeViabilityAnalysis extends App {
+object LakeViabilityErodedAnalysis1 extends App {
 
   implicit val rng = new Random(42)
 
@@ -40,3 +40,32 @@ object LakeViabilityAnalysis extends App {
   }
 
 }
+
+/*object LakeViabilityErodedAnalysis2 extends App {
+
+  implicit val rng = new Random(42)
+
+  val lake = new LakeViability with ZoneK {
+    override def depth = 16
+  }
+
+  val viabilityKernel = lake().last
+  val eroded = lake.erode(viabilityKernel, 10)
+
+  val lakeViabilityAnalyse =
+    new ViabilityKernel
+      with LakeViability {
+      def tree0(implicit rng: Random) = Some(eroded)
+    }
+
+  val output = s"/tmp/lakeAnalysis${lake.depth}/"
+  eroded.saveVTK2D(Resource.fromFile(s"${output}/eroded${lake.dilations}.vtk"))
+
+  for {
+    (k,s) <- lakeViabilityAnalyse().zipWithIndex
+  } {
+    println(s)
+    k.saveVTK2D(Resource.fromFile(s"${output}/mu${lake.dilations}s$s.vtk"))
+  }
+
+}*/
