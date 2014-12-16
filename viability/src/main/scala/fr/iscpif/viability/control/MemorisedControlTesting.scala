@@ -43,7 +43,7 @@ trait MemorisedControlTesting <: ControlTesting with Content with SearchControlH
 
       guessed match {
         case Some((control, result)) =>
-          Content(content.testPoint, Some(control), Some(result), true, content.controlMax)
+          ControlledDynamicContent.Content(content.testPoint, Some(control), Some(result), true, content.controlMax)
         case None =>
           val searched =
             remainingControls(content.controlMax).view.map(testControlIndex).find {
@@ -52,9 +52,9 @@ trait MemorisedControlTesting <: ControlTesting with Content with SearchControlH
 
           searched match {
             case Some((control, result)) =>
-              Content(content.testPoint, Some(control), Some(result), true, control + 1)
+              ControlledDynamicContent.Content(content.testPoint, Some(control), Some(result), true, control + 1)
             case None =>
-              Content(content.testPoint, None, None, false, controls.size)
+              ControlledDynamicContent.Content(content.testPoint, None, None, false, controls.size)
           }
       }
 

@@ -41,7 +41,7 @@ object LakeViabilityErodedAnalysis1 extends App {
 
 }
 
-/*object LakeViabilityErodedAnalysis2 extends App {
+object LakeViabilityErodedAnalysis2 extends App {
 
   implicit val rng = new Random(42)
 
@@ -68,4 +68,4 @@ object LakeViabilityErodedAnalysis1 extends App {
     k.saveVTK2D(Resource.fromFile(s"${output}/mu${lake.dilations}s$s.vtk"))
   }
 
-}*/
+}

@@ -21,13 +21,14 @@ package fr.iscpif.viability.kernel
 import fr.iscpif.kdtree.algorithm._
 import fr.iscpif.kdtree.structure._
 import fr.iscpif.viability.K
+import fr.iscpif.viability.control.ControlledDynamicContent
 
 import scala.util.Random
 
 trait LearnK <: ViabilityKernel with K with Input {
 
   override def tree0(implicit rng: Random) = {
-    def contentBuilder(p: Point) = Content(p, None, None, k(p), 0)
+    def contentBuilder(p: Point) = ControlledDynamicContent.Content(p, None, None, k(p), 0)
     initialTree(contentBuilder).map(learnBoundary(_, contentBuilder))
   }
 

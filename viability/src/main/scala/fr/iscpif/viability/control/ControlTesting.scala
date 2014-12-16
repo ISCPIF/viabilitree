@@ -36,12 +36,12 @@ trait ControlTesting <: Dynamic with Content with ControlledDynamicContent {
 
     viableControls match {
       case Some((index, resultPoint)) =>
-        Content(point, Some(index), Some(resultPoint), true, index)
+        ControlledDynamicContent.Content(point, Some(index), Some(resultPoint), true, index)
       case None =>
         notViable(point)
     }
   }
 
-  def notViable(point: Point) = Content(point, None, None, false, controls.size)
+  def notViable(point: Point) = ControlledDynamicContent.Content(point, None, None, false, controls.size)
 
 }

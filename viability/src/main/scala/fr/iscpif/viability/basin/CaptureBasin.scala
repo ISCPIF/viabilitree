@@ -7,7 +7,7 @@ import fr.iscpif.kdtree.algorithm._
 import fr.iscpif.viability.KdTreeComputationForDynamic
 import scala.Predef._
 import scala.Some
-import fr.iscpif.viability.control.ExhaustiveControlTesting
+import fr.iscpif.viability.control.{ControlledDynamicContent, ExhaustiveControlTesting}
 
 /*
  * Copyright (C) 10/10/13 Isabelle Alvarez
@@ -63,7 +63,7 @@ trait CaptureBasin <: KdTreeComputationForDynamic with ExhaustiveControlTesting 
         depth
       )
 
-    def contentBuilder(p: Point) = Content(p, None, None, target(p), 0)
+    def contentBuilder(p: Point) = ControlledDynamicContent.Content(p, None, None, target(p), 0)
 
     val learntTarget = learnBoundary(initialTree(contentBuilder), contentBuilder)
     if (learntTarget.leaves.exists(l => l.content.label)) Some(learntTarget) else None

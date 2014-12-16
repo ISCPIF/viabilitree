@@ -19,23 +19,24 @@ package fr.iscpif.viability.control
 
 import fr.iscpif.kdtree.structure._
 import fr.iscpif.kdtree.content._
-import monocle.Lenser
-import monocle.Macro._
+import monocle._
 
-trait ControlledDynamicContent {
-
+object ControlledDynamicContent {
   case class Content(
     testPoint: Point,
     control: Option[Int],
     resultPoint: Option[Point],
     label: Boolean,
     controlMax: Int) extends TestPoint with Control with Label
+}
+
+trait ControlledDynamicContent {
 
   def buildContent(point: Point, label: Boolean): CONTENT =
-    Content(point, None, None, label, 0)
+    ControlledDynamicContent.Content(point, None, None, label, 0)
 
   def label = Lenser[CONTENT](_.label)
 
-  type CONTENT = Content
+  type CONTENT = ControlledDynamicContent.Content
 }
 

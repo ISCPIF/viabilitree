@@ -45,10 +45,10 @@ trait LakeViability <: ViabilityKernel
   with ZoneInput
   with GridSampler
   with Lake {
-override def dilations = 0
-def controls = (-0.09 to 0.09 by 0.01).map(Seq(_))
-def zone = Seq((0.1, 1.0), (0.0, 1.4))
-def depth = 16
-def dimension = 2
+  override def dilations = 0
+  def controls = (-0.09 to 0.09 by 0.01).map(Seq(_))
+  def zone = Seq((0.1, 1.0), (0.0, 1.4))
+  def depth = 16
+  def dimension = 2
 }
 
