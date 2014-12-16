@@ -1,45 +1,99 @@
 import sbt._
 import Keys._
 import com.typesafe.sbt.osgi.SbtOsgi.{OsgiKeys, osgiSettings}
+import com.typesafe.sbt.SbtScalariform._
 
-object ViabilityRootBuild extends Build with Libraries {
+object ViabilityRootBuild extends Build with Libraries with Viability with Exemples {
 
   override def settings = 
-    super.settings ++ Seq(scalaVersion := "2.11.2")
+    super.settings ++ Seq(
+      scalaVersion := "2.11.4",
+      javacOptions in (Compile, compile) ++= Seq("-source", "1.7", "-target", "1.7"),
+      scalacOptions += "-target:jvm-1.7",
+      publishArtifact := false
+    )
 
-  lazy val kdtree = Project(id = "kdtree", base = file("kdtree")) settings (
-    libraryDependencies ++= monocle
-  )
- 
-  lazy val visualisation = Project(id = "visualisation", base = file("visualisation")) dependsOn(kdtree) settings (
-    libraryDependencies += "com.github.scala-incubator.io" %% "scala-io-file" % "0.4.3"
-  )
 
-  lazy val viability = Project(id = "viability", base = file("viability")) dependsOn(kdtree)
+}
 
-  lazy val lotkavoltera = Project(id = "lotkavoltera", base = file("example/lotkavoltera")) dependsOn(viability, visualisation, differential)
- 
-  lazy val cyclic = Project(id = "cyclic", base = file("example/cyclic")) dependsOn(viability, visualisation, differential)
-
-  lazy val differential = Project(id = "differential", base = file("example/differential"))
- 
-  lazy val consumer = Project(id = "consumer", base = file("example/consumer")) dependsOn(viability, visualisation, differential)
-
-  lazy val population = Project(id = "population", base = file("example/population"), settings = osgi) dependsOn(viability, visualisation, differential)
-
-  lazy val lake = Project(id = "lake", base = file("example/lake"), settings = osgi) dependsOn(viability, visualisation, differential)
-
-  lazy val bilingual = Project(id = "bilingual", base = file("example/bilingual"), settings = osgi) dependsOn(viability, visualisation, differential)
-
-  def osgi = Project.defaultSettings ++ exports(Seq("fr.iscpif.*"), Seq("*;resolution:=optional"), Seq("!scala.*", "*"))
+/*trait OSGi {
+    def osgi = Project.defaultSettings ++ exports(Seq("fr.iscpif.*"), Seq("*;resolution:=optional"), Seq("!scala.*", "*"))
 
   def exports(packages: Seq[String] = Seq(), imports: Seq[String] = Nil, privates: Seq[String] = Nil) = osgiSettings ++ Seq(
     OsgiKeys.importPackage := imports,
     OsgiKeys.privatePackage := privates,
     OsgiKeys.exportPackage := packages
   )
+
+}*/
+
+
+trait Viability <: Libraries with Settings {
+    lazy val kdtree = Project(id = "kdtree", base = file("kdtree"), settings = defaultSettings) settings (
+    libraryDependencies ++= monocle
+  )
+
+  lazy val visualisation = Project(id = "visualisation", base = file("visualisation"), settings = defaultSettings) dependsOn(kdtree) settings (
+    libraryDependencies += "com.github.scala-incubator.io" %% "scala-io-file" % "0.4.3"
+  )
+
+  lazy val viability = Project(id = "viability", base = file("viability"), settings = defaultSettings) dependsOn(kdtree)
+
+   lazy val differential = Project(id = "differential", base = file("example/differential"), settings = defaultSettings)
+
 }
 
+trait Exemples <: Viability  with Settings {
+  lazy val lotkavoltera = Project(id = "lotkavoltera", base = file("example/lotkavoltera")) dependsOn(viability, visualisation, differential)
+
+  lazy val cyclic = Project(id = "cyclic", base = file("example/cyclic")) dependsOn(viability, visualisation, differential)
+
+  lazy val consumer = Project(id = "consumer", base = file("example/consumer")) dependsOn(viability, visualisation, differential)
+
+  lazy val population = Project(id = "population", base = file("example/population")) dependsOn(viability, visualisation, differential)
+
+  lazy val lake = Project(id = "lake", base = file("example/lake")) dependsOn(viability, visualisation, differential)
+
+  lazy val bilingual = Project(id = "bilingual", base = file("example/bilingual")) dependsOn(viability, visualisation, differential)
+}
+
+
+trait Settings <: Build {
+    lazy val defaultSettings =
+    settings ++ Seq(
+      organization := "fr.iscpif.viability",
+      publishArtifact := true,
+      publishTo <<= isSnapshot { snapshot =>
+        val nexus = "https://oss.sonatype.org/"
+        if (snapshot) Some("snapshots" at nexus + "content/repositories/snapshots")
+        else Some("releases" at nexus + "service/local/staging/deploy/maven2")
+      },
+      pomIncludeRepository := { _ => false},
+      licenses := Seq("Affero GPLv3" -> url("http://www.gnu.org/licenses/")),
+      homepage := Some(url("https://github.com/romainreuillon/gridscale")),
+      //scmInfo := Some(ScmInfo("scm:git:git.iscpif.fr/viability", "scm:git:git@git.iscpif.fr:viability.git")),
+      // To sync with Maven central, you need to supply the following information:
+      pomExtra := {
+      <!-- Developer contact information -->
+      <developers>
+        <developer>
+          <id>romainreuillon</id>
+          <name>Romain Reuillon</name>
+          <url>https://github.com/romainreuillon/</url>
+        </developer>
+        <developer>
+          <id>isabelle</id>
+          <name>Isabelle Alvarez</name>
+        </developer>
+        <developer>
+          <id>ricardo</id>
+          <name>Ricardo De Aldama</name>
+        </developer>
+      </developers>
+    }
+  )
+
+}
 
 trait Libraries {
 
