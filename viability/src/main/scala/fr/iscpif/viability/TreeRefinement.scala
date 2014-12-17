@@ -19,12 +19,15 @@ package fr.iscpif.viability
 
 import fr.iscpif.kdtree.structure._
 import fr.iscpif.kdtree.content._
+import monocle.SimpleLens
 import math._
 import scala.util.Random
-import fr.iscpif.kdtree.algorithm.KdTreeComputation
+import fr.iscpif.kdtree.algorithm.{Sampler, KdTreeComputation}
 import fr.iscpif.viability.control.{ ControlledDynamicContent, ControlTesting }
 
-trait KdTreeComputationForDynamic extends KdTreeComputation with Dynamic with ControlTesting with ControlledDynamicContent {
+trait TreeRefinement <: Dynamic with Sampler with ControlTesting with ControlledDynamicContent { refine =>
+
+  def kdTreeComputation: KdTreeComputation {  type CONTENT = refine.CONTENT  }
 
   def dimension: Int
 
@@ -41,7 +44,7 @@ trait KdTreeComputationForDynamic extends KdTreeComputation with Dynamic with Co
   def viableFunction(tree: Tree[CONTENT]) = tree.label(_)
 
   def timeStep(tree: Tree[CONTENT])(implicit rng: Random, m: Manifest[CONTENT]): Option[Tree[CONTENT]] = {
-    val viable = viableFunction(dilate(tree, dilations))
+    val viable = viableFunction(kdTreeComputation.dilate(tree, dilations))
 
     val reassignedTree =
       tree.reassign(
@@ -55,7 +58,9 @@ trait KdTreeComputationForDynamic extends KdTreeComputation with Dynamic with Co
     //TODO: May want to use (tree => findViableControl) function in order to benefit from optimised heuristic for viable control research.
     def contentBuilder(p: Point) = exhaustiveFindViableControl(p, viable)
 
-    findTrueLabel(reassignedTree, contentBuilder).map { tree => learnBoundary(tree, contentBuilder) }
+    kdTreeComputation.findTrueLabel(reassignedTree, contentBuilder).map {
+      tree => kdTreeComputation.learnBoundary(tree, contentBuilder)
+    }
   }
 
   def apply(tree: Tree[CONTENT])(implicit rng: Random, m: Manifest[CONTENT]): Option[Tree[CONTENT]] = timeStep(tree)

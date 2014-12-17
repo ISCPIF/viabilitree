@@ -4,7 +4,7 @@ import fr.iscpif.kdtree.structure._
 import scala.util.Random
 import fr.iscpif.kdtree.content._
 import fr.iscpif.kdtree.algorithm._
-import fr.iscpif.viability.KdTreeComputationForDynamic
+import fr.iscpif.viability.TreeRefinement
 import scala.Predef._
 import scala.Some
 import fr.iscpif.viability.control.{ControlledDynamicContent, ExhaustiveControlTesting}
@@ -25,7 +25,16 @@ import fr.iscpif.viability.control.{ControlledDynamicContent, ExhaustiveControlT
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-trait CaptureBasin <: KdTreeComputationForDynamic with ExhaustiveControlTesting {
+trait CaptureBasin <: TreeRefinement with ExhaustiveControlTesting { basin =>
+
+  lazy val kdTreeComputation =
+    new KdTreeComputation {
+      override def buildContent(point: Point, label: Boolean): CONTENT = basin.buildContent(point, label)
+      override def label = basin.label
+      override type CONTENT = basin.CONTENT
+      override def sampler(z: Zone, rng: Random): Point = basin.sampler(z, rng)
+      override def findTrueLabel(t: Tree[CONTENT], contentBuilder: Point => CONTENT)(implicit rng: Random, m: Manifest[CONTENT]): Option[Tree[CONTENT]] = Some(t)
+    }
 
   def zone: Zone
 
@@ -68,8 +77,6 @@ trait CaptureBasin <: KdTreeComputationForDynamic with ExhaustiveControlTesting 
     val learntTarget = learnBoundary(initialTree(contentBuilder), contentBuilder)
     if (learntTarget.leaves.exists(l => l.content.label)) Some(learntTarget) else None
   }
-
-  override def findTrueLabel(t: Tree[CONTENT], contentBuilder: Point => CONTENT)(implicit rng: Random, m: Manifest[CONTENT]): Option[Tree[CONTENT]] = Some(t)
 
   def apply(implicit rng: Random, m: Manifest[CONTENT]): Iterator[Tree[CONTENT]] = trees
 
