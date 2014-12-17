@@ -19,6 +19,8 @@ package fr.iscpif.kdtree.structure
 
 import com.rits.cloning.Cloner
 
+import scala.reflect.ClassTag
+
 object Tree {
 
   def apply[T](content: T, zone: Zone, depth: Int): Tree[T] =
@@ -43,9 +45,9 @@ trait Tree[T] {
   // TODO implement lazy computations of leaves, possible thanks to immutable tree
   //def leaves: Iterable[Leaf[T]]
 
-  def clone(implicit m: Manifest[T]) = {
+  def clone[T: ClassTag] = {
     val cloner = new Cloner
-    cloner.registerImmutable(m.runtimeClass)
+    cloner.registerImmutable(scala.reflect.classTag[T].runtimeClass)
     cloner.dontCloneInstanceOf(classOf[Descendant.Descendant])
     cloner.dontCloneInstanceOf(None.getClass)
     cloner.deepClone(this)

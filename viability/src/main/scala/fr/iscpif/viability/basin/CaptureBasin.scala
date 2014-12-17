@@ -33,7 +33,7 @@ trait CaptureBasin <: TreeRefinement with ExhaustiveControlTesting { basin =>
       override def label = basin.label
       override type CONTENT = basin.CONTENT
       override def sampler(z: Zone, rng: Random): Point = basin.sampler(z, rng)
-      override def findTrueLabel(t: Tree[CONTENT], contentBuilder: Point => CONTENT)(implicit rng: Random, m: Manifest[CONTENT]): Option[Tree[CONTENT]] = Some(t)
+      override def findTrueLabel(t: Tree[CONTENT], contentBuilder: Point => CONTENT)(implicit rng: Random): Option[Tree[CONTENT]] = Some(t)
     }
 
   import kdTreeComputation._
@@ -65,7 +65,7 @@ trait CaptureBasin <: TreeRefinement with ExhaustiveControlTesting { basin =>
   def learnTarget(implicit rng: Random): Option[Tree[CONTENT]] = {
     //def initialContentBuilder(p: Point) = Content(p, None, None, defined(p) && zone.contains(p), 0)
 
-    def initialTree(contentBuilder: Point => CONTENT)(implicit rng: Random, m: Manifest[CONTENT]): Tree[CONTENT] =
+    def initialTree(contentBuilder: Point => CONTENT)(implicit rng: Random): Tree[CONTENT] =
       Tree(
         Leaf(
           contentBuilder(align(pointInTarget)),
