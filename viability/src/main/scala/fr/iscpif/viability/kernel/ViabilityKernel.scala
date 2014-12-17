@@ -59,12 +59,12 @@ trait ViabilityKernel <: TreeRefinement with MemorisedControlTesting { viability
             val newTree = timeStep(tree)
             newTree match {
               case None => None -> true
-              case Some(nt) => newTree -> sameVolume(nt, tree)
+              case Some(nt) => newTree -> finished(nt, tree)
             }
         }
     }.takeWhile { case (_, stop) => !stop }.flatMap { case (t, _) => t }
   }
 
-  def sameVolume[T <: Label](t1: Tree[T], t2: Tree[T]) = t1.volume == t2.volume
+  def finished[T <: Label](t1: Tree[T], t2: Tree[T]) = t1.volume == t2.volume
 
 }
