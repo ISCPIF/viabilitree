@@ -36,6 +36,8 @@ trait CaptureBasin <: TreeRefinement with ExhaustiveControlTesting { basin =>
       override def findTrueLabel(t: Tree[CONTENT], contentBuilder: Point => CONTENT)(implicit rng: Random, m: Manifest[CONTENT]): Option[Tree[CONTENT]] = Some(t)
     }
 
+  import kdTreeComputation._
+
   def zone: Zone
 
   def target(p: Point): Boolean

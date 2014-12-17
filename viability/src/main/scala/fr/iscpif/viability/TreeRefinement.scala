@@ -43,7 +43,7 @@ trait TreeRefinement <: Dynamic with Sampler with ControlTesting with Controlled
 
   def viableFunction(tree: Tree[CONTENT]) = tree.label(_)
 
-  def timeStep(tree: Tree[CONTENT])(implicit rng: Random, m: Manifest[CONTENT]): Option[Tree[CONTENT]] = {
+  def timeStep(tree: Tree[CONTENT])(implicit rng: Random): Option[Tree[CONTENT]] = {
     val viable = viableFunction(kdTreeComputation.dilate(tree, dilations))
 
     val reassignedTree =

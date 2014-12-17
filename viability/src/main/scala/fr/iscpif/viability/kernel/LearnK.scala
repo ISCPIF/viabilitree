@@ -29,7 +29,7 @@ trait LearnK <: ViabilityKernel with K with Input {
 
   override def tree0(implicit rng: Random) = {
     def contentBuilder(p: Point) = ControlledDynamicContent.Content(p, None, None, k(p), 0)
-    initialTree(contentBuilder).map(learnBoundary(_, contentBuilder))
+    initialTree(contentBuilder).map(kdTreeComputation.learnBoundary(_, contentBuilder))
   }
 
 }

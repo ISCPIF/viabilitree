@@ -31,7 +31,7 @@ trait  ZoneK <: ViabilityKernel with K with Input {
   override def tree0(implicit rng: Random): Option[Tree[CONTENT]] = {
     def contentBuilder(p: Point) = exhaustiveFindViableControl(p, k)
     initialTree(contentBuilder).map {
-      tree => learnBoundary(tree, contentBuilder)
+      tree => kdTreeComputation.learnBoundary(tree, contentBuilder)
     }
   }
 }
