@@ -80,9 +80,9 @@ trait CaptureBasin <: TreeRefinement with ExhaustiveControlTesting { basin =>
     if (learntTarget.leaves.exists(l => l.content.label)) Some(learntTarget) else None
   }
 
-  def apply(implicit rng: Random, m: Manifest[CONTENT]): Iterator[Tree[CONTENT]] = trees
+  def apply(implicit rng: Random): Iterator[Tree[CONTENT]] = trees
 
-  def trees(implicit rng: Random, m: Manifest[CONTENT]): Iterator[Tree[CONTENT]] = {
+  def trees(implicit rng: Random): Iterator[Tree[CONTENT]] = {
     def tree = learnTarget
 
     Iterator.iterate(tree -> false) {

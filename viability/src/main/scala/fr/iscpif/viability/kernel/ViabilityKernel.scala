@@ -38,7 +38,7 @@ trait ViabilityKernel <: TreeRefinement with MemorisedControlTesting { viability
 
   def shouldBeReassigned(c: CONTENT): Boolean = c.label
 
-  def apply()(implicit rng: Random, m: Manifest[CONTENT]): Iterator[Tree[CONTENT]] = trees
+  def apply()(implicit rng: Random): Iterator[Tree[CONTENT]] = trees
 
   /**
    *
@@ -50,7 +50,7 @@ trait ViabilityKernel <: TreeRefinement with MemorisedControlTesting { viability
    */
   def tree0(implicit rng: Random): Option[Tree[CONTENT]]
 
-  def trees(implicit rng: Random, m: Manifest[CONTENT]): Iterator[Tree[CONTENT]] = {
+  def trees(implicit rng: Random): Iterator[Tree[CONTENT]] = {
     Iterator.iterate(tree0 -> false) {
       case (tree, _) =>
         tree match {
