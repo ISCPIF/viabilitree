@@ -46,26 +46,31 @@ object LakeViabilityErodedAnalysis2 extends App {
   implicit val rng = new Random(42)
 
   val lake = new LakeViability with ZoneK {
-    override def depth = 16
+    override def depth = 18
   }
 
-  val viabilityKernel = lake().last
-  val eroded = lake.erode(viabilityKernel, 10)
+  val nbErosion = 10
+  val viabilityKernel = lake().lastWithTrace
+  val eroded = lake.erode(viabilityKernel, nbErosion)
 
   val lakeViabilityAnalyse =
     new ViabilityKernel
       with LakeViability {
       def tree0(implicit rng: Random) = Some(eroded)
+      override def depth = 18
     }
 
   val output = s"/tmp/lakeAnalysis${lake.depth}/"
+
+  viabilityKernel.saveVTK2D(Resource.fromFile(s"${output}/viab${lake.dilations}.vtk"))
+
   eroded.saveVTK2D(Resource.fromFile(s"${output}/eroded${lake.dilations}.vtk"))
 
   for {
     (k,s) <- lakeViabilityAnalyse().zipWithIndex
   } {
     println(s)
-    k.saveVTK2D(Resource.fromFile(s"${output}/mu${lake.dilations}s$s.vtk"))
+    k.saveVTK2D(Resource.fromFile(s"${output}/nb${nbErosion}s$s.vtk"))
   }
 
 }

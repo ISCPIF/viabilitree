@@ -29,6 +29,15 @@ package object viability {
       }
       last(i)
     }
+    def lastWithTrace = {
+      def lastWithTrace[T](i: Iterator[T]): T = {
+        val e = i.next()
+        println("step")
+        if (i.hasNext) lastWithTrace(i)
+        else e
+      }
+      println("last")
+      lastWithTrace(i)
+    }
   }
-
 }

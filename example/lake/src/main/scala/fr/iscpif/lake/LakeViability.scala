@@ -44,6 +44,7 @@ object LakeViabilityKernel extends App {
 trait LakeViability <: ViabilityKernel
   with ZoneInput
   with GridSampler
+  // with ParallelEvaluator
   with Lake {
   override def dilations = 0
   def controls = (-0.09 to 0.09 by 0.01).map(Seq(_))
