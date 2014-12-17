@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 14/07/13 Romain Reuillon
+ * Copyright (C) 2014 Romain Reuillon
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -9,15 +9,25 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 package fr.iscpif.viability.control
 
-trait Control {
-  def control: Option[Int]
-  def controlMax: Int
+import fr.iscpif.kdtree.structure._
+
+object Control {
+  def apply(c: Double*): Control = new Control {
+    override def apply(x: Point): Point = c
+  }
+
+  def apply(c: Point => Point) = new Control {
+    override def apply(x: Point): Point = c(x)
+  }
 }
+
+trait Control <: (Point => Point)

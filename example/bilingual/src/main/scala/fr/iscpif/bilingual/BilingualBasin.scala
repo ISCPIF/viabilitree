@@ -24,6 +24,7 @@ import fr.iscpif.viability.basin._
 import fr.iscpif.kdtree.structure._
 import fr.iscpif.kdtree.visualisation._
 import fr.iscpif.kdtree.algorithm.GridSampler
+import fr.iscpif.viability.control._
 import scala.util.Random
 import scalax.io.Resource
 
@@ -50,7 +51,7 @@ object BilingualBasin extends App with CaptureBasin with GridSampler {
 
   def dynamic(point: Point, control: Point) = Bilingual(point, control)
 
-  def controls = (-0.1 to 0.1 by 0.005).map(Seq(_))
+  def controls = (-0.1 to 0.1 by 0.005).map(Control(_))
 
   def dimension = 3
 

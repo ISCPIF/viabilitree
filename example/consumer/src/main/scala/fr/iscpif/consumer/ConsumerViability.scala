@@ -24,7 +24,9 @@ import fr.iscpif.kdtree.content._
 import fr.iscpif.kdtree.visualisation._
 import scala.util.Random
 import scalax.io.Resource
-import fr.iscpif.viability.kernel._
+import fr.iscpif.viability._
+import kernel._
+import control._
 
 object ConsumerViability extends App
     with ViabilityKernel
@@ -35,7 +37,7 @@ object ConsumerViability extends App
 
   override def dilations = 0
 
-  def controls = (-0.5 to 0.5 by 0.1).map(Seq(_))
+  def controls = (-0.5 to 0.5 by 0.1).map(Control(_))
 
   def zone = Seq((0.0, 2.0), (0.0, 3.0))
 

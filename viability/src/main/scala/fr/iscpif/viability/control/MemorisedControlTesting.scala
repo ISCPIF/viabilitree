@@ -28,7 +28,7 @@ trait MemorisedControlTesting <: ControlTesting with Content with SearchControlH
     else {
       def testControlIndex(ctrlIndex: Int) = {
         val control = controls(ctrlIndex)
-        val resultPoint = dynamic(content.testPoint, control)
+        val resultPoint = dynamic(content.testPoint, control(content.testPoint))
         ctrlIndex -> resultPoint
       }
 

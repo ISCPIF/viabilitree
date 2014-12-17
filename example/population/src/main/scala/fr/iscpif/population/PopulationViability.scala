@@ -7,7 +7,9 @@ import fr.iscpif.kdtree.content._
 import fr.iscpif.kdtree.visualisation._
 import scala.util.Random
 import scalax.io.Resource
-import fr.iscpif.viability.kernel._
+import fr.iscpif.viability._
+import kernel._
+import control._
 
 object PopulationViability extends App
     with ViabilityKernel
@@ -29,7 +31,7 @@ object PopulationViability extends App
   //  def zone = Seq((0.0, 2.0), (0.0, 3.0))
 
   def dynamic(point: Point, control: Point) = Population(point, control)
-  lazy val controls = (-0.5 to 0.5 by 0.02).map(Seq(_))
+  lazy val controls = (-0.5 to 0.5 by 0.02).map(Control(_))
 
   def dimension = 2
 

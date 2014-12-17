@@ -18,18 +18,18 @@
 package fr.iscpif.viability.control
 
 import fr.iscpif.kdtree.structure._
-import fr.iscpif.viability.Dynamic
+import fr.iscpif.viability._
 
 trait ControlTesting <: Dynamic with Content with ControlledDynamicContent {
 
-  def controls: Seq[Point]
+  def controls: Seq[Control]
 
   def findViableControl(content: CONTENT, viable: Point => Boolean, tree: Tree[CONTENT]): CONTENT
 
   def exhaustiveFindViableControl(point: Point, viable: Point => Boolean): CONTENT = {
     val viableControls =
       controls.view.zipWithIndex.map {
-        case (control, index) => index -> dynamic(point, control)
+        case (control, index) => index -> dynamic(point, control(point))
       }.find {
         case (_, result) => viable(result)
       }
