@@ -29,10 +29,10 @@ trait KdTreeComputation extends Sampler with Evaluator with Content {
   def buildContent(point: Point, label: Boolean): CONTENT
   def label: SimpleLens[CONTENT, Boolean]
 
-  def apply(tree: Tree[CONTENT], contentBuilder: Point => CONTENT)(implicit rng: Random, m: Manifest[CONTENT]): Tree[CONTENT] =
+  def apply(tree: Tree[CONTENT], contentBuilder: Point => CONTENT)(implicit rng: Random): Tree[CONTENT] =
     learnBoundary(tree, contentBuilder)
 
-  def learnBoundary(tree: Tree[CONTENT], contentBuilder: Point => CONTENT)(implicit rng: Random, m: Manifest[CONTENT]): Tree[CONTENT] = {
+  def learnBoundary(tree: Tree[CONTENT], contentBuilder: Point => CONTENT)(implicit rng: Random): Tree[CONTENT] = {
     def refine(tree: Tree[CONTENT]): Tree[CONTENT] = {
       import mutable._
       val leavesToRefine = tree.leavesToRefine(tree)
@@ -49,16 +49,16 @@ trait KdTreeComputation extends Sampler with Evaluator with Content {
     refine(tree.clone)
   }
 
-  def dilate(t: Tree[CONTENT], n: Int)(implicit rng: Random, m: Manifest[CONTENT]): Tree[CONTENT] =
+  def dilate(t: Tree[CONTENT], n: Int)(implicit rng: Random): Tree[CONTENT] =
     if(n <= 0) t
     else dilate(dilate(t), n - 1)
 
-  def erode(t: Tree[CONTENT], n: Int)(implicit rng: Random, m: Manifest[CONTENT]): Tree[CONTENT] =
+  def erode(t: Tree[CONTENT], n: Int)(implicit rng: Random): Tree[CONTENT] =
     if(n <= 0) t
     else erode(erode(t), n - 1)
 
   //TODO might beneficiate from a mutable verison of learnBoundary
-  def dilate(t: Tree[CONTENT])(implicit rng: Random, m: Manifest[CONTENT]): Tree[CONTENT] = {
+  def dilate(t: Tree[CONTENT])(implicit rng: Random): Tree[CONTENT] = {
     val newT = t.clone
     val leaves = newT.leavesToReassign(newT.root, label = false)
     var currentRoot = newT.root
@@ -71,7 +71,7 @@ trait KdTreeComputation extends Sampler with Evaluator with Content {
     learnBoundary(dilated, buildContent(_, false))
   }
 
-  def erode(t: Tree[CONTENT])(implicit rng: Random, m: Manifest[CONTENT]): Tree[CONTENT] = {
+  def erode(t: Tree[CONTENT])(implicit rng: Random): Tree[CONTENT] = {
     val newT = t.clone
     val leaves = newT.leavesToReassign(newT.root, label = true)
     var currentRoot = newT.root
@@ -83,7 +83,7 @@ trait KdTreeComputation extends Sampler with Evaluator with Content {
     learnBoundary(eroded, buildContent(_, true))
   }
 
-  def findTrueLabel(t: Tree[CONTENT], contentBuilder: Point => CONTENT)(implicit rng: Random, m: Manifest[CONTENT]): Option[Tree[CONTENT]] = {
+  def findTrueLabel(t: Tree[CONTENT], contentBuilder: Point => CONTENT)(implicit rng: Random): Option[Tree[CONTENT]] = {
 
     // TODO implement lazy computations of leaves
     if (t.leaves.exists(l => l.content.label)) Some(t)

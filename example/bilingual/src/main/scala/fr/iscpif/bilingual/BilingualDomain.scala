@@ -18,6 +18,7 @@ import scala.util.Random
 import scalax.io.Resource
 import math._
 import fr.iscpif.viability.kernel._
+import fr.iscpif.viability.control._
 
 object BilingualDomain extends App
 with ViabilityKernel
@@ -36,7 +37,7 @@ with GridSampler {
 
   def dynamic(point: Point, control: Point) = Bilingual(point, control)
 
-  def controls = (-0.1 to 0.1 by 0.005).map(Seq(_))
+  def controls = (-0.1 to 0.1 by 0.005).map(Control(_))
 
   def dimension = 3
 

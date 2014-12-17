@@ -20,11 +20,10 @@ package fr.iscpif.kdtree.algorithm
 import fr.iscpif.kdtree.structure._
 import scala.util.Random
 
-trait ZoneInput <: Input { this: KdTreeComputation =>
+trait ZoneInput <: KdTreeComputation with Input {
 
   def zone: Zone
   def depth: Int
-  //def dimension = zone.region.length
 
   def initialTree(contentBuilder: Point => CONTENT)(implicit rng: Random, m: Manifest[CONTENT]): Option[Tree[CONTENT]] = {
     val point = sampler(zone, rng)

@@ -17,14 +17,16 @@
 
 package fr.iscpif.lake
 
-import fr.iscpif.kdtree.algorithm.{ GridSampler, ParallelEvaluator, ZoneInput }
+import fr.iscpif.kdtree.algorithm._
 import fr.iscpif.kdtree.structure._
 import fr.iscpif.kdtree.visualisation._
 import fr.iscpif.kdtree.content._
 import fr.iscpif.kdtree._
 import scala.util.Random
 import scalax.io.Resource
-import fr.iscpif.viability.kernel.{ZoneK, ViabilityKernel}
+import fr.iscpif.viability._
+import kernel._
+import control._
 
 object LakeViabilityKernel extends App {
 
@@ -47,7 +49,7 @@ trait LakeViability <: ViabilityKernel
   // with ParallelEvaluator
   with Lake {
   override def dilations = 0
-  def controls = (-0.09 to 0.09 by 0.01).map(Seq(_))
+  def controls = (-0.09 to 0.09 by 0.01).map(Control(_))
   def zone = Seq((0.1, 1.0), (0.0, 1.4))
   def depth = 16
   def dimension = 2

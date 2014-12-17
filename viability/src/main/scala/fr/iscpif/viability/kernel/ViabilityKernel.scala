@@ -23,15 +23,22 @@ import fr.iscpif.kdtree.structure._
 import scala.util.Random
 import fr.iscpif.kdtree.content._
 import fr.iscpif.kdtree.algorithm._
-import fr.iscpif.viability.KdTreeComputationForDynamic
+import fr.iscpif.viability.TreeRefinement
 import fr.iscpif.viability.control.MemorisedControlTesting
 
-trait ViabilityKernel <: KdTreeComputationForDynamic with MemorisedControlTesting {
+trait ViabilityKernel <: TreeRefinement with MemorisedControlTesting { viability =>
+
+  lazy val kdTreeComputation =
+    new KdTreeComputation {
+      override def buildContent(point: Point, label: Boolean): CONTENT = viability.buildContent(point, label)
+      override def label = viability.label
+      override type CONTENT = viability.CONTENT
+      override def sampler(z: Zone, rng: Random): Point = viability.sampler(z, rng)
+    }
 
   def shouldBeReassigned(c: CONTENT): Boolean = c.label
 
-  def apply()(implicit rng: Random, m: Manifest[CONTENT]): Iterator[Tree[CONTENT]] = trees
-
+  def apply()(implicit rng: Random): Iterator[Tree[CONTENT]] = trees
 
   /**
    *
@@ -43,7 +50,7 @@ trait ViabilityKernel <: KdTreeComputationForDynamic with MemorisedControlTestin
    */
   def tree0(implicit rng: Random): Option[Tree[CONTENT]]
 
-  def trees(implicit rng: Random, m: Manifest[CONTENT]): Iterator[Tree[CONTENT]] = {
+  def trees(implicit rng: Random): Iterator[Tree[CONTENT]] = {
     Iterator.iterate(tree0 -> false) {
       case (tree, _) =>
         tree match {
@@ -52,12 +59,12 @@ trait ViabilityKernel <: KdTreeComputationForDynamic with MemorisedControlTestin
             val newTree = timeStep(tree)
             newTree match {
               case None => None -> true
-              case Some(nt) => newTree -> sameVolume(nt, tree)
+              case Some(nt) => newTree -> finished(nt, tree)
             }
         }
     }.takeWhile { case (_, stop) => !stop }.flatMap { case (t, _) => t }
   }
 
-  def sameVolume[T <: Label](t1: Tree[T], t2: Tree[T]) = t1.volume == t2.volume
+  def finished[T <: Label](t1: Tree[T], t2: Tree[T]) = t1.volume == t2.volume
 
 }

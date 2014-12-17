@@ -17,12 +17,14 @@
 
 package fr.iscpif.cyclic
 
-import _root_.fr.iscpif.kdtree.algorithm.{ GridSampler, ParallelEvaluator, ZoneInput }
-import _root_.fr.iscpif.kdtree.structure._
+import fr.iscpif.kdtree.algorithm._
+import fr.iscpif.kdtree.structure._
 import scala.util.Random
 import scalax.io.Resource
-import _root_.fr.iscpif.kdtree.visualisation._
-import fr.iscpif.viability.kernel._
+import fr.iscpif.kdtree.visualisation._
+import fr.iscpif.viability._
+import kernel._
+import control._
 
 object CyclicViability extends App
   with ViabilityKernel
@@ -33,7 +35,7 @@ object CyclicViability extends App
 
   override def dilations = 0
 
-  def controls = Seq(Seq(0.0))
+  def controls = Seq(Control(0.0))
 
   def k(p: Point) = p(0) >= -0.5 && p(0) <= 0.5 &&
     p(1) >= -0.5 && p(1) <= 0.5 &&

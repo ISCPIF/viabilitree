@@ -27,7 +27,7 @@ object ControlledDynamicContent {
     control: Option[Int],
     resultPoint: Option[Point],
     label: Boolean,
-    controlMax: Int) extends TestPoint with Control with Label
+    controlMax: Int) extends TestPoint with Label
 }
 
 trait ControlledDynamicContent {
