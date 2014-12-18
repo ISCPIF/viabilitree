@@ -21,11 +21,13 @@ package fr.iscpif.viability.kernel
 import fr.iscpif.kdtree.algorithm._
 import fr.iscpif.kdtree.structure._
 import fr.iscpif.viability.K
-
 import scala.util.Random
 
 trait  ZoneK <: ViabilityKernel with K with Input {
   def zone: Zone
+  def domain = zone
+  /* par défaut, le domaine est K dans le cas de la zone hyperrectangle. Quand ce n'est pas le cas il faut redéfinir domain */
+
   override def k(p: Point): Boolean = zone.contains(p)
 
   override def tree0(implicit rng: Random): Option[Tree[CONTENT]] = {

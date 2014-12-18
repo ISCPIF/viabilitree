@@ -22,4 +22,5 @@ import fr.iscpif.kdtree.structure._
 
 trait K {
   def k(p: Point): Boolean
+  def domain: Zone
 }
