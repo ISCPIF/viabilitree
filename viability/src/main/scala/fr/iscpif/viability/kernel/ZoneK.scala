@@ -25,7 +25,7 @@ import scala.util.Random
 
 trait  ZoneK <: ViabilityKernel with K with Input {
   def zone: Zone
-  def domain = zone
+  override def domain = zone
   /* par défaut, le domaine est K dans le cas de la zone hyperrectangle. Quand ce n'est pas le cas il faut redéfinir domain */
 
   override def k(p: Point): Boolean = zone.contains(p)

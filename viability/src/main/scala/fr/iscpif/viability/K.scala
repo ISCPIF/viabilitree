@@ -21,6 +21,7 @@ import fr.iscpif.kdtree.structure._
 
 
 trait K {
+  /* TODO must decide if k(p) => domain.contains(p) OR ???? */
   def k(p: Point): Boolean
   def domain: Zone
 }

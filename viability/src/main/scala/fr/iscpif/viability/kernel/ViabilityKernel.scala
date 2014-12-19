@@ -27,7 +27,7 @@ import fr.iscpif.viability.TreeRefinement
 import fr.iscpif.viability.control.MemorisedControlTesting
 
 trait ViabilityKernel <: TreeRefinement with MemorisedControlTesting { viability =>
-
+/* TODO there is no viability kernel without K, so here kdTreeComputation should be a TreeHandling that can access to K attributes */
   lazy val kdTreeComputation =
     new KdTreeComputation {
       override def buildContent(point: Point, label: Boolean): CONTENT = viability.buildContent(point, label)

@@ -1,5 +1,7 @@
 package fr.iscpif.kdtree
 
+import fr.iscpif.kdtree.algorithm.OracleApproximation.Content
+import fr.iscpif.kdtree.content.Label
 import fr.iscpif.kdtree.structure._
 import HelperFunctions._
 import Path._
@@ -190,9 +192,68 @@ package object content {
     // TODO Choose whether if p has not been found return false
     def label(p: Point) = t.containingLeaf(p).map(_.content.label).getOrElse(false)
 
+    // For TreeHandling : return atomic leaves that are extreme (i.e. on the root border)
+    // Note : return only positive leaves
+    // Note : they are supposed to be atomic leaves (since the tree was refined earlier)
+    def leavesOnRootZone: Iterable[(Leaf[T], Int)] = leavesOnRootZone(t.root)
+    def leavesOnRootZone(n: Node[T]): Iterable[(Leaf[T], Int)] = {
+      val leaves =
+        (n match {
+          case leaf: Leaf[T] =>
+            leaf.content.label match {
+              case true =>
+                leaf.touchesBoundary match {
+                  case Some(coordinate) => List((leaf, coordinate))
+                  case None => List.empty
+                }
+              case false => List.empty
+            }
+          case fork: Fork[T] =>
+            leavesOnRootZone(fork.lowChild) ++ leavesOnRootZone(fork.highChild)
+        }).filterNot {
+          case (leaf, _) => t.isAtomic(leaf)
+        }
+
+      //TODO: Consider the lines below
+      var distinctLeaves: List[(Leaf[T], Int)] = Nil
+      leaves.foreach(
+        x => {
+          if (distinctLeaves.forall(y => y._1 != x._1)) distinctLeaves = x :: distinctLeaves
+        }
+      )
+      distinctLeaves
+      /*  Source of non-deterministic behaviour (thanks Romain, 2 wasted journeys)
+      leaves.groupBy {
+        case (l, _) => l
+      }.toList.map {
+        case (_, l) => l.head
+      }
+      */
+    }
+
   }
 
-  implicit class TestPointLeafDecorator[T <: TestPoint](l: Leaf[T]) {
+ /* implicit class LabelTreeWithDomainDecorator extends LabelTreeDecorator[T : Content](t: TreeWithDomain[T])  {
+
+    def leavesToReassignWithDomain(n: Node[T], label: Boolean): Iterable[Leaf[T]] =
+      criticalLeavesWithDomain(n).filter(_.content.label == label).toSeq.distinct
+
+    def criticalLeavesWithDomain (n: Node[T] = t.root, includeNonAtomic: Boolean = false, label: Boolean): Iterable[Leaf[T]] =
+      (n match {
+        case leaf: Leaf[T] => List.empty
+        case fork: Fork[T] =>
+          criticalLeavesWithDomain(fork.lowChild, includeNonAtomic, label) ++ criticalLeavesWithDomain(fork.highChild, includeNonAtomic, label) ++
+            criticalLeavesBetweenNodes(fork.lowChild, fork.highChild, includeNonAtomic)
+      }).toSeq.distinct
+
+    def listOfLeafExtremeWithDomain(leaf:Leaf, label:Label): Iterable[Leaf[T]] = {
+      if (t.touchesDomain(leaf))
+  }
+
+}
+*/
+
+    implicit class TestPointLeafDecorator[T <: TestPoint](l: Leaf[T]) {
     def emptyExtendedZoneAndPath(coordinate: Int) =
       if (l.zone.divideLow(coordinate).contains(l.content.testPoint)) (l.zone.divideHigh(coordinate), l.extendedHighPath(coordinate))
       else (l.zone.divideLow(coordinate), l.extendedLowPath(coordinate))
