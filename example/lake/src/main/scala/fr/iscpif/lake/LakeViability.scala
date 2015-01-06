@@ -51,7 +51,7 @@ trait LakeViability <: ViabilityKernel
   override def dilations = 0
   def controls = (-0.09 to 0.09 by 0.01).map(Control(_))
   def zone = Seq((0.1, 1.0), (0.0, 1.4))
-  def depth = 16
+  def depth = 8
   def dimension = 2
 }
 

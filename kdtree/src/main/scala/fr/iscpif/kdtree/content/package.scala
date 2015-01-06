@@ -1,6 +1,6 @@
 package fr.iscpif.kdtree
 
-import fr.iscpif.kdtree.algorithm.OracleApproximation.Content
+import fr.iscpif.kdtree.algorithm.OracleApproximation
 import fr.iscpif.kdtree.content.Label
 import fr.iscpif.kdtree.structure._
 import HelperFunctions._

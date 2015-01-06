@@ -60,11 +60,12 @@ trait TreeHandling extends KdTreeComputation {
     learnBoundary(eroded, buildContent(_, true))
   }
 
-  def computeOnBorderWithDomain(t: Tree[CONTENT]): Iterable[Leaf]= {
-     t.leavesOnRootZone(t.root).filter {
+  def computeOnBorderWithDomain(t: Tree[CONTENT]): Iterable[Leaf[CONTENT]]= {
+     t.leavesOnRootZone(t).filter {
       case(leaf,i) => borderOnDomain(leaf,i)
-    }
-
+    }.map {
+       n => n._1
+     }
   }
 
   /* juste pour tester, sinon il faut vérifier que les min et max du domain dans la direction i
@@ -72,7 +73,9 @@ trait TreeHandling extends KdTreeComputation {
   Normalement il faudrait calculer correctement epsilon
   Ici comme c'est une feuille atomique, on peut utiliser la moitié !
    */
-  def borderOnDomain(leaf: Leaf, i: Int): Boolean = {
+  //TODO for now does nothing but compile !
+
+  def borderOnDomain(leaf: Leaf[CONTENT], i: Int): Boolean = {
      val aux = (leaf.zone.region(i).min + leaf.zone.region(i).max) / 2
      val a = leaf.zone.region(i).min
      val minDomain = domain.region(i).min

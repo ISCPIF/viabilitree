@@ -11,12 +11,32 @@ import scalax.io.Resource
 /**
  * Created by ia on 15/12/2014.
  */
+object LakeViabilityErodedTest extends App {
+
+  implicit val rng = new Random(42)
+
+  val lake = new LakeViability with ZoneK {
+    override def depth = 14
+  }
+
+  val viabilityKernel = lake().last
+  println("erosion")
+  val eroded = lake.erode(viabilityKernel, 2)
+
+
+  val output = s"/tmp/lakeAnalysis${lake.depth}/"
+  viabilityKernel.saveVTK2D(Resource.fromFile(s"${output}original${lake.dilations}.vtk"))
+  eroded.saveVTK2D(Resource.fromFile(s"${output}/eroded${lake.dilations}.vtk"))
+
+
+}
+
 object LakeViabilityErodedAnalysis1 extends App {
 
   implicit val rng = new Random(42)
 
   val lake = new LakeViability with ZoneK {
-    override def depth = 16
+    override def depth = 14
   }
 
   val viabilityKernel = lake().last
@@ -27,6 +47,7 @@ object LakeViabilityErodedAnalysis1 extends App {
       with LakeViability
       with LearnK {
       def k(p: Point) = eroded.label(p)
+      def domain = lake.domain
   }
 
   val output = s"/tmp/lakeAnalysis${lake.depth}/"
