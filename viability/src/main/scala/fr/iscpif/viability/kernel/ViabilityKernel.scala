@@ -36,7 +36,7 @@ trait ViabilityKernel <: TreeRefinement with MemorisedControlTesting with Domain
       override type CONTENT = viability.CONTENT
       override def sampler(z: Zone, rng: Random): Point = viability.sampler(z, rng)
       override def domain = viability.domain
-    }
+     }
 
   def shouldBeReassigned(c: CONTENT): Boolean = c.label
 
