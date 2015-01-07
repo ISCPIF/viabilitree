@@ -63,5 +63,9 @@ trait TreeRefinement <: Dynamic with Sampler with ControlTesting with Controlled
     }
   }
 
+  def erodeInDomain(t: Tree[CONTENT])(implicit rng: Random): Tree[CONTENT] = kdTreeComputation.erodeInDomain(t)
+  def erodeInDomain(t: Tree[CONTENT], n: Int)(implicit rng: Random): Tree[CONTENT] = kdTreeComputation.erodeInDomain(t,n)
+
   def apply(tree: Tree[CONTENT])(implicit rng: Random, m: Manifest[CONTENT]): Option[Tree[CONTENT]] = timeStep(tree)
 }
+

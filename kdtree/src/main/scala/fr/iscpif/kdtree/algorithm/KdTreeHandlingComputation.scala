@@ -44,8 +44,11 @@ trait KdTreeHandlingComputation extends KdTreeComputation {
      }
     }
 */
+    def erodeInDomain(t: Tree[CONTENT], n: Int)(implicit rng: Random): Tree[CONTENT] =
+      if(n <= 0) t
+      else erodeInDomain(erodeInDomain(t), n - 1)
 
-  override def erode(t: Tree[CONTENT])(implicit rng: Random): Tree[CONTENT] = {
+    def erodeInDomain(t: Tree[CONTENT])(implicit rng: Random): Tree[CONTENT] = {
     val newT = t.clone
     val leavesOnBoundary = newT.leavesToReassign(newT.root, true)
     val leavesOnBorderWithDomain = computeOnBorderWithDomain(newT)
