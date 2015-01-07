@@ -41,7 +41,7 @@ for these parameters, for every value of x in [a,b], there is a value of y such 
 
   def point = Seq(1.0, 0.0)
 
-  def depth: Int = 20
+  def depth: Int = 18
 
   apply.get.saveVTK2D(Resource.fromFile(s"/tmp/population/kernelVTItest${depth}.vtk"))
 
