@@ -16,24 +16,25 @@ object LakeViabilityErodedTest extends App {
   implicit val rng = new Random(42)
 
   val lake = new LakeViability with ZoneK {
-    override def depth = 16
+    override def depth = 12
+    override def domain = Seq((0.0, 1.0), (0.0, 1.5))
   }
 
  // val output = s"/tmp/lakeAnalysis${lake.depth}/"
 
   val output = s"/tmp/lakeErodeTest/"
   val viabilityKernel = lake().last
- // viabilityKernel.saveVTK2D(Resource.fromFile(s"${output}original${lake.depth}.vtk"))
+  viabilityKernel.saveVTK2D(Resource.fromFile(s"${output}originalD${lake.depth}.vtk"))
   println("erosion 1")
   val eroded1 = lake.erode(viabilityKernel, 1)
   val dilate1 = lake.dilate(viabilityKernel, 1)
-//  eroded1.saveVTK2D(Resource.fromFile(s"${output}eroded1${lake.depth}.vtk"))
-  dilate1.saveVTK2D(Resource.fromFile(s"${output}dilate1${lake.depth}.vtk"))
+  eroded1.saveVTK2D(Resource.fromFile(s"${output}eroded1D${lake.depth}.vtk"))
+  dilate1.saveVTK2D(Resource.fromFile(s"${output}dilate1D${lake.depth}.vtk"))
   val erodedilate = lake.erode(dilate1, 1)
   if (viabilityKernel.volume == eroded1.volume) println("même volume initial et erode dilate")
   println("erosion 2")
   val eroded2 = lake.erode(eroded1, 1)
-  eroded2.saveVTK2D(Resource.fromFile(s"${output}eroded2${lake.depth}.vtk"))
+  eroded2.saveVTK2D(Resource.fromFile(s"${output}eroded2D${lake.depth}.vtk"))
   println("erosion 2 Direct")
   val eroded2direct = lake.erode(viabilityKernel, 2)
   if (eroded2direct.volume == eroded2.volume) println("même volume direct 2 et 2*1")
@@ -89,6 +90,7 @@ object LakeViabilityErodedAnalysis2 extends App {
       with LakeViability {
       def tree0(implicit rng: Random) = Some(eroded)
       override def depth = 18
+      def domain = lake.domain
     }
 
   val output = s"/tmp/lakeAnalysis${lake.depth}/"

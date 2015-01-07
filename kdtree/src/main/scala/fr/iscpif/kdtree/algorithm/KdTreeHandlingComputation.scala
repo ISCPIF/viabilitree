@@ -49,6 +49,8 @@ trait KdTreeHandlingComputation extends KdTreeComputation {
     val newT = t.clone
     val leavesOnBoundary = newT.leavesToReassign(newT.root, true)
     val leavesOnBorderWithDomain = computeOnBorderWithDomain(newT)
+    // TODO remove after test
+    println()
     val leaves = leavesOnBoundary ++ leavesOnBorderWithDomain
     // TODO remove doublons from leaves
     var currentRoot = newT.root
