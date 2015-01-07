@@ -11,7 +11,7 @@ import fr.iscpif.kdtree.content._
 // TODO normalement il faudrait ... with K mais je n'y arrive pas
 // donc tant pis je lui met son domain à lui. Mais normalement il faut récupérer celui de K
 
-trait TreeHandling extends KdTreeComputation {
+trait KdTreeHandlingComputation extends KdTreeComputation {
 /* dans mon souvenir, case ne supporte pas qu'on programme dedans */
 
  /* Note Pour ne pas faire 2 fois le parcours, le mieux serait d'avoir une sous-classe LabelTreeWithDomainDecorator de LabelTreeDecorator
