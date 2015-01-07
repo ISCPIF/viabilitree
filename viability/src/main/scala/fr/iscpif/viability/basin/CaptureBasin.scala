@@ -4,7 +4,7 @@ import fr.iscpif.kdtree.structure._
 import scala.util.Random
 import fr.iscpif.kdtree.content._
 import fr.iscpif.kdtree.algorithm._
-import fr.iscpif.viability.TreeRefinement
+import fr.iscpif.viability.{Domain, TreeRefinement}
 import scala.Predef._
 import scala.Some
 import fr.iscpif.viability.control.{ControlledDynamicContent, ExhaustiveControlTesting}
@@ -25,10 +25,12 @@ import fr.iscpif.viability.control.{ControlledDynamicContent, ExhaustiveControlT
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-trait CaptureBasin <: TreeRefinement with ExhaustiveControlTesting { basin =>
+trait CaptureBasin <: TreeRefinement with ExhaustiveControlTesting with Domain { basin =>
 
+  //TODO must verify if KdTreeHandlingComputation is OK and change implementation of examples
   lazy val kdTreeComputation =
-    new KdTreeComputation {
+    new KdTreeHandlingComputation {
+      override def domain = basin.domain
       override def buildContent(point: Point, label: Boolean): CONTENT = basin.buildContent(point, label)
       override def label = basin.label
       override type CONTENT = basin.CONTENT
