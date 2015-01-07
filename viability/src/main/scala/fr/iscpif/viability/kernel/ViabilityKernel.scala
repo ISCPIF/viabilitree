@@ -24,16 +24,18 @@ import scala.util.Random
 import fr.iscpif.kdtree.content._
 import fr.iscpif.kdtree.algorithm._
 import fr.iscpif.viability.TreeRefinement
+import fr.iscpif.viability.Domain
 import fr.iscpif.viability.control.MemorisedControlTesting
 
-trait ViabilityKernel <: TreeRefinement with MemorisedControlTesting { viability =>
+trait ViabilityKernel <: TreeRefinement with MemorisedControlTesting with Domain { viability =>
 /* TODO there is no viability kernel without K, so here kdTreeComputation should be a TreeHandling that can access to K attributes */
   lazy val kdTreeComputation =
-    new KdTreeComputation {
+    new KdTreeHandlingComputation {
       override def buildContent(point: Point, label: Boolean): CONTENT = viability.buildContent(point, label)
       override def label = viability.label
       override type CONTENT = viability.CONTENT
       override def sampler(z: Zone, rng: Random): Point = viability.sampler(z, rng)
+      override def domain = viability.domain
     }
 
   def shouldBeReassigned(c: CONTENT): Boolean = c.label
