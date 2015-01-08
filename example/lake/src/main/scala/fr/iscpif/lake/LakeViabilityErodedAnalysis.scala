@@ -25,11 +25,6 @@ object LakeViabilityErodedTest extends App {
   val output = s"/tmp/lakeErodeTest/"
   val viabilityKernel = lake().last
  //  viabilityKernel.saveVTK2D(Resource.fromFile(s"${output}originalD${lake.depth}.vtk"))
-  println("erosion 1")
-  print("domain ")
-  println(lake.domain)
-  print("zone ")
-  println(lake.zone)
 
   val eroded1 = lake.erodeInDomain(viabilityKernel, 1)
 

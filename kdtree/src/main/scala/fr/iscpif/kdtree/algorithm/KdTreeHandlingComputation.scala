@@ -52,12 +52,6 @@ trait KdTreeHandlingComputation extends KdTreeComputation {
     val newT = t.clone
     val leavesOnBoundary = newT.leavesToReassign(newT.root, true)
     val leavesOnBorderWithDomain = computeOnBorderWithDomain(newT)
-    // TODO remove after test
-    print("nb de feuilles sur le bord ")
-    println(leavesOnBorderWithDomain.size)
-    print("nb de feuilles de la frontière ")
-    println(leavesOnBoundary.size)
-
     val leaves = leavesOnBoundary ++ leavesOnBorderWithDomain
     // TODO remove doublons from leaves
     var currentRoot = newT.root
@@ -70,10 +64,7 @@ trait KdTreeHandlingComputation extends KdTreeComputation {
   }
 
   def computeOnBorderWithDomain(t: Tree[CONTENT]): Iterable[Leaf[CONTENT]]= {
-    val extremeLeaves =  t.leavesOnRootZone(t)
-    println("nb de feuilles sur le bord de K ")
-    println(extremeLeaves.size)
-    extremeLeaves.filter {
+    t.leavesOnRootZone(t).filter {
       case(leaf,i) => borderOnDomain(leaf,i)
     }.map {
        n => n._1
