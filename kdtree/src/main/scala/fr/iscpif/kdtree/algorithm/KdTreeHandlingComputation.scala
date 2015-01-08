@@ -70,26 +70,25 @@ trait KdTreeHandlingComputation extends KdTreeComputation {
   }
 
   def computeOnBorderWithDomain(t: Tree[CONTENT]): Iterable[Leaf[CONTENT]]= {
-     t.leavesOnRootZone(t).filter {
+    val extremeLeaves =  t.leavesOnRootZone(t)
+    println("nb de feuilles sur le bord de K ")
+    println(extremeLeaves.size)
+    extremeLeaves.filter {
       case(leaf,i) => borderOnDomain(leaf,i)
     }.map {
        n => n._1
      }
   }
 
-  /* juste pour tester, sinon il faut vérifier que les min et max du domain dans la direction i
-  sont plus éloignés des min et max de la feuille de plus de 1/2 pas - pour éviter les arrondis.
-  Normalement il faudrait calculer correctement epsilon
-  Ici comme c'est une feuille atomique, on peut utiliser la moitié !
+  /* Warning leaf is supposed to be atomic
    */
-  //TODO for now does nothing but compile !
 
   def borderOnDomain(leaf: Leaf[CONTENT], i: Int): Boolean = {
-     val aux = (leaf.zone.region(i).min + leaf.zone.region(i).max) / 2
+     val aux = (leaf.zone.region(i).max - leaf.zone.region(i).min) / 2
      val a = leaf.zone.region(i).min
      val minDomain = domain.region(i).min
      val b = leaf.zone.region(i).max
      val maxDomain = domain.region(i).max
-    !((a > minDomain + aux)&& (b < maxDomain - aux))
+    (a > minDomain + aux)&& (b < maxDomain - aux)
   }
 }

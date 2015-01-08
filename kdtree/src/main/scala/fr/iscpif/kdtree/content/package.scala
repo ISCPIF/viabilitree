@@ -195,6 +195,7 @@ package object content {
     // For TreeHandling : return atomic leaves that are extreme (i.e. on the root border)
     // Note : return only positive leaves
     // Note : they are supposed to be atomic leaves (since the tree was refined earlier)
+    //TODO verify this point : leaf.touchesBoundary gives only atomic leaves if leaves are handled by a KdTreeHandlingComputation
     def leavesOnRootZone: Iterable[(Leaf[T], Int)] = leavesOnRootZone(t.root)
     def leavesOnRootZone(n: Node[T]): Iterable[(Leaf[T], Int)] = {
       val leaves =
@@ -210,7 +211,7 @@ package object content {
             }
           case fork: Fork[T] =>
             leavesOnRootZone(fork.lowChild) ++ leavesOnRootZone(fork.highChild)
-        }).filterNot {
+        }).filter {
           case (leaf, _) => t.isAtomic(leaf)
         }
 
