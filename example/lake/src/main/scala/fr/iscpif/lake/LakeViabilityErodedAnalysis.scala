@@ -48,13 +48,20 @@ object LakeViabilityErodedAnalysis1 extends App {
   implicit val rng = new Random(42)
 
   val lake = new LakeViability with ZoneK {
-    override def depth = 14
+    override def depth = 16
+    override def domain = Seq((0.0, 1.0), (0.0, 1.5))
+
   }
 
+  val output = s"/tmp/lakeErodeAnalysis/"
   val viabilityKernel = lake().last
-  val eroded = lake.erode(viabilityKernel, 10)
+  viabilityKernel.saveVTK2D(Resource.fromFile(s"${output}originalD${lake.depth}.vtk"))
+  println("erosion 1")
 
-  val lakeViabilityAnalyse =
+  val eroded = lake.erodeInDomain(viabilityKernel, 2)
+  eroded.saveVTK2D(Resource.fromFile(s"${output}erodedD${lake.depth}.vtk"))
+
+  val lake2  =
     new ViabilityKernel
       with LakeViability
       with LearnK {
@@ -62,14 +69,57 @@ object LakeViabilityErodedAnalysis1 extends App {
       def domain = lake.domain
   }
 
-  val output = s"/tmp/lakeAnalysis${lake.depth}/"
+    val viabilityKernel2 = lake2().lastWithTrace
+   viabilityKernel2.saveVTK2D(Resource.fromFile(s"${output}viabErodedD${lake.depth}.vtk"))
+  println("erosion 2")
+  val eroded2 = lake2.erodeInDomain(viabilityKernel2, 2)
+  eroded2.saveVTK2D(Resource.fromFile(s"${output}erodedViabErodedD${lake.depth}.vtk"))
+
+  val lake3  =
+    new ViabilityKernel
+      with LakeViability
+      with LearnK {
+      def k(p: Point) = eroded2.label(p)
+      def domain = lake.domain
+    }
+
+  val viabilityKernel3 = lake3().lastWithTrace
+  viabilityKernel3.saveVTK2D(Resource.fromFile(s"${output}viab2Eroded2D${lake.depth}.vtk"))
+
+}
+
+object LakeViabilityErodedAnalysis0 extends App {
+
+  implicit val rng = new Random(42)
+
+  val lake = new LakeViability with ZoneK {
+    override def depth = 16
+    override def domain = Seq((0.0, 1.0), (0.0, 1.5))
+
+  }
+
+  val output = s"/tmp/lakeErodeAnalysis/"
+  val viabilityKernel = lake().last
+  viabilityKernel.saveVTK2D(Resource.fromFile(s"${output}originalD${lake.depth}.vtk"))
+  println("erosion 1")
+
+  val eroded = lake.erodeInDomain(viabilityKernel, 1)
   eroded.saveVTK2D(Resource.fromFile(s"${output}/eroded${lake.dilations}.vtk"))
+
+  val lakeViabilityAnalyse =
+    new ViabilityKernel
+      with LakeViability
+      with LearnK {
+      def k(p: Point) = eroded.label(p)
+      def domain = lake.domain
+    }
+
 
   for {
     (k,s) <- lakeViabilityAnalyse().zipWithIndex
   } {
     println(s)
-    k.saveVTK2D(Resource.fromFile(s"${output}/mu${lake.dilations}s$s.vtk"))
+    k.saveVTK2D(Resource.fromFile(s"${output}/depth${lake.depth}/mu${lake.dilations}s$s.vtk"))
   }
 
 }
