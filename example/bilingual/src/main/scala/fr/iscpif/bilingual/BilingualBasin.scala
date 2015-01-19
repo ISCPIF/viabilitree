@@ -46,6 +46,7 @@ object BilingualBasin extends App with CaptureBasin with GridSampler {
   def pointInTarget = Seq(70.0 / 99, 24.0 / 99, 1.0 / 99)
 
   def zone = Seq(0.0 -> 1.0, 0.0 -> 1.0, 0.0 -> 1.0)
+  def domain = zone
 
   def depth = 18
 
