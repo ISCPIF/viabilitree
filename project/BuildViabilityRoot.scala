@@ -7,7 +7,7 @@ object ViabilityRootBuild extends Build with Libraries with Viability with Exemp
 
   override def settings = 
     super.settings ++ Seq(
-      scalaVersion := "2.11.4",
+      scalaVersion := "2.11.5",
       javacOptions in (Compile, compile) ++= Seq("-source", "1.7", "-target", "1.7"),
       scalacOptions += "-target:jvm-1.7",
       publishArtifact := false
