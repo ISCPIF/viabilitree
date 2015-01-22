@@ -3,6 +3,7 @@ package fr.iscpif.lake
 import fr.iscpif.viability._
 import fr.iscpif.kdtree.algorithm._
 import fr.iscpif.kdtree.structure._
+import fr.iscpif.viability.control.Control
 import fr.iscpif.viability.kernel._
 import fr.iscpif.kdtree.visualisation._
 import scala.util.Random
@@ -11,6 +12,34 @@ import scalax.io.Resource
 /**
  * Created by ia on 15/12/2014.
  */
+
+object LakeViabilityControlTest extends App {
+
+  implicit val rng = new Random(42)
+
+  val lake = new LakeViability with ZoneK {
+/*
+    override def controls = for {
+        u1 <- -0.09 to 0.09 by 0.1
+        u2 <- -0.09 to 0.09 by 0.1
+      } yield Control(u1, u2)
+*/
+      override def depth = 12
+      override def domain = Seq((0.0, 1.0), (0.0, 1.5))
+  }
+
+  val output = s"/tmp/lakeAnalysis${lake.depth}/"
+  // val viabilityKernel = lake().last
+  // viabilityKernel.saveVTK2D(Resource.fromFile(s"${output}originalD${lake.depth}.vtk"))
+
+  val file = Resource.fromFile(s"/tmp/lakeControlTest/traj")
+  val point = Seq(0.2,0.8)
+  def u(p:Point):Point = Seq(0.0)
+  lake.traceTraj(point, u, 10, file)
+
+}
+
+
 object LakeViabilityErodedAnalysis00 extends App {
 
   implicit val rng = new Random(42)

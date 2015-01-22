@@ -27,6 +27,7 @@ import scalax.io.Resource
 import fr.iscpif.viability._
 import kernel._
 import control._
+import scalax.io._
 
 object LakeViabilityKernel extends App {
 
@@ -53,5 +54,6 @@ trait LakeViability <: ViabilityKernel
   def zone = Seq((0.1, 1.0), (0.0, 1.4))
   def depth = 16
   def dimension = 2
-}
+
+  }
 

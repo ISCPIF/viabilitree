@@ -17,9 +17,11 @@ package fr.iscpif.lake
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import fr.iscpif.viability.control.Control
 import fr.iscpif.viability.differential._
 import fr.iscpif.kdtree.structure._
 import math._
+import scalax.io.Output
 
 trait Lake {
   val integrationStep = 0.01
@@ -27,6 +29,7 @@ trait Lake {
   val b = 0.8
   val r = 1.0
   val m = 1.0
+
 
   def dynamic(state: Point, control: Point) = {
     def xDot(state: Array[Double], t: Double) = control(0)
@@ -37,5 +40,21 @@ trait Lake {
     val res = dynamic.integrate(state.toArray, integrationStep, Seq(0.0, timeStep)).last._2.toSeq
     res.toSeq
   }
+
+  //TODO these methods mut be elsewhere in a generic method for ALL examples
+  def trajectory(p:Point,c: Point => Point, i:Int): List[Point] = {
+    if (i == 0) Nil
+    else p :: trajectory(dynamic(p, c(p)), c, i - 1)
+  }
+
+  def traceTraj (p:Point,c: Point => Point,i:Int,file:Output): Unit = {
+    val traj = trajectory(p,c,i)
+    traj.foreach { p =>
+      file.writeStrings(p.map(_.toString), " ")
+      file.write("\n")
+    }
+
+  }
+
 
 }
