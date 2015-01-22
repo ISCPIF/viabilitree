@@ -41,7 +41,6 @@ trait Lake {
     res.toSeq
   }
 
-  //TODO these methods mut be elsewhere in a generic method for ALL examples
   def trajectory(p:Point,c: Point => Point, i:Int): List[Point] = {
     if (i == 0) Nil
     else p :: trajectory(dynamic(p, c(p)), c, i - 1)
