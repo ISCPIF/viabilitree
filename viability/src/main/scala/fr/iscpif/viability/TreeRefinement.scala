@@ -19,13 +19,14 @@ package fr.iscpif.viability
 
 import fr.iscpif.kdtree.structure._
 import fr.iscpif.kdtree.content._
+import fr.iscpif.model.Model
 import monocle.SimpleLens
 import math._
 import scala.util.Random
 import fr.iscpif.kdtree.algorithm.{Sampler, KdTreeComputation}
 import fr.iscpif.viability.control.{ ControlledDynamicContent, ControlTesting }
 
-trait TreeRefinement <: Dynamic with Sampler with ControlTesting with ControlledDynamicContent { refine =>
+trait TreeRefinement <: Model with Sampler with ControlTesting with ControlledDynamicContent { refine =>
 
   def kdTreeComputation: KdTreeComputation {  type CONTENT = refine.CONTENT  }
 

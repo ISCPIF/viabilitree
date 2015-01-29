@@ -21,7 +21,7 @@ package fr.iscpif.kdtree
 import language.implicitConversions
 
 package object structure {
-  type Point = Seq[Double]
+  type Point = fr.iscpif.geometry.Point
   type Path = Seq[PathElement]
   case class PathElement(coordinate: Int, descendant: Descendant.Descendant)
 

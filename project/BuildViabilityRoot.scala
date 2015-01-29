@@ -29,19 +29,24 @@ object ViabilityRootBuild extends Build with Libraries with Viability with Exemp
 
 
 trait Viability <: Libraries with Settings {
-    lazy val kdtree = Project(id = "kdtree", base = file("kdtree"), settings = defaultSettings) settings (
+
+  lazy val kdtree = Project(id = "kdtree", base = file("kdtree"), settings = defaultSettings) settings (
     libraryDependencies ++= monocle
-  )
+  ) dependsOn(geometry)
 
   lazy val visualisation = Project(id = "visualisation", base = file("visualisation"), settings = defaultSettings) dependsOn(kdtree) settings (
     libraryDependencies += "com.github.scala-incubator.io" %% "scala-io-file" % "0.4.3"
   )
 
-  lazy val viability = Project(id = "viability", base = file("viability"), settings = defaultSettings) dependsOn(kdtree)
+  lazy val viability = Project(id = "viability", base = file("viability"), settings = defaultSettings) dependsOn(kdtree, model)
 
   lazy val model = Project(id = "model", base = file("model"), settings = defaultSettings) settings (
     libraryDependencies += "org.apache.commons" % "commons-math3" % "3.4.1"
-    )
+    ) dependsOn(geometry)
+
+  lazy val strategy = Project(id = "strategy", base = file("strategy"), settings = defaultSettings) dependsOn(viability, geometry)
+
+  lazy val geometry = Project(id = "geometry", base = file("geometry"), settings = defaultSettings)
 
 }
 
