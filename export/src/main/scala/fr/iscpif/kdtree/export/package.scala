@@ -17,11 +17,29 @@
 
 package fr.iscpif.kdtree
 
+import java.io._
+
 import structure._
 import content._
 import scalax.io._
+import com.thoughtworks.xstream._
+import io.binary._
 
 package object export {
+
+  def save(o: AnyRef, output: File) = {
+    val xstream = new XStream(new BinaryStreamDriver)
+    val dest = new BufferedOutputStream(new FileOutputStream(output))
+    try xstream.toXML(dest)
+    finally dest.close
+  }
+
+  def load[T](input: File) = {
+    val xstream = new XStream(new BinaryStreamDriver)
+    val source = new BufferedInputStream(new FileInputStream(input))
+    try  xstream.fromXML(source).asInstanceOf[T]
+    finally source.close()
+  }
 
 
     def saveVTK2D[T <: Label](tree: Tree[T], output: Output): Unit = saveVTK2D(tree, output, 0, 1)

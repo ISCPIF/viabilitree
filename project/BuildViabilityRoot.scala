@@ -35,7 +35,7 @@ trait Viability <: Libraries with Settings {
 
   lazy val export = Project(id = "export", base = file("export"), settings = defaultSettings) dependsOn(kdtree) settings (
     libraryDependencies += "com.github.scala-incubator.io" %% "scala-io-file" % "0.4.3",
-    libraryDependencies += "org.scala-lang" %% "scala-pickling" % "0.9.0"
+    libraryDependencies += "com.thoughtworks.xstream" % "xstream" % "1.4.7"
   )
 
   lazy val viability = Project(id = "viability", base = file("viability"), settings = defaultSettings) dependsOn(kdtree, model)
