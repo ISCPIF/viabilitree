@@ -19,7 +19,7 @@ package fr.iscpif.lake
 
 import fr.iscpif.kdtree.algorithm._
 import fr.iscpif.kdtree.structure._
-import fr.iscpif.kdtree.visualisation._
+import fr.iscpif.kdtree.export._
 import fr.iscpif.kdtree.content._
 import fr.iscpif.kdtree._
 import fr.iscpif.model.Control

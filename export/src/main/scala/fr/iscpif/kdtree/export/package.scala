@@ -21,7 +21,7 @@ import structure._
 import content._
 import scalax.io._
 
-package object visualisation {
+package object export {
 
   implicit class VTKTree[T <: Label](tree: Tree[T]) {
 

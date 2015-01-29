@@ -21,7 +21,7 @@ import _root_.fr.iscpif.viability._
 import _root_.fr.iscpif.kdtree.algorithm._
 import _root_.fr.iscpif.kdtree.structure._
 import _root_.fr.iscpif.kdtree.content._
-import _root_.fr.iscpif.kdtree.visualisation._
+import _root_.fr.iscpif.kdtree.export._
 import fr.iscpif.model.Control
 import scala.util.Random
 import scalax.io.Resource

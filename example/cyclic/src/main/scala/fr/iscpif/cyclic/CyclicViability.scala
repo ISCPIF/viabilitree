@@ -22,7 +22,7 @@ import fr.iscpif.kdtree.structure._
 import fr.iscpif.model.Control
 import scala.util.Random
 import scalax.io.Resource
-import fr.iscpif.kdtree.visualisation._
+import fr.iscpif.kdtree.export._
 import fr.iscpif.viability._
 import kernel._
 import control._

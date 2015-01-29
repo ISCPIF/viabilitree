@@ -33,8 +33,9 @@ trait Viability <: Libraries with Settings {
     libraryDependencies ++= monocle
   ) dependsOn(geometry)
 
-  lazy val visualisation = Project(id = "visualisation", base = file("visualisation"), settings = defaultSettings) dependsOn(kdtree) settings (
-    libraryDependencies += "com.github.scala-incubator.io" %% "scala-io-file" % "0.4.3"
+  lazy val export = Project(id = "export", base = file("export"), settings = defaultSettings) dependsOn(kdtree) settings (
+    libraryDependencies += "com.github.scala-incubator.io" %% "scala-io-file" % "0.4.3",
+    libraryDependencies += "org.scala-lang" %% "scala-pickling" % "0.9.0"
   )
 
   lazy val viability = Project(id = "viability", base = file("viability"), settings = defaultSettings) dependsOn(kdtree, model)
@@ -50,17 +51,17 @@ trait Viability <: Libraries with Settings {
 }
 
 trait Exemples <: Viability  with Settings {
-  lazy val lotkavoltera = Project(id = "lotkavoltera", base = file("example/lotkavoltera")) dependsOn(viability, visualisation, model)
+  lazy val lotkavoltera = Project(id = "lotkavoltera", base = file("example/lotkavoltera")) dependsOn(viability, export, model)
 
-  lazy val cyclic = Project(id = "cyclic", base = file("example/cyclic")) dependsOn(viability, visualisation, model)
+  lazy val cyclic = Project(id = "cyclic", base = file("example/cyclic")) dependsOn(viability, export, model)
 
-  lazy val consumer = Project(id = "consumer", base = file("example/consumer")) dependsOn(viability, visualisation, model)
+  lazy val consumer = Project(id = "consumer", base = file("example/consumer")) dependsOn(viability, export, model)
 
-  lazy val population = Project(id = "population", base = file("example/population")) dependsOn(viability, visualisation, model)
+  lazy val population = Project(id = "population", base = file("example/population")) dependsOn(viability, export, model)
 
-  lazy val lake = Project(id = "lake", base = file("example/lake")) dependsOn(viability, visualisation, model)
+  lazy val lake = Project(id = "lake", base = file("example/lake")) dependsOn(viability, export, model)
 
-  lazy val bilingual = Project(id = "bilingual", base = file("example/bilingual")) dependsOn(viability, visualisation, model)
+  lazy val bilingual = Project(id = "bilingual", base = file("example/bilingual")) dependsOn(viability, export, model)
 }
 
 
