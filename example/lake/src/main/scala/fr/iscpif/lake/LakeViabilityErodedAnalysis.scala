@@ -1,9 +1,9 @@
 package fr.iscpif.lake
 
+import fr.iscpif.model.Control
 import fr.iscpif.viability._
 import fr.iscpif.kdtree.algorithm._
 import fr.iscpif.kdtree.structure._
-import fr.iscpif.viability.control.Control
 import fr.iscpif.viability.kernel._
 import fr.iscpif.kdtree.visualisation._
 import scala.util.Random

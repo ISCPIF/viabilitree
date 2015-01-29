@@ -13,7 +13,6 @@ object ViabilityRootBuild extends Build with Libraries with Viability with Exemp
       publishArtifact := false
     )
 
-
 }
 
 /*trait OSGi {

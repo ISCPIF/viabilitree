@@ -17,7 +17,6 @@ package fr.iscpif.lake
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import fr.iscpif.viability.control.Control
 import fr.iscpif.model._
 import fr.iscpif.kdtree.structure._
 import math._

@@ -5,7 +5,6 @@
 
 package fr.iscpif.model
 
-
 import org.apache.commons.math3.ode._
 import org.apache.commons.math3.ode.nonstiff._
 

@@ -9,6 +9,7 @@
 package fr.iscpif.bilingual
 
 
+import fr.iscpif.model.Control
 import fr.iscpif.viability._
 import fr.iscpif.kdtree.algorithm._
 import fr.iscpif.kdtree.structure._

@@ -17,6 +17,8 @@
 
 package fr.iscpif.bilingual
 
+import fr.iscpif.model.Control
+
 import scala.io.Source
 import scala.collection.immutable.TreeSet
 import Ordering.Implicits._

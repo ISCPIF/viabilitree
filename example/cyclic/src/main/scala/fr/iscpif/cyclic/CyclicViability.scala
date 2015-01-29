@@ -19,6 +19,7 @@ package fr.iscpif.cyclic
 
 import fr.iscpif.kdtree.algorithm._
 import fr.iscpif.kdtree.structure._
+import fr.iscpif.model.Control
 import scala.util.Random
 import scalax.io.Resource
 import fr.iscpif.kdtree.visualisation._

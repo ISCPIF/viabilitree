@@ -16,9 +16,9 @@
  */
 
 
-package fr.iscpif.viability.control
+package fr.iscpif.model
 
-import fr.iscpif.kdtree.structure._
+import fr.iscpif.geometry._
 
 object Control {
   def apply(c: Double*): Control = new Control {
