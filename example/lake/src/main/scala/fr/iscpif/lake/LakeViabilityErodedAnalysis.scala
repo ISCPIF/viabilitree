@@ -27,15 +27,35 @@ object LakeViabilityControlTest extends App {
       override def depth = 12
       override def domain = Seq((0.0, 1.0), (0.0, 1.5))
   }
-
-  val output = s"/tmp/lakeAnalysis${lake.depth}/"
-  // val viabilityKernel = lake().last
+  val viabilityKernel = lake().last
+  println ("fin calcul noyau ")
+//  val output = s"/tmp/lakeAnalysis${lake.depth}/"
   // viabilityKernel.saveVTK2D(Resource.fromFile(s"${output}originalD${lake.depth}.vtk"))
 
-  val file = Resource.fromFile(s"/tmp/lakeControlTest/traj")
+//  val file = Resource.fromFile(s"/tmp/lakeControlTest/traj")
   val point = Seq(0.2,0.8)
-  def u(p:Point):Point = Seq(0.0)
-  lake.traceTraj(point, u, 10, file)
+  //def u(p:Point):Point = Seq(0.0)
+ /* def u(p:Point):Point = {
+    val controlLeaf = viabilityKernel.containingLeaf(point)
+    controlLeaf match {
+      case None => throw new RuntimeException("No leaf containing the point")
+      case Some(leaf) => leaf.content.control.getOrElse(0)
+            }
+    // normallement il faudrait écrire ici : model ou dynamic et pas l'exemple
+    lake.controls(controlLeaf)
+  }
+*/
+  // lake.traceTraj(point, u, 10, file)
+
+  val controlLeaf = viabilityKernel.containingLeaf(point)
+  val uIndex = controlLeaf match {
+    case None => throw new RuntimeException("No leaf containing the point")
+    case Some(leaf) => leaf.content.control.getOrElse(0)
+  }
+  val uValue = lake.controls(uIndex)
+  print ("control ")
+  println(uValue)
+  // ça va pas c'est censé être un point
 
 }
 
