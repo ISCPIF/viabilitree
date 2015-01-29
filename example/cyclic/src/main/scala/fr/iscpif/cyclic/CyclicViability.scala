@@ -29,7 +29,6 @@ import control._
 object CyclicViability extends App
   with ViabilityKernel
   with ZoneInput
-  with ParallelEvaluator
   with GridSampler
   with LearnK {
 
@@ -48,8 +47,6 @@ object CyclicViability extends App
   def dynamic(point: Point, control: Point) = CyclicDynamic(point, control)
 
   def dimension = 3
-
-  def initialZone = zone
 
   implicit lazy val rng = new Random(42)
 

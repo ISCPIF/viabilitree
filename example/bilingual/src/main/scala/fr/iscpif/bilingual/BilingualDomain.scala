@@ -33,7 +33,7 @@ with GridSampler {
 
   def zone = Seq(0.2 -> 1.0, 0.2 -> 1.0, 0.0 -> 1.0)
 
-  def domain = Seq(0.0 -> 1.0, 0.0 -> 1.0, 0.0 -> 1.0)
+  override def domain = Seq(0.0 -> 1.0, 0.0 -> 1.0, 0.0 -> 1.0)
 
   def depth = 15
 

@@ -22,7 +22,7 @@ import fr.iscpif.kdtree.content._
 import monocle.SimpleLens
 import scala.util.Random
 
-trait KdTreeComputation extends Sampler with Evaluator with Content {
+trait KdTreeComputation <: Sampler with Evaluator with Content with Erosion with FindTrueLabel {
 
   type CONTENT <: Label with TestPoint
 
@@ -60,7 +60,7 @@ trait KdTreeComputation extends Sampler with Evaluator with Content {
   //TODO might beneficiate from a mutable verison of learnBoundary
   def dilate(t: Tree[CONTENT])(implicit rng: Random): Tree[CONTENT] = {
     val newT = t.clone
-    val leaves = newT.leavesToReassign(newT.root, label = false)
+    val leaves = newT.criticalLeaves(newT.root).filter(_.content.label == false).toSeq.distinct
     var currentRoot = newT.root
     leaves.foreach {
       leaf =>
@@ -71,17 +71,7 @@ trait KdTreeComputation extends Sampler with Evaluator with Content {
     learnBoundary(dilated, buildContent(_, false))
   }
 
-  def erode(t: Tree[CONTENT])(implicit rng: Random): Tree[CONTENT] = {
-    val newT = t.clone
-    val leaves = newT.leavesToReassign(newT.root, label = true)
-    var currentRoot = newT.root
-    leaves.foreach {
-      leaf =>
-        currentRoot = newT.root.replace(leaf.path, label.set(leaf.content, false)).rootCalling
-    }
-    val eroded = Tree(currentRoot, newT.depth)
-    learnBoundary(eroded, buildContent(_, true))
-  }
+
 
   def findTrueLabel(t: Tree[CONTENT], contentBuilder: Point => CONTENT)(implicit rng: Random): Option[Tree[CONTENT]] = {
 

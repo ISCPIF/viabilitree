@@ -22,12 +22,12 @@ import fr.iscpif.kdtree.content._
 import monocle.SimpleLens
 import math._
 import scala.util.Random
-import fr.iscpif.kdtree.algorithm.{KdTreeHandlingComputation, Sampler, KdTreeComputation}
+import fr.iscpif.kdtree.algorithm.{Sampler, KdTreeComputation}
 import fr.iscpif.viability.control.{ ControlledDynamicContent, ControlTesting }
 
 trait TreeRefinement <: Dynamic with Sampler with ControlTesting with ControlledDynamicContent { refine =>
 
-  def kdTreeComputation: KdTreeHandlingComputation {  type CONTENT = refine.CONTENT  }
+  def kdTreeComputation: KdTreeComputation {  type CONTENT = refine.CONTENT  }
 
   def dimension: Int
 
@@ -63,8 +63,8 @@ trait TreeRefinement <: Dynamic with Sampler with ControlTesting with Controlled
     }
   }
 
-  def erodeInDomain(t: Tree[CONTENT])(implicit rng: Random): Tree[CONTENT] = kdTreeComputation.erodeInDomain(t)
-  def erodeInDomain(t: Tree[CONTENT], n: Int)(implicit rng: Random): Tree[CONTENT] = kdTreeComputation.erodeInDomain(t,n)
+  def erodeInDomain(t: Tree[CONTENT])(implicit rng: Random): Tree[CONTENT] = kdTreeComputation.erode(t)
+  def erodeInDomain(t: Tree[CONTENT], n: Int)(implicit rng: Random): Tree[CONTENT] = kdTreeComputation.erode(t,n)
 
   def apply(tree: Tree[CONTENT])(implicit rng: Random, m: Manifest[CONTENT]): Option[Tree[CONTENT]] = timeStep(tree)
 }

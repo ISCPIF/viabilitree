@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Romain Reuillon
+ * Copyright (C) 2015 Romain Reuillon
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -16,20 +16,22 @@
  */
 
 
-package fr.iscpif.viability.kernel
+package fr.iscpif.kdtree.algorithm
 
-import fr.iscpif.kdtree.algorithm._
-import fr.iscpif.kdtree.structure._
-import fr.iscpif.viability.K
-import fr.iscpif.viability.control.ControlledDynamicContent
+import fr.iscpif.kdtree.structure.{Leaf, Tree}
 
 import scala.util.Random
 
-trait LearnK <: Tree0 with K with Input { self: ViabilityKernel =>
-
-  override def tree0(implicit rng: Random) = {
-    def contentBuilder(p: Point) = ControlledDynamicContent.Content(p, None, None, k(p), 0)
-    initialTree(contentBuilder).map(kdTreeComputation.learnBoundary(_, contentBuilder))
+trait Erosion { self: KdTreeComputation =>
+  def erode(t: Tree[CONTENT], additionalLeaves: Seq[Leaf[CONTENT]] = Seq.empty)(implicit rng: Random): Tree[CONTENT] = {
+    val newT = t.clone
+    val leaves = newT.criticalLeaves(newT.root).filter(_.content.label == true).toSeq.distinct ++ additionalLeaves
+    var currentRoot = newT.root
+    leaves.foreach {
+      leaf =>
+        currentRoot = newT.root.replace(leaf.path, label.set(leaf.content, false)).rootCalling
+    }
+    val eroded = Tree(currentRoot, newT.depth)
+    learnBoundary(eroded, buildContent(_, true))
   }
-
 }

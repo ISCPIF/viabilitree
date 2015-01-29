@@ -27,10 +27,10 @@ import fr.iscpif.viability.TreeRefinement
 import fr.iscpif.viability.Domain
 import fr.iscpif.viability.control.MemorisedControlTesting
 
-trait ViabilityKernel <: TreeRefinement with MemorisedControlTesting with Domain { viability =>
+trait ViabilityKernel <: TreeRefinement with Tree0 with MemorisedControlTesting with Domain with FindTrueLabel  with ZoneAttribute { viability =>
 /* TODO there is no viability kernel without K, so here kdTreeComputation should be a TreeHandling that can access to K attributes */
   lazy val kdTreeComputation =
-    new KdTreeHandlingComputation {
+    new KdTreeComputation with ErosionInDomain {
       override def buildContent(point: Point, label: Boolean): CONTENT = viability.buildContent(point, label)
       override def label = viability.label
       override type CONTENT = viability.CONTENT
@@ -38,19 +38,11 @@ trait ViabilityKernel <: TreeRefinement with MemorisedControlTesting with Domain
       override def domain = viability.domain
      }
 
+  override def findTrueLabel(t: Tree[CONTENT], contentBuilder: (Point) => CONTENT)(implicit rng: Random): Option[Tree[CONTENT]] = kdTreeComputation.findTrueLabel(t, contentBuilder)
+
   def shouldBeReassigned(c: CONTENT): Boolean = c.label
 
   def apply()(implicit rng: Random): Iterator[Tree[CONTENT]] = trees
-
-  /**
-   *
-   * Build the initial tree for the viability algorithm. This tree have the same shape as the trees
-   * produced all along viability kernel computation
-   *
-   * @param rng
-   * @return
-   */
-  def tree0(implicit rng: Random): Option[Tree[CONTENT]]
 
   def trees(implicit rng: Random): Iterator[Tree[CONTENT]] = {
     Iterator.iterate(tree0 -> false) {
@@ -68,5 +60,7 @@ trait ViabilityKernel <: TreeRefinement with MemorisedControlTesting with Domain
   }
 
   def finished[T <: Label](t1: Tree[T], t2: Tree[T]) = t1.volume == t2.volume
+
+  def domain = zone
 
 }

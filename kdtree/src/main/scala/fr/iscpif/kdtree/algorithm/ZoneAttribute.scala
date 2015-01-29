@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Romain Reuillon
+ * Copyright (C) 2015 Romain Reuillon
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -16,24 +16,8 @@
  */
 
 
-package fr.iscpif.viability.kernel
+package fr.iscpif.kdtree.algorithm
 
-import fr.iscpif.kdtree.algorithm._
-import fr.iscpif.kdtree.structure._
-import fr.iscpif.viability.K
-import scala.util.Random
-
-trait ZoneK <: Tree0 with K with Input { self: ViabilityKernel =>
-
-  /// Constraint zone in general is included inside domain
-  def zone: Zone
-
-  override def k(p: Point): Boolean = zone.contains(p)
-
-  override def tree0(implicit rng: Random): Option[Tree[CONTENT]] = {
-    def contentBuilder(p: Point) = exhaustiveFindViableControl(p, k)
-    initialTree(contentBuilder).map {
-      tree => kdTreeComputation.learnBoundary(tree, contentBuilder)
-    }
-  }
+trait ZoneAttribute {
+  def zone: fr.iscpif.kdtree.structure.Zone
 }

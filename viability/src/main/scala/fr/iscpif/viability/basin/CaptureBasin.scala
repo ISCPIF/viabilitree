@@ -29,7 +29,7 @@ trait CaptureBasin <: TreeRefinement with ExhaustiveControlTesting with Domain {
 
   //TODO must verify if KdTreeHandlingComputation is OK and change implementation of examples
   lazy val kdTreeComputation =
-    new KdTreeHandlingComputation {
+    new KdTreeComputation with ErosionInDomain {
       override def domain = basin.domain
       override def buildContent(point: Point, label: Boolean): CONTENT = basin.buildContent(point, label)
       override def label = basin.label

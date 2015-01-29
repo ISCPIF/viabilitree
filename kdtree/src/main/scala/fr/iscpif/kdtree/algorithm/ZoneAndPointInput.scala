@@ -20,9 +20,8 @@ package fr.iscpif.kdtree.algorithm
 import fr.iscpif.kdtree.structure._
 import scala.util.Random
 
-trait ZoneAndPointInput extends Input { self: KdTreeComputation =>
+trait ZoneAndPointInput extends Input with Sampler with ZoneAttribute {
 
-  def zone: Zone
   def point: Point
   def depth: Int
 

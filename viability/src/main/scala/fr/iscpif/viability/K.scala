@@ -20,8 +20,6 @@ package fr.iscpif.viability
 import fr.iscpif.kdtree.structure._
 
 
-trait K  extends Domain {
-  /* TODO must decide if k(p) => domain.contains(p) OR ???? */
+trait K <: Domain {
   def k(p: Point): Boolean
-  def domain: Zone
 }
