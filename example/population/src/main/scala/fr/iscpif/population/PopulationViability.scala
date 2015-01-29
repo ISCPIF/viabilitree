@@ -58,7 +58,7 @@ object PopulationViability extends App
       //if (listeResult.hasNext && (s % 10 != 0)) println("on passe")
       //else {
       println(s"step $s")
-      if (s % 20 == 0 || !listeResult.hasNext) b.saveVTK2D(Resource.fromFile(s"/tmp/population/population${s}.vtk"))
+      if (s % 20 == 0 || !listeResult.hasNext) saveVTK2D(b, Resource.fromFile(s"/tmp/population/population${s}.vtk"))
     //}
   }
 

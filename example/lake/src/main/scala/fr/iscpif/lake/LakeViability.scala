@@ -40,7 +40,7 @@ object LakeViabilityKernel extends App {
     (b, s) <- lake().zipWithIndex
   } {
     println(s)
-    b.saveVTK2D(Resource.fromFile(s"/tmp/lake${lake.depth}/mu${lake.dilations}s$s.vtk"))
+    saveVTK2D(b, Resource.fromFile(s"/tmp/lake${lake.depth}/mu${lake.dilations}s$s.vtk"))
   }
 
 }

@@ -68,7 +68,7 @@ object CyclicViability2D extends App
       //if (listeResult.hasNext && (s % 1 != 0)) println("on passe")
       //else {
       //println("impression")
-      b.saveVTK2D(Resource.fromFile(s"/tmp/cyclic/cyclicViab${depth}s$s.vtk"))
+      saveVTK2D(b, Resource.fromFile(s"/tmp/cyclic/cyclicViab${depth}s$s.vtk"))
     //}
 
   }

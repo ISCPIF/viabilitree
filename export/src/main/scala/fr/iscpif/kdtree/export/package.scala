@@ -23,11 +23,10 @@ import scalax.io._
 
 package object export {
 
-  implicit class VTKTree[T <: Label](tree: Tree[T]) {
 
-    def saveVTK2D(output: Output): Unit = saveVTK2D(output, 0, 1)
+    def saveVTK2D[T <: Label](tree: Tree[T], output: Output): Unit = saveVTK2D(tree, output, 0, 1)
 
-    def saveVTK2D(output: Output, x: Int, y: Int): Unit = {
+    def saveVTK2D[T <: Label](tree: Tree[T], output: Output, x: Int, y: Int): Unit = {
       def coords =
         tree.leaves.filter(_.content.label).map {
           l =>
@@ -81,9 +80,9 @@ DATASET UNSTRUCTURED_GRID""")
       output.write("\n")
     }
 
-    def saveVTK3D(output: Output): Unit = saveVTK3D(output, 0, 1, 2)
+    def saveVTK3D[T <: Label](tree: Tree[T], output: Output): Unit = saveVTK3D(tree, output, 0, 1, 2)
 
-    def saveVTK3D(output: Output, x: Int, y: Int, z: Int): Unit = {
+    def saveVTK3D[T <: Label](tree: Tree[T], output: Output, x: Int, y: Int, z: Int): Unit = {
       def coords =
         tree.leaves.filter(_.content.label).map {
           l =>
@@ -142,6 +141,5 @@ DATASET UNSTRUCTURED_GRID""")
       output.write("\n")
     }
 
-  }
 }
 

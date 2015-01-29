@@ -43,6 +43,6 @@ for these parameters, for every value of x in [a,b], there is a value of y such 
 
   def depth: Int = 18
 
-  apply.get.saveVTK2D(Resource.fromFile(s"/tmp/population/kernelVTItest${depth}.vtk"))
+  saveVTK2D(apply.get, Resource.fromFile(s"/tmp/population/kernelVTItest${depth}.vtk"))
 
 }
