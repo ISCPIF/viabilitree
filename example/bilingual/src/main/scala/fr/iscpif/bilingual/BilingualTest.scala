@@ -17,7 +17,7 @@ package fr.iscpif.bilingual
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import fr.iscpif.viability.differential._
+import fr.iscpif.model._
 import fr.iscpif.kdtree.structure._
 import math._
 import fr.iscpif.kdtree.algorithm.GridSampler

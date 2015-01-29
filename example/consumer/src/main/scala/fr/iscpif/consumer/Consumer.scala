@@ -1,6 +1,6 @@
 package fr.iscpif.consumer
 
-import fr.iscpif.viability.differential._
+import fr.iscpif.model._
 import fr.iscpif.kdtree.structure._
 
 object Consumer {

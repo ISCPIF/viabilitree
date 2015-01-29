@@ -1,6 +1,6 @@
 package fr.iscpif.viability.lotkavoltera
 
-import fr.iscpif.viability.differential._
+import fr.iscpif.model._
 
 object LotkaVoltera {
 

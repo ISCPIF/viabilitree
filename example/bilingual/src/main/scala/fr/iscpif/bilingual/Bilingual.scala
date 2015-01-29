@@ -17,7 +17,7 @@
 
 package fr.iscpif.bilingual
 
-import fr.iscpif.viability.differential._
+import fr.iscpif.model._
 import fr.iscpif.kdtree.structure._
 import math._
 

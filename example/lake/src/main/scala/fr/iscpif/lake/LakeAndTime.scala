@@ -2,7 +2,7 @@ package fr.iscpif.lake
 
 import fr.iscpif.kdtree.structure._
 import scala.math._
-import fr.iscpif.viability.differential.Dynamic
+import fr.iscpif.model.Dynamic
 
 /*
  * Copyright (C) 10/10/13 Isabelle Alvarez
