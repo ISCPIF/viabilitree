@@ -21,4 +21,7 @@ import fr.iscpif.geometry._
 
 trait Model {
   def dynamic(point: Point, control: Point): Point
+
+
 }
+

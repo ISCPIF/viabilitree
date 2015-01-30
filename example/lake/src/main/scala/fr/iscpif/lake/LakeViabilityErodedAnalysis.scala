@@ -53,10 +53,13 @@ object LakeViabilityControlTest extends App {
     case Some(leaf) => leaf.content.control.getOrElse(0)
   }
   val uValue = lake.controls(uIndex)
+  val controlValue = uValue(point)
   print ("control ")
-  println(uValue)
-  // ça va pas c'est censé être un point
+  println(controlValue)
+  val traj = lake.trajectory(point, uValue, 2)
 
+  print ("traj ")
+  println(traj)
 }
 
 
