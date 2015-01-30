@@ -66,7 +66,7 @@ object BilingualBasin extends App with CaptureBasin with GridSampler {
     (s, i) <- apply.zipWithIndex
   } {
     println(i)
-    val output = Resource.fromFile(s"/tmp/bilingual_$depth/basin$i.vtk")
+    val output = s"/tmp/bilingual_$depth/basin$i.vtk"
     saveVTK3D(s, output)
   }
 

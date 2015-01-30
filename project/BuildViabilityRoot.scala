@@ -33,7 +33,7 @@ trait Viability <: Libraries with Settings {
     libraryDependencies ++= monocle
   ) dependsOn(geometry)
 
-  lazy val export = Project(id = "export", base = file("export"), settings = defaultSettings) dependsOn(kdtree) settings (
+  lazy val export = Project(id = "export", base = file("export"), settings = defaultSettings) dependsOn(kdtree, viability) settings (
     libraryDependencies += "com.github.scala-incubator.io" %% "scala-io-file" % "0.4.3",
     libraryDependencies += "com.thoughtworks.xstream" % "xstream" % "1.4.7"
   )

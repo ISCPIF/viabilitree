@@ -52,6 +52,6 @@ with GridSampler {
   it.foreach {
     case (b, s) =>
       println(s"step $s")
-      if (s % 10 == 0 || !it.hasNext) saveVTK3D(b, Resource.fromFile(s"/tmp/bilingual/domainBilingual${depth}s$s.vtk"))
+      if (s % 10 == 0 || !it.hasNext) saveVTK3D(b, s"/tmp/bilingual/domainBilingual${depth}s$s.vtk")
   }
 }

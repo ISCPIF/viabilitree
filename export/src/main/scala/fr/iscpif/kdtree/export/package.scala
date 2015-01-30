@@ -27,6 +27,8 @@ import io.binary._
 
 package object export {
 
+  implicit def stringToFile(s: String) = new File(s)
+
   def save(o: AnyRef, output: File) = {
     val xstream = new XStream(new BinaryStreamDriver)
     val dest = new BufferedOutputStream(new FileOutputStream(output))
@@ -42,9 +44,12 @@ package object export {
   }
 
 
-    def saveVTK2D[T <: Label](tree: Tree[T], output: Output): Unit = saveVTK2D(tree, output, 0, 1)
+    def saveVTK2D[T <: Label](tree: Tree[T],  file: File): Unit = saveVTK2D(tree, file, 0, 1)
 
-    def saveVTK2D[T <: Label](tree: Tree[T], output: Output, x: Int, y: Int): Unit = {
+    def saveVTK2D[T <: Label](tree: Tree[T], file: File, x: Int, y: Int): Unit = {
+      file.delete()
+      val output = Resource.fromFile(file)
+
       def coords =
         tree.leaves.filter(_.content.label).map {
           l =>
@@ -98,9 +103,11 @@ DATASET UNSTRUCTURED_GRID""")
       output.write("\n")
     }
 
-    def saveVTK3D[T <: Label](tree: Tree[T], output: Output): Unit = saveVTK3D(tree, output, 0, 1, 2)
+    def saveVTK3D[T <: Label](tree: Tree[T], file: File): Unit = saveVTK3D(tree, file, 0, 1, 2)
 
-    def saveVTK3D[T <: Label](tree: Tree[T], output: Output, x: Int, y: Int, z: Int): Unit = {
+    def saveVTK3D[T <: Label](tree: Tree[T], file: File, x: Int, y: Int, z: Int): Unit = {
+      val output = Resource.fromFile(file)
+      
       def coords =
         tree.leaves.filter(_.content.label).map {
           l =>
