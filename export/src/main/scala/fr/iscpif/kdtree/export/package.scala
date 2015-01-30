@@ -106,6 +106,7 @@ DATASET UNSTRUCTURED_GRID""")
     def saveVTK3D[T <: Label](tree: Tree[T], file: File): Unit = saveVTK3D(tree, file, 0, 1, 2)
 
     def saveVTK3D[T <: Label](tree: Tree[T], file: File, x: Int, y: Int, z: Int): Unit = {
+      file.delete()
       val output = Resource.fromFile(file)
       
       def coords =
