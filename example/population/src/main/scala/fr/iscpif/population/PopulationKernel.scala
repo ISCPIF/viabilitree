@@ -11,7 +11,7 @@ import fr.iscpif.viability._
 import fr.iscpif.kdtree.algorithm._
 import fr.iscpif.kdtree.structure._
 import fr.iscpif.kdtree.content._
-import fr.iscpif.kdtree.visualisation._
+import fr.iscpif.kdtree.export._
 import scala.util.Random
 import scalax.io.Resource
 import math._
@@ -43,6 +43,6 @@ for these parameters, for every value of x in [a,b], there is a value of y such 
 
   def depth: Int = 18
 
-  apply.get.saveVTK2D(Resource.fromFile(s"/tmp/population/kernelVTItest${depth}.vtk"))
+  saveVTK2D(apply.get, s"/tmp/population/kernelVTItest${depth}.vtk")
 
 }

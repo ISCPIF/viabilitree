@@ -1,10 +1,11 @@
 package fr.iscpif.population
 
+import fr.iscpif.model.Control
 import fr.iscpif.viability._
 import fr.iscpif.kdtree.algorithm._
 import fr.iscpif.kdtree.structure._
 import fr.iscpif.kdtree.content._
-import fr.iscpif.kdtree.visualisation._
+import fr.iscpif.kdtree.export._
 import scala.util.Random
 import scalax.io.Resource
 import fr.iscpif.viability._
@@ -57,7 +58,7 @@ object PopulationViability extends App
       //if (listeResult.hasNext && (s % 10 != 0)) println("on passe")
       //else {
       println(s"step $s")
-      if (s % 20 == 0 || !listeResult.hasNext) b.saveVTK2D(Resource.fromFile(s"/tmp/population/population${s}.vtk"))
+      if (s % 20 == 0 || !listeResult.hasNext) saveVTK2D(b, s"/tmp/population/population${s}.vtk")
     //}
   }
 

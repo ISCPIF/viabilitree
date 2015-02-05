@@ -8,7 +8,7 @@ package fr.iscpif.population
  * To change this template use File | Settings | File Templates.
  */
 
-import fr.iscpif.viability.differential._
+import fr.iscpif.model._
 import fr.iscpif.kdtree.structure._
 
 object Population {

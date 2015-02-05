@@ -21,7 +21,7 @@ import fr.iscpif.viability._
 import fr.iscpif.kdtree.algorithm._
 import fr.iscpif.kdtree.structure._
 import scala.util.Random
-import fr.iscpif.kdtree.visualisation._
+import fr.iscpif.kdtree.export._
 import scalax.io._
 
 //object LotkaVolterraKernel extends App

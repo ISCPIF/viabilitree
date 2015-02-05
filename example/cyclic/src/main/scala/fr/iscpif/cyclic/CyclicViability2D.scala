@@ -21,7 +21,8 @@ import _root_.fr.iscpif.viability._
 import _root_.fr.iscpif.kdtree.algorithm._
 import _root_.fr.iscpif.kdtree.structure._
 import _root_.fr.iscpif.kdtree.content._
-import _root_.fr.iscpif.kdtree.visualisation._
+import _root_.fr.iscpif.kdtree.export._
+import fr.iscpif.model.Control
 import scala.util.Random
 import scalax.io.Resource
 import fr.iscpif.viability.kernel._
@@ -30,7 +31,6 @@ import fr.iscpif.viability.control._
 object CyclicViability2D extends App
   with ViabilityKernel
   with ZoneInput
-  with ParallelEvaluator
   with GridSampler
   with LearnK {
 
@@ -50,8 +50,6 @@ object CyclicViability2D extends App
 
   def dimension = 2
 
-  def initialZone = zone
-
   implicit lazy val rng = new Random(42)
 
   /*
@@ -70,7 +68,7 @@ object CyclicViability2D extends App
       //if (listeResult.hasNext && (s % 1 != 0)) println("on passe")
       //else {
       //println("impression")
-      b.saveVTK2D(Resource.fromFile(s"/tmp/cyclic/cyclicViab${depth}s$s.vtk"))
+      saveVTK2D(b, s"/tmp/cyclic/cyclicViab${depth}s$s.vtk")
     //}
 
   }

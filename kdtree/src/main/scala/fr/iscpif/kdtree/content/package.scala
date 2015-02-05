@@ -91,9 +91,6 @@ package object content {
       newT
     }
 
-    def leavesToReassign(n: Node[T], label: Boolean): Iterable[Leaf[T]] =
-      criticalLeaves(n).filter(_.content.label == label).toSeq.distinct
-
     def criticalLeaves(n: Node[T] = t.root, includeNonAtomic: Boolean = false): Iterable[Leaf[T]] =
       (n match {
         case leaf: Leaf[T] => List.empty

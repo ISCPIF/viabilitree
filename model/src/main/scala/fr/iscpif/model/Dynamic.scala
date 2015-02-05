@@ -3,10 +3,10 @@
  * and open the template in the editor.
  */
 
-package fr.iscpif.viability.differential
+package fr.iscpif.model
 
 import org.apache.commons.math3.ode._
-import nonstiff._
+import org.apache.commons.math3.ode.nonstiff._
 
 object Dynamic {
   def apply(equations: (Array[Double], Double) => Double*) = new Dynamic(equations: _*)

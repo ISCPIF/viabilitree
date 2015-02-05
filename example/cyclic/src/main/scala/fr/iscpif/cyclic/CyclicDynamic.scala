@@ -1,6 +1,6 @@
 package fr.iscpif.cyclic
 
-import fr.iscpif.viability.differential._
+import fr.iscpif.model._
 import fr.iscpif.kdtree.structure._
 
 object CyclicDynamic {

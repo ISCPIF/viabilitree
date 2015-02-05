@@ -19,9 +19,10 @@ package fr.iscpif.lake
 
 import fr.iscpif.kdtree.algorithm._
 import fr.iscpif.kdtree.structure._
-import fr.iscpif.kdtree.visualisation._
+import fr.iscpif.kdtree.export._
 import fr.iscpif.kdtree.content._
 import fr.iscpif.kdtree._
+import fr.iscpif.model.Control
 import scala.util.Random
 import scalax.io.Resource
 import fr.iscpif.viability._
@@ -39,7 +40,7 @@ object LakeViabilityKernel extends App {
     (b, s) <- lake().zipWithIndex
   } {
     println(s)
-    b.saveVTK2D(Resource.fromFile(s"/tmp/lake${lake.depth}/mu${lake.dilations}s$s.vtk"))
+    saveVTK2D(b, s"/tmp/lake${lake.depth}/mu${lake.dilations}s$s.vtk")
   }
 
 }

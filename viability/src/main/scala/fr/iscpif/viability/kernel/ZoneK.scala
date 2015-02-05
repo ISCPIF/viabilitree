@@ -23,10 +23,10 @@ import fr.iscpif.kdtree.structure._
 import fr.iscpif.viability.K
 import scala.util.Random
 
-trait  ZoneK <: ViabilityKernel with K with Input {
+trait ZoneK <: Tree0 with K with Input { self: ViabilityKernel =>
+
+  /// Constraint zone in general is included inside domain
   def zone: Zone
-  override def domain = zone
-  /* par défaut, le domaine est K dans le cas de la zone hyperrectangle. Quand ce n'est pas le cas il faut redéfinir domain */
 
   override def k(p: Point): Boolean = zone.contains(p)
 

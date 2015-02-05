@@ -21,7 +21,7 @@ import fr.iscpif.viability._
 import fr.iscpif.kdtree.algorithm._
 import fr.iscpif.kdtree.structure._
 import fr.iscpif.kdtree.content._
-import fr.iscpif.kdtree.visualisation._
+import fr.iscpif.kdtree.export._
 import scala.util.Random
 import scalax.io.Resource
 import math._
@@ -45,7 +45,7 @@ object ConsumerKernel extends App with OracleApproximation with ZoneAndPointInpu
 
   val kernel = apply.get
 
-  kernel.saveVTK2D(Resource.fromFile(s"/tmp/consumer/kernelV${depth}.vtk"))
-  dilate(dilate(kernel)).saveVTK2D(Resource.fromFile(s"/tmp/consumer/kernel_dilatedV${depth}.vtk"))
+  saveVTK2D(kernel, s"/tmp/consumer/kernelV${depth}.vtk")
+  saveVTK2D(dilate(dilate(kernel)), s"/tmp/consumer/kernel_dilatedV${depth}.vtk")
 
 }

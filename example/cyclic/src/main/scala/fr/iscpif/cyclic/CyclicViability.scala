@@ -19,9 +19,10 @@ package fr.iscpif.cyclic
 
 import fr.iscpif.kdtree.algorithm._
 import fr.iscpif.kdtree.structure._
+import fr.iscpif.model.Control
 import scala.util.Random
 import scalax.io.Resource
-import fr.iscpif.kdtree.visualisation._
+import fr.iscpif.kdtree.export._
 import fr.iscpif.viability._
 import kernel._
 import control._
@@ -29,7 +30,6 @@ import control._
 object CyclicViability extends App
   with ViabilityKernel
   with ZoneInput
-  with ParallelEvaluator
   with GridSampler
   with LearnK {
 
@@ -49,8 +49,6 @@ object CyclicViability extends App
 
   def dimension = 3
 
-  def initialZone = zone
-
   implicit lazy val rng = new Random(42)
 
   /*
@@ -68,8 +66,7 @@ object CyclicViability extends App
       println("next step " + s)
       if (listeResult.hasNext && (s % 1 != 0)) println("on passe")
       else {
-        println("impression")
-        b.saveVTK3D(Resource.fromFile(s"/tmp/cyclic/cyclicViab${depth}s$s.vtk"))
+        saveVTK3D(b, s"/tmp/cyclic/cyclicViab${depth}s$s.vtk")
       }
     }
   }

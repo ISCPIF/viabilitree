@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Romain Reuillon
+ * Copyright (C) 2015 Romain Reuillon
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -16,18 +16,11 @@
  */
 
 
-package fr.iscpif.viability.control
+package fr.iscpif.kdtree.algorithm
 
 import fr.iscpif.kdtree.structure._
+import util.Random
 
-object Control {
-  def apply(c: Double*): Control = new Control {
-    override def apply(x: Point): Point = c
-  }
-
-  def apply(c: Point => Point) = new Control {
-    override def apply(x: Point): Point = c(x)
-  }
+trait FindTrueLabel <: Content {
+  def findTrueLabel(t: Tree[CONTENT], contentBuilder: Point => CONTENT)(implicit rng: Random): Option[Tree[CONTENT]]
 }
-
-trait Control <: (Point => Point)

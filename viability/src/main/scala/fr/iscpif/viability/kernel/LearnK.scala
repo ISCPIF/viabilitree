@@ -25,7 +25,7 @@ import fr.iscpif.viability.control.ControlledDynamicContent
 
 import scala.util.Random
 
-trait LearnK <: ViabilityKernel with K with Input {
+trait LearnK <: Tree0 with K with Input { self: ViabilityKernel =>
 
   override def tree0(implicit rng: Random) = {
     def contentBuilder(p: Point) = ControlledDynamicContent.Content(p, None, None, k(p), 0)

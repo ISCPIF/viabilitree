@@ -18,9 +18,10 @@
 package fr.iscpif.viability.control
 
 import fr.iscpif.kdtree.structure._
+import fr.iscpif.model.{Control, Model}
 import fr.iscpif.viability._
 
-trait ControlTesting <: Dynamic with Content with ControlledDynamicContent {
+trait ControlTesting <: Model with Content with ControlledDynamicContent {
 
   def controls: Seq[Control]
 

@@ -17,12 +17,14 @@
 
 package fr.iscpif.bilingual
 
+import fr.iscpif.model.Control
+
 import scala.io.Source
 import scala.collection.immutable.TreeSet
 import Ordering.Implicits._
 import fr.iscpif.viability.basin._
 import fr.iscpif.kdtree.structure._
-import fr.iscpif.kdtree.visualisation._
+import fr.iscpif.kdtree.export._
 import fr.iscpif.kdtree.algorithm.GridSampler
 import fr.iscpif.viability.control._
 import scala.util.Random
@@ -64,8 +66,8 @@ object BilingualBasin extends App with CaptureBasin with GridSampler {
     (s, i) <- apply.zipWithIndex
   } {
     println(i)
-    val output = Resource.fromFile(s"/tmp/bilingual_$depth/basin$i.vtk")
-    s.saveVTK3D(output)
+    val output = s"/tmp/bilingual_$depth/basin$i.vtk"
+    saveVTK3D(s, output)
   }
 
 }

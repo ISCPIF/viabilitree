@@ -17,17 +17,39 @@
 
 package fr.iscpif.kdtree
 
+import java.io._
+
 import structure._
 import content._
 import scalax.io._
+import com.thoughtworks.xstream._
+import io.binary._
 
-package object visualisation {
+package object export {
 
-  implicit class VTKTree[T <: Label](tree: Tree[T]) {
+  implicit def stringToFile(s: String) = new File(s)
 
-    def saveVTK2D(output: Output): Unit = saveVTK2D(output, 0, 1)
+  def save(o: AnyRef, output: File) = {
+    val xstream = new XStream(new BinaryStreamDriver)
+    val dest = new BufferedOutputStream(new FileOutputStream(output))
+    try xstream.toXML(dest)
+    finally dest.close
+  }
 
-    def saveVTK2D(output: Output, x: Int, y: Int): Unit = {
+  def load[T](input: File) = {
+    val xstream = new XStream(new BinaryStreamDriver)
+    val source = new BufferedInputStream(new FileInputStream(input))
+    try  xstream.fromXML(source).asInstanceOf[T]
+    finally source.close()
+  }
+
+
+    def saveVTK2D[T <: Label](tree: Tree[T],  file: File): Unit = saveVTK2D(tree, file, 0, 1)
+
+    def saveVTK2D[T <: Label](tree: Tree[T], file: File, x: Int, y: Int): Unit = {
+      file.delete()
+      val output = Resource.fromFile(file)
+
       def coords =
         tree.leaves.filter(_.content.label).map {
           l =>
@@ -81,9 +103,12 @@ DATASET UNSTRUCTURED_GRID""")
       output.write("\n")
     }
 
-    def saveVTK3D(output: Output): Unit = saveVTK3D(output, 0, 1, 2)
+    def saveVTK3D[T <: Label](tree: Tree[T], file: File): Unit = saveVTK3D(tree, file, 0, 1, 2)
 
-    def saveVTK3D(output: Output, x: Int, y: Int, z: Int): Unit = {
+    def saveVTK3D[T <: Label](tree: Tree[T], file: File, x: Int, y: Int, z: Int): Unit = {
+      file.delete()
+      val output = Resource.fromFile(file)
+      
       def coords =
         tree.leaves.filter(_.content.label).map {
           l =>
@@ -142,6 +167,5 @@ DATASET UNSTRUCTURED_GRID""")
       output.write("\n")
     }
 
-  }
 }
 

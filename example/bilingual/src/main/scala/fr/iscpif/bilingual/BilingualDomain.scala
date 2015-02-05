@@ -9,11 +9,12 @@
 package fr.iscpif.bilingual
 
 
+import fr.iscpif.model.Control
 import fr.iscpif.viability._
 import fr.iscpif.kdtree.algorithm._
 import fr.iscpif.kdtree.structure._
 import fr.iscpif.kdtree.content._
-import fr.iscpif.kdtree.visualisation._
+import fr.iscpif.kdtree.export._
 import scala.util.Random
 import scalax.io.Resource
 import math._
@@ -33,7 +34,7 @@ with GridSampler {
 
   def zone = Seq(0.2 -> 1.0, 0.2 -> 1.0, 0.0 -> 1.0)
 
-  def domain = Seq(0.0 -> 1.0, 0.0 -> 1.0, 0.0 -> 1.0)
+  override def domain = Seq(0.0 -> 1.0, 0.0 -> 1.0, 0.0 -> 1.0)
 
   def depth = 15
 
@@ -51,6 +52,6 @@ with GridSampler {
   it.foreach {
     case (b, s) =>
       println(s"step $s")
-      if (s % 10 == 0 || !it.hasNext) b.saveVTK3D(Resource.fromFile(s"/tmp/bilingual/domainBilingual${depth}s$s.vtk"))
+      if (s % 10 == 0 || !it.hasNext) saveVTK3D(b, s"/tmp/bilingual/domainBilingual${depth}s$s.vtk")
   }
 }

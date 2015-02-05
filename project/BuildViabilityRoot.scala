@@ -7,12 +7,11 @@ object ViabilityRootBuild extends Build with Libraries with Viability with Exemp
 
   override def settings = 
     super.settings ++ Seq(
-      scalaVersion := "2.11.4",
+      scalaVersion := "2.11.5",
       javacOptions in (Compile, compile) ++= Seq("-source", "1.7", "-target", "1.7"),
       scalacOptions += "-target:jvm-1.7",
       publishArtifact := false
     )
-
 
 }
 
@@ -29,32 +28,40 @@ object ViabilityRootBuild extends Build with Libraries with Viability with Exemp
 
 
 trait Viability <: Libraries with Settings {
-    lazy val kdtree = Project(id = "kdtree", base = file("kdtree"), settings = defaultSettings) settings (
+
+  lazy val kdtree = Project(id = "kdtree", base = file("kdtree"), settings = defaultSettings) settings (
     libraryDependencies ++= monocle
+  ) dependsOn(geometry)
+
+  lazy val export = Project(id = "export", base = file("export"), settings = defaultSettings) dependsOn(kdtree, viability) settings (
+    libraryDependencies += "com.github.scala-incubator.io" %% "scala-io-file" % "0.4.3",
+    libraryDependencies += "com.thoughtworks.xstream" % "xstream" % "1.4.7"
   )
 
-  lazy val visualisation = Project(id = "visualisation", base = file("visualisation"), settings = defaultSettings) dependsOn(kdtree) settings (
-    libraryDependencies += "com.github.scala-incubator.io" %% "scala-io-file" % "0.4.3"
-  )
+  lazy val viability = Project(id = "viability", base = file("viability"), settings = defaultSettings) dependsOn(kdtree, model)
 
-  lazy val viability = Project(id = "viability", base = file("viability"), settings = defaultSettings) dependsOn(kdtree)
+  lazy val model = Project(id = "model", base = file("model"), settings = defaultSettings) settings (
+    libraryDependencies += "org.apache.commons" % "commons-math3" % "3.4.1"
+    ) dependsOn(geometry)
 
-   lazy val differential = Project(id = "differential", base = file("example/differential"), settings = defaultSettings)
+  lazy val strategy = Project(id = "strategy", base = file("strategy"), settings = defaultSettings) dependsOn(viability, geometry)
+
+  lazy val geometry = Project(id = "geometry", base = file("geometry"), settings = defaultSettings)
 
 }
 
 trait Exemples <: Viability  with Settings {
-  lazy val lotkavoltera = Project(id = "lotkavoltera", base = file("example/lotkavoltera")) dependsOn(viability, visualisation, differential)
+  lazy val lotkavoltera = Project(id = "lotkavoltera", base = file("example/lotkavoltera")) dependsOn(viability, export, model)
 
-  lazy val cyclic = Project(id = "cyclic", base = file("example/cyclic")) dependsOn(viability, visualisation, differential)
+  lazy val cyclic = Project(id = "cyclic", base = file("example/cyclic")) dependsOn(viability, export, model)
 
-  lazy val consumer = Project(id = "consumer", base = file("example/consumer")) dependsOn(viability, visualisation, differential)
+  lazy val consumer = Project(id = "consumer", base = file("example/consumer")) dependsOn(viability, export, model)
 
-  lazy val population = Project(id = "population", base = file("example/population")) dependsOn(viability, visualisation, differential)
+  lazy val population = Project(id = "population", base = file("example/population")) dependsOn(viability, export, model)
 
-  lazy val lake = Project(id = "lake", base = file("example/lake")) dependsOn(viability, visualisation, differential)
+  lazy val lake = Project(id = "lake", base = file("example/lake")) dependsOn(viability, export, model)
 
-  lazy val bilingual = Project(id = "bilingual", base = file("example/bilingual")) dependsOn(viability, visualisation, differential)
+  lazy val bilingual = Project(id = "bilingual", base = file("example/bilingual")) dependsOn(viability, export, model)
 }
 
 
