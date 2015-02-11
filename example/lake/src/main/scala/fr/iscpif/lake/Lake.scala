@@ -40,19 +40,5 @@ trait Lake {
     res.toSeq
   }
 
-  def trajectory(p:Point,c: Point => Point, i:Int): List[Point] = {
-    if (i == 0) Nil
-    else p :: trajectory(dynamic(p, c(p)), c, i - 1)
-  }
-
-  def traceTraj (p:Point,c: Point => Point,i:Int,file:Output): Unit = {
-    val traj = trajectory(p,c,i)
-    traj.foreach { p =>
-      file.writeStrings(p.map(_.toString), " ")
-      file.write("\n")
-    }
-
-  }
-
 
 }

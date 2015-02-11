@@ -19,9 +19,18 @@ package fr.iscpif.model
 
 import fr.iscpif.geometry._
 
+
 trait Model {
   def dynamic(point: Point, control: Point): Point
 
+  def trajectoryReverse(p:Point,c: Point => Point, i:Int): List[Point] = {
+    if (i == 0) List(p)
+    else p :: trajectoryReverse(dynamic(p, c(p)), c, i - 1)
+  }
+
+  def trajectory(p:Point,c: Point => Point, i:Int): List[Point] = {
+    trajectoryReverse(p,c,i).reverse
+  }
 
 }
 

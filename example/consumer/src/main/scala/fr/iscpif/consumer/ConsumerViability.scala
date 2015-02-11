@@ -42,7 +42,7 @@ object ConsumerViability extends App
 
   def zone = Seq((0.0, 2.0), (0.0, 3.0))
 
-  def depth = 16
+  def depth = 12
 
   def dynamic(point: Point, control: Point) = Consumer(point, control)
 

@@ -30,7 +30,7 @@ object LakeViabilityControlTest extends App {
   val viabilityKernel = lake().last
   println ("fin calcul noyau ")
  val output = s"/tmp/lakeAnalysisTest${lake.depth}/"
- saveVTK2D(viabilityKernel, Resource.fromFile(s"${output}originalD${lake.depth}.vtk"))
+ saveVTK2D(viabilityKernel, Resource.fromFile(s"${output}OriginalAtesterD${lake.depth}.vtk"))
 
 //  val file = Resource.fromFile(s"/tmp/lakeControlTest/traj")
   val point = Seq(0.2,0.8)
