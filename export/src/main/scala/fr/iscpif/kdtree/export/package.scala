@@ -19,6 +19,8 @@ package fr.iscpif.kdtree
 
 import java.io._
 
+import fr.iscpif.geometry._
+import fr.iscpif.kdtree.structure.Point
 import structure._
 import content._
 import scalax.io._
@@ -43,6 +45,13 @@ package object export {
     finally source.close()
   }
 
+  def traceTraj(t:Seq[Point], file: File): Unit = {
+    val output = Resource.fromFile(file)
+    t.foreach { p =>
+      output.writeStrings(p.map(_.toString), " ")
+      output.write("\n")
+    }
+  }
 
     def saveVTK2D[T <: Label](tree: Tree[T],  file: File): Unit = saveVTK2D(tree, file, 0, 1)
 

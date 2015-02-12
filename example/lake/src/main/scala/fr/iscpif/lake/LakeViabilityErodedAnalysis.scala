@@ -16,51 +16,47 @@ import scalax.io.Resource
 object LakeViabilityControlTest extends App {
 
   implicit val rng = new Random(42)
+  val lake = new LakeViability with ZoneK {
+    /*
+        override def controls = for {
+            u1 <- -0.09 to 0.09 by 0.1
+            u2 <- -0.09 to 0.09 by 0.1
+          } yield Control(u1, u2)
+    */
+    override def depth = 18
+    override def domain = Seq((0.0, 1.0), (0.0, 1.5))
+  }
+
+  val output = s"/tmp/lakeAnalysis${lake.depth}/"
+  val point = Seq(0.2,0.8)
+
+ val u=Seq(-0.9).map(Control(_)).last
+  val traj = lake.trajectory(point,u,20)
+  println(traj)
+
+  // traceTraj(traj,s"${output}Traj.txt")
+
+}
+
+object LakeViabilityExportTest extends App {
+
+  implicit val rng = new Random(42)
 
   val lake = new LakeViability with ZoneK {
-/*
-    override def controls = for {
-        u1 <- -0.09 to 0.09 by 0.1
-        u2 <- -0.09 to 0.09 by 0.1
-      } yield Control(u1, u2)
-*/
-      override def depth = 12
-      override def domain = Seq((0.0, 1.0), (0.0, 1.5))
+    /*
+        override def controls = for {
+            u1 <- -0.09 to 0.09 by 0.1
+            u2 <- -0.09 to 0.09 by 0.1
+          } yield Control(u1, u2)
+    */
+    override def depth = 12
+    override def domain = Seq((0.0, 1.0), (0.0, 1.5))
   }
   val viabilityKernel = lake().last
   println ("fin calcul noyau ")
   val output = s"/tmp/lakeAnalysis${lake.depth}/"
   saveVTK2D(viabilityKernel, s"${output}testD${lake.depth}.vtk")
-
-//  val file = Resource.fromFile(s"/tmp/lakeControlTest/traj")
-  val point = Seq(0.2,0.8)
-  //def u(p:Point):Point = Seq(0.0)
- /* def u(p:Point):Point = {
-    val controlLeaf = viabilityKernel.containingLeaf(point)
-    controlLeaf match {
-      case None => throw new RuntimeException("No leaf containing the point")
-      case Some(leaf) => leaf.content.control.getOrElse(0)
-            }
-    // normallement il faudrait écrire ici : model ou dynamic et pas l'exemple
-    lake.controls(controlLeaf)
-  }
-*/
-  // lake.traceTraj(point, u, 10, file)
-
-  val controlLeaf = viabilityKernel.containingLeaf(point)
-  val uIndex = controlLeaf match {
-    case None => throw new RuntimeException("No leaf containing the point")
-    case Some(leaf) => leaf.content.control.getOrElse(0)
-  }
-  val uValue = lake.controls(uIndex)
-  val controlValue= uValue(point)
-  print ("control ")
-  println(controlValue)
-  // ça va pas c'est censé être un point
-  val traj = lake.trajectory(point,uValue,2)
-  println(traj)
-
-}
+ }
 
 
 object LakeViabilityErodedAnalysis00 extends App {
@@ -268,7 +264,6 @@ object LakeViabilityErodedAnalysis0 extends App {
 
   val viabilityEroded = lakeViabilityAnalyse().lastWithTrace
   saveVTK2D(viabilityEroded, s"${output}viabErodedD${lake.depth}PAS${step}.vtk")
-
 
   /*
     for {

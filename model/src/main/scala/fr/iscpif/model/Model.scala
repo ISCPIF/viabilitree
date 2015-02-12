@@ -21,4 +21,25 @@ import fr.iscpif.geometry._
 
 trait Model {
   def dynamic(point: Point, control: Point): Point
+
+  /*  override def strategy(p: Point): Point = {
+    if !label(p) Nil
+    // si le point n'est pas dans le noyau de viabilité c'est qu'il y a une erreur !
+    else {
+      val leafP = containingLeaf(p)
+      val u = leafP[content].control
+      // on veut le contrôle de la feuille qui contient p quand p est viable
+    }
+  }*/
+
+  //TODO Reverse is not necessary why ?
+
+  def trajectory(p: Point, c: Point => Point, i: Int): List[Point] = {
+    if (i == 0) List(p)
+    else p :: trajectory(dynamic(p, c(p)), c, i - 1)
+  }
+
+/*  def trajectory(p: Point, c: Point => Point, i: Int): List[Point] = {
+    trajectoryReverse(p, c, i).reverse
+    }*/
 }

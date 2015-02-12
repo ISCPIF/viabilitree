@@ -22,7 +22,7 @@ import fr.iscpif.kdtree.structure._
 import math._
 import scalax.io.Output
 
-trait Lake {
+trait Lake <: Model {
   val integrationStep = 0.01
   val timeStep = 0.1
   val b = 0.8
@@ -39,20 +39,5 @@ trait Lake {
     val res = dynamic.integrate(state.toArray, integrationStep, Seq(0.0, timeStep)).last._2.toSeq
     res.toSeq
   }
-
-  def trajectory(p:Point,c: Point => Point, i:Int): List[Point] = {
-    if (i == 0) Nil
-    else p :: trajectory(dynamic(p, c(p)), c, i - 1)
-  }
-
-  def traceTraj (p:Point,c: Point => Point,i:Int,file:Output): Unit = {
-    val traj = trajectory(p,c,i)
-    traj.foreach { p =>
-      file.writeStrings(p.map(_.toString), " ")
-      file.write("\n")
-    }
-
-  }
-
 
 }
