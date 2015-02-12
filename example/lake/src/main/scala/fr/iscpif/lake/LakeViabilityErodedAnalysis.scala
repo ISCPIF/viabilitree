@@ -30,7 +30,7 @@ object LakeViabilityControlTest extends App {
   val viabilityKernel = lake().last
   println ("fin calcul noyau ")
   val output = s"/tmp/lakeAnalysis${lake.depth}/"
-  viabilityKernel.saveVTK2D(Resource.fromFile(s"${output}originalD${lake.depth}.vtk"))
+  saveVTK2D(viabilityKernel, s"${output}testD${lake.depth}.vtk")
 
 //  val file = Resource.fromFile(s"/tmp/lakeControlTest/traj")
   val point = Seq(0.2,0.8)
@@ -53,9 +53,12 @@ object LakeViabilityControlTest extends App {
     case Some(leaf) => leaf.content.control.getOrElse(0)
   }
   val uValue = lake.controls(uIndex)
+  val controlValue= uValue(point)
   print ("control ")
-  println(uValue)
+  println(controlValue)
   // ça va pas c'est censé être un point
+  val traj = lake.trajectory(point,uValue,2)
+  println(traj)
 
 }
 
