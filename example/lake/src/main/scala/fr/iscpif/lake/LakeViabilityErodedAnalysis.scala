@@ -47,20 +47,33 @@ object LakeViabilityControlTest extends App {
 */
   // lake.traceTraj(point, u, 10, file)
 
-  val controlLeaf = viabilityKernel.containingLeaf(point)
-  val uIndex = controlLeaf match {
-    case None => throw new RuntimeException("No leaf containing the point")
-    case Some(leaf) => leaf.content.control.getOrElse(0)
-  }
-  val uValue = lake.controls(uIndex)
-  val controlValue = uValue(point)
-  print ("control ")
-  println(controlValue)
-  val traj = lake.trajectory(point, uValue, 2)
-
-  print ("traj ")
+ val u=Seq(-0.9).map(Control(_)).last
+  val traj = lake.trajectory(point,u,20)
   println(traj)
+
+  // traceTraj(traj,s"${output}Traj.txt")
+
 }
+
+object LakeViabilityExportTest extends App {
+
+  implicit val rng = new Random(42)
+
+  val lake = new LakeViability with ZoneK {
+    /*
+        override def controls = for {
+            u1 <- -0.09 to 0.09 by 0.1
+            u2 <- -0.09 to 0.09 by 0.1
+          } yield Control(u1, u2)
+    */
+    override def depth = 12
+    override def domain = Seq((0.0, 1.0), (0.0, 1.5))
+  }
+  val viabilityKernel = lake().last
+  println ("fin calcul noyau ")
+  val output = s"/tmp/lakeAnalysis${lake.depth}/"
+  saveVTK2D(viabilityKernel, s"${output}testD${lake.depth}.vtk")
+ }
 
 
 object LakeViabilityErodedAnalysis00 extends App {

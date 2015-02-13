@@ -37,6 +37,8 @@ trait ControlledDynamicContent {
 
   def label = Lenser[CONTENT](_.label)
 
+  def control = Lenser[CONTENT](_.control)
+
   type CONTENT = ControlledDynamicContent.Content
 }
 

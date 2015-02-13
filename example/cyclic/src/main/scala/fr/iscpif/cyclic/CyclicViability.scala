@@ -66,8 +66,7 @@ object CyclicViability extends App
       println("next step " + s)
       if (listeResult.hasNext && (s % 1 != 0)) println("on passe")
       else {
-        println("impression")
-        saveVTK3D(b, Resource.fromFile(s"/tmp/cyclic/cyclicViab${depth}s$s.vtk"))
+        saveVTK3D(b, s"/tmp/cyclic/cyclicViab${depth}s$s.vtk")
       }
     }
   }

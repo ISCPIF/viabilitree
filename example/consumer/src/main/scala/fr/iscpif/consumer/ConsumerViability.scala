@@ -59,7 +59,7 @@ object ConsumerViability extends App
     if s % 10 == 0 || !it.hasNext
   } {
     println(s)
-    saveVTK2D(b, Resource.fromFile(s"/tmp/consumer/consumerGRID${depth}s$s.vtk"))
+    saveVTK2D(b, s"/tmp/consumer/consumerGRID${depth}s$s.vtk")
   }
 
 }
