@@ -21,6 +21,7 @@ import java.io._
 
 import fr.iscpif.geometry._
 import fr.iscpif.kdtree.structure.Point
+import fr.iscpif.model.Control
 import structure._
 import content._
 import scalax.io._
@@ -53,7 +54,31 @@ package object export {
     }
   }
 
-    def saveVTK2D[T <: Label](tree: Tree[T],  file: File): Unit = saveVTK2D(tree, file, 0, 1)
+/*
+  def traceViabilityKernel[T <: Label with TestPoint with ViableControl](tree: Tree[T], setU: Seq[Control], file: File): Unit = {
+    file.delete()
+    val output = Resource.fromFile(file)
+     tree.leaves.filter(_.content.label).map {
+      leaf =>
+        val point = leaf.content.testPoint
+        val radius = leaf.zone.region
+      /*
+              radius.map {
+                interval =>
+                  output.writeStrings(interval.map(_.toString), " ")
+              }
+      */
+        val controlInx = leaf.content.uIndex
+        val controlValue = setU(controlInx)(point)
+        //TODO faut-il mettre aussi le point résultat ?
+    val uneLigne = List(point, radius, controlValue)
+        output.writeStrings(uneLigne)
+        output.write("\n")
+    }
+  }
+*/
+
+  def saveVTK2D[T <: Label](tree: Tree[T],  file: File): Unit = saveVTK2D(tree, file, 0, 1)
 
     def saveVTK2D[T <: Label](tree: Tree[T], file: File, x: Int, y: Int): Unit = {
       file.delete()
