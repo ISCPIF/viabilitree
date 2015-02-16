@@ -30,10 +30,19 @@ object LakeViabilityControlTest extends App {
   val viabilityKernel = lake().last
   println("fin calcul noyau ")
  val output = s"/tmp/lakeAnalysisTest${lake.depth}/"
- saveVTK2D(viabilityKernel, s"${output}OriginalAtesterD${lake.depth}.vtk")
+ //saveVTK2D(viabilityKernel, s"${output}OriginalAtesterD${lake.depth}.vtk")
 
 //  val file = Resource.fromFile(s"/tmp/lakeControlTest/traj")
   val point = Seq(0.2,0.8)
+  val pointOK = viabilityKernel.label(point)
+  if (pointOK) {
+    traceViabilityKernel(viabilityKernel,lake.controls, s"${output}TestControl.txt")
+  }else {
+    println("Mauvais point ", point.toString)
+  }
+
+
+
   //def u(p:Point):Point = Seq(0.0)
  /* def u(p:Point):Point = {
     val controlLeaf = viabilityKernel.containingLeaf(point)
@@ -47,9 +56,9 @@ object LakeViabilityControlTest extends App {
 */
   // lake.traceTraj(point, u, 10, file)
 
- val u=Seq(-0.9).map(Control(_)).last
+/* val u=Seq(-0.9).map(Control(_)).last
   val traj = lake.trajectory(point,u,20)
-  println(traj)
+  println(traj)*/
 
   // traceTraj(traj,s"${output}Traj.txt")
 

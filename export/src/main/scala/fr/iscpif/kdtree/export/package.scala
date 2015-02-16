@@ -54,7 +54,7 @@ package object export {
     }
   }
 
-/*
+
   def traceViabilityKernel[T <: Label with TestPoint with ViableControl](tree: Tree[T], setU: Seq[Control], file: File): Unit = {
     file.delete()
     val output = Resource.fromFile(file)
@@ -71,12 +71,12 @@ package object export {
         val controlInx = leaf.content.uIndex
         val controlValue = setU(controlInx)(point)
         //TODO faut-il mettre aussi le point résultat ?
-    val uneLigne = List(point, radius, controlValue)
+    val uneLigne = List(point.toString, radius.toString, controlValue.toString)
         output.writeStrings(uneLigne)
         output.write("\n")
     }
   }
-*/
+
 
   def saveVTK2D[T <: Label](tree: Tree[T],  file: File): Unit = saveVTK2D(tree, file, 0, 1)
 
