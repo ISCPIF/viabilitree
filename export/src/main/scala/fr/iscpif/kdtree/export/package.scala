@@ -64,7 +64,11 @@ package object export {
     the min and max of each interval of the region delimited by the leaf (2*dim values)
     the coordinates of the control_th element in setU applied to point testPoint (Control.size values)
 
+  Usage :
+    traceViabilityKernel(aViabilityKernel,theCorrespondingModel.controls,s"fileName.txt")
     */
+
+  //todo add the first line in the .txt file, of the form x1 x2 ... x${dim} min1 max1 ... min${dim} max${dim} control1 ... control${aControl.size}
 
   def traceViabilityKernel[T <: ControlledDynamicContent.Content](tree: Tree[T], setU: Seq[Control], file: File): Unit = {
     file.delete()
