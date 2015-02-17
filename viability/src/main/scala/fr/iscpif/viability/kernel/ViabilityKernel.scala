@@ -20,12 +20,14 @@ package fr.iscpif.viability.kernel
 import fr.iscpif.kdtree.content._
 
 import fr.iscpif.kdtree.structure._
+import fr.iscpif.model.Control
 import scala.util.Random
 import fr.iscpif.kdtree.content._
 import fr.iscpif.kdtree.algorithm._
 import fr.iscpif.viability.TreeRefinement
 import fr.iscpif.viability.Domain
-import fr.iscpif.viability.control.MemorisedControlTesting
+import fr.iscpif.viability.control.{ControlledDynamicContent, MemorisedControlTesting}
+import fr.iscpif.model
 
 trait ViabilityKernel <: TreeRefinement with Tree0 with MemorisedControlTesting with Domain with FindTrueLabel  with ZoneAttribute { viability =>
 /* TODO there is no viability kernel without K, so here kdTreeComputation should be a TreeHandling that can access to K attributes */

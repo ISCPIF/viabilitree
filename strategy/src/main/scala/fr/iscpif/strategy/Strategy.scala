@@ -19,7 +19,18 @@
 package fr.iscpif.strategy
 
 import fr.iscpif.geometry._
+import fr.iscpif.model.Control
+import fr.iscpif.viability.control.ViableControlStrategy
+import fr.iscpif.viability.kernel.ViabilityKernel
 
-trait Strategy {
-  def strategy(p: Point): Point
+object Strategy {
+  def apply(c: Control) =  new Strategy {
+    override def apply(x:Point): Control = c
+  }
+
+/*  def apply(nsp: ViableControlStrategy, viab: ViabilityKernel ) = new Strategy {
+    override def apply(x:Point): Control = nsp.strategy(x,viab)
+    }*/
 }
+
+trait Strategy <: (Point => Control)

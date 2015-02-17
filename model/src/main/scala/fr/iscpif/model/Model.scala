@@ -42,4 +42,6 @@ trait Model {
 /*  def trajectory(p: Point, c: Point => Point, i: Int): List[Point] = {
     trajectoryReverse(p, c, i).reverse
     }*/
+
+/*  def trajectoryWithViableStrategy(p:Point,viabKernel: ViabilityKernel, i:Int )*/
 }
