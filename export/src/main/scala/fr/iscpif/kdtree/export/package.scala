@@ -22,6 +22,7 @@ import java.io._
 import fr.iscpif.geometry._
 import fr.iscpif.kdtree.structure.Point
 import fr.iscpif.model.Control
+import fr.iscpif.viability.control.ControlledDynamicContent
 import structure._
 import content._
 import scalax.io._
@@ -55,7 +56,7 @@ package object export {
   }
 
 
-  def traceViabilityKernel[T <: Label with TestPoint with ViableControl](tree: Tree[T], setU: Seq[Control], file: File): Unit = {
+  def traceViabilityKernel[T <: ControlledDynamicContent.Content](tree: Tree[T], setU: Seq[Control], file: File): Unit = {
     file.delete()
     val output = Resource.fromFile(file)
      tree.leaves.filter(_.content.label).map {
@@ -68,7 +69,8 @@ package object export {
                   output.writeStrings(interval.map(_.toString), " ")
               }
       */
-        val controlInx = leaf.content.uIndex
+        val controlInx = leaf.content.control.getOrElse(0)
+        //TODO getOrElse not appropriate, should handle explicitly the error (label = TRUE => l'option est satisfaite)
         val controlValue = setU(controlInx)(point)
         //TODO faut-il mettre aussi le point résultat ?
     val uneLigne = List(point.toString, radius.toString, controlValue.toString)
@@ -76,6 +78,7 @@ package object export {
         output.write("\n")
     }
   }
+
 
 
   def saveVTK2D[T <: Label](tree: Tree[T],  file: File): Unit = saveVTK2D(tree, file, 0, 1)
