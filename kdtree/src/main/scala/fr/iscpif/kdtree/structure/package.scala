@@ -39,6 +39,8 @@ package object structure {
     assume(min < max)
     def span: Double = max - min
     def normalizedSpan(referenceSpan: Double) = span / referenceSpan
+ //   override def toString = min.toString + " " + max.toString
+    // this line is useless
   }
   // TODO pour le test d'adjacence A virer sinon
 

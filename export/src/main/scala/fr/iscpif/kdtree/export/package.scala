@@ -55,6 +55,16 @@ package object export {
     }
   }
 
+/*  traceViabilityKernel in export
+  => CONTENT <: (testPoint: Point, label: Boolean, control: Option(Int), ...)
+  => save in a text file the content of each leaf L of a ViabilityKernel with label = TRUE
+  => separator is a space
+  => a line contains :
+    the coordinates of the testPoint  (dim values) !!! testPoint is not centered in the region of the leaf L, it is centered on A leaf maximaly divided in the leaf L
+    the min and max of each interval of the region delimited by the leaf (2*dim values)
+    the coordinates of the control_th element in setU applied to point testPoint (Control.size values)
+
+    */
 
   def traceViabilityKernel[T <: ControlledDynamicContent.Content](tree: Tree[T], setU: Seq[Control], file: File): Unit = {
     file.delete()
@@ -63,18 +73,21 @@ package object export {
       leaf =>
         val point = leaf.content.testPoint
         val radius = leaf.zone.region
-      /*
-              radius.map {
-                interval =>
-                  output.writeStrings(interval.map(_.toString), " ")
-              }
-      */
-        val controlInx = leaf.content.control.getOrElse(0)
-        //TODO getOrElse not appropriate, should handle explicitly the error (label = TRUE => l'option est satisfaite)
+        val test = radius.map(inter => inter.min + " " + inter.max)
+        // C'est un Array de Interval transformé en Array de String
+         val controlInx = leaf.content.control match {
+          case None => throw new RuntimeException("Viable leaves must have a control")
+          case Some(int) => int
+        }
+
         val controlValue = setU(controlInx)(point)
         //TODO faut-il mettre aussi le point résultat ?
-    val uneLigne = List(point.toString, radius.toString, controlValue.toString)
-        output.writeStrings(uneLigne)
+
+        val pointLString = point.map(x => x.toString)
+        val radiusLString = radius.map(inter => inter.min + " " + inter.max)
+        val controlLString = controlValue.map(c => c.toString)
+        val uneLigne = pointLString ++ radiusLString ++ controlLString
+        output.writeStrings(uneLigne.map(_.toString), " ")
         output.write("\n")
     }
   }

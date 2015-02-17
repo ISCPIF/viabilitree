@@ -24,43 +24,13 @@ object LakeViabilityControlTest extends App {
         u2 <- -0.09 to 0.09 by 0.1
       } yield Control(u1, u2)
 */
-      override def depth = 12
+      override def depth = 16
       override def domain = Seq((0.0, 1.0), (0.0, 1.5))
   }
   val viabilityKernel = lake().last
   println("fin calcul noyau ")
  val output = s"/tmp/lakeAnalysisTest${lake.depth}/"
- //saveVTK2D(viabilityKernel, s"${output}OriginalAtesterD${lake.depth}.vtk")
-
-//  val file = Resource.fromFile(s"/tmp/lakeControlTest/traj")
-  val point = Seq(0.2,0.8)
-  val pointOK = viabilityKernel.label(point)
-  if (pointOK) {
-    traceViabilityKernel(viabilityKernel,lake.controls, s"${output}TestControl.txt")
-  }else {
-    println("Mauvais point ", point.toString)
-  }
-
-
-
-  //def u(p:Point):Point = Seq(0.0)
- /* def u(p:Point):Point = {
-    val controlLeaf = viabilityKernel.containingLeaf(point)
-    controlLeaf match {
-      case None => throw new RuntimeException("No leaf containing the point")
-      case Some(leaf) => leaf.content.control.getOrElse(0)
-            }
-    // normallement il faudrait écrire ici : model ou dynamic et pas l'exemple
-    lake.controls(controlLeaf)
-  }
-*/
-  // lake.traceTraj(point, u, 10, file)
-
-/* val u=Seq(-0.9).map(Control(_)).last
-  val traj = lake.trajectory(point,u,20)
-  println(traj)*/
-
-  // traceTraj(traj,s"${output}Traj.txt")
+  traceViabilityKernel(viabilityKernel,lake.controls,s"${output}PointZoneControlD${lake.depth}.vtk")
 
 }
 
@@ -326,3 +296,37 @@ object LakeViabilityErodedAnalysis2 extends App {
   }
 
 }
+
+//saveVTK2D(viabilityKernel, s"${output}OriginalAtesterD${lake.depth}.vtk")
+
+//  val file = Resource.fromFile(s"/tmp/lakeControlTest/traj")
+/*
+  val point = Seq(0.2,0.8)
+  val pointOK = viabilityKernel.label(point)
+  if (pointOK) {
+    traceViabilityKernel(viabilityKernel,lake.controls, s"${output}TestControl.txt")
+  }else {
+    println("Mauvais point ", point.toString)
+  }
+*/
+
+
+
+//def u(p:Point):Point = Seq(0.0)
+/* def u(p:Point):Point = {
+   val controlLeaf = viabilityKernel.containingLeaf(point)
+   controlLeaf match {
+     case None => throw new RuntimeException("No leaf containing the point")
+     case Some(leaf) => leaf.content.control.getOrElse(0)
+           }
+   // normallement il faudrait écrire ici : model ou dynamic et pas l'exemple
+   lake.controls(controlLeaf)
+ }
+*/
+// lake.traceTraj(point, u, 10, file)
+
+/* val u=Seq(-0.9).map(Control(_)).last
+  val traj = lake.trajectory(point,u,20)
+  println(traj)*/
+
+// traceTraj(traj,s"${output}Traj.txt")
