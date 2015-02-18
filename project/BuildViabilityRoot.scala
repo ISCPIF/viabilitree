@@ -44,7 +44,7 @@ trait Viability <: Libraries with Settings {
     libraryDependencies += "org.apache.commons" % "commons-math3" % "3.4.1"
     ) dependsOn(geometry)
 
-  lazy val strategy = Project(id = "strategy", base = file("strategy"), settings = defaultSettings) dependsOn(viability, geometry)
+  lazy val strategy = Project(id = "strategy", base = file("strategy"), settings = defaultSettings) dependsOn(viability, geometry, kdtree)
 
   lazy val geometry = Project(id = "geometry", base = file("geometry"), settings = defaultSettings)
 
@@ -59,7 +59,7 @@ trait Exemples <: Viability  with Settings {
 
   lazy val population = Project(id = "population", base = file("example/population")) dependsOn(viability, export, model)
 
-  lazy val lake = Project(id = "lake", base = file("example/lake")) dependsOn(viability, export, model)
+  lazy val lake = Project(id = "lake", base = file("example/lake")) dependsOn(viability, export, model, strategy)
 
   lazy val bilingual = Project(id = "bilingual", base = file("example/bilingual")) dependsOn(viability, export, model)
 }

@@ -7,29 +7,60 @@ import fr.iscpif.kdtree.structure._
 import fr.iscpif.viability.kernel._
 import fr.iscpif.kdtree.export._
 import scala.util.Random
+import fr.iscpif.strategy.ViableStrategy
 import scalax.io.Resource
 
 /**
  * Created by ia on 15/12/2014.
  */
 
-object LakeViabilityControlTest extends App {
+object LakeViabilityStrategyTest extends App {
 
   implicit val rng = new Random(42)
 
   val lake = new LakeViability with ZoneK {
-/*
+    /*
     override def controls = for {
         u1 <- -0.09 to 0.09 by 0.1
         u2 <- -0.09 to 0.09 by 0.1
       } yield Control(u1, u2)
 */
-      override def depth = 16
-      override def domain = Seq((0.0, 1.0), (0.0, 1.5))
+    override def depth = 10
+
+    override def domain = Seq((0.0, 1.0), (0.0, 1.5))
   }
   val viabilityKernel = lake().last
   println("fin calcul noyau ")
+
+  val testStrategy = new ViableStrategy {
+    def viability = viabilityKernel
+    def controlSet = lake.controls
+  }
+
+  println(testStrategy.controlSet)
+
  val output = s"/tmp/lakeAnalysisTest${lake.depth}/"
+//  traceViabilityKernel(viabilityKernel,lake.controls,s"${output}PointZoneControlD${lake.depth}.vtk")
+
+}
+
+object LakeViabilityControlTest extends App {
+
+  implicit val rng = new Random(42)
+
+  val lake = new LakeViability with ZoneK {
+    /*
+        override def controls = for {
+            u1 <- -0.09 to 0.09 by 0.1
+            u2 <- -0.09 to 0.09 by 0.1
+          } yield Control(u1, u2)
+    */
+    override def depth = 16
+    override def domain = Seq((0.0, 1.0), (0.0, 1.5))
+  }
+  val viabilityKernel = lake().last
+  println("fin calcul noyau ")
+  val output = s"/tmp/lakeAnalysisTest${lake.depth}/"
   traceViabilityKernel(viabilityKernel,lake.controls,s"${output}PointZoneControlD${lake.depth}.vtk")
 
 }

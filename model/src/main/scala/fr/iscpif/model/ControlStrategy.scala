@@ -1,18 +1,16 @@
-package fr.iscpif.viability.control
+package fr.iscpif.model
 
-import fr.iscpif.kdtree.structure._
-import fr.iscpif.model.Control
-import fr.iscpif.viability.kernel._
+import fr.iscpif.geometry._
+
+
 
 /**
- * Created by scala on 22/01/15.
+ * Created by ia on 18/02/2015.
  */
-trait ViableControlStrategy extends ControlTesting {
-  // on veut le contrôle de la feuille qui contient p quand p est viable
-  // devrait être construit ailleurs, là où il y a les stratégies par exemple
+//TODO should return an Option of Control
+trait ControlStrategy <: (Point => Control) {}
 
-  // TODO to place elsewhere, so that the viabilityKernel itself can generate the function Point => Control
-  def viableStrategy[CONTENT <: ControlledDynamicContent.Content] (p: Point, v: Tree[CONTENT]): Control = {
+ /* def strategy[CONTENT <: ControlledDynamicContent.Content] (p: Point, v: Tree[CONTENT]): Control = {
     val leafP = v.containingLeaf(p)
     val labelP: Boolean = leafP match {
       case None => false
@@ -32,6 +30,6 @@ trait ViableControlStrategy extends ControlTesting {
         throw new RuntimeException("NOT viable")
       }
     }
-  controlValue}
+    controlValue}
 }
-
+*/
