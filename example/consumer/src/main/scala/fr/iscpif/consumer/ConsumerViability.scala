@@ -42,7 +42,7 @@ object ConsumerViability extends App {
     override def dilations = 0
     def controls = (-0.5 to 0.5 by 0.1).map(Control(_))
     def zone = Seq((0.0, 2.0), (0.0, 3.0))
-    def depth = 12
+    def depth = 16
     def dynamic(point: Point, control: Point) = Consumer(point, control)
     def dimension = 2
     def initialZone = zone
@@ -51,23 +51,22 @@ object ConsumerViability extends App {
 
   implicit lazy val rng = new Random(42)
 
-  val kernel = viability().last
+  val kernel = viability().lastWithTrace{ (tree, step) => println(step) }
   println(kernel.volume)
   val file = new File("/tmp/kernel.bin")
   save(kernel, file)
   val kernel2 = load[ViabilityTree](file)
   println(kernel2.volume)
 
-  /*val it = apply
 
-for {
-  (b, s) <- it.zipWithIndex
-  if s % 10 == 0 || !it.hasNext
-} {
-  println(s)
-  saveVTK2D(b, s"/tmp/consumer/consumerGRID${depth}s$s.vtk")
-}*/
-
-
+  /*viability().lastWithTrace {
+    (tree, step) =>
+      if(step % 10 == 0) {
+        println(step)
+        val file = new File(s"/tmp/kernel$step.bin")
+        save(tree, file)
+        //saveVTK2D(tree, s"/tmp/consumer/consumerGRID${viability.depth}s$step.vtk")
+      }
+  }*/
 
 }

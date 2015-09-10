@@ -25,22 +25,21 @@ package object viability {
 
   implicit class IteratorExtension[A](i: Iterator[A]) {
     def last = {
-      def last[T](i: Iterator[T]): T = {
+      def last(i: Iterator[A]): A = {
         val e = i.next()
         if (i.hasNext) last(i)
         else e
       }
       last(i)
     }
-    def lastWithTrace = {
-      def lastWithTrace[T](i: Iterator[T]): T = {
+    def lastWithTrace(trace: (A, Int) => Unit) = {
+      def lastWithTrace(i: Iterator[A], step: Int): A = {
         val e = i.next()
-        println("step")
-        if (i.hasNext) lastWithTrace(i)
+        trace(e, step)
+        if (i.hasNext) lastWithTrace(i, step + 1)
         else e
       }
-      println("last")
-      lastWithTrace(i)
+      lastWithTrace(i, 0)
     }
   }
 

@@ -18,6 +18,7 @@
 package fr.iscpif.kdtree
 
 import java.io._
+import java.util.zip.{GZIPInputStream, GZIPOutputStream}
 
 import fr.iscpif.geometry._
 import fr.iscpif.kdtree.structure.Point
@@ -35,14 +36,14 @@ package object export {
 
   def save(o: AnyRef, output: File) = {
     val xstream = new XStream(new BinaryStreamDriver)
-    val dest = new BufferedOutputStream(new FileOutputStream(output))
+    val dest = new BufferedOutputStream(new GZIPOutputStream(new FileOutputStream(output)))
     try xstream.toXML(o, dest)
     finally dest.close
   }
 
   def load[T](input: File) = {
     val xstream = new XStream(new BinaryStreamDriver)
-    val source = new BufferedInputStream(new FileInputStream(input))
+    val source = new BufferedInputStream(new GZIPInputStream(new FileInputStream(input)))
     try  xstream.fromXML(source).asInstanceOf[T]
     finally source.close()
   }

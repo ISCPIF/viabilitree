@@ -15,7 +15,7 @@ trait GridSampler extends Sampler {
   private def numberCells: Int = powOf2(numberOfDivision)
   private def powOf2(p: Int) = 1 << p
 
-  assert(depth % dimension == 0)
+  assert(depth % dimension == 0, "Depth should be a multiple of dimension")
 
   def sampler(z: Zone, rng: Random): Point = align(z.randomPoint(rng))
 
