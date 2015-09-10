@@ -29,7 +29,6 @@ object Bilingual {
   val a: Double = 1.31
 
   def apply(state: Point, control: Point) = {
-
     def sA = state(0)
     def sB = state(1)
     def s = state(2)
