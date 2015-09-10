@@ -17,6 +17,8 @@
 
 package fr.iscpif.consumer
 
+import java.io.File
+
 import fr.iscpif.model.Control
 import fr.iscpif.viability._
 import fr.iscpif.kdtree.algorithm._
@@ -29,37 +31,43 @@ import fr.iscpif.viability._
 import kernel._
 import control._
 
-object ConsumerViability extends App
-    with ViabilityKernel
-    with ZoneInput
-    with ZoneK
-    with ParallelEvaluator
-    with GridSampler {
+object ConsumerViability extends App {
 
-  override def dilations = 0
+  val viability =
+    new ViabilityKernel
+      with ZoneInput
+      with ZoneK
+      with ParallelEvaluator
+      with GridSampler {
+    override def dilations = 0
+    def controls = (-0.5 to 0.5 by 0.1).map(Control(_))
+    def zone = Seq((0.0, 2.0), (0.0, 3.0))
+    def depth = 12
+    def dynamic(point: Point, control: Point) = Consumer(point, control)
+    def dimension = 2
+    def initialZone = zone
+  }
 
-  def controls = (-0.5 to 0.5 by 0.1).map(Control(_))
-
-  def zone = Seq((0.0, 2.0), (0.0, 3.0))
-
-  def depth = 12
-
-  def dynamic(point: Point, control: Point) = Consumer(point, control)
-
-  def dimension = 2
-
-  def initialZone = zone
 
   implicit lazy val rng = new Random(42)
 
-  val it = apply
+  val kernel = viability().last
+  println(kernel.volume)
+  val file = new File("/tmp/kernel.bin")
+  save(kernel, file)
+  val kernel2 = load[ViabilityTree](file)
+  println(kernel2.volume)
 
-  for {
-    (b, s) <- it.zipWithIndex
-    if s % 10 == 0 || !it.hasNext
-  } {
-    println(s)
-    saveVTK2D(b, s"/tmp/consumer/consumerGRID${depth}s$s.vtk")
-  }
+  /*val it = apply
+
+for {
+  (b, s) <- it.zipWithIndex
+  if s % 10 == 0 || !it.hasNext
+} {
+  println(s)
+  saveVTK2D(b, s"/tmp/consumer/consumerGRID${depth}s$s.vtk")
+}*/
+
+
 
 }

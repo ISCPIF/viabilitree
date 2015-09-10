@@ -48,13 +48,7 @@ trait TreeRefinement <: Model with Sampler with ControlTesting with ControlledDy
     val viable = viableFunction(kdTreeComputation.dilate(tree, dilations))
 
     val reassignedTree =
-      tree.reassign(
-        content =>
-          if (shouldBeReassigned(content)) {
-            val label = findViableControl(content, viable, tree)
-            label
-          } else content
-      )
+      tree.reassign( content => if (shouldBeReassigned(content)) findViableControl(content, viable, tree) else content )
 
     //TODO: May want to use (tree => findViableControl) function in order to benefit from optimised heuristic for viable control research.
     def contentBuilder(p: Point) = exhaustiveFindViableControl(p, viable)

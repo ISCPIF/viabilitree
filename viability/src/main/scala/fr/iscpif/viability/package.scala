@@ -18,6 +18,9 @@
 
 package fr.iscpif
 
+import fr.iscpif.kdtree.structure.Tree
+import fr.iscpif.viability.control._
+
 package object viability {
 
   implicit class IteratorExtension[A](i: Iterator[A]) {
@@ -40,4 +43,6 @@ package object viability {
       lastWithTrace(i)
     }
   }
+
+  type ViabilityTree = Tree[ControlledDynamicContent.Content]
 }

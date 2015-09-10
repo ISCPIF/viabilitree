@@ -36,7 +36,7 @@ package object export {
   def save(o: AnyRef, output: File) = {
     val xstream = new XStream(new BinaryStreamDriver)
     val dest = new BufferedOutputStream(new FileOutputStream(output))
-    try xstream.toXML(dest)
+    try xstream.toXML(o, dest)
     finally dest.close
   }
 
