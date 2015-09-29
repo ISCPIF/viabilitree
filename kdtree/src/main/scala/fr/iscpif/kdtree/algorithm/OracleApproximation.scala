@@ -23,14 +23,16 @@ import monocle.Lenser
 import scala.util.Random
 import monocle.Macro._
 
+object OracleApproximation {
+  case class Content(testPoint: Point, label: Boolean) extends Label with TestPoint
+}
+
 trait OracleApproximation extends KdTreeComputation with RandomSampler with ParallelEvaluator with Input {
 
-  case class Content(testPoint: Point, label: Boolean) extends Label with TestPoint
+  type CONTENT = OracleApproximation.Content
 
-  type CONTENT = Content
-
-  def contentBuilder(p: Point) = Content(p, oracle(p))
-  def buildContent(point: Point, label: Boolean): CONTENT = Content(point, label)
+  def contentBuilder(p: Point) = OracleApproximation.Content(p, oracle(p))
+  def buildContent(point: Point, label: Boolean): CONTENT = OracleApproximation.Content(point, label)
 
   def label = Lenser[CONTENT](_.label)
 
