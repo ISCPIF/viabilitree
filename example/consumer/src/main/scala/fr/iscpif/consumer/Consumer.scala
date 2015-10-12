@@ -12,8 +12,7 @@ object Consumer {
     def xDot(state: Array[Double], t: Double) = state(0) - state(1)
     def yDot(state: Array[Double], t: Double) = control(0)
     val dynamic = Dynamic(xDot, yDot)
-    val res = dynamic.integrate(state.toArray, integrationStep, Seq(0.0, timeStep)).last._2.toSeq
-    res.toSeq
+    dynamic.integrate(state.toArray, integrationStep, timeStep)
   }
 
 }

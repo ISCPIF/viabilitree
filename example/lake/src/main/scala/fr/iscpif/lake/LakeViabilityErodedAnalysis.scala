@@ -114,7 +114,7 @@ object LakeViabilityErodedAnalysis00 extends App {
           def k(p: Point) = eroded.label(p)
           override def domain = lake.domain
         }
-      var viabilityKernel0 = lake0().lastWithTrace
+      var viabilityKernel0 = lake0().lastWithTrace { (k,s) => println(s) }
       saveVTK2D(viabilityKernel0, s"${output}viabErodedD${lake.depth}PAS40.vtk")
   println("erosion boucle")
 
@@ -131,7 +131,7 @@ object LakeViabilityErodedAnalysis00 extends App {
           override def domain = lake.domain
         }
 
-      val viabilityKernel0 = lake0().lastWithTrace
+      val viabilityKernel0 = lake0().lastWithTrace { (k,s) => println(s) }
       saveVTK2D(viabilityKernel0, s"${output}viabErodedD${lake.depth}PAS41+${step}.vtk")
       println("erosion next")
 
@@ -197,7 +197,7 @@ object LakeViabilityErodedAnalysis1 extends App {
       override def domain = lake.domain
   }
 
-    val viabilityKernel2 = lake2().lastWithTrace
+    val viabilityKernel2 = lake2().lastWithTrace { (k,s) => println(s) }
   println("erosion 2")
   val eroded2 = lake2.erodeInDomain(viabilityKernel2, 2)
 
@@ -209,7 +209,7 @@ object LakeViabilityErodedAnalysis1 extends App {
       override def domain = lake.domain
     }
 
-  val viabilityKernel3 = lake3().lastWithTrace
+  val viabilityKernel3 = lake3().lastWithTrace { (k,s) => println(s) }
 
   println("erosion 3")
   val eroded3 = lake3.erodeInDomain(viabilityKernel3, 2)
@@ -222,7 +222,7 @@ object LakeViabilityErodedAnalysis1 extends App {
       override def domain = lake.domain
     }
 
-  val viabilityKernel4 = lake4().lastWithTrace
+  val viabilityKernel4 = lake4().lastWithTrace { (k,s) => println(s) }
   println("erosion 4")
   val eroded4 = lake4.erodeInDomain(viabilityKernel4, 2)
   val lake5  =
@@ -233,7 +233,7 @@ object LakeViabilityErodedAnalysis1 extends App {
       override def domain = lake.domain
     }
 
-  val viabilityKernel5 = lake5().lastWithTrace
+  val viabilityKernel5 = lake5().lastWithTrace { (k,s) => println(s) }
 
   println("erosion 5")
   val eroded5 = lake5.erodeInDomain(viabilityKernel5, 2)
@@ -246,7 +246,7 @@ object LakeViabilityErodedAnalysis1 extends App {
       override def domain = lake.domain
     }
 
-  val viabilityKernel6 = lake6().lastWithTrace
+  val viabilityKernel6 = lake6().lastWithTrace { (k,s) => println(s) }
 
 
 }
@@ -278,7 +278,7 @@ object LakeViabilityErodedAnalysis0 extends App {
       override def domain = lake.domain
     }
 
-  val viabilityEroded = lakeViabilityAnalyse().lastWithTrace
+  val viabilityEroded = lakeViabilityAnalyse().lastWithTrace { (k,s) => println(s) }
   saveVTK2D(viabilityEroded, s"${output}viabErodedD${lake.depth}PAS${step}.vtk")
 
 
@@ -302,7 +302,7 @@ object LakeViabilityErodedAnalysis2 extends App {
   }
 
   val nbErosion = 10
-  val viabilityKernel = lake().lastWithTrace
+  val viabilityKernel = lake().lastWithTrace { (k,s) => println(s) }
   val eroded = lake.erodeInDomain(viabilityKernel, nbErosion)
 
   val lakeViabilityAnalyse =
