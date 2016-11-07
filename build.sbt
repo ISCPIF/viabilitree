@@ -13,8 +13,6 @@ def settings =
 
 scalariformSettings
 
-
-
 lazy val defaultSettings =
   settings ++ Seq(
     organization := "fr.iscpif.viability",
@@ -26,7 +24,7 @@ lazy val defaultSettings =
     }.value,
     pomIncludeRepository := { _ => false},
     licenses := Seq("Affero GPLv3" -> url("http://www.gnu.org/licenses/")),
-    homepage := Some(url("https://github.com/romainreuillon/gridscale")),
+    homepage := Some(url("https://github.com/ISCPIF/viabilitree")),
     //scmInfo := Some(ScmInfo("scm:git:git.iscpif.fr/viability", "scm:git:git@git.iscpif.fr:viability.git")),
     // To sync with Maven central, you need to supply the following information:
     pomExtra := {
