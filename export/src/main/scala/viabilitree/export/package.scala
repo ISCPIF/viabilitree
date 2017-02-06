@@ -52,6 +52,7 @@ package object export extends better.files.Implicits {
 //    finally source.close()
 //  }
 //
+
 //  def traceTraj(t:Seq[Point], file: File): Unit = {
 //    val output = Resource.fromFile(file)
 //    t.foreach { p =>
@@ -59,6 +60,9 @@ package object export extends better.files.Implicits {
 //      output.write("\n")
 //    }
 //  }
+
+
+  /* ------------------------- Hyper-rectangles ---------------------- */
 
   /*  traceViabilityKernel in export
   => CONTENT <: (testPoint: Point, label: Boolean, control: Option(Int), ...)
@@ -102,7 +106,8 @@ package object export extends better.files.Implicits {
 
 
 
-  object TraceTree {
+
+  object HyperRectangles {
 
     import viabilitree.viability._
     import viabilitree.viability.kernel._
@@ -131,7 +136,7 @@ package object export extends better.files.Implicits {
         import viabilitree.viability._
 
         override def columns(t: KernelComputation) =
-          TraceTree.viabilityKernelColumns[ControlledDynamicContent](
+          HyperRectangles.viabilityKernelColumns[ControlledDynamicContent](
             ControlledDynamicContent.label.get,
             ControlledDynamicContent.testPoint.get,
             ControlledDynamicContent.control.get,
@@ -147,7 +152,7 @@ package object export extends better.files.Implicits {
   }
 
 
-  def saveHyperRectangles[T, C](t: T)(tree: Tree[C], file: File)(implicit traceable: TraceTree.Traceable[T, C]): Unit =
+  def saveHyperRectangles[T, C](t: T)(tree: Tree[C], file: File)(implicit traceable: HyperRectangles.Traceable[T, C]): Unit =
     saveHyperRectangles(tree, traceable.columns(t), file)
 
 
@@ -168,9 +173,26 @@ package object export extends better.files.Implicits {
     }
   }
 
+  /* ------------------------- VTK ---------------------- */
 
 
-  def saveVTK2D[T](tree: Tree[T], label: T => Boolean, file: File): Unit = saveVTK2D(tree, label, file, 0, 1)
+  object VTK {
+
+    object Traceable {
+      import viability.ControlledDynamicContent
+
+      implicit def controledDynamicIsTraceable = new Traceable[ControlledDynamicContent] {
+        def label = ControlledDynamicContent.label.get
+      }
+    }
+
+    trait Traceable[C] {
+      def label: C => Boolean
+    }
+  }
+
+  def saveVTK2D[T](tree: Tree[T], file: File, x: Int = 0, y: Int = 1)(implicit traceable: VTK.Traceable[T]): Unit =
+    saveVTK2D(tree, traceable.label, file, x, y)
 
   def saveVTK2D[T](tree: Tree[T], label: T => Boolean, file: File, x: Int, y: Int): Unit = {
     file.delete(true)
