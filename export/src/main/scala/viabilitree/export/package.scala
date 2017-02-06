@@ -250,69 +250,61 @@ DATASET UNSTRUCTURED_GRID""")
     file.append("\n")
   }
 
-//    def saveVTK3D[T <: Label](tree: NonEmptyTree[T], file: File): Unit = saveVTK3D(tree, file, 0, 1, 2)
-//
-//    def saveVTK3D[T <: Label](tree: NonEmptyTree[T], file: File, x: Int, y: Int, z: Int): Unit = {
-//      file.delete()
-//      val output = Resource.fromFile(file)
-//
-//      def coords =
-//        tree.leaves.filter(_.content.label).map {
-//          l =>
-//            val intervals = l.zone.region
-//            assert(intervals.size == 3, s"Dimension of the space should be 3, found ${intervals.size}")
-//            val ix = intervals(x)
-//            val iy = intervals(y)
-//            val iz = intervals(z)
-//            Seq(ix.min, iy.min, iz.min, ix.span, iy.span, iz.span)
-//        }
-//
-//      def points(l: Seq[Double]) = {
-//        val (x, y, z, dx, dy, dz) = (l(0), l(1), l(2), l(3), l(4), l(5))
-//        val (xmax, ymax, zmax) = (x + dx, y + dy, z + dz)
-//
-//        List(
-//          List(x, y, z),
-//          List(xmax, y, z),
-//          List(xmax, ymax, z),
-//          List(x, ymax, z),
-//          List(x, y, zmax),
-//          List(xmax, y, zmax),
-//          List(xmax, ymax, zmax),
-//          List(x, ymax, zmax)
-//        )
-//      }
-//
-//      val toWrite = coords.map(points)
-//
-//      output.write("""# vtk DataFile Version 2.0
-//Prof 18 slice 1
-//ASCII
-//DATASET UNSTRUCTURED_GRID""")
-//
-//      output.write(s"\nPOINTS ${toWrite.size * 8} float\n")
-//
-//      toWrite.flatten.foreach {
-//        p =>
-//          output.writeStrings(p.map(_.toString), " ")
-//          output.write("\n")
-//      }
-//
-//      output.write(s"CELLS ${toWrite.size} ${toWrite.size * 9}\n")
-//
-//      Iterator.iterate(0)(_ + 1).grouped(8).take(toWrite.size).foreach {
-//        c =>
-//          output.write("8 ")
-//          output.writeStrings(c.map(_.toString), " ")
-//          output.write("\n")
-//      }
-//
-//      output.write(s"CELL_TYPES ${toWrite.size}\n")
-//      (0 until toWrite.size).foreach {
-//        i => output.write(s"12 ")
-//      }
-//      output.write("\n")
-//    }
+  def saveVTK3D[T](tree: Tree[T], file: File, x: Int = 0, y: Int = 1, z: Int = 2)(traceable: VTK.Traceable[T]): Unit =
+    saveVTK3D(tree, traceable.label, file, x, y, z)
+
+  def saveVTK3D[T](tree: Tree[T], label: T => Boolean, file: File, x: Int, y: Int, z: Int): Unit = {
+    file.delete(true)
+
+    def coords =
+      tree.leaves.filter(l => label(l.content)).map {
+        l =>
+          val intervals = l.zone.region
+          assert(intervals.size == 3, s"Dimension of the space should be 3, found ${intervals.size}")
+          val ix = intervals(x)
+          val iy = intervals(y)
+          val iz = intervals(z)
+          Seq(ix.min, iy.min, iz.min, ix.span, iy.span, iz.span)
+      }
+
+    def points(l: Seq[Double]) = {
+      val (x, y, z, dx, dy, dz) = (l(0), l(1), l(2), l(3), l(4), l(5))
+      val (xmax, ymax, zmax) = (x + dx, y + dy, z + dz)
+
+      List(
+        List(x, y, z),
+        List(xmax, y, z),
+        List(xmax, ymax, z),
+        List(x, ymax, z),
+        List(x, y, zmax),
+        List(xmax, y, zmax),
+        List(xmax, ymax, zmax),
+        List(x, ymax, zmax)
+      )
+    }
+
+    val toWrite = coords.map(points)
+
+    file << """# vtk DataFile Version 2.0
+Prof 18 slice 1
+ASCII
+DATASET UNSTRUCTURED_GRID"""
+
+    file << s"POINTS ${toWrite.size * 8} float"
+
+    toWrite.flatten.foreach {
+      p => file << p.mkString(" ")
+    }
+
+    file << s"CELLS ${toWrite.size} ${toWrite.size * 9}\n"
+
+    Iterator.iterate(0)(_ + 1).grouped(8).take(toWrite.size).foreach {
+      c => file << s"""8 ${c.mkString(" ")}"""
+    }
+
+    file << s"CELL_TYPES ${toWrite.size}\n"
+    file << Vector.fill(toWrite.size)("12").mkString(" ")
+  }
 
 }
 
