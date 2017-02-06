@@ -22,11 +22,11 @@ import _root_.fr.iscpif.kdtree.algorithm._
 import _root_.fr.iscpif.kdtree.structure._
 import _root_.fr.iscpif.kdtree.content._
 import _root_.fr.iscpif.kdtree.export._
-import fr.iscpif.model.Control
+
 import scala.util.Random
-import scalax.io.Resource
 import fr.iscpif.viability.kernel._
 import fr.iscpif.viability.control._
+import viabilitree.model.Control
 
 object CyclicViability2D extends App
   with ViabilityKernel

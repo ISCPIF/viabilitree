@@ -17,44 +17,30 @@
 
 package fr.iscpif.lake
 
-import fr.iscpif.kdtree.algorithm._
-import fr.iscpif.kdtree.structure._
-import fr.iscpif.kdtree.export._
-import fr.iscpif.kdtree.content._
-import fr.iscpif.kdtree._
-import fr.iscpif.model.Control
-import scala.util.Random
-import scalax.io.Resource
-import fr.iscpif.viability._
-import kernel._
-import control._
-import scalax.io._
+import viabilitree.viability._
+import viabilitree.viability.kernel._
 
 object LakeViabilityKernel extends App {
 
-  val lake = new LakeViability with ZoneK { }
+  val lake = Lake()
+  val rng = new util.Random(42)
 
-  implicit lazy val rng = new Random(42)
+  val vk = KernelComputation(
+    dynamic = lake.dynamic,
+    depth = 12,
+    zone = Vector((0.1, 1.0), (0.0, 1.4)),
+    controls = Vector((-0.09 to 0.09 by 0.01))
+  )
 
-  for {
-    (b, s) <- lake().zipWithIndex
-  } {
-    println(s)
-    saveVTK2D(b, s"/tmp/lake${lake.depth}/mu${lake.dilations}s$s.vtk")
-  }
+  val (ak, steps) = approximate(vk, rng)
+
+  println(steps)
+
+  //saveVTK2D(res, ControlledDynamicContent.label.get, "/tmp/res.vtk")
+//
+//  //saveVTK2D(initial, ControlledDynamicContent.label.get, "/tmp/initial.vtk")
+//  saveVTK2D(res, ControlledDynamicContent.label.get, "/tmp/res.vtk")
+
+ // println(volume(res))
 
 }
-
-trait LakeViability <: ViabilityKernel
-  with ZoneInput
-  with GridSampler
-  // with ParallelEvaluator
-  with Lake {
-  override def dilations = 0
-  def controls = (-0.09 to 0.09 by 0.01).map(Control(_))
-  def zone = Seq((0.1, 1.0), (0.0, 1.4))
-  def depth = 16
-  def dimension = 2
-
-  }
-

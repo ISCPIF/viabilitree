@@ -2,6 +2,7 @@ package fr.iscpif.consumer
 
 import fr.iscpif.model._
 import fr.iscpif.kdtree.structure._
+import viabilitree.model.Dynamic
 
 object Consumer {
 

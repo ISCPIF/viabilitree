@@ -17,27 +17,24 @@ package fr.iscpif.lake
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import fr.iscpif.model._
-import fr.iscpif.kdtree.structure._
+import viabilitree.model._
 import math._
-import scalax.io.Output
 
-trait Lake <: Model {
-  val integrationStep = 0.01
-  val timeStep = 0.1
-  val b = 0.8
-  val r = 1.0
-  val m = 1.0
+case class Lake(
+  integrationStep: Double = 0.01,
+  timeStep: Double = 0.1,
+  b: Double = 0.8,
+  r: Double = 1.0,
+  m: Double = 1.0) {
 
-
-  def dynamic(state: Point, control: Point) = {
-    def xDot(state: Array[Double], t: Double) = control(0)
+  def dynamic(state: Vector[Double], control: Vector[Double]) = {
+    def xDot(state: Vector[Double], t: Double) = control(0)
     // TODO to avoid unnecessary approximation when m=1
     // def yDot(state: Array[Double], t: Double) = b*state(1)-r*math.pow(state(1),8)/(pow(m,8)+pow(state(1),8))
-    def yDot(state: Array[Double], t: Double) = state(0) - (b * state(1) - r * math.pow(state(1), 8) / (1 + pow(state(1), 8)))
+    def yDot(state: Vector[Double], t: Double) =
+      state(0) - (b * state(1) - r * math.pow(state(1), 8) / (1 + pow(state(1), 8)))
     val dynamic = Dynamic(xDot, yDot)
-    val res = dynamic.integrate(state.toArray, integrationStep, Seq(0.0, timeStep)).last._2.toSeq
-    res.toSeq
+    dynamic.integrate(state.toArray, integrationStep, timeStep)
   }
 
 }

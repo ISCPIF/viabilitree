@@ -17,8 +17,6 @@
 
 package fr.iscpif.bilingual
 
-import fr.iscpif.model.Control
-
 import scala.io.Source
 import scala.collection.immutable.TreeSet
 import Ordering.Implicits._
@@ -27,8 +25,9 @@ import fr.iscpif.kdtree.structure._
 import fr.iscpif.kdtree.export._
 import fr.iscpif.kdtree.algorithm.GridSampler
 import fr.iscpif.viability.control._
+import viabilitree.model.Control
+
 import scala.util.Random
-import scalax.io.Resource
 
 object BilingualBasin extends App with CaptureBasin with GridSampler {
 

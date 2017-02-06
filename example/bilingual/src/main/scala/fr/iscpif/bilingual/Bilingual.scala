@@ -19,6 +19,8 @@ package fr.iscpif.bilingual
 
 import fr.iscpif.model._
 import fr.iscpif.kdtree.structure._
+import viabilitree.model.Dynamic
+
 import math._
 
 object Bilingual {

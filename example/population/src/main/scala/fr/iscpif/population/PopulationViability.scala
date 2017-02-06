@@ -1,16 +1,15 @@
 package fr.iscpif.population
 
-import fr.iscpif.model.Control
 import fr.iscpif.viability._
 import fr.iscpif.kdtree.algorithm._
 import fr.iscpif.kdtree.structure._
 import fr.iscpif.kdtree.content._
 import fr.iscpif.kdtree.export._
+
 import scala.util.Random
-import scalax.io.Resource
 import fr.iscpif.viability._
-import kernel._
 import control._
+import viabilitree.model.Control
 
 object PopulationViability extends App
     with ViabilityKernel

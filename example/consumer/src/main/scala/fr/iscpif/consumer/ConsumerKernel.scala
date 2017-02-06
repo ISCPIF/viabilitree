@@ -17,35 +17,48 @@
 
 package fr.iscpif.consumer
 
-import fr.iscpif.viability._
-import fr.iscpif.kdtree.algorithm._
 import fr.iscpif.kdtree.structure._
 import fr.iscpif.kdtree.content._
-import fr.iscpif.kdtree.export._
-import scala.util.Random
-import scalax.io.Resource
-import math._
 
-object ConsumerKernel extends App with OracleApproximation with ZoneAndPointInput {
+import math._
+import fr.iscpif.kdtree.algorithm._
+import OracleApproximation._
+
+import scala.util.Random
+
+object ConsumerKernel extends App {
   val b = 2.0
   val e = 3.0
   val c = 0.5
 
-  def oracle(p: Point) = {
+  def oracle(p: Point) =
     (p(1) <= b && p(0) >= p(1) - c + (c * exp(-p(1) / c)) &&
       p(0) <= p(1) + c - (c * exp((p(1) - b) / c))) ||
       (p(1) >= b && (p(0) >= p(1) - c + (c * exp(-p(1) / c))))
-  }
 
-  def zone = Seq((0.0, b), (0.0, e))
+  val approximation =
+    OracleApproximation(
+      depth = 20,
+      zone = Vector((0.0, b), (0.0, e)),
+      dimension = 2,
+      oracle = oracle,
+      point = Some(Vector(0.001, 0.001))
+    )
 
-  def point = Seq(0.001, 0.001)
+  val rng = new Random(42)
 
-  def depth = 16
+  val res = approximate(approximation)(rng).get
+  println(volume(res))
 
-  val kernel = apply.get
-
-  saveVTK2D(kernel, s"/tmp/consumer/kernelV${depth}.vtk")
-  saveVTK2D(dilate(dilate(kernel)), s"/tmp/consumer/kernel_dilatedV${depth}.vtk")
+//  def zone = Seq((0.0, b), (0.0, e))
+//
+//  def point = Seq(0.001, 0.001)
+//
+//  def depth = 16
+//
+//  val kernel = apply.get
+//
+//  saveVTK2D(kernel, s"/tmp/consumer/kernelV${depth}.vtk")
+//  saveVTK2D(dilate(dilate(kernel)), s"/tmp/consumer/kernel_dilatedV${depth}.vtk")
 
 }
