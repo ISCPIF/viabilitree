@@ -27,6 +27,7 @@ import better.files._
 import viabilitree.model.Control
 import cats._
 import cats.implicits._
+import viabilitree.viability.ControlledDynamicContent
 import viabilitree.viability.kernel.KernelComputation
 
 import scala.util.Failure
@@ -72,7 +73,85 @@ package object export extends better.files.Implicits {
     traceViabilityKernel(aViabilityKernel,theCorrespondingModel.controls,s"fileName.txt")
     */
 
-  def traceViabilityKernel[T](tree: Tree[T], label: T => Boolean, testPoint: T => Vector[Double], control: T => Option[Int], controls: Vector[Double] => Vector[Control], file: File): Unit = {
+//  def traceViabilityKernel[T](tree: Tree[T], label: T => Boolean, testPoint: T => Vector[Double], control: T => Option[Int], controls: Vector[Double] => Vector[Control], file: File): Unit = {
+//    file.delete(true)
+//
+//    //todo add the first line in the .txt file, of the form x1 x2 ... x${dim} min1 max1 ... min${dim} max${dim} control1 ... control${aControl.size}
+////    def header =
+////      (0 until tree.dimension).map(d => s"x$d") ++
+////        (0 until tree.dimension).map(d => s"min$d") ++
+////        (0 until tree.dimension).map(d => s"max$d") ++
+////        (0 until controls.size).map(c => s"control$c")
+//
+////    file << header.mkString(" ")
+//
+//    tree.leaves.filter(l => label(l.content)).foreach {
+//      leaf =>
+//        val point = testPoint(leaf.content)
+//        val radius = leaf.zone.region
+//        val test = radius.flatMap(inter => Seq(inter.min, inter.max))
+//        val controlInx = control(leaf.content).get
+//        val controlValue = controls(point)(controlInx)
+//        val pointLString = point.map(x => x.toString)
+//        val radiusLString = radius.flatMap(inter => Seq(inter.min, inter.max))
+//        val controlLString = controlValue.value.map(c => c.toString)
+//        val uneLigne = pointLString ++ radiusLString ++ controlLString
+//        file << uneLigne.mkString(" ")
+//    }
+//  }
+
+
+
+  object TraceTree {
+
+    import viabilitree.viability._
+    import viabilitree.viability.kernel._
+
+    def intervals(zone: Zone) = zone.region.flatMap(inter => Seq(inter.min, inter.max))
+
+    def viabilityControlledDynamic(kernelComputation: KernelComputation) =
+      viabilityKernelColumns(
+        ControlledDynamicContent.label.get,
+        ControlledDynamicContent.testPoint.get,
+        ControlledDynamicContent.control.get,
+        kernelComputation.controls
+      )
+
+    def viabilityKernelColumns[T](label: T => Boolean, testPoint: T => Vector[Double], control: T => Option[Int], controls: Vector[Double] => Vector[Control]) = (t: Leaf[T]) =>
+      (label(t.content), control(t.content)) match {
+        case (true, Some(c)) =>
+          val p = testPoint(t.content)
+          Some(p ++ intervals(t.zone) ++ controls(p).apply(c).value).map(_.map(_.toString))
+        case _ => None
+      }
+
+    object Traceable {
+      implicit def kernelComputation = new Traceable[KernelComputation, viabilitree.viability.ControlledDynamicContent] {
+
+        import viabilitree.viability._
+
+        override def columns(t: KernelComputation) =
+          TraceTree.viabilityKernelColumns[ControlledDynamicContent](
+            ControlledDynamicContent.label.get,
+            ControlledDynamicContent.testPoint.get,
+            ControlledDynamicContent.control.get,
+            t.controls
+          )
+      }
+    }
+
+    trait Traceable[T, C] {
+      def columns(t: T): (Leaf[C] => Option[Vector[String]])
+    }
+
+  }
+
+
+  def saveHyperRectangles[T, C](t: T)(tree: Tree[C], file: File)(implicit traceable: TraceTree.Traceable[T, C]): Unit =
+    saveHyperRectangles(tree, traceable.columns(t), file)
+
+
+  def saveHyperRectangles[T](tree: Tree[T], columns: Leaf[T] => Option[Vector[String]], file: File): Unit = {
     file.delete(true)
 
     //todo add the first line in the .txt file, of the form x1 x2 ... x${dim} min1 max1 ... min${dim} max${dim} control1 ... control${aControl.size}
@@ -84,20 +163,12 @@ package object export extends better.files.Implicits {
 
 //    file << header.mkString(" ")
 
-    tree.leaves.filter(l => label(l.content)).foreach {
-      leaf =>
-        val point = testPoint(leaf.content)
-        val radius = leaf.zone.region
-        val test = radius.flatMap(inter => Seq(inter.min, inter.max))
-        val controlInx = control(leaf.content).get
-        val controlValue = controls(point)(controlInx)
-        val pointLString = point.map(x => x.toString)
-        val radiusLString = radius.flatMap(inter => Seq(inter.min, inter.max))
-        val controlLString = controlValue.value.map(c => c.toString)
-        val uneLigne = pointLString ++ radiusLString ++ controlLString
-        file << uneLigne.mkString(" ")
+    tree.leaves.flatMap(l => columns(l).toVector).foreach {
+      cols => file << cols.mkString(" ")
     }
   }
+
+
 
   def saveVTK2D[T](tree: Tree[T], label: T => Boolean, file: File): Unit = saveVTK2D(tree, label, file, 0, 1)
 
