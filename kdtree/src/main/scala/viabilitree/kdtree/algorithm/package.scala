@@ -23,10 +23,14 @@ package object algorithm {
   import util.Random
 
   type Evaluator[CONTENT] = (Vector[Zone], Random) => Vector[CONTENT]
-  type Erosion[CONTENT] = (TreeContent[CONTENT], Vector[Leaf[CONTENT]], Random) => TreeContent[CONTENT]
+  type Erosion[CONTENT] = (Tree[CONTENT], Random) => Tree[CONTENT]
   type LearnBoundary[CONTENT] = (TreeContent[CONTENT], Evaluator[CONTENT], Random) => TreeContent[CONTENT]
   type Input[CONTENT] = Option[TreeContent[CONTENT]]
   type FindTrueLabel[CONTENT] = (TreeContent[CONTENT], Random) => Tree[CONTENT]
   type Oracle = Vector[Double] => Boolean
 
+  sealed trait Domain
+  case class BlackBoxDomain(domain: Oracle) extends Domain
+  //case class ZoneDomain(domain: Zone) extends Domain
+  object InfiniteDomain extends Domain
 }

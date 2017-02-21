@@ -1,4 +1,10 @@
-//package fr.iscpif.lake
+package viabilitree.example.lake
+
+import viabilitree.viability.kernel._
+import viabilitree.viability._
+import viabilitree.export._
+
+//
 //
 //import fr.iscpif.model.Control
 //import fr.iscpif.viability._
@@ -43,9 +49,25 @@
 ////  traceViabilityKernel(viabilityKernel,lake.controls,s"${output}PointZoneControlD${lake.depth}.vtk")
 //
 //}
-//
-//object LakeViabilityControlTest extends App {
-//
+
+object TestErosion extends App {
+
+
+  val lake = Lake()
+  val rng = new util.Random(42)
+
+  val vk = KernelComputation(
+    dynamic = lake.dynamic,
+    depth = 16,
+    zone = Vector((0.1, 1.0), (0.0, 1.4)),
+    controls = Vector((-0.09 to 0.09 by 0.01))
+  )
+
+  val (ak, steps) = approximate(vk, rng)
+
+  saveVTK2D(ak, "/tmp/lakeRaw.vtk")
+  saveVTK2D(erode(vk, ak, rng), "/tmp/lakeEroded.vtk" )
+
 //  implicit val rng = new Random(42)
 //
 //  val lake = new LakeViability with ZoneK {
@@ -62,8 +84,8 @@
 //  println("fin calcul noyau ")
 //  val output = s"/tmp/lakeAnalysisTest${lake.depth}/"
 //  traceViabilityKernel(viabilityKernel,lake.controls,s"${output}PointZoneControlD${lake.depth}.vtk")
-//
-//}
+
+}
 //
 //object LakeViabilityExportTest extends App {
 //

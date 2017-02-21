@@ -32,12 +32,14 @@ package object approximation {
     tree.map { KdTreeComputation.dilate(eval(o), OracleApproximation.Content.label, OracleApproximation.Content.testPoint.get)(_, rng) }
 
   def erode(o: OracleApproximation, tree: Tree[OracleApproximation.Content], n: Int = 1)(implicit rng: util.Random) = {
-    def erosion = KdTreeComputation.erosion(
+    def erosion: Erosion[OracleApproximation.Content] = KdTreeComputation.erosion(
       learnBoundary(o),
       eval(o),
-      OracleApproximation.Content.label)
+      OracleApproximation.Content.label,
+      KdTreeComputation.leavesToErode(o.domain, o.box, OracleApproximation.Content.label.get)
+    )
 
-    tree.map(t => KdTreeComputation.erode(erosion)(t, n, rng))
+    KdTreeComputation.erode(erosion)(tree, n, rng)
   }
 
   //  def erode(tree: Tree[Content], oracle: Oracle)(implicit rng: Random) =

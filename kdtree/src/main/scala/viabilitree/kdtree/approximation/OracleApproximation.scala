@@ -18,13 +18,14 @@
 package viabilitree.kdtree.approximation
 
 import monocle.macros._
-import viabilitree.kdtree.algorithm.Oracle
+import viabilitree.kdtree.algorithm._
 import viabilitree.kdtree.structure._
 
 case class OracleApproximation(
   depth: Int,
   box: Zone,
   oracle: Oracle,
+  domain: Domain = InfiniteDomain,
   point: Option[Vector[Double]] = None) {
   def dimension = box.dimension
 }

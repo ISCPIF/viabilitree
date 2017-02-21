@@ -104,7 +104,6 @@ trait Zone {
     val normalizedSpans: Array[Double] = zippedIntervals.map(x => x._1.span / x._2)
     def product(x: Double, y: Double): Double = x * y
     normalizedSpans.foldLeft(1.0)(product)
-
   }
 
   override def toString = zone.region.mkString(",")

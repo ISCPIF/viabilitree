@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package fr.iscpif.lake
+package viabilitree.example.lake
 
 import viabilitree.viability._
 import viabilitree.viability.kernel._

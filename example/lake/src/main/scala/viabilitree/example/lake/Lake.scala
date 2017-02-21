@@ -1,4 +1,4 @@
-package fr.iscpif.lake
+package viabilitree.example.lake
 
 /*
  * Copyright (C) 10/10/13 Isabelle Alvarez

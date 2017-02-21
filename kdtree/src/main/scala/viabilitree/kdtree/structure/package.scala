@@ -27,6 +27,10 @@ import scala.util.Random
 
 package object structure {
 
+  object Tree {
+    implicit def fromTreeContent[T](treeContent: TreeContent[T]) = NonEmptyTree(treeContent)
+  }
+
   sealed trait Tree[T] {
     def map(f: TreeContent[T] => TreeContent[T]): Tree[T] = this match {
       case NonEmptyTree(c) => NonEmptyTree(f(c))
@@ -47,6 +51,7 @@ package object structure {
   case class NonEmptyTree[T](nonEmptyTree: TreeContent[T]) extends Tree[T]{
     def dimension = nonEmptyTree.dimension
   }
+
 
   type Path = List[PathElement]
   case class PathElement(coordinate: Int, descendant: Descendant)
@@ -204,6 +209,22 @@ package object structure {
       case NonEmptyTree(t) => t.leaves
       case EmptyTree(_) => Vector.empty
     }
+
+    def leavesOnRootZone(label: T => Boolean): Iterable[(Leaf[T], Int)] = t match {
+      case NonEmptyTree(t) => t.leavesOnRootZone(label)
+      case EmptyTree(_) => Vector.empty
+    }
+
+    def criticalLeaves(label: T => Boolean, includeNonAtomic: Boolean = false): Iterable[Leaf[T]] = t match {
+      case NonEmptyTree(t) => t.criticalLeaves(label = label, includeNonAtomic = includeNonAtomic)
+      case EmptyTree(_) => Vector.empty
+    }
+
+    def isAtomic(leaf: Leaf[T]) = t match {
+      case NonEmptyTree(t) => t.isAtomic(leaf)
+      case EmptyTree(_) => false
+    }
+
   }
 
   implicit class NonEmptyTreeDecorator[T](t: TreeContent[T]) {

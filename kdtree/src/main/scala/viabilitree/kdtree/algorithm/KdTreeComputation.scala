@@ -115,54 +115,122 @@ object KdTreeComputation {
     }
 
 
-  def erode[CONTENT](erosion: Erosion[CONTENT])(t: TreeContent[CONTENT], n: Int, rng: Random): TreeContent[CONTENT] = {
+  def erode[CONTENT](erosion: Erosion[CONTENT])(t: Tree[CONTENT], n: Int, rng: Random): Tree[CONTENT] = {
     if (n <= 0) t
-    else erode(erosion)(erosion(t, Vector.empty, rng), n - 1, rng)
+    else erode(erosion)(erosion(t, rng), n - 1, rng)
   }
+
+
+  type LeafSelection[CONTENT] = Tree[CONTENT] => Vector[Leaf[CONTENT]]
+
+  def innerCriticalLeaves[CONTENT](label: CONTENT => Boolean): LeafSelection[CONTENT] = (t: Tree[CONTENT]) =>
+    t.criticalLeaves(label).filter(l => label(l.content) == true).toVector.distinct
+
+  def leavesOnBorderOfZone[CONTENT](borderZone: Zone, label: CONTENT => Boolean): LeafSelection[CONTENT] =
+    (t: Tree[CONTENT]) => {
+      def computeOnBorder(t: Tree[CONTENT]): Vector[Leaf[CONTENT]] =
+        t.leavesOnRootZone(label).toVector.filter {
+          case(leaf,i) => leafIsOnBorder(borderZone, leaf, i)
+        }.map { _._1 }
+
+      def leafIsOnBorder[CONTENT](zone: Zone, leaf: Leaf[CONTENT], axis: Int): Boolean = {
+        val aux = (leaf.zone.region(axis).max - leaf.zone.region(axis).min) / 2
+        val a = leaf.zone.region(axis).min
+        val minDomain = zone.region(axis).min
+        val b = leaf.zone.region(axis).max
+        val maxDomain = zone.region(axis).max
+        (a > minDomain + aux) && (b < maxDomain - aux)
+      }
+
+      computeOnBorder(t)
+    }
+
+
+
+  def onBorderOfBlackBoxDomain[CONTENT](domain: Oracle)(leaf: Leaf[CONTENT]) = {
+    // FIXME make it tailrec and lazy
+    def allCombinations(l: List[List[Double]]): List[List[Double]] =
+      l match {
+        case h :: Nil => h.map(le => List(le))
+        case h :: t =>
+          for {
+            he <- h
+            c <- allCombinations(t)
+          } yield he :: c
+        case Nil => Nil
+      }
+
+    def corners(zone: Zone) = allCombinations(zone.region.toList.map { i => List(i.min, i.max) })
+
+    corners(leaf.zone).exists { p => domain(p.toVector) == false }
+  }
+
+//  def onBorderOfZoneDomain[CONTENT](domain: Zone)(leaf: Leaf[CONTENT]) = {
+//    // There may be an optimisation if leave touches border of definition zone
+//
+//    // TODO find a lib for floating point comparison
+//  }
+
+
+  def leavesToErode[CONTENT](domain: Domain, zone: Zone, label: CONTENT => Boolean): LeafSelection[CONTENT] =  (t: Tree[CONTENT]) =>
+    domain match {
+      case BlackBoxDomain(domain) =>
+        (KdTreeComputation.innerCriticalLeaves(label)(t) ++ leavesOnBorderOfZone (zone, label) (t).filter { l => t.isAtomic(l) }).
+            filter { l => !onBorderOfBlackBoxDomain(domain)(l) }
+      case InfiniteDomain =>
+         KdTreeComputation.innerCriticalLeaves(label)(t) ++ leavesOnBorderOfZone (zone, label) (t).filter { l => t.isAtomic(l) }
+      //case ZoneDomain(domain) => ???
+    }
+
 
   def erosion[CONTENT](
     learnBoundary: LearnBoundary[CONTENT],
     evaluator: Evaluator[CONTENT],
-    label: Lens[CONTENT, Boolean]): Erosion[CONTENT] =
-    (t: TreeContent[CONTENT], additionalLeaves: Seq[Leaf[CONTENT]], rng: Random) => {
-      val newT = t.clone
-      val leaves = newT.criticalLeaves(newT.root, label.get).filter(l => label.get(l.content) == true).toSeq.distinct ++ additionalLeaves
-      var currentRoot = newT.root
-      leaves.foreach {
-        leaf =>
-          currentRoot = newT.root.replace(leaf.path, label.set(false)(leaf.content)).rootCalling
-      }
-      val eroded = TreeContent(currentRoot, newT.depth)
-      learnBoundary(eroded, evaluator, rng) //buildContent(_, true))
-    }
-
-
-  def erosionInDomain[CONTENT](
-    learnBoundary: LearnBoundary[CONTENT],
-    evaluator: Evaluator[CONTENT],
     label: Lens[CONTENT, Boolean],
-    domain: Zone): Erosion[CONTENT] = (t: TreeContent[CONTENT], additionalLeaves: Vector[Leaf[CONTENT]], rng: Random) => {
-
-      def computeOnBorderWithDomain(t: TreeContent[CONTENT]): Iterable[Leaf[CONTENT]]=
-        t.leavesOnRootZone(label.get).filter {
-          case(leaf,i) => borderOnDomain(leaf,i)
-        }.map { _._1 }
-
-      /* Warning leaf is supposed to be atomic
-       */
-
-      def borderOnDomain(leaf: Leaf[CONTENT], i: Int): Boolean = {
-        val aux = (leaf.zone.region(i).max - leaf.zone.region(i).min) / 2
-        val a = leaf.zone.region(i).min
-        val minDomain = domain.region(i).min
-        val b = leaf.zone.region(i).max
-        val maxDomain = domain.region(i).max
-        (a > minDomain + aux)&& (b < maxDomain - aux)
+    leavesToErode: LeafSelection[CONTENT]): Erosion[CONTENT] =
+    (t: Tree[CONTENT], rng: Random) => {
+      //.criticalLeaves(newT.root, label.get).filter(l => label.get(l.content) == true).toSeq.distinct ++ additionalLeaves
+      t match {
+        case NonEmptyTree(t) =>
+          val newT = t.clone
+          val leaves = leavesToErode(newT).filter(l => label.get(l.content) == true)
+          var currentRoot = newT.root
+          leaves.foreach {
+            leaf =>
+              // FIXME check that tree root is properly handled
+              currentRoot = newT.root.replace(leaf.path, label.set(false)(leaf.content)).rootCalling
+          }
+          val eroded = TreeContent(currentRoot, newT.depth)
+          learnBoundary(eroded, evaluator, rng) //buildContent(_, true))
+        case x: EmptyTree[CONTENT] => x
       }
-
-      val leavesOnBorderWithDomain = computeOnBorderWithDomain(t)
-      erosion(learnBoundary, evaluator, label)(t, additionalLeaves ++ leavesOnBorderWithDomain, rng)
     }
+
+//
+//  def erosionInDomain[CONTENT](
+//    learnBoundary: LearnBoundary[CONTENT],
+//    evaluator: Evaluator[CONTENT],
+//    label: Lens[CONTENT, Boolean],
+//    domain: Zone): Erosion[CONTENT] = (t: Tree[CONTENT], additionalLeaves: Vector[Leaf[CONTENT]], rng: Random) => {
+//
+//      def computeOnBorderWithDomain(t: Tree[CONTENT]): Iterable[Leaf[CONTENT]]=
+//        t.leavesOnRootZone(label.get).filter {
+//          case(leaf,i) => borderOnDomain(leaf,i)
+//        }.map { _._1 }
+//
+//      /* Warning leaf is supposed to be atomic */
+//      def borderOnDomain(leaf: Leaf[CONTENT], i: Int): Boolean = {
+//        val aux = (leaf.zone.region(i).max - leaf.zone.region(i).min) / 2
+//        val a = leaf.zone.region(i).min
+//        val minDomain = domain.region(i).min
+//        val b = leaf.zone.region(i).max
+//        val maxDomain = domain.region(i).max
+//        (a > minDomain + aux)&& (b < maxDomain - aux)
+//      }
+//
+//      val leavesOnBorderWithDomain = computeOnBorderWithDomain(t)
+//      erosion(learnBoundary, evaluator, label)(t, additionalLeaves ++ leavesOnBorderWithDomain, rng)
+//    }
 
 }
 //
