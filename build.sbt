@@ -1,7 +1,7 @@
 
 organization := "fr.iscpif"
 
-name := "viability"
+name := "viabilitree"
 
 def settings =
   Seq(
@@ -14,7 +14,7 @@ scalariformSettings
 
 lazy val defaultSettings =
   settings ++ Seq(
-    organization := "fr.iscpif.viability",
+    organization := "fr.iscpif.viabilitree",
     publishArtifact := true,
     publishTo := isSnapshot { snapshot =>
       val nexus = "https://oss.sonatype.org/"
@@ -24,7 +24,7 @@ lazy val defaultSettings =
     pomIncludeRepository := { _ => false},
     licenses := Seq("Affero GPLv3" -> url("http://www.gnu.org/licenses/")),
     homepage := Some(url("https://github.com/ISCPIF/viabilitree")),
-    //scmInfo := Some(ScmInfo("scm:git:git.iscpif.fr/viability", "scm:git:git@git.iscpif.fr:viability.git")),
+    scmInfo := Some(ScmInfo(url("https://github.com/ISCPIF/viabilitree.git"), "scm:git:git@github.com:ISCPIF/viabilitree.git")),
     // To sync with Maven central, you need to supply the following information:
     pomExtra := {
       <!-- Developer contact information -->
