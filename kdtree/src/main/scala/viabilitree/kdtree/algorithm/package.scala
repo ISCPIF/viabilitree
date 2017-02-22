@@ -28,6 +28,10 @@ package object algorithm {
   type Input[CONTENT] = Option[TreeContent[CONTENT]]
   type FindTrueLabel[CONTENT] = (TreeContent[CONTENT], Random) => Tree[CONTENT]
   type Oracle = Vector[Double] => Boolean
+  
+  object Domain {
+    implicit def oracleToDomain(oracle: Oracle) = BlackBoxDomain(oracle)
+  }
 
   sealed trait Domain
   case class BlackBoxDomain(domain: Oracle) extends Domain
