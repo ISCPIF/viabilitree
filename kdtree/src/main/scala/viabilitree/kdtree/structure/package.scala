@@ -71,8 +71,8 @@ package object structure {
       (pointInCriticalLeaf(c1.content), pointInCriticalLeaf(c2.content)) match {
         case (true, false) => Some(c1.content)
         case (false, true) => Some(c2.content)
-        case (true, true) => None
         case (false, false) => Some(c1.content)
+        case (true, true) => None // It cannot happen since the algorithm reduces only leaves with the identical labels
       }
   }
 

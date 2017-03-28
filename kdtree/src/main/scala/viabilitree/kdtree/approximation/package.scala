@@ -20,10 +20,10 @@ package object approximation {
     o.point match {
       case None =>
         val initialTree = input.zone (eval (o), OracleApproximation.Content.label.get, OracleApproximation.Content.testPoint.get) (o.box, o.depth, rng)
-        util.Success(initialTree.map(learn))
+        util.Success(clean(initialTree.map(learn)))
       case Some(p) =>
         val initialTree = input.zoneAndPoint(contentBuilder(o.oracle), sampler(o), OracleApproximation.Content.label.get)(o.box, p, o.depth)
-        initialTree.map(learn).map(NonEmptyTree(_))
+        initialTree.map(learn).map(t => clean(NonEmptyTree(t)))
     }
   }
 
