@@ -48,4 +48,11 @@ package object approximation {
   //    }
 
   def volume(tree: Tree[OracleApproximation.Content]) = tree.volume(OracleApproximation.Content.label.get)
+
+  def clean(tree: Tree[OracleApproximation.Content]) =
+    tree.clean(
+      OracleApproximation.Content.label.get,
+      maximalReduction(
+        tree.criticalLeaves(OracleApproximation.Content.label.get).map(_.zone).toVector,
+        OracleApproximation.Content.testPoint.get))
 }

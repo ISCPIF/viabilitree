@@ -64,6 +64,25 @@ package object structure {
   }
 
 
+  def maximalReduction[T](criticalLeaves: Vector[Zone], testPoint: T => Vector[Double]): ContentReduction[T] = {
+    def pointInCriticalLeaf(t: T) = criticalLeaves.exists(l => l.contains(testPoint(t)))
+
+    (c1: Leaf[T], c2: Leaf[T]) =>
+      (pointInCriticalLeaf(c1.content), pointInCriticalLeaf(c2.content)) match {
+        case (true, false) => Some(c1.content)
+        case (false, true) => Some(c2.content)
+        case (true, true) => None
+        case (false, false) => Some(c1.content)
+      }
+  }
+
+  def reduceFalse[T](criticalLeaves: Vector[Zone], label: T => Boolean, testPoint: T => Vector[Double]): ContentReduction[T] =
+    (c1: Leaf[T], c2: Leaf[T]) =>
+      (label(c1.content), label(c2.content)) match {
+        case (false, false) => maximalReduction(criticalLeaves, testPoint)(c1, c2)
+        case _ => None
+      }
+
   type ContentReduction[CONTENT] = (Leaf[CONTENT], Leaf[CONTENT]) => Option[CONTENT]
 
   object Interval {
@@ -233,8 +252,8 @@ package object structure {
       case EmptyTree(_) => false
     }
 
-    def clean(content: T => Boolean, reduce: ContentReduction[T]): Tree[T] = t match {
-      case NonEmptyTree(t) => t.clean(content, reduce)
+    def clean(label: T => Boolean, reduce: ContentReduction[T]): Tree[T] = t match {
+      case NonEmptyTree(t) => t.clean(label, reduce)
       case e: EmptyTree[T] => e
     }
 
