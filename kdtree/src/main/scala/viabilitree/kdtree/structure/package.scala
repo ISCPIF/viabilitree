@@ -72,7 +72,7 @@ package object structure {
         case (true, false) => Some(c1.content)
         case (false, true) => Some(c2.content)
         case (false, false) => Some(c1.content)
-        case (true, true) => None // It cannot happen since the algorithm reduces only leaves with the identical labels
+        case (true, true) => None // It happen if 2 leaves of the same fork touch different part of the boundary
       }
   }
 
