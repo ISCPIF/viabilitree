@@ -302,7 +302,7 @@ package object structure {
 
       (node1, node2) match {
         case (leaf1: Leaf[T], leaf2: Leaf[T]) =>
-          assert(adjacent(leaf1.path, leaf2.path))
+          // assert(adjacent(leaf1.path, leaf2.path))
           //TODO test adjacency  if true assert(Zone.adjacentZones(leaf1.zone, leaf2.zone),{println(leaf1.zone.region.toList); println(leaf2.zone.region.toList)})
           if ((includeNonAtomic || (t.isAtomic(leaf1) && t.isAtomic(leaf2))) &&
             xor(label(leaf1.content), label(leaf2.content))) List(leaf1, leaf2)
