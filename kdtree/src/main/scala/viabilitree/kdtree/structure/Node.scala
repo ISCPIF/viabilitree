@@ -26,7 +26,7 @@ import util.Random
 sealed trait Node[T] { node =>
 
   var parent: Option[Fork[T]] = None
-  val zone: Zone
+  def zone: Zone
 
   def dimension = zone.region.size
   def path: Path = reversePath.reverse
@@ -117,18 +117,27 @@ sealed trait Node[T] { node =>
 
 object Fork {
 
-  def merge[T](f: Fork[T], label: T => Boolean, reduce: (Leaf[T], Leaf[T]) => Leaf[T]): Node[T] = {
-    def mergeNodes(ll: Node[T], lh: Node[T]): Node[T] =
+
+  def clean[CONTENT](f: Fork[CONTENT], label: CONTENT => Boolean, reduce: ContentReduction[CONTENT]): Node[CONTENT] = {
+    def mergeLeafs(ll: Leaf[CONTENT], lh: Leaf[CONTENT]): Node[CONTENT] =
+      reduce(ll.content, lh.content) match {
+        case Some(reduced) => Leaf(reduced, f.zone)
+        case None => copy(f)(lowChild = ll, highChild = lh)
+      }
+
+    def mergeNodes(ll: Node[CONTENT], lh: Node[CONTENT]): Node[CONTENT] =
       (ll, lh) match {
-        case (ll: Leaf[T], lh: Leaf[T]) => if (label(ll.content) == label(lh.content)) reduce(ll, lh) else copy(f)(lowChild = ll, highChild = lh)
+        case (ll: Leaf[CONTENT], lh: Leaf[CONTENT]) =>
+          if (label(ll.content) == label(lh.content)) mergeLeafs(ll, lh)
+          else copy(f)(lowChild = ll, highChild = lh)
         case _ => copy(f)(lowChild = ll, highChild = lh)
       }
 
     (f.lowChild, f.highChild) match {
-      case (ll: Leaf[T], lh: Leaf[T]) => if (label(ll.content) == label(lh.content)) reduce(ll, lh) else f
-      case (fl: Fork[T], fh: Fork[T]) => mergeNodes(merge(fl, label, reduce), merge (fh, label, reduce))
-      case (ll: Leaf[T], fh: Fork[T]) => mergeNodes(ll, merge (fh, label, reduce))
-      case (fl: Fork[T], lh: Leaf[T]) => mergeNodes(merge (fl, label, reduce), lh)
+      case (ll: Leaf[CONTENT], lh: Leaf[CONTENT]) => if (label(ll.content) == label(lh.content)) mergeLeafs(ll, lh) else copy(f)(lowChild = ll, highChild = lh)
+      case (fl: Fork[CONTENT], fh: Fork[CONTENT]) => mergeNodes(clean(fl, label, reduce), clean (fh, label, reduce))
+      case (ll: Leaf[CONTENT], fh: Fork[CONTENT]) => mergeNodes(ll, clean (fh, label, reduce))
+      case (fl: Fork[CONTENT], lh: Leaf[CONTENT]) => mergeNodes(clean (fl, label, reduce), lh)
     }
   }
 
@@ -260,14 +269,20 @@ trait Fork[T] extends Node[T] { fork =>
 
 object Leaf {
 
-  def apply[T](content: T, zone: Zone) = {
+  def apply[T](content: T, zone: Zone, parent: Option[Fork[T]] = None) = {
     val (_content, _zone) = (content, zone)
 
-    new Leaf[T] {
+    val l = new Leaf[T] {
       val zone = _zone
       val content = _content
     }
+
+    l.parent = parent
+    l
   }
+
+  def copy[T](leaf: Leaf[T])(content: T = leaf.content, zone: Zone = leaf.zone, parent: Option[Fork[T]] = None) =
+    apply(content, zone, parent)
 
 }
 

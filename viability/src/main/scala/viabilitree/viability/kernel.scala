@@ -117,6 +117,9 @@ object kernel {
     )(tree, rng)
   }
 
+  def clean(tree: Tree[ControlledDynamicContent]) =
+    tree.clean(ControlledDynamicContent.label.get, ControlledDynamicContent.reduce)
+
 //    learnBoundary: LearnBoundary[CONTENT],
 //    evaluator: Evaluator[CONTENT],
 //    label: Lens[CONTENT, Boolean]): Erosion[CONTENT] =
@@ -275,6 +278,7 @@ object kernel {
 
     input.zone[CONTENT](ev, label, testPoint)(zone, depth, rng)
   }
+
 
 
 //  def tree0[CONTENT](implicit rng: Random): Tree[CONTENT] = {

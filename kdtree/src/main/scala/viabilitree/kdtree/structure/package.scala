@@ -63,6 +63,8 @@ package object structure {
     case object NotDescendant extends Descendant
   }
 
+  type ContentReduction[CONTENT] = (CONTENT, CONTENT) => Option[CONTENT]
+
   object Interval {
 
     implicit def tupleToInterval(t: (Double, Double)) = {
@@ -225,6 +227,11 @@ package object structure {
       case EmptyTree(_) => false
     }
 
+    def clean(content: T => Boolean, reduce: ContentReduction[T]) = t match {
+      case NonEmptyTree(t) => t.clean(content, reduce)
+      case e: EmptyTree[T] => e
+    }
+
   }
 
   implicit class NonEmptyTreeDecorator[T](t: TreeContent[T]) {
@@ -385,6 +392,11 @@ package object structure {
     }
 
 
+    def clean(content: T => Boolean, reduce: ContentReduction[T]): TreeContent[T] =
+      t.root match {
+        case f: Fork[T] => TreeContent.copy(t)(root = Fork.clean(f, content, reduce))
+        case l: Leaf[T] => t
+      }
 
   }
 
