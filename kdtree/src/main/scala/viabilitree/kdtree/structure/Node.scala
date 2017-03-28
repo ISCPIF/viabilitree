@@ -338,19 +338,13 @@ trait Leaf[T] extends Node[T] { self =>
     val lowZone: Zone = newFork.zone.divideLow(coordinate)
     val highZone: Zone = newFork.zone.divideHigh(coordinate)
 
-    def generateChild(parentFork: Fork[T], _zone: Zone, _content: T) = new Leaf[T] {
-      parent = Some(parentFork)
-      val zone = _zone
-      val content = _content
-    }
-
     if (descendant == Descendant.Low) {
-      newFork.attachLow(generateChild(newFork, lowZone, content))
-      newFork.attachHigh(generateChild(newFork, highZone, self.content))
+      newFork.attachLow(Leaf[T](parent = Some(newFork), zone = lowZone, content = content))
+      newFork.attachHigh(Leaf[T](parent = Some(newFork), zone = highZone, content = self.content))
       newFork
     } else if (descendant == Descendant.High) {
-      newFork.attachLow(generateChild(newFork, lowZone, self.content))
-      newFork.attachHigh(generateChild(newFork, highZone, content))
+      newFork.attachLow(Leaf[T](parent = Some(newFork), zone = lowZone, content = self.content))
+      newFork.attachHigh(Leaf(parent = Some(newFork), zone = highZone, content = content))
       newFork
     } else throw new RuntimeException("Descendant should be low or high.")
 
