@@ -49,9 +49,16 @@ package object viability {
 
   lazy val Zone = viabilitree.kdtree.structure.Zone
 
-
-
   implicit def vectorOfNumericRangeToVectorOfControl(v: Vector[NumericRange[Double]]) =
     (_: Vector[Double]) => v.transpose.map(Control(_))
+
+  implicit def vectorOfVectorToVectorOfControl(v: Vector[Vector[Double]]) =
+    (_: Vector[Double]) => v.map(Control(_))
+
+
+  type Control = model.Control
+  lazy val Control = model.Control
+
+  implicit def indexedSeqToVector[T](i: IndexedSeq[T]) = i.toVector
 
 }

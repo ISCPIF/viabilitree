@@ -29,7 +29,7 @@ object LakeViabilityKernel extends App {
     dynamic = lake.dynamic,
     depth = 12,
     zone = Vector((0.1, 1.0), (0.0, 1.4)),
-    controls = Vector((-0.09 to 0.09 by 0.01))
+    controls = Vector((-0.09 to 0.09 by 0.01), (-0.09 to 0.09 by 0.01))
   )
 
   val (ak, steps) = approximate(vk, rng)
