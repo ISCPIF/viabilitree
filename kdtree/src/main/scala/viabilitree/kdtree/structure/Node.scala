@@ -115,6 +115,48 @@ sealed trait Node[T] { node =>
 
 }
 
+object Fork {
+
+  def merge[T](f: Fork[T], label: T => Boolean, reduce: (Leaf[T], Leaf[T]) => Leaf[T]): Node[T] = {
+    def mergeNodes(ll: Node[T], lh: Node[T]): Node[T] =
+      (ll, lh) match {
+        case (ll: Leaf[T], lh: Leaf[T]) => if (label(ll.content) == label(lh.content)) reduce(ll, lh) else copy(f)(lowChild = ll, highChild = lh)
+        case _ => copy(f)(lowChild = ll, highChild = lh)
+      }
+
+    (f.lowChild, f.highChild) match {
+      case (ll: Leaf[T], lh: Leaf[T]) => if (label(ll.content) == label(lh.content)) reduce(ll, lh) else f
+      case (fl: Fork[T], fh: Fork[T]) => mergeNodes(merge(fl, label, reduce), merge (fh, label, reduce))
+      case (ll: Leaf[T], fh: Fork[T]) => mergeNodes(ll, merge (fh, label, reduce))
+      case (fl: Fork[T], lh: Leaf[T]) => mergeNodes(merge (fl, label, reduce), lh)
+    }
+  }
+
+  def copy[T](f: Fork[T])(lowChild: Node[T] = f.lowChild, highChild: Node[T] = f.highChild) =
+    Fork(
+      divisionCoordinate = f.divisionCoordinate,
+      zone = f.zone,
+      lowChild = lowChild,
+      highChild = highChild,
+      parent = f.parent
+    )
+
+  def apply[T](divisionCoordinate: Int, zone: Zone, lowChild: Node[T] = null, highChild: Node[T] = null, parent: Option[Fork[T]] = None): Fork[T] = {
+    val (_divisionCoordinate, _zone) = (divisionCoordinate, zone)
+
+    val newFork =
+      new Fork[T] {
+        override val divisionCoordinate: Int = _divisionCoordinate
+        override val zone: Zone = _zone
+      }
+
+    newFork.parent = parent
+    newFork.attachLow(lowChild)
+    newFork.attachHigh(highChild)
+    newFork
+  }
+
+}
 
 
 trait Fork[T] extends Node[T] { fork =>
@@ -122,7 +164,7 @@ trait Fork[T] extends Node[T] { fork =>
   val divisionCoordinate: Int
 
   protected var _lowChild: Node[T] = null
-  protected var _highChild: Node[T] = null
+  protected var _highChild: Node[T]  = null
 
   def childrenDefined: Boolean = _lowChild != null && _highChild != null
 
@@ -154,7 +196,6 @@ trait Fork[T] extends Node[T] { fork =>
     else lowChild.containingLeaf(point) orElse highChild.containingLeaf(point)
 
   def lowChild = if (childrenDefined) _lowChild else throw new RuntimeException("Children are not defined. (1)")
-
   def highChild = if (childrenDefined) _highChild else throw new RuntimeException("Children are not defined. (2)")
 
   def leaves: Iterable[Leaf[T]] = lowChild.leaves ++ highChild.leaves
@@ -265,11 +306,11 @@ trait Leaf[T] extends Node[T] { self =>
     val coordinate = extendedPath.last.coordinate
     val descendant = extendedPath.last.descendant
 
-    val newFork = new Fork[T] {
-      val divisionCoordinate = extendedPath.last.coordinate
-      val zone: Zone = self.zone
-    }
-    newFork.parent = this.parent
+    val newFork = Fork[T](
+      divisionCoordinate = extendedPath.last.coordinate,
+      zone = self.zone,
+      parent = this.parent
+    )
 
     newFork.parent match {
       case None =>
