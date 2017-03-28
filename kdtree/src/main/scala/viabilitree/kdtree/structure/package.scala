@@ -227,7 +227,7 @@ package object structure {
       case EmptyTree(_) => false
     }
 
-    def clean(content: T => Boolean, reduce: ContentReduction[T]) = t match {
+    def clean(content: T => Boolean, reduce: ContentReduction[T]): Tree[T] = t match {
       case NonEmptyTree(t) => t.clean(content, reduce)
       case e: EmptyTree[T] => e
     }
