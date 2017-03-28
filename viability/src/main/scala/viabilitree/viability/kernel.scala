@@ -88,10 +88,31 @@ object kernel {
   def approximate(kernelComputation: KernelComputation, rng: Random, maxNumberOfStep: Option[Int] = None, initialTree: Option[Tree[ControlledDynamicContent]] = None) = {
     import viabilitree.kdtree.structure._
 
+    def cleanBetweenStep(tree: Tree[ControlledDynamicContent]) = {
+      def reduceFalse[CONTENT](criticalLeaves: Vector[Zone], label: CONTENT => Boolean, testPoint: CONTENT => Vector[Double]): ContentReduction[CONTENT] = {
+        def pointInCriticalLeaf(t: CONTENT) = criticalLeaves.exists(l => l.contains(testPoint(t)))
+
+        (c1: Leaf[CONTENT], c2: Leaf[CONTENT]) =>
+          (label(c1.content), label(c2.content)) match {
+            case (false, false) =>
+              if (pointInCriticalLeaf(c1.content) || pointInCriticalLeaf(c2.content)) None
+              else maximalReduction(criticalLeaves, testPoint)(c1, c2)
+            case _ => None
+          }
+      }
+
+      tree.clean(
+        ControlledDynamicContent.label.get,
+        reduceFalse(tree.criticalLeaves(ControlledDynamicContent.label.get).map(_.zone).toVector,
+          ControlledDynamicContent.label.get,
+          ControlledDynamicContent.testPoint.get)
+      )
+    }
+
     def whileVolumeDiffers(tree: Tree[ControlledDynamicContent], previousVolume: Option[Double] = None, step: Int = 0): (Tree[ControlledDynamicContent], Int) =
     if(maxNumberOfStep.map(ms => step >= ms).getOrElse(false)) (tree, step)
     else {
-      val newTree = iterate(kernelComputation, tree, rng)
+      val newTree = cleanBetweenStep(iterate(kernelComputation, tree, rng))
       val newVolume = volume(newTree)
       def sameVolume = previousVolume.map(_ == newVolume).getOrElse(false)
       if (sameVolume) (tree, step)

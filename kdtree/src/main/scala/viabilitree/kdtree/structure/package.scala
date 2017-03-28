@@ -76,13 +76,6 @@ package object structure {
       }
   }
 
-  def reduceFalse[T](criticalLeaves: Vector[Zone], label: T => Boolean, testPoint: T => Vector[Double]): ContentReduction[T] =
-    (c1: Leaf[T], c2: Leaf[T]) =>
-      (label(c1.content), label(c2.content)) match {
-        case (false, false) => maximalReduction(criticalLeaves, testPoint)(c1, c2)
-        case _ => None
-      }
-
   type ContentReduction[CONTENT] = (Leaf[CONTENT], Leaf[CONTENT]) => Option[CONTENT]
 
   object Interval {
