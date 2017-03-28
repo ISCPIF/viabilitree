@@ -63,7 +63,8 @@ package object structure {
     case object NotDescendant extends Descendant
   }
 
-  type ContentReduction[CONTENT] = (CONTENT, CONTENT) => Option[CONTENT]
+
+  type ContentReduction[CONTENT] = (Leaf[CONTENT], Leaf[CONTENT]) => Option[CONTENT]
 
   object Interval {
 

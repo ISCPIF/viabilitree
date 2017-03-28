@@ -120,7 +120,7 @@ object Fork {
 
   def clean[CONTENT](f: Fork[CONTENT], label: CONTENT => Boolean, reduce: ContentReduction[CONTENT]): Node[CONTENT] = {
     def mergeLeafs(ll: Leaf[CONTENT], lh: Leaf[CONTENT]): Node[CONTENT] =
-      reduce(ll.content, lh.content) match {
+      reduce(ll, lh) match {
         case Some(reduced) => Leaf(reduced, f.zone)
         case None => copy(f)(lowChild = ll, highChild = lh)
       }

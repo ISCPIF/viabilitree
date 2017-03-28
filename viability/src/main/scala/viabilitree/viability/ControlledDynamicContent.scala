@@ -18,9 +18,20 @@
 package viabilitree.viability
 
 import monocle.macros.Lenses
+import viabilitree.kdtree.structure._
 
 object ControlledDynamicContent {
-  def reduce(c1: ControlledDynamicContent, c2: ControlledDynamicContent) = Some(c1)
+  def reduce: ContentReduction[ControlledDynamicContent] =
+    (c1: Leaf[ControlledDynamicContent], c2: Leaf[ControlledDynamicContent]) => Some(c1.content)
+
+  def reduce(criticalLeaves: Set[Path]): ContentReduction[ControlledDynamicContent] =
+    (c1: Leaf[ControlledDynamicContent], c2: Leaf[ControlledDynamicContent]) =>
+      (criticalLeaves.contains(c1.path), criticalLeaves.contains(c2.path)) match {
+        case (true, false) => Some(c1.content)
+        case (false, true) => Some(c2.content)
+        case (true, true) => None
+        case (false, false) => Some(c1.content)
+      }
 }
 
 @Lenses case class ControlledDynamicContent(
