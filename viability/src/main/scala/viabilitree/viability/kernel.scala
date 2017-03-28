@@ -118,7 +118,7 @@ object kernel {
   }
 
   def clean(tree: Tree[ControlledDynamicContent]) =
-    tree.clean(ControlledDynamicContent.label.get, ControlledDynamicContent.reduce(tree.criticalLeaves(ControlledDynamicContent.label.get).map(_.path).toSet))
+    tree.clean(ControlledDynamicContent.label.get, ControlledDynamicContent.maximalReduction(tree.criticalLeaves(ControlledDynamicContent.label.get).map(_.path).toSet))
 
 //    learnBoundary: LearnBoundary[CONTENT],
 //    evaluator: Evaluator[CONTENT],
