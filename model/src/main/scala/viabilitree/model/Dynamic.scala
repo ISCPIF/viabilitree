@@ -9,7 +9,7 @@ import org.apache.commons.math3.ode._
 import org.apache.commons.math3.ode.nonstiff._
 
 object Dynamic {
-  def apply(equations: (Vector[Double], Double) => Double*) = new Dynamic(equations: _*)
+  def apply(equations: (Vector[Double], Double) => Double*): Dynamic = new Dynamic(equations: _*)
 }
 
 class Dynamic(equations: (Vector[Double], Double) => Double*) extends FirstOrderDifferentialEquations {
@@ -25,9 +25,12 @@ class Dynamic(equations: (Vector[Double], Double) => Double*) extends FirstOrder
         val (curT, curY) = ys.head
         val y = Array.ofDim[Double](equations.size)
         integrator.integrate(this, curT, curY, s, y)
+        // FIXME use Try and propagate up the stack
+        if(y.exists(_.isNaN)) throw new RuntimeException(s"""Dynamic from ${curY.toVector} using integration step ${integrationStep} produces NaN: ${y.toVector}"""")
         (s, y) :: ys
       }
     }.reverse
+
   }
 
   override def computeDerivatives(t: Double, y: Array[Double], yDot: Array[Double]): Unit =
