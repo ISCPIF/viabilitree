@@ -42,7 +42,8 @@ trait TreeContent[T] {
   def depth: Int
   def root: Node[T]
   def isAtomic(l: Leaf[T]) = l.depth >= depth
-  def atomicLeaves = root.leaves.filter(isAtomic)
+  def leaves = viabilitree.kdtree.structure.leaves(root)
+  def atomicLeaves = leaves.filter(isAtomic)
   def dimension = root.zone.region.size
   def leaf(path: Path) = root.leaf(path)
 

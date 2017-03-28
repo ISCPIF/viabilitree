@@ -23,6 +23,7 @@ import viabilitree.kdtree.structure.Path.extremeDivisions
 
 import util.Random
 
+
 sealed trait Node[T] { node =>
 
   var parent: Option[Fork[T]] = None
@@ -55,8 +56,6 @@ sealed trait Node[T] { node =>
   def contains(point: Vector[Double]) = containingLeaf(point).isDefined
 
   def containingLeaf(point: Vector[Double]): Option[Leaf[T]]
-
-  def leaves: Iterable[Leaf[T]]
 
   def borderLeaves(direction: Direction): Iterable[Leaf[T]]
 
@@ -207,8 +206,6 @@ trait Fork[T] extends Node[T] { fork =>
   def lowChild = if (childrenDefined) _lowChild else throw new RuntimeException("Children are not defined. (1)")
   def highChild = if (childrenDefined) _highChild else throw new RuntimeException("Children are not defined. (2)")
 
-  def leaves: Iterable[Leaf[T]] = lowChild.leaves ++ highChild.leaves
-
   def borderLeaves(direction: Direction): Iterable[Leaf[T]] =
     divisionCoordinate match {
       case direction.coordinate =>
@@ -303,8 +300,6 @@ trait Leaf[T] extends Node[T] { self =>
   def borderLeaves(direction: Direction): Iterable[Leaf[T]] = Vector(this)
 
   def refinable(maxDepth: Int) = path.length < maxDepth
-
-  def leaves: Iterable[Leaf[T]] = Vector(this)
 
   def replace(path: Path, content: T): Node[T] = {
     assert(path.isEmpty)

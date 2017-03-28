@@ -43,15 +43,11 @@ object KdTreeComputation {
 
   def findTrueLabel[CONTENT](evaluator: Evaluator[CONTENT], label: CONTENT => Boolean, testPoint: CONTENT => Vector[Double]): FindTrueLabel[CONTENT]= { (t, rng) =>
     // TODO implement lazy computations of leaves
-    if (t.leaves.exists(l => label(l.content))) NonEmptyTree(t)
+    if (leaves(t).exists(l => label(l.content))) NonEmptyTree(t)
     else {
       val newT = t.clone
       import mutable._
 
-      val leaves =
-        newT.leaves.
-          filterNot(newT.isAtomic).
-          toSeq.sortBy(_.path.length)
 
       // TODO refine is sequential maybe costly if kernel is empty, refine all bigest leaves in parallel?
       // TODO heuristic guess of control?
@@ -90,7 +86,10 @@ object KdTreeComputation {
         }
       }
 
-      refineNonAtomicLeaves(leaves.toList, newT)
+      val leavesValue =
+        leaves(newT).filterNot(newT.isAtomic).sortBy(_.path.length)
+
+      refineNonAtomicLeaves(leavesValue.toList, newT)
     }
   }
 

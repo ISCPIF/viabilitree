@@ -110,6 +110,11 @@ package object structure {
   implicit def treeToNode[T](t: TreeContent[T]) = t.root
 
 
+  def leaves[T](n: Node[T]): Vector[Leaf[T]] =
+    n match {
+      case f: Fork[T] => leaves(f.lowChild) ++ leaves(f.highChild)
+      case l: Leaf[T] => Vector(l)
+    }
 
   //type Label[T] = Lens[T, Boolean]
   //type Relabeliser[T] = (T, T => Boolean) => T
@@ -153,7 +158,7 @@ package object structure {
   }
 
   implicit class NodeDecorator[T](n: Node[T]) {
-    def leavesLabeled(label: T => Boolean, value: Boolean) = n.leaves.filter(l => label(l.content) == value)
+    def leavesLabeled(label: T => Boolean, value: Boolean) = leaves(n).filter(l => label(l.content) == value)
 
     def borderLeavesLabeled(label: T => Boolean, direction: Direction, value: Boolean) =
       n.borderLeaves(direction).filter(l => label(l.content) == value)
