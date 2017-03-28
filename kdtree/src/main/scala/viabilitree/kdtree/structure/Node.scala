@@ -260,11 +260,14 @@ trait Fork[T] extends Node[T] { fork =>
 
 object Leaf {
 
-  def apply[T](_content: T, _zone: Zone) =
+  def apply[T](content: T, zone: Zone) = {
+    val (_content, _zone) = (content, zone)
+
     new Leaf[T] {
       val zone = _zone
       val content = _content
     }
+  }
 
 }
 
