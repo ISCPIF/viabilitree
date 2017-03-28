@@ -144,6 +144,17 @@ package object export extends better.files.Implicits {
             t.controls
           )
       }
+
+      implicit def oracleApproximation = new Traceable[OracleApproximation, OracleApproximation.Content] {
+        override def columns(t: OracleApproximation) =
+          (l: Leaf[OracleApproximation.Content]) =>
+            l.content.label match {
+              case true =>
+                def content = (l.content.testPoint ++ intervals(l.zone)).map(_.toString)
+                Some(content.toVector)
+              case false => None
+            }
+      }
     }
 
     trait Traceable[T, C] {

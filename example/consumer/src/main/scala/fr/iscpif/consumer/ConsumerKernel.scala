@@ -50,6 +50,7 @@ object ConsumerKernel extends App {
   println(volume(clean(res)))
 
   saveVTK2D(res, "/tmp/test.vtk")
+  saveHyperRectangles(approximation)(res, "/tmp/test.csv")
 
 //  def zone = Seq((0.0, b), (0.0, e))
 //
