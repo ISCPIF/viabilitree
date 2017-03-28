@@ -85,7 +85,7 @@ object kernel {
       label = ControlledDynamicContent.label.get,
       testPoint = ControlledDynamicContent.testPoint.get)(rng)
 
-  def approximate(kernelComputation: KernelComputation, rng: Random, maxNumberOfStep: Option[Int] = None) = {
+  def approximate(kernelComputation: KernelComputation, rng: Random, maxNumberOfStep: Option[Int] = None, initialTree: Option[Tree[ControlledDynamicContent]] = None) = {
     import viabilitree.kdtree.structure._
 
     def whileVolumeDiffers(tree: Tree[ControlledDynamicContent], previousVolume: Option[Double] = None, step: Int = 0): (Tree[ControlledDynamicContent], Int) =
@@ -98,7 +98,7 @@ object kernel {
       else whileVolumeDiffers(newTree, Some(newVolume), step + 1)
     }
 
-    whileVolumeDiffers(initialTree(kernelComputation, rng))
+    whileVolumeDiffers(initialTree.getOrElse(kernel.initialTree(kernelComputation, rng)))
   }
 
 
