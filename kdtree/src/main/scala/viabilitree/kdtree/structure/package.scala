@@ -63,15 +63,7 @@ package object structure {
     case object NotDescendant extends Descendant
   }
 
-  object ContentReduction {
-    implicit def single[CONTENT](f: (CONTENT, CONTENT) => CONTENT) = Single(f)
-    implicit def pair[CONTENT](f: (CONTENT, CONTENT) => (CONTENT, CONTENT)) = Pair(f)
-    case class Single[CONTENT](f: (CONTENT, CONTENT) => CONTENT) extends ContentReduction[CONTENT]
-    case class Pair[CONTENT](f: (CONTENT, CONTENT) => (CONTENT, CONTENT)) extends ContentReduction[CONTENT]
-  }
-
-  sealed trait ContentReduction[CONTENT]
-
+  type ContentReduction[CONTENT] = (CONTENT, CONTENT) => Option[CONTENT]
 
   object Interval {
 
@@ -235,7 +227,7 @@ package object structure {
       case EmptyTree(_) => false
     }
 
-    def clean(content: T => Boolean, reduce: (T, T) => T) = t match {
+    def clean(content: T => Boolean, reduce: ContentReduction[T]) = t match {
       case NonEmptyTree(t) => t.clean(content, reduce)
       case e: EmptyTree[T] => e
     }
@@ -400,7 +392,7 @@ package object structure {
     }
 
 
-    def clean(content: T => Boolean, reduce: (T, T) => T): TreeContent[T] =
+    def clean(content: T => Boolean, reduce: ContentReduction[T]): TreeContent[T] =
       t.root match {
         case f: Fork[T] => TreeContent.copy(t)(root = Fork.clean(f, content, reduce))
         case l: Leaf[T] => t

@@ -20,7 +20,7 @@ package viabilitree.viability
 import monocle.macros.Lenses
 
 object ControlledDynamicContent {
-  def merge(c1: ControlledDynamicContent, c2: ControlledDynamicContent) = Left(c1)
+  def reduce(c1: ControlledDynamicContent, c2: ControlledDynamicContent) = Some(c1)
 }
 
 @Lenses case class ControlledDynamicContent(
