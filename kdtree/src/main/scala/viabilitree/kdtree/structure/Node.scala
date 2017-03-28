@@ -117,17 +117,29 @@ sealed trait Node[T] { node =>
 
 object Fork {
 
-  def clean[CONTENT](f: Fork[CONTENT], label: CONTENT => Boolean, reduce: (CONTENT, CONTENT) => CONTENT): Node[CONTENT] = {
+
+  def clean[CONTENT](f: Fork[CONTENT], label: CONTENT => Boolean, reduce: ContentReduction[CONTENT]): Node[CONTENT] = {
+    def mergeLeafs(ll: Leaf[CONTENT], lh: Leaf[CONTENT]): Node[CONTENT] =
+      reduce match {
+        case ContentReduction.Single(r) => Leaf(r(ll.content, lh.content), f.zone)
+        case ContentReduction.Pair(r) =>
+          val (c1, c2) = r(ll.content, lh.content)
+          Fork.copy(f)(
+            lowChild = Leaf.copy(ll)(content = c1),
+            highChild = Leaf.copy(lh)(content = c2)
+          )
+      }
+
     def mergeNodes(ll: Node[CONTENT], lh: Node[CONTENT]): Node[CONTENT] =
       (ll, lh) match {
         case (ll: Leaf[CONTENT], lh: Leaf[CONTENT]) =>
-          if (label(ll.content) == label(lh.content)) Leaf(reduce(ll.content, lh.content), f.zone)
+          if (label(ll.content) == label(lh.content)) mergeLeafs(ll, lh)
           else copy(f)(lowChild = ll, highChild = lh)
         case _ => copy(f)(lowChild = ll, highChild = lh)
       }
 
     (f.lowChild, f.highChild) match {
-      case (ll: Leaf[CONTENT], lh: Leaf[CONTENT]) => if (label(ll.content) == label(lh.content)) Leaf(reduce(ll.content, lh.content), f.zone) else f
+      case (ll: Leaf[CONTENT], lh: Leaf[CONTENT]) => if (label(ll.content) == label(lh.content)) mergeLeafs(ll, lh) else f
       case (fl: Fork[CONTENT], fh: Fork[CONTENT]) => mergeNodes(clean(fl, label, reduce), clean (fh, label, reduce))
       case (ll: Leaf[CONTENT], fh: Fork[CONTENT]) => mergeNodes(ll, clean (fh, label, reduce))
       case (fl: Fork[CONTENT], lh: Leaf[CONTENT]) => mergeNodes(clean (fl, label, reduce), lh)
@@ -273,6 +285,9 @@ object Leaf {
     l.parent = parent
     l
   }
+
+  def copy[T](leaf: Leaf[T])(content: T = leaf.content, zone: Zone = leaf.zone, parent: Option[Fork[T]] = None) =
+    apply(content, zone, parent)
 
 }
 

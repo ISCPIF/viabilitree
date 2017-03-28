@@ -63,6 +63,16 @@ package object structure {
     case object NotDescendant extends Descendant
   }
 
+  object ContentReduction {
+    implicit def single[CONTENT](f: (CONTENT, CONTENT) => CONTENT) = Single(f)
+    implicit def pair[CONTENT](f: (CONTENT, CONTENT) => (CONTENT, CONTENT)) = Pair(f)
+    case class Single[CONTENT](f: (CONTENT, CONTENT) => CONTENT) extends ContentReduction[CONTENT]
+    case class Pair[CONTENT](f: (CONTENT, CONTENT) => (CONTENT, CONTENT)) extends ContentReduction[CONTENT]
+  }
+
+  sealed trait ContentReduction[CONTENT]
+
+
   object Interval {
 
     implicit def tupleToInterval(t: (Double, Double)) = {
