@@ -183,12 +183,12 @@ trait Fork[T] extends Node[T] { fork =>
 
   def attachLow(child: Node[T]) {
     _lowChild = child
-    child.parent = Some(this)
+    if(child != null) child.parent = Some(this)
   }
 
   def attachHigh(child: Node[T]) {
     _highChild = child
-    child.parent = Some(this)
+    if(child != null) child.parent = Some(this)
   }
 
   def containingLeaf(point: Vector[Double]): Option[Leaf[T]] =
