@@ -17,33 +17,30 @@
 
 package fr.iscpif.consumer
 
-import fr.iscpif.kdtree.structure._
-import fr.iscpif.kdtree.content._
 
+import viabilitree.kdtree.approximation._
 import math._
-import fr.iscpif.kdtree.algorithm._
-import OracleApproximation._
-
 import scala.util.Random
 
 object ConsumerKernel extends App {
+
   val b = 2.0
   val e = 3.0
   val c = 0.5
 
-  def oracle(p: Point) =
+  def oracle(p: Vector[Double]) =
     (p(1) <= b && p(0) >= p(1) - c + (c * exp(-p(1) / c)) &&
       p(0) <= p(1) + c - (c * exp((p(1) - b) / c))) ||
       (p(1) >= b && (p(0) >= p(1) - c + (c * exp(-p(1) / c))))
 
   val approximation =
     OracleApproximation(
-      depth = 20,
-      zone = Vector((0.0, b), (0.0, e)),
-      dimension = 2,
+      depth = 12,
+      box = Vector((0.0, b), (0.0, e)),
       oracle = oracle,
       point = Some(Vector(0.001, 0.001))
     )
+
 
   val rng = new Random(42)
 
