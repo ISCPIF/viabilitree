@@ -19,6 +19,7 @@ package fr.iscpif.consumer
 
 
 import viabilitree.kdtree.approximation._
+import viabilitree.export._
 import math._
 import scala.util.Random
 
@@ -46,6 +47,9 @@ object ConsumerKernel extends App {
 
   val res = approximate(approximation)(rng).get
   println(volume(res))
+  println(volume(clean(res)))
+
+  saveVTK2D(res, "/tmp/test.vtk")
 
 //  def zone = Seq((0.0, b), (0.0, e))
 //

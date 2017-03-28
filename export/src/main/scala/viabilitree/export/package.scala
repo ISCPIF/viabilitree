@@ -27,6 +27,7 @@ import better.files._
 import viabilitree.model.Control
 import cats._
 import cats.implicits._
+import viabilitree.kdtree.approximation.OracleApproximation
 import viabilitree.viability.ControlledDynamicContent
 import viabilitree.viability.kernel.KernelComputation
 
@@ -184,6 +185,12 @@ package object export extends better.files.Implicits {
       implicit def controledDynamicIsTraceable = new Traceable[ControlledDynamicContent] {
         def label = ControlledDynamicContent.label.get
       }
+
+
+      implicit def oracleAproximationIsTraceable = new Traceable[OracleApproximation.Content] {
+        def label = OracleApproximation.Content.label.get
+      }
+
     }
 
     trait Traceable[C] {
