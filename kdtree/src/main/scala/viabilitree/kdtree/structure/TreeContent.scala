@@ -32,6 +32,9 @@ object TreeContent {
       val root = _root
       val depth = _depth
     }
+
+  def copy[T](tree: TreeContent[T])(root: Node[T] = tree.root, depth: Int = tree.depth) =
+    apply(root, depth)
 }
 
 trait TreeContent[T] {
