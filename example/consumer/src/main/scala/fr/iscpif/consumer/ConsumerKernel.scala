@@ -36,7 +36,7 @@ object ConsumerKernel extends App {
 
   val approximation =
     OracleApproximation(
-      depth = 12,
+      depth = 20,
       box = Vector((0.0, b), (0.0, e)),
       oracle = oracle,
       point = Some(Vector(0.001, 0.001))
@@ -46,11 +46,14 @@ object ConsumerKernel extends App {
   val rng = new Random(42)
 
   val res = approximate(approximation)(rng).get
+  val leClean = clean(res)
   println(volume(res))
-  println(volume(clean(res)))
+  println(volume(leClean))
 
-  saveVTK2D(res, "/tmp/test.vtk")
-  saveHyperRectangles(approximation)(res, "/tmp/test.csv")
+  saveVTK2D(res, s"/tmp/testConsumer${approximation.depth}.vtk")
+  saveVTK2D(leClean, s"/tmp/testConsumerCleanD${approximation.depth}.vtk")
+  saveHyperRectangles(approximation)(res, s"/tmp/testConsumerPointD${approximation.depth}.txt")
+  saveHyperRectangles(approximation)(leClean, s"/tmp/testConsumerCleanPointD${approximation.depth}.txt")
 
 //  def zone = Seq((0.0, b), (0.0, e))
 //

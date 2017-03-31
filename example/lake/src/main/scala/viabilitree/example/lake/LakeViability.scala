@@ -28,17 +28,19 @@ object LakeViabilityKernel extends App {
 
   val vk = KernelComputation(
     dynamic = lake.dynamic,
-    depth = 12,
+    depth = 18,
     zone = Vector((0.1, 1.0), (0.0, 1.4)),
     controls = Vector((0.09 to -0.09 by -0.01))
   )
 
   val (ak, steps) = approximate(vk, rng)
-
+  val akCL = clean(ak)
   println(steps)
-  saveVTK2D(ak,"/tmp/reslake.vtk")
-  util.Try(saveHyperRectangles(vk)(ak,"/tmp/reslakeWithControl.txt"))
-
+  saveVTK2D(ak,s"/tmp/reslakeViabCleanD${vk.depth}.vtk")
+  saveVTK2D(akCL,s"/tmp/reslakecleanFinalD${vk.depth}.vtk")
+  saveHyperRectangles(vk)(ak,"/tmp/reslakeViabCleanWithControlD${vk.depth}.txt")
+  //util.Try(saveHyperRectangles(vk)(ak,"/tmp/reslakeWithControl.txt"))
+  saveHyperRectangles(vk)(akCL,"/tmp/reslakeCleanFianlWithControlD${vk.depth}.txt")
 
   //saveVTK2D(res, ControlledDynamicContent.label.get, "/tmp/res.vtk")
   //  //saveVTK2D(initial, ControlledDynamicContent.label.get, "/tmp/initial.vtk")
