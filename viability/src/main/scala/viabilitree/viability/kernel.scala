@@ -57,7 +57,6 @@ object kernel {
     domain: Domain = InfiniteDomain,
     dilation: Int = 0) {
     def kValue = k.getOrElse(p => zone.contains(p))
-    def dimension = zone.dimension
   }
 
   def iterate(kernelComputation: KernelComputation, tree: Tree[ControlledDynamicContent], rng: Random) =
@@ -126,7 +125,7 @@ object kernel {
   def erode(kernelComputation: KernelComputation, tree: Tree[ControlledDynamicContent], rng: Random) = {
     def learnBoundary = KdTreeComputation.learnBoundary(ControlledDynamicContent.label.get, ControlledDynamicContent.testPoint.get)
 
-    val sampler = Sampler.grid(kernelComputation.depth, kernelComputation.zone, kernelComputation.dimension)
+    val sampler = Sampler.grid(kernelComputation.depth, kernelComputation.zone)
     def emptyContent(p: Vector[Double]) = ControlledDynamicContent.apply(p, None, None, true, 0)
     def ev = viabilitree.kdtree.algorithm.evaluator.sequential(emptyContent, sampler)
 
@@ -186,8 +185,7 @@ object kernel {
     controlMax: CONTENT => Int,
     dilations: Int)(tree: Tree[CONTENT], rng: Random): Tree[CONTENT] = {
 
-    def dimension = zone.dimension
-    val sampler = Sampler.grid(depth, zone, dimension)
+    val sampler = Sampler.grid(depth, zone)
     def emptyContent(p: Vector[Double]) = buildContent(p, None, None, false, 0)
     def ev = viabilitree.kdtree.algorithm.evaluator.sequential(emptyContent, sampler)
     //def ev = evaluator(depth, zone, dimension, buildContent)
@@ -229,8 +227,6 @@ object kernel {
     }
   }
 
-  def sameVolume[CONTENT](label: CONTENT => Boolean)(t1: Tree[CONTENT], t2: Tree[CONTENT]) =
-    t1.volume(label) == t2.volume(label)
 
   def findViableControl[CONTENT](
     content: CONTENT,
@@ -299,7 +295,7 @@ object kernel {
 
     def dimension = zone.dimension
     def contentBuilder(p: Vector[Double], rng: Random) = treeRefinement.exhaustiveFindViableControl(p, k, buildContent, dynamic, controls)
-    def ev = evaluator.sequential(contentBuilder(_, rng), Sampler.grid(depth, zone, dimension))
+    def ev = evaluator.sequential(contentBuilder(_, rng), Sampler.grid(depth, zone))
 
     input.zone[CONTENT](ev, label, testPoint)(zone, depth, rng)
   }

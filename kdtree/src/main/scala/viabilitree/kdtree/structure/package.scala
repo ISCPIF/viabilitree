@@ -250,6 +250,10 @@ package object structure {
       case e: EmptyTree[T] => e
     }
 
+    def contains(p: Vector[Double], label: T => Boolean) = t match {
+      case NonEmptyTree(t) => t.contains(p, label)
+      case _: EmptyTree[_] => false
+    }
   }
 
   implicit class NonEmptyTreeDecorator[T](t: TreeContent[T]) {
@@ -364,7 +368,13 @@ package object structure {
     }
 
     // TODO Choose whether if p has not been found return false
-    def label(p: Vector[Double], label: T => Boolean) = t.containingLeaf(p).map(l => label(l.content)).getOrElse(false)
+    def label(p: Vector[Double], label: T => Boolean) = contains(p, label)
+    def contains(p: Vector[Double], label: T => Boolean) =
+      t.zone.contains(p) match {
+        case false => false
+        case true => t.containingLeaf(p).map(l => label(l.content)).getOrElse(false)
+      }
+
 
     // For TreeHandling : return atomic leaves that are extreme (i.e. on the root border)
     // Note : return only positive leaves

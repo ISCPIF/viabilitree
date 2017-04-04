@@ -23,7 +23,8 @@ import scala.util.Random
 object Sampler {
   //TODO do it nicely from path instead of zone
   //TODO use superclass sampler method if possible
-  def grid(depth: Int, zone: Zone, dimension: Int) = new Sampler {
+  def grid(depth: Int, zone: Zone) = new Sampler {
+    def dimension = zone.dimension
 
     private def numberOfDivision: Int = depth / dimension
     private def numberCells: Int = powOf2(numberOfDivision)

@@ -61,4 +61,7 @@ package object viability {
 
   implicit def indexedSeqToVector[T](i: IndexedSeq[T]) = i.toVector
 
+  def sameVolume[CONTENT](label: CONTENT => Boolean)(t1: Tree[CONTENT], t2: Tree[CONTENT]) =
+    t1.volume(label) == t2.volume(label)
+
 }

@@ -28,7 +28,7 @@ object KdTreeComputation {
 //    else dilate(dilate(t, evaluator, label, testPoint), n - 1, evaluator, label, testPoint)
 
   // TODO might beneficiate from a mutable version of learnBoundary
-  def dilate[CONTENT ](evaluator: Evaluator[CONTENT], label: Lens[CONTENT, Boolean], testPoint: CONTENT => Vector[Double])(t: TreeContent[CONTENT], rng: Random): TreeContent[CONTENT] = {
+  def dilate[CONTENT](evaluator: Evaluator[CONTENT], label: Lens[CONTENT, Boolean], testPoint: CONTENT => Vector[Double])(t: TreeContent[CONTENT], rng: Random): TreeContent[CONTENT] = {
     val newT = t.clone
     val leaves = newT.criticalLeaves(newT.root, label.get).filter(l => label.get(l.content) == false).toSeq.distinct
     var currentRoot = newT.root

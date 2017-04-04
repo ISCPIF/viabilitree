@@ -26,9 +26,7 @@ case class OracleApproximation(
   box: Zone,
   oracle: Oracle,
   domain: Domain = InfiniteDomain,
-  point: Option[Vector[Double]] = None) {
-  def dimension = box.dimension
-}
+  point: Option[Vector[Double]] = None)
 
 object OracleApproximation {
   @Lenses case class Content(testPoint: Vector[Double], label: Boolean)
