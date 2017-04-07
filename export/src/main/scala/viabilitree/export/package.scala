@@ -268,7 +268,7 @@ DATASET UNSTRUCTURED_GRID""")
     file.append("\n")
   }
 
-  def saveVTK3D[T](tree: Tree[T], file: File, x: Int = 0, y: Int = 1, z: Int = 2)(traceable: VTK.Traceable[T]): Unit =
+  def saveVTK3D[T](tree: Tree[T], file: File, x: Int = 0, y: Int = 1, z: Int = 2)(implicit traceable: VTK.Traceable[T]): Unit =
     saveVTK3D(tree, traceable.label, file, x, y, z)
 
   def saveVTK3D[T](tree: Tree[T], label: T => Boolean, file: File, x: Int, y: Int, z: Int): Unit = {
