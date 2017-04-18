@@ -64,7 +64,7 @@ lazy val export = Project(id = "export", base = file("export")) settings(default
 lazy val viability = Project(id = "viability", base = file("viability")) settings(defaultSettings: _*) dependsOn(kdtree, model)
 
 lazy val model = Project(id = "model", base = file("model"))  settings(defaultSettings: _*) settings (
-  libraryDependencies += "org.apache.commons" % "commons-math3" % "3.4.1")
+  libraryDependencies += "org.apache.commons" % "commons-math3" % "3.6.1")
 
 lazy val strategy = Project(id = "strategy", base = file("strategy")) settings(defaultSettings: _*) dependsOn(viability, kdtree)
 
