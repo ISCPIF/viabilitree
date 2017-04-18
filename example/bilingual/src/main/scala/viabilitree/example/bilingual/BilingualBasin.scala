@@ -102,7 +102,9 @@ object BilingualBasin extends App {
     defined = Some(p => p(0) + p(1) <= 1 && p.forall(_ >= 0))
   )
 
+  val begin = System.currentTimeMillis()
   val (basin, step) = approximate(bc, rng)
+  println("time: " + (System.currentTimeMillis() - begin))
   println(volume(basin))
   println(step)
 

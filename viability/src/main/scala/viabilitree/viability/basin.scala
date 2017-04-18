@@ -60,19 +60,41 @@ object basin {
   }
 
   def approximate(basinComputation: BasinComputation, rng: Random, maxNumberOfStep: Option[Int] = None) = {
+
+    def cleanNonCritical(tree: NonEmptyTree[Content]): NonEmptyTree[Content] = {
+      def reduce[CONTENT](criticalLeaves: Vector[Zone], label: CONTENT => Boolean, testPoint: CONTENT => Vector[Double]): ContentReduction[CONTENT] = {
+        def pointInCriticalLeaf(t: CONTENT) = criticalLeaves.exists(l => l.contains(testPoint(t)))
+
+        (c1: Leaf[CONTENT], c2: Leaf[CONTENT]) =>
+          (pointInCriticalLeaf(c1.content) || pointInCriticalLeaf(c2.content)) match {
+            case true => None
+            case _ => maximalReduction(criticalLeaves, testPoint)(c1, c2)
+          }
+      }
+
+      tree.nonEmptyTree.clean(
+        Content.label.get,
+        reduce(tree.criticalLeaves(Content.label.get).map(_.zone).toVector,
+          Content.label.get,
+          Content.testPoint.get)
+      )
+    }
+
+
     def whileVolumeDiffers(tree: NonEmptyTree[Content], previousVolume: Option[Double] = None, step: Int = 0): (NonEmptyTree[Content], Int) =
       if(maxNumberOfStep.map(ms => step >= ms).getOrElse(false)) (tree, step)
       else {
-        //val newTree = cleanBetweenStep(iterate(kernelComputation, tree, rng))
-        val withNewTarget = basinComputation.copy(target = p => tree.contains(p, Content.label.get))
-        val newTree = iterate(withNewTarget, tree, rng)
+        val cleanTree = cleanNonCritical(tree)
+        val withNewTarget = basinComputation.copy(target = p => cleanTree.contains(p, Content.label.get))
+        val newTree = iterate(withNewTarget, cleanTree, rng)
         val newVolume = volume(newTree)
         def sameVolume = previousVolume.map(_ == newVolume).getOrElse(false)
         if (sameVolume) (tree, step)
         else whileVolumeDiffers(newTree, Some(newVolume), step + 1)
       }
 
-    whileVolumeDiffers(initialTree(basinComputation, rng))
+    def cleanedInitialTree = cleanNonCritical(initialTree(basinComputation, rng))
+    whileVolumeDiffers(cleanedInitialTree)
   }
 
   /* --------------------------------------------*/
