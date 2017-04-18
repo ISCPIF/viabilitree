@@ -51,7 +51,8 @@ lazy val defaultSettings =
 
 lazy val kdtree = Project(id = "kdtree", base = file("kdtree")) settings(defaultSettings: _*) settings (
   libraryDependencies ++= monocle,
-  libraryDependencies += cats)
+  libraryDependencies += cats,
+  libraryDependencies += simulacrum)
 
 lazy val export = Project(id = "export", base = file("export")) settings(defaultSettings: _*) dependsOn(kdtree, viability) settings (
   // REPLACE with better files
@@ -93,3 +94,6 @@ lazy val monocle = Seq(
 )
 
 lazy val cats = "org.typelevel" %% "cats" % "0.9.0"
+
+lazy val simulacrum = "com.github.mpilquist" %% "simulacrum" % "0.10.0"
+

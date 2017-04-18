@@ -472,8 +472,10 @@ package object structure {
         TreeContent(currentRoot, t.depth)
       }
     }
-
-
   }
 
+  import simulacrum._
+  @typeclass trait ContainsLabel[T] {
+    def label(t: T): Boolean
+  }
 }

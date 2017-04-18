@@ -8,6 +8,9 @@ import util.Random
 object basin {
 
 
+  case class Content()
+
+
   def step[CONTENT: Manifest](
     dynamic: (Vector[Double], Vector[Double]) => Vector[Double],
     tree: NonEmptyTree[CONTENT],

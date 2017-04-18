@@ -17,20 +17,4 @@
 
 package viabilitree.viability
 
-import monocle.macros.Lenses
-import viabilitree.kdtree.structure._
-
-object ControlledDynamicContent {
-  def reduce: ContentReduction[ControlledDynamicContent] =
-    (c1: Leaf[ControlledDynamicContent], c2: Leaf[ControlledDynamicContent]) => Some(c1.content)
-
-
-}
-
-@Lenses case class ControlledDynamicContent(
-  testPoint: Vector[Double],
-  control: Option[Int],
-  resultPoint: Option[Vector[Double]],
-  label: Boolean,
-  controlMax: Int)
 

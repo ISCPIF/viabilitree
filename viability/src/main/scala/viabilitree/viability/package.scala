@@ -45,7 +45,10 @@ package object viability {
     }
   }
 
-  def volume(tree: Tree[ControlledDynamicContent]) = tree.volume(ControlledDynamicContent.label.get)
+
+
+
+  def volume[T](tree: Tree[T])(implicit c: ContainsLabel[T]) = tree.volume(c.label)
 
   lazy val Zone = viabilitree.kdtree.structure.Zone
 
