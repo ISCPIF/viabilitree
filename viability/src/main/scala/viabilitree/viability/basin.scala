@@ -22,7 +22,7 @@ object basin {
     target: Oracle,
     controls: Vector[Double] => Vector[Control],
     k: Option[Oracle] = None,
-    defined: Option[Oracle] = None)
+    domain: Domain = InfiniteDomain)
 
 
   /* TODO verify preconditions: point in target, in defined.... */
@@ -50,7 +50,7 @@ object basin {
       basinComputation.dynamic,
       tree,
       basinComputation.target,
-      basinComputation.defined.getOrElse(k),
+      basinComputation.domain,
       k,
       basinComputation.controls,
       Content.apply,
@@ -97,6 +97,23 @@ object basin {
     whileVolumeDiffers(cleanedInitialTree)
   }
 
+
+  def erode(basinComputation: BasinComputation, tree: NonEmptyTree[Content], rng: Random) = {
+    def learnBoundary = KdTreeComputation.learnBoundary[Content](Content.label.get, Content.testPoint.get)
+
+    val sampler = Sampler.grid(basinComputation.depth, basinComputation.zone)
+    def emptyContent(p: Vector[Double]) = Content.apply(p, None, None, true)
+    def ev = viabilitree.kdtree.algorithm.evaluator.sequential(emptyContent, sampler)
+
+    viabilitree.kdtree.algorithm.KdTreeComputation.erosion[Content](
+      learnBoundary,
+      ev,
+      Content.label,
+      KdTreeComputation.leavesToErode(basinComputation.domain, basinComputation.zone, Content.label.get)
+    )(tree, rng)
+  }
+
+
   /* --------------------------------------------*/
 
 
@@ -115,7 +132,7 @@ object basin {
     dynamic: (Vector[Double], Vector[Double]) => Vector[Double],
     tree: NonEmptyTree[CONTENT],
     target: Oracle,
-    defined: Oracle,
+    domain: Domain,
     k: Oracle,
     controls: Vector[Double] => Vector[Control],
     buildContent: (Vector[Double], Option[Vector[Double]], Option[Vector[Double]], Boolean) => CONTENT,
@@ -123,16 +140,18 @@ object basin {
     testPoint: CONTENT => Vector[Double],
     rng: Random) = {
 
+    import Domain._
+
     def appliedControl(x: Vector[Double], rng: Random) = controls(x).view.map { ctrl => ctrl.value -> dynamic(x, ctrl.value)}
 
     def learnContent(x: Vector[Double], rng: Random): CONTENT =
-      appliedControl(x, rng).find { case(_, result) =>  defined(result) && k(result) && target(result) } match {
+      appliedControl(x, rng).find { case(_, result) => contains(domain, result) && k(result) && target(result) } match {
         case Some((ctrl, result)) => buildContent(x, Some(ctrl), Some(result), true)
         case None => buildContent(x, None, None, false)
       }
 
     def testAndLearnContent(x: Vector[Double], rng: Random): CONTENT =
-      defined(x) && k(x) match {
+      contains(domain, x) && k(x) match {
         case true => learnContent(x, rng)
         case false => buildContent(x, None, None, false)
       }

@@ -31,6 +31,11 @@ package object algorithm {
   
   object Domain {
     implicit def oracleToDomain(oracle: Oracle) = BlackBoxDomain(oracle)
+    def contains(domain: Domain, point: Vector[Double]) =
+      domain match {
+        case InfiniteDomain => true
+        case BlackBoxDomain(d) => d(point)
+      }
   }
 
   sealed trait Domain
