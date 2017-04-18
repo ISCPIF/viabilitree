@@ -5,7 +5,7 @@ import viabilitree.kdtree.structure._
 
 package object approximation {
 
-  def sampler(o: OracleApproximation) = Sampler.grid(o.depth, o.box, o.dimension)
+  def sampler(o: OracleApproximation) = Sampler.grid(o.depth, o.box)
   def contentBuilder(oracle: Oracle)(p: Vector[Double]) = OracleApproximation.Content(p, oracle(p))
   def eval(o: OracleApproximation) = evaluator.sequential[OracleApproximation.Content](contentBuilder(o.oracle), sampler(o))(_, _)
   def learnBoundary(o: OracleApproximation) = KdTreeComputation.learnBoundary(OracleApproximation.Content.label.get, OracleApproximation.Content.testPoint.get)

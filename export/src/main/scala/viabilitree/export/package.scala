@@ -17,19 +17,13 @@
 
 package viabilitree
 
-//import java.io._
-import java.util.zip.{GZIPInputStream, GZIPOutputStream}
-
 import viabilitree.kdtree.structure._
 import com.thoughtworks.xstream._
 import io.binary._
 import better.files._
-import viabilitree.model.Control
 import cats._
 import cats.implicits._
 import viabilitree.kdtree.approximation.OracleApproximation
-import viabilitree.viability.ControlledDynamicContent
-import viabilitree.viability.kernel.KernelComputation
 
 import scala.util.Failure
 
@@ -117,9 +111,9 @@ package object export extends better.files.Implicits {
 
     def viabilityControlledDynamic(kernelComputation: KernelComputation) =
       viabilityKernelColumns(
-        ControlledDynamicContent.label.get,
-        ControlledDynamicContent.testPoint.get,
-        ControlledDynamicContent.control.get,
+        Content.label.get,
+        Content.testPoint.get,
+        Content.control.get,
         kernelComputation.controls
       )
 
@@ -132,15 +126,12 @@ package object export extends better.files.Implicits {
       }
 
     object Traceable {
-      implicit def kernelComputation = new Traceable[KernelComputation, viabilitree.viability.ControlledDynamicContent] {
-
-        import viabilitree.viability._
-
+      implicit def kernelComputation = new Traceable[KernelComputation, viability.kernel.Content] {
         override def columns(t: KernelComputation) =
-          HyperRectangles.viabilityKernelColumns[ControlledDynamicContent](
-            ControlledDynamicContent.label.get,
-            ControlledDynamicContent.testPoint.get,
-            ControlledDynamicContent.control.get,
+          HyperRectangles.viabilityKernelColumns[Content](
+            Content.label.get,
+            Content.testPoint.get,
+            Content.control.get,
             t.controls
           )
       }
@@ -191,10 +182,9 @@ package object export extends better.files.Implicits {
   object VTK {
 
     object Traceable {
-      import viability.ControlledDynamicContent
 
-      implicit def controledDynamicIsTraceable = new Traceable[ControlledDynamicContent] {
-        def label = ControlledDynamicContent.label.get
+      implicit def kernelContentDynamicIsTraceable = new Traceable[viability.kernel.Content] {
+        def label = viability.kernel.Content.label.get
       }
 
 
@@ -268,7 +258,7 @@ DATASET UNSTRUCTURED_GRID""")
     file.append("\n")
   }
 
-  def saveVTK3D[T](tree: Tree[T], file: File, x: Int = 0, y: Int = 1, z: Int = 2)(traceable: VTK.Traceable[T]): Unit =
+  def saveVTK3D[T](tree: Tree[T], file: File, x: Int = 0, y: Int = 1, z: Int = 2)(implicit traceable: VTK.Traceable[T]): Unit =
     saveVTK3D(tree, traceable.label, file, x, y, z)
 
   def saveVTK3D[T](tree: Tree[T], label: T => Boolean, file: File, x: Int, y: Int, z: Int): Unit = {

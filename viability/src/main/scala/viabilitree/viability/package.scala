@@ -45,7 +45,10 @@ package object viability {
     }
   }
 
-  def volume(tree: Tree[ControlledDynamicContent]) = tree.volume(ControlledDynamicContent.label.get)
+
+
+
+  def volume[T](tree: Tree[T])(implicit c: ContainsLabel[T]) = tree.volume(c.label)
 
   lazy val Zone = viabilitree.kdtree.structure.Zone
 
@@ -60,5 +63,8 @@ package object viability {
   lazy val Control = model.Control
 
   implicit def indexedSeqToVector[T](i: IndexedSeq[T]) = i.toVector
+
+  def sameVolume[CONTENT](label: CONTENT => Boolean)(t1: Tree[CONTENT], t2: Tree[CONTENT]) =
+    t1.volume(label) == t2.volume(label)
 
 }
