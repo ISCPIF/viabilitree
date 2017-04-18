@@ -183,8 +183,10 @@ package object export extends better.files.Implicits {
 
     object Traceable {
 
-      implicit def kernelContentDynamicIsTraceable = new Traceable[viability.kernel.Content] {
-        def label = viability.kernel.Content.label.get
+      import viabilitree.kdtree.structure._
+
+      implicit def kernelContentDynamicIsTraceable[T](implicit l: ContainsLabel[T]) = new Traceable[T] {
+        def label = l.label
       }
 
 

@@ -1,20 +1,99 @@
 package viabilitree.viability
 
+import monocle.macros.Lenses
 import viabilitree.kdtree.algorithm._
 import viabilitree.kdtree._
 import viabilitree.kdtree.structure._
+import viabilitree.viability.kernel._
+
 import util.Random
 
 object basin {
 
 
-  case class Content()
+  /* ----------------- API --------------------- */
+
+
+  case class BasinComputation(
+    zone: Zone,
+    depth: Int,
+    pointInTarget: Vector[Double],
+    dynamic: (Vector[Double], Vector[Double]) => Vector[Double],
+    target: Oracle,
+    controls: Vector[Double] => Vector[Control],
+    k: Option[Oracle] = None,
+    defined: Option[Oracle] = None)
+
+
+  /* TODO verify preconditions: point in target, in defined.... */
+  def initialTree(
+    basinComputation: BasinComputation,
+    rng: Random): NonEmptyTree[Content] =
+    initialTree[Content](
+      basinComputation.zone,
+      basinComputation.depth,
+      basinComputation.target,
+      basinComputation.pointInTarget,
+      Content.apply,
+      Content.label.get,
+      Content.testPoint.get,
+      rng
+    )
+
+  def iterate(
+    basinComputation: BasinComputation,
+    tree: NonEmptyTree[Content],
+    rng: Random) = {
+    def k = basinComputation.k.getOrElse(basinComputation.zone.contains(_))
+
+    step[Content](
+      basinComputation.dynamic,
+      tree,
+      basinComputation.target,
+      basinComputation.defined.getOrElse(k),
+      k,
+      basinComputation.controls,
+      Content.apply,
+      Content.label.get,
+      Content.testPoint.get,
+      rng)
+  }
+
+  def approximate(basinComputation: BasinComputation, rng: Random, maxNumberOfStep: Option[Int] = None) = {
+    def whileVolumeDiffers(tree: NonEmptyTree[Content], previousVolume: Option[Double] = None, step: Int = 0): (NonEmptyTree[Content], Int) =
+      if(maxNumberOfStep.map(ms => step >= ms).getOrElse(false)) (tree, step)
+      else {
+        //val newTree = cleanBetweenStep(iterate(kernelComputation, tree, rng))
+        val withNewTarget = basinComputation.copy(target = p => tree.contains(p, Content.label.get))
+        val newTree = iterate(withNewTarget, tree, rng)
+        val newVolume = volume(newTree)
+        def sameVolume = previousVolume.map(_ == newVolume).getOrElse(false)
+        if (sameVolume) (tree, step)
+        else whileVolumeDiffers(newTree, Some(newVolume), step + 1)
+      }
+
+    whileVolumeDiffers(initialTree(basinComputation, rng))
+  }
+
+  /* --------------------------------------------*/
+
+
+  object Content {
+    implicit def kernelContent: ContainsLabel[Content] = ContainsLabel[Content](Content.label.get)
+  }
+
+  @Lenses case class Content(
+    testPoint: Vector[Double],
+    control: Option[Vector[Double]],
+    resultPoint: Option[Vector[Double]],
+    label: Boolean)
 
 
   def step[CONTENT: Manifest](
     dynamic: (Vector[Double], Vector[Double]) => Vector[Double],
     tree: NonEmptyTree[CONTENT],
     target: Oracle,
+    defined: Oracle,
     k: Oracle,
     controls: Vector[Double] => Vector[Control],
     buildContent: (Vector[Double], Option[Vector[Double]], Option[Vector[Double]], Boolean) => CONTENT,
@@ -25,13 +104,13 @@ object basin {
     def appliedControl(x: Vector[Double], rng: Random) = controls(x).view.map { ctrl => ctrl.value -> dynamic(x, ctrl.value)}
 
     def learnContent(x: Vector[Double], rng: Random): CONTENT =
-      appliedControl(x, rng).find { case(_, result) =>  k(result) && target(result) } match {
+      appliedControl(x, rng).find { case(_, result) =>  defined(result) && k(result) && target(result) } match {
         case Some((ctrl, result)) => buildContent(x, Some(ctrl), Some(result), true)
         case None => buildContent(x, None, None, false)
       }
 
     def testAndLearnContent(x: Vector[Double], rng: Random): CONTENT =
-      k(x) match {
+      defined(x) && k(x) match {
         case true => learnContent(x, rng)
         case false => buildContent(x, None, None, false)
       }
@@ -47,20 +126,19 @@ object basin {
     KdTreeComputation.learnBoundary(label, testPoint)(reassignedTree, ev, rng)
   }
 
-
   def initialTree[CONTENT: Manifest](
     zone: Zone,
     depth: Int,
+    target: Oracle,
     pointInTarget: Vector[Double],
     buildContent: (Vector[Double], Option[Vector[Double]], Option[Vector[Double]], Boolean) => CONTENT,
     label: CONTENT => Boolean,
     testPoint: CONTENT => Vector[Double],
     rng: Random): NonEmptyTree[CONTENT] = {
 
-    def content(point: Vector[Double]) = buildContent(point, None, None, true)
-    def tree = TreeContent(content(pointInTarget), zone, depth)
-
     val sampler = Sampler.grid(depth, zone)
+    def content(point: Vector[Double]) = buildContent(point, None, None, target(point))
+    def tree = TreeContent(content(sampler.align(pointInTarget)), zone, depth)
     def ev = evaluator.sequential(content, sampler)
 
     KdTreeComputation.learnBoundary(label, testPoint)(tree, ev, rng)

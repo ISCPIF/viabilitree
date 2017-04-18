@@ -35,7 +35,6 @@ object LakeViabilityKernel extends App {
 
   val (ak, steps) = approximate(vk, rng)
 
-  println(steps)
   saveVTK2D(ak,"/tmp/reslake.vtk")
   util.Try(saveHyperRectangles(vk)(ak,"/tmp/reslakeWithControl.txt"))
 

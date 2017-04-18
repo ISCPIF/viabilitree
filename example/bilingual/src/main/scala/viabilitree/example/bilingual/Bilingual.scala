@@ -15,35 +15,29 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package fr.iscpif.bilingual
+package viabilitree.example.bilingual
 
-import fr.iscpif.model._
-import fr.iscpif.kdtree.structure._
-import viabilitree.model.Dynamic
+import viabilitree.model._
 
-import math._
+import scala.math._
 
-object Bilingual {
+case class Bilingual(a: Double = 1.31, integrationStep: Double = 0.1, timeStep: Double = 1) {
 
-  val integrationStep = 0.1
-  val timeStep = 1
-
-  val a: Double = 1.31
-
-  def apply(state: Point, control: Point) = {
+  def apply(state: Vector[Double], control: Vector[Double]): Vector[Double] = {
     def sA = state(0)
     def sB = state(1)
     def s = state(2)
-    def σaDot(state: Array[Double], t: Double) =
+    def σaDot(state: Vector[Double], t: Double) =
       (1 - sA - sB) * pow(1 - sB, a) * s - sA * pow(sB, a) * (1 - s)
 
-    def σbDot(state: Array[Double], t: Double) =
+    def σbDot(state: Vector[Double], t: Double) =
       (1 - sA - sB) * pow(1 - sA, a) * (1 - s) - sB * pow(sA, a) * s
 
-    def sDot(state: Array[Double], t: Double) =
+    def sDot(state: Vector[Double], t: Double) =
       control(0)
 
     val dynamic = Dynamic(σaDot, σbDot, sDot)
-    dynamic.integrate(state.toArray, integrationStep, timeStep).toSeq
+    dynamic.integrate(state.toArray, integrationStep, timeStep)
   }
+
 }
