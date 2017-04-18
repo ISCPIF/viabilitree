@@ -17,6 +17,8 @@ import scalax.io.Resource
 import math._
 
 object PopulationKernel extends App with OracleApproximation with ZoneAndPointInput {
+
+
   val a = 0.2
   val b = 3.0
   val c = 0.5

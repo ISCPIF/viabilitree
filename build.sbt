@@ -70,13 +70,13 @@ lazy val strategy = Project(id = "strategy", base = file("strategy")) settings(d
 
 /*----- Exemples -----*/
 
-lazy val lotkavoltera = Project(id = "lotkavoltera", base = file("example/lotkavoltera")) settings(settings: _*) dependsOn(viability, export, model)
+//lazy val lotkavoltera = Project(id = "lotkavoltera", base = file("example/lotkavoltera")) settings(settings: _*) dependsOn(viability, export, model)
 
-lazy val cyclic = Project(id = "cyclic", base = file("example/cyclic")) settings(settings: _*) dependsOn(viability, export, model)
+//lazy val cyclic = Project(id = "cyclic", base = file("example/cyclic")) settings(settings: _*) dependsOn(viability, export, model)
 
-lazy val consumer = Project(id = "consumer", base = file("example/consumer")) settings(settings: _*) dependsOn(viability, export, model)
+//lazy val consumer = Project(id = "consumer", base = file("example/consumer")) settings(settings: _*) dependsOn(viability, export, model)
 
-lazy val population = Project(id = "population", base = file("example/population")) settings(settings: _*) dependsOn(viability, export, model)
+//lazy val population = Project(id = "population", base = file("example/population")) settings(settings: _*) dependsOn(viability, export, model)
 
 lazy val lake = Project(id = "lake", base = file("example/lake")) settings(settings: _*) dependsOn(viability, export, model, strategy)
 
