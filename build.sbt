@@ -82,6 +82,7 @@ lazy val lake = Project(id = "lake", base = file("example/lake")) settings(setti
 
 lazy val bilingual = Project(id = "bilingual", base = file("example/bilingual")) settings(settings: _*) dependsOn(viability, export, model)
 
+lazy val circle = Project(id = "circle", base = file("example/circle")) settings(settings: _*) dependsOn(kdtree, export)
 
 /*----- Libraries ------ */
 
