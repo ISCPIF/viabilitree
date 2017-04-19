@@ -5,7 +5,7 @@ name := "viabilitree"
 
 def settings =
   Seq(
-    scalaVersion := "2.12.1",
+    scalaVersion := "2.12.2",
     publishArtifact := false,
     addCompilerPlugin("org.scalamacros" %% "paradise" % "2.1.0" cross CrossVersion.full)
   )
