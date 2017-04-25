@@ -85,9 +85,8 @@ trait Zone {
       }
     }
 
-  def contains(point: Vector[Double]): Boolean = (point zip region).forall {
-    case (p, r) => r.min <= p && p < r.max
-  }
+  def contains(point: Vector[Double]): Boolean =
+    (point zip region).forall { case (p, r) => r.min <= p && p < r.max }
 
   //Draw a random point in a zone
   def randomPoint(rng: Random): Vector[Double] =

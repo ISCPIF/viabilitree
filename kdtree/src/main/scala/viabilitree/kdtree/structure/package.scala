@@ -28,28 +28,91 @@ import scala.util.Random
 package object structure {
 
   object Tree {
-    implicit def fromTreeContent[T](treeContent: TreeContent[T]) = NonEmptyTree(treeContent)
+    import cats._
+    implicit def functor: Functor[Tree] = new Functor[Tree] {
+      override def map[A, B](fa: Tree[A])(f: (A) => B): Tree[B] =
+        fa match {
+          case t: NonEmptyTree[A] => NonEmptyTree.functor.map(t)(f)
+          case e: EmptyTree[A] => EmptyTree.functor.map(e)(f)
+        }
+    }
   }
 
   sealed trait Tree[T] {
-    def map(f: TreeContent[T] => TreeContent[T]): Tree[T] = this match {
-      case NonEmptyTree(c) => NonEmptyTree(f(c))
+    def map(f: NonEmptyTree[T] => NonEmptyTree[T]): Tree[T] = this match {
+      case t: NonEmptyTree[T] => f(t)
       case x: EmptyTree[T] => x
     }
 
-    def flatMap(f: TreeContent[T] => Tree[T]): Tree[T] = this match {
-      case NonEmptyTree(c) => f(c)
+    def flatMap(f: NonEmptyTree[T] => Tree[T]): Tree[T] = this match {
+      case t: NonEmptyTree[T] => f(t)
       case x: EmptyTree[T] => x
     }
 
     def dimension: Int
   }
 
+  object EmptyTree {
+    import cats._
+    implicit def functor: Functor[EmptyTree] = new Functor[EmptyTree] {
+      override def map[A, B](fa: EmptyTree[A])(f: (A) => B): EmptyTree[B] = EmptyTree[B](fa.zone)
+    }
+  }
+
+
   case class EmptyTree[T](zone: Zone) extends Tree[T] {
     def dimension = zone.dimension
   }
-  case class NonEmptyTree[T](nonEmptyTree: TreeContent[T]) extends Tree[T]{
-    def dimension = nonEmptyTree.dimension
+
+
+  import com.rits.cloning.Cloner
+  import scala.reflect._
+  import cats._
+
+  object NonEmptyTree {
+
+    def apply[T](content: T, zone: Zone, depth: Int): NonEmptyTree[T] =
+      apply(Leaf(content, zone), depth)
+
+    def apply[T](_root: Node[T], _depth: Int): NonEmptyTree[T] =
+      new NonEmptyTree[T] {
+        val root = _root
+        val depth = _depth
+      }
+
+    def copy[T](tree: NonEmptyTree[T])(root: Node[T] = tree.root, depth: Int = tree.depth) =
+      apply(root, depth)
+
+    def clone[T: ClassTag](treeContent: NonEmptyTree[T]) = {
+      val cloner = new Cloner
+      cloner.registerImmutable(scala.reflect.classTag[T].runtimeClass)
+      cloner.dontCloneInstanceOf(classOf[Descendant])
+      cloner.dontCloneInstanceOf(None.getClass)
+      cloner.deepClone(treeContent)
+    }
+
+    implicit def functor: Functor[NonEmptyTree] = new Functor[NonEmptyTree] {
+      override def map[A, B](fa: NonEmptyTree[A])(f: (A) => B): NonEmptyTree[B] = {
+        val newRoot =
+          fa.root match {
+            case l: Leaf[A] => Leaf.map(l)(f)
+            case fork: Fork[A] => Fork.map(fork)(f)
+          }
+
+        NonEmptyTree[B](newRoot, fa.depth)
+      }
+    }
+
+  }
+
+  trait NonEmptyTree[T] extends Tree[T] {
+    def depth: Int
+    def root: Node[T]
+    def isAtomic(l: Leaf[T]) = l.depth >= depth
+    def leaves = viabilitree.kdtree.structure.leaves(root)
+    def atomicLeaves = leaves.filter(isAtomic)
+    def dimension = root.zone.region.size
+    def leaf(path: Path) = root.leaf(path)
   }
 
 
@@ -112,6 +175,15 @@ package object structure {
     else (a - b).abs <= (a.abs + b.abs) * eps
   }
 
+  /* Projection of the point on the zone */
+  def projection(point: Vector[Double], zone: Zone): Vector[Double] =
+    (zone.region zip point).map {
+      case (interval, pi) =>
+        if (pi < interval.min) interval.min
+        else if (pi > interval.max) interval.max
+        else pi
+    }.toVector
+
   //////////////////// REFINING
 
   def pairsToSet[T](pairs: Iterable[(Leaf[T], Leaf[T], Int)]): Iterable[(Leaf[T], Int)] =
@@ -119,7 +191,7 @@ package object structure {
       case (l1, l2, i) => List(l1 -> i, l2 -> i)
     }
 
-  implicit def treeToNode[T](t: TreeContent[T]) = t.root
+  implicit def treeToNode[T](t: NonEmptyTree[T]) = t.root
 
 
   def leaves[T](n: Node[T]): Vector[Leaf[T]] =
@@ -216,63 +288,63 @@ package object structure {
 
   implicit class TreeDecorator[T](t: Tree[T]) {
     def volume(label: T => Boolean) = t match {
-      case NonEmptyTree(t) => new NonEmptyTreeDecorator(t).volume(label)
+      case t: NonEmptyTree[T] => new NonEmptyTreeDecorator(t).volume(label)
       case EmptyTree(_) => 0.0
     }
 
     def atomicLeaves: Iterable[Leaf[T]] = t match {
-      case NonEmptyTree(t) => t.atomicLeaves
+      case t: NonEmptyTree[T] => t.atomicLeaves
       case EmptyTree(_) => Vector.empty
     }
 
     def leaves: Iterable[Leaf[T]] = t match {
-      case NonEmptyTree(t) => t.leaves
+      case t: NonEmptyTree[T] => t.leaves
       case EmptyTree(_) => Vector.empty
     }
 
     def leavesOnRootZone(label: T => Boolean): Iterable[(Leaf[T], Int)] = t match {
-      case NonEmptyTree(t) => t.leavesOnRootZone(label)
+      case t: NonEmptyTree[T] => t.leavesOnRootZone(label)
       case EmptyTree(_) => Vector.empty
     }
 
     def criticalLeaves(label: T => Boolean, includeNonAtomic: Boolean = false): Iterable[Leaf[T]] = t match {
-      case NonEmptyTree(t) => t.criticalLeaves(label = label, includeNonAtomic = includeNonAtomic)
+      case t: NonEmptyTree[T] => t.criticalLeaves(label = label, includeNonAtomic = includeNonAtomic)
       case EmptyTree(_) => Vector.empty
     }
 
     def isAtomic(leaf: Leaf[T]) = t match {
-      case NonEmptyTree(t) => t.isAtomic(leaf)
+      case t: NonEmptyTree[T] => t.isAtomic(leaf)
       case EmptyTree(_) => false
     }
 
     def clean(label: T => Boolean, reduce: ContentReduction[T]): Tree[T] = t match {
-      case NonEmptyTree(t) => t.clean(label, reduce)
+      case t: NonEmptyTree[T] => t.clean(label, reduce)
       case e: EmptyTree[T] => e
     }
 
-    def contains(p: Vector[Double], label: T => Boolean) = t match {
-      case NonEmptyTree(t) => t.contains(p, label)
+    def contains(p: Vector[Double], label: T => Boolean): Boolean = t match {
+      case t: NonEmptyTree[T] => t.contains(p, label)
       case _: EmptyTree[_] => false
     }
   }
 
-  implicit class NonEmptyTreeDecorator[T](t: TreeContent[T]) {
+  implicit class NonEmptyTreeDecorator[T](t: NonEmptyTree[T]) {
 
     def volume(label: T => Boolean) = t.root.volume(label)
 
     def reassign(update: T => T)(implicit m: Manifest[T]) = {
-      val newT = t.clone
+      val newT = NonEmptyTree.clone(t)
       newT.leaves.foreach {
         l => newT.replace(l.path, update(l.content))
       }
       newT
     }
 
-    def criticalLeaves(n: Node[T] = t.root, label: T => Boolean, includeNonAtomic: Boolean = false): Iterable[Leaf[T]] =
+    def criticalLeaves(label: T => Boolean, n: Node[T] = t.root, includeNonAtomic: Boolean = false): Iterable[Leaf[T]] =
       (n match {
         case leaf: Leaf[T] => List.empty
         case fork: Fork[T] =>
-          criticalLeaves(fork.lowChild, label, includeNonAtomic) ++ criticalLeaves(fork.highChild, label, includeNonAtomic) ++
+          criticalLeaves(label, fork.lowChild, includeNonAtomic) ++ criticalLeaves(label, fork.highChild, includeNonAtomic) ++
             criticalLeavesBetweenNodes(fork.lowChild, fork.highChild, label, includeNonAtomic)
       }).toSeq.distinct
 
@@ -420,9 +492,9 @@ package object structure {
     }
 
 
-    def clean(content: T => Boolean, reduce: ContentReduction[T]): TreeContent[T] =
+    def clean(content: T => Boolean, reduce: ContentReduction[T]): NonEmptyTree[T] =
       t.root match {
-        case f: Fork[T] => TreeContent.copy(t)(root = Fork.clean(f, content, reduce))
+        case f: Fork[T] => NonEmptyTree.copy(t)(root = Fork.clean(f, content, reduce))
         case l: Leaf[T] => t
       }
 
@@ -458,7 +530,7 @@ package object structure {
 
   object mutable {
 
-    implicit class MutableTreeDecorator[T](t: TreeContent[T]) {
+    implicit class MutableTreeDecorator[T](t: NonEmptyTree[T]) {
       def evaluateAndInsert(
         zonesAndPaths: Vector[(Zone, Path)],
         evaluator: (Vector[Zone], Random) => Seq[T])(implicit rng: Random) = {
@@ -469,7 +541,7 @@ package object structure {
           case (path, content) =>
             currentRoot = currentRoot.insert(path, content).rootCalling
         }
-        TreeContent(currentRoot, t.depth)
+        NonEmptyTree(currentRoot, t.depth)
       }
     }
   }

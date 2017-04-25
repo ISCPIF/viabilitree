@@ -72,7 +72,7 @@ object basin {
           }
       }
 
-      tree.nonEmptyTree.clean(
+      tree.clean(
         Content.label.get,
         reduce(tree.criticalLeaves(Content.label.get).map(_.zone).toVector,
           Content.label.get,
@@ -85,7 +85,7 @@ object basin {
       if(maxNumberOfStep.map(ms => step >= ms).getOrElse(false)) (tree, step)
       else {
         val cleanTree = cleanNonCritical(tree)
-        val withNewTarget = basinComputation.copy(target = p => cleanTree.contains(p, Content.label.get))
+        val withNewTarget = basinComputation.copy(target = p => cleanTree.contains(p, Content.label.get(_)))
         val newTree = iterate(withNewTarget, cleanTree, rng)
         val newVolume = volume(newTree)
         def sameVolume = previousVolume.map(_ == newVolume).getOrElse(false)
@@ -110,7 +110,7 @@ object basin {
       ev,
       Content.label,
       KdTreeComputation.leavesToErode(basinComputation.domain, basinComputation.zone, Content.label.get)
-    )(tree, rng)
+    ).apply(tree, rng)
   }
 
 
@@ -157,14 +157,14 @@ object basin {
       }
 
     def reassignedTree =
-      tree.nonEmptyTree.reassign {
+      tree.reassign {
         content => if(label(content)) content else testAndLearnContent(testPoint(content), rng)
       }
 
-    val sampler = Sampler.grid(tree.nonEmptyTree.depth, tree.nonEmptyTree.root.zone)
+    val sampler = Sampler.grid(tree.depth, tree.root.zone)
     def ev = evaluator.sequential(testAndLearnContent(_, rng), sampler)
 
-    KdTreeComputation.learnBoundary(label, testPoint)(reassignedTree, ev, rng)
+    KdTreeComputation.learnBoundary(label, testPoint).apply(reassignedTree, ev, rng)
   }
 
   def initialTree[CONTENT: Manifest](
@@ -179,10 +179,10 @@ object basin {
 
     val sampler = Sampler.grid(depth, zone)
     def content(point: Vector[Double]) = buildContent(point, None, None, target(point))
-    def tree = TreeContent(content(sampler.align(pointInTarget)), zone, depth)
+    def tree = NonEmptyTree(content(sampler.align(pointInTarget)), zone, depth)
     def ev = evaluator.sequential(content, sampler)
 
-    KdTreeComputation.learnBoundary(label, testPoint)(tree, ev, rng)
+    KdTreeComputation.learnBoundary(label, testPoint).apply(tree, ev, rng)
   }
 
 

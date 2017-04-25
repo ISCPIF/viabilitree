@@ -23,7 +23,6 @@ import viabilitree.kdtree.structure.Path.extremeDivisions
 
 import util.Random
 
-
 sealed trait Node[T] { node =>
 
   var parent: Option[Fork[T]] = None
@@ -116,6 +115,25 @@ sealed trait Node[T] { node =>
 
 object Fork {
 
+  def map[T, U](fork: Fork[T])(f: T => U): Fork[U] =
+    (fork.lowChild, fork.highChild) match {
+      case (ll: Leaf[T], lh: Leaf[T]) =>
+        val llu = Leaf.map(ll)(f)
+        val lhu = Leaf.map(lh)(f)
+        Fork[U](fork.divisionCoordinate, fork.zone, llu, lhu)
+      case (fl: Fork[T], fh: Fork[T]) =>
+        val flu = map(fl)(f)
+        val fhu = map(fh)(f)
+        Fork[U](fork.divisionCoordinate, fork.zone, flu, fhu)
+      case (ll: Leaf[T], fh: Fork[T]) =>
+        val llu = Leaf.map(ll)(f)
+        val fhu = map(fh)(f)
+        Fork[U](fork.divisionCoordinate, fork.zone, llu, fhu)
+      case (fl: Fork[T], lh: Leaf[T]) =>
+        val flu = map(fl)(f)
+        val lhu = Leaf.map(lh)(f)
+        Fork[U](fork.divisionCoordinate, fork.zone, flu, lhu)
+    }
 
   def clean[CONTENT](f: Fork[CONTENT], label: CONTENT => Boolean, reduce: ContentReduction[CONTENT]): Node[CONTENT] = {
     def mergeLeafs(ll: Leaf[CONTENT], lh: Leaf[CONTENT]): Node[CONTENT] =
@@ -280,6 +298,9 @@ object Leaf {
 
   def copy[T](leaf: Leaf[T])(content: T = leaf.content, zone: Zone = leaf.zone, parent: Option[Fork[T]] = None) =
     apply(content, zone, parent)
+
+  def map[T, U](leaf: Leaf[T], parent: Option[Fork[U]] = None)(f: T => U) =
+    apply[U](f(leaf.content), leaf.zone, parent)
 
 }
 

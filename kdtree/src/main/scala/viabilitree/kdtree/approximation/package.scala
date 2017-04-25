@@ -15,7 +15,7 @@ package object approximation {
   //  }
 
   def approximate(o: OracleApproximation)(implicit rng: util.Random): util.Try[Tree[OracleApproximation.Content]] = {
-    def learn(tree: TreeContent[OracleApproximation.Content]) = learnBoundary(o)(tree, eval(o), rng)
+    def learn(tree: NonEmptyTree[OracleApproximation.Content]) = learnBoundary(o)(tree, eval(o), rng)
 
     o.point match {
       case None =>
@@ -23,7 +23,7 @@ package object approximation {
         util.Success(clean(initialTree.map(learn)))
       case Some(p) =>
         val initialTree = input.zoneAndPoint(contentBuilder(o.oracle), sampler(o), OracleApproximation.Content.label.get)(o.box, p, o.depth)
-        initialTree.map(learn).map(t => clean(NonEmptyTree(t)))
+        initialTree.map(learn).map(t => clean(t))
     }
   }
 

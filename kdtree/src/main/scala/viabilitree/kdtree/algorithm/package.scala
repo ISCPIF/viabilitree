@@ -24,9 +24,9 @@ package object algorithm {
 
   type Evaluator[CONTENT] = (Vector[Zone], Random) => Vector[CONTENT]
   type Erosion[CONTENT] = (Tree[CONTENT], Random) => Tree[CONTENT]
-  type LearnBoundary[CONTENT] = (TreeContent[CONTENT], Evaluator[CONTENT], Random) => TreeContent[CONTENT]
-  type Input[CONTENT] = Option[TreeContent[CONTENT]]
-  type FindTrueLabel[CONTENT] = (TreeContent[CONTENT], Random) => Tree[CONTENT]
+  type LearnBoundary[CONTENT] = (NonEmptyTree[CONTENT], Evaluator[CONTENT], Random) => NonEmptyTree[CONTENT]
+  type Input[CONTENT] = Option[NonEmptyTree[CONTENT]]
+  type FindTrueLabel[CONTENT] = (NonEmptyTree[CONTENT], Random) => Tree[CONTENT]
   type Oracle = Vector[Double] => Boolean
   
   object Domain {
