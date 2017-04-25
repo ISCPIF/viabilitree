@@ -115,7 +115,30 @@ sealed trait Node[T] { node =>
 
 object Fork {
 
-  def map[T, U](fork: Fork[T])(f: T => U): Fork[U] =
+  private [structure] def zip[T, U](ft: Fork[T], fu: Fork[U]): Fork[(T, U)] = {
+    assert(ft.divisionCoordinate == fu.divisionCoordinate, "Trees should have a similar structure to be zipped")
+    (ft.lowChild, fu.lowChild, ft.highChild, fu.highChild) match {
+      case (ltl: Leaf[T], lul: Leaf[U], lth: Leaf[T], luh: Leaf[U]) =>
+        val llu = Leaf((ltl.content, lul.content), ltl.zone)
+        val lhu = Leaf((lth.content, luh.content), lth.zone)
+        Fork[(T, U)](ft.divisionCoordinate, ft.zone, llu, lhu)
+      case (ftl: Fork[T], ful: Fork[U], fth: Fork[T], fuh: Fork[U]) =>
+        val flu = zip(ftl, ful)
+        val fhu = zip(fth, fuh)
+        Fork(ft.divisionCoordinate, ft.zone, flu, fhu)
+      case (ftl: Fork[T], ful: Fork[U], lth: Leaf[T], luh: Leaf[U]) =>
+        val flu = zip(ftl, ful)
+        val lhu = Leaf((lth.content, luh.content), luh.zone)
+        Fork[(T, U)](ft.divisionCoordinate, ft.zone, flu, lhu)
+      case (ltl: Leaf[T], lul: Leaf[U], fth: Fork[T], fuh: Fork[U]) =>
+        val llu = Leaf((ltl.content, lul.content), ltl.zone)
+        val fhu = zip(fth, fuh)
+        Fork[(T, U)](ft.divisionCoordinate, ft.zone, llu, fhu)
+      case _ => throw new RuntimeException("Trees should have a similar structure to be zipped")
+    }
+  }
+
+  private [structure] def map[T, U](fork: Fork[T])(f: T => U): Fork[U] =
     (fork.lowChild, fork.highChild) match {
       case (ll: Leaf[T], lh: Leaf[T]) =>
         val llu = Leaf.map(ll)(f)
@@ -135,7 +158,7 @@ object Fork {
         Fork[U](fork.divisionCoordinate, fork.zone, flu, lhu)
     }
 
-  def zipWithLeaf[T, U](fork: Fork[T])(f: Leaf[T] => U): Fork[(T, U)] =
+  private [structure] def zipWithLeaf[T, U](fork: Fork[T])(f: Leaf[T] => U): Fork[(T, U)] =
     (fork.lowChild, fork.highChild) match {
       case (ll: Leaf[T], lh: Leaf[T]) =>
         val llu = Leaf.zipWithLeaf(ll)(f)
@@ -156,7 +179,7 @@ object Fork {
     }
 
 
-  def clean[CONTENT](f: Fork[CONTENT], label: CONTENT => Boolean, reduce: ContentReduction[CONTENT]): Node[CONTENT] = {
+  private [structure] def clean[CONTENT](f: Fork[CONTENT], label: CONTENT => Boolean, reduce: ContentReduction[CONTENT]): Node[CONTENT] = {
     def mergeLeafs(ll: Leaf[CONTENT], lh: Leaf[CONTENT]): Node[CONTENT] =
       reduce(ll, lh) match {
         case Some(reduced) => Leaf(reduced, f.zone)
@@ -320,12 +343,15 @@ object Leaf {
   def copy[T](leaf: Leaf[T])(content: T = leaf.content, zone: Zone = leaf.zone, parent: Option[Fork[T]] = None) =
     apply(content, zone, parent)
 
-  def map[T, U](leaf: Leaf[T], parent: Option[Fork[U]] = None)(f: T => U) =
-    apply[U](f(leaf.content), leaf.zone, parent)
+  private [structure] def map[T, U](leaf: Leaf[T])(f: T => U) =
+    apply[U](f(leaf.content), leaf.zone)
 
-  def zipWithLeaf[T, U](leaf: Leaf[T], parent: Option[Fork[(T, U)]] = None)(f: Leaf[T] => U) =
-    apply[(T, U)]((leaf.content, f(leaf)), leaf.zone, parent)
-  
+  private [structure] def zipWithLeaf[T, U](leaf: Leaf[T])(f: Leaf[T] => U) =
+    apply[(T, U)]((leaf.content, f(leaf)), leaf.zone)
+
+  private [structure] def zip[T, U](lt: Leaf[T], lu: Leaf[U]): Leaf[(T, U)] =
+    Leaf((lt.content, lu.content), lt.zone)
+
 }
 
 trait Leaf[T] extends Node[T] { self =>

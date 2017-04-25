@@ -36,6 +36,15 @@ package object structure {
           case e: EmptyTree[A] => EmptyTree.functor.map(e)(f)
         }
     }
+
+    def zip[T, U](t: Tree[T], u: Tree[U]) = {
+      (t, u) match {
+        case (et: EmptyTree[T], eu: EmptyTree[U]) => EmptyTree.zip(et, eu)
+        case (tt: NonEmptyTree[T], tu: NonEmptyTree[U]) => NonEmptyTree.zip(tt, tu)
+        case _ => throw new RuntimeException("Tree have diverging nature, one is empty and not the other one.")
+      }
+
+    }
   }
 
   sealed trait Tree[T] {
@@ -56,6 +65,11 @@ package object structure {
     import cats._
     implicit def functor: Functor[EmptyTree] = new Functor[EmptyTree] {
       override def map[A, B](fa: EmptyTree[A])(f: (A) => B): EmptyTree[B] = EmptyTree[B](fa.zone)
+    }
+
+    def zip[T, U](et: EmptyTree[T], eu: EmptyTree[U]) = {
+      assert(et.zone.region.toVector == eu.zone.region.toVector, "Trees should have a similar zone")
+      EmptyTree[(T, U)](et.zone)
     }
   }
 
@@ -109,6 +123,20 @@ package object structure {
           case l: Leaf[T] => Leaf.zipWithLeaf(l)(f)
           case fork: Fork[T] => Fork.zipWithLeaf(fork)(f)
         }
+      NonEmptyTree[(T, U)](newRoot, t.depth)
+    }
+
+    def zip[T, U](t: NonEmptyTree[T], u: NonEmptyTree[U]) = {
+      assert(t.root.zone.region.toSeq == u.root.zone.region, "The root zone is not the same in both trees")
+      assert(t.depth == u.depth, "The depth is not the same in both trees")
+
+      val newRoot =
+        (t.root, u.root) match {
+          case (lt: Leaf[T], lu: Leaf[U]) => Leaf.zip(lt, lu)
+          case (ft: Fork[T], fu: Fork[U]) => Fork.zip(ft, fu)
+          case _ => throw new RuntimeException("The root of the tree is not the same in both trees. The tree should have an identical structure to be zipped.")
+        }
+
       NonEmptyTree[(T, U)](newRoot, t.depth)
     }
 
