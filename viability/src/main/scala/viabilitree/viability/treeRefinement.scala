@@ -76,7 +76,7 @@ object treeRefinement {
 
     def ev = evaluator.sequential(contentBuilder(_, rng), sampler)
 
-    findTrueLabel(reassignedTree, rng).map {
+    findTrueLabel(reassignedTree, rng).mapNonEmpty {
       tree => learnBoundary(tree, ev, rng)
     }
   }

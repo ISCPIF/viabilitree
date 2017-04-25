@@ -55,6 +55,9 @@ object Zone {
     }
   }
 
+  def center(z: Zone): Vector[Double] =
+    z.region.map { i => i.min + (i.max - i.min) / 2}.toVector
+
   implicit def seqToZone(zone: Seq[(Double, Double)]) = apply(zone: _*)
 
 }

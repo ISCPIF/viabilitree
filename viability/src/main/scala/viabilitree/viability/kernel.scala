@@ -229,7 +229,7 @@ object kernel {
     def dilate(t: NonEmptyTree[CONTENT], rng: Random) =
       (0 until dilations).foldLeft(t) { (t, _) => KdTreeComputation.dilate(ev, label, testPoint)(t, rng) }
 
-    tree.flatMap { tree =>
+    tree.flatMapNonEmpty { tree =>
       treeRefinement.refine[CONTENT](
         dynamic,
         controls,

@@ -135,6 +135,27 @@ object Fork {
         Fork[U](fork.divisionCoordinate, fork.zone, flu, lhu)
     }
 
+  def zipWithLeaf[T, U](fork: Fork[T])(f: Leaf[T] => U): Fork[(T, U)] =
+    (fork.lowChild, fork.highChild) match {
+      case (ll: Leaf[T], lh: Leaf[T]) =>
+        val llu = Leaf.zipWithLeaf(ll)(f)
+        val lhu = Leaf.zipWithLeaf(lh)(f)
+        Fork(fork.divisionCoordinate, fork.zone, llu, lhu)
+      case (fl: Fork[T], fh: Fork[T]) =>
+        val flu = zipWithLeaf(fl)(f)
+        val fhu = zipWithLeaf(fh)(f)
+        Fork(fork.divisionCoordinate, fork.zone, flu, fhu)
+      case (ll: Leaf[T], fh: Fork[T]) =>
+        val llu = Leaf.zipWithLeaf(ll)(f)
+        val fhu = zipWithLeaf(fh)(f)
+        Fork(fork.divisionCoordinate, fork.zone, llu, fhu)
+      case (fl: Fork[T], lh: Leaf[T]) =>
+        val flu = zipWithLeaf(fl)(f)
+        val lhu = Leaf.zipWithLeaf(lh)(f)
+        Fork(fork.divisionCoordinate, fork.zone, flu, lhu)
+    }
+
+
   def clean[CONTENT](f: Fork[CONTENT], label: CONTENT => Boolean, reduce: ContentReduction[CONTENT]): Node[CONTENT] = {
     def mergeLeafs(ll: Leaf[CONTENT], lh: Leaf[CONTENT]): Node[CONTENT] =
       reduce(ll, lh) match {
@@ -302,6 +323,9 @@ object Leaf {
   def map[T, U](leaf: Leaf[T], parent: Option[Fork[U]] = None)(f: T => U) =
     apply[U](f(leaf.content), leaf.zone, parent)
 
+  def zipWithLeaf[T, U](leaf: Leaf[T], parent: Option[Fork[(T, U)]] = None)(f: Leaf[T] => U) =
+    apply[(T, U)]((leaf.content, f(leaf)), leaf.zone, parent)
+  
 }
 
 trait Leaf[T] extends Node[T] { self =>

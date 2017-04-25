@@ -39,12 +39,12 @@ package object structure {
   }
 
   sealed trait Tree[T] {
-    def map(f: NonEmptyTree[T] => NonEmptyTree[T]): Tree[T] = this match {
+    def mapNonEmpty(f: NonEmptyTree[T] => NonEmptyTree[T]): Tree[T] = this match {
       case t: NonEmptyTree[T] => f(t)
       case x: EmptyTree[T] => x
     }
 
-    def flatMap(f: NonEmptyTree[T] => Tree[T]): Tree[T] = this match {
+    def flatMapNonEmpty(f: NonEmptyTree[T] => Tree[T]): Tree[T] = this match {
       case t: NonEmptyTree[T] => f(t)
       case x: EmptyTree[T] => x
     }
@@ -100,6 +100,36 @@ package object structure {
           }
 
         NonEmptyTree[B](newRoot, fa.depth)
+      }
+    }
+
+    def zipWithLeaf[T, U](t: NonEmptyTree[T])(f: Leaf[T] => U): NonEmptyTree[(T, U)] = {
+      val newRoot =
+        t.root match {
+          case l: Leaf[T] => Leaf.zipWithLeaf(l)(f)
+          case fork: Fork[T] => Fork.zipWithLeaf(fork)(f)
+        }
+      NonEmptyTree[(T, U)](newRoot, t.depth)
+    }
+
+
+    def distanceInf[T](
+      t: NonEmptyTree[T],
+      label: T => Boolean,
+      distance: (Vector[Double], Vector[Double]) => Double): NonEmptyTree[(Double, Path)] = {
+
+      import cats.implicits._
+
+      val boundaryLeaves = t.criticalLeaves(label).filter(l => label(l.content))
+      zipWithLeaf(t)(_.zone).map {
+        case (_, zone) =>
+          val distanceBound =
+            boundaryLeaves.map { boundaryLeave =>
+              val c = Zone.center(boundaryLeave.zone)
+              val p = projection(c, zone)
+              (distance(c, p), boundaryLeave.path)
+            }.minBy { case(distance, _) => distance}
+          distanceBound
       }
     }
 
