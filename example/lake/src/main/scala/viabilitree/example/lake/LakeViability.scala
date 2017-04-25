@@ -35,9 +35,16 @@ object LakeViabilityKernel extends App {
 
   val (ak, steps) = approximate(vk, rng)
 
-  saveVTK2D(ak,"/tmp/reslake.vtk")
-  util.Try(saveHyperRectangles(vk)(ak,"/tmp/reslakeWithControl.txt"))
+  import viabilitree.kdtree.structure._
 
+  val distanceTree =
+    Tree.distanceInf(ak, viabilitree.viability.kernel.Content.label.get, euclidianDistance)
+
+  val zippedTree = Tree.zip(ak, distanceTree)
+
+  saveVTK2D(ak,"/tmp/reslake.vtk")
+  saveHyperRectangles(vk)(ak,"/tmp/reslakeWithControl.txt")
+  saveHyperRectangles(vk)(zippedTree,"/tmp/reslakeWithControlAndDistance.txt")
 
   //saveVTK2D(res, ControlledDynamicContent.label.get, "/tmp/res.vtk")
   //  //saveVTK2D(initial, ControlledDynamicContent.label.get, "/tmp/initial.vtk")

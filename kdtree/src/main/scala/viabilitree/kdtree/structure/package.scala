@@ -43,8 +43,16 @@ package object structure {
         case (tt: NonEmptyTree[T], tu: NonEmptyTree[U]) => NonEmptyTree.zip(tt, tu)
         case _ => throw new RuntimeException("Tree have diverging nature, one is empty and not the other one.")
       }
-
     }
+
+    def distanceInf[T](
+      t: Tree[T],
+      label: T => Boolean,
+      distance: Distance): Tree[(Double, Path)] =
+      t match {
+        case t: NonEmptyTree[T] => NonEmptyTree.distanceInf(t, label, distance)
+        case e: EmptyTree[T] => EmptyTree[(Double, Path)](e.zone)
+      }
   }
 
   sealed trait Tree[T] {
@@ -127,7 +135,7 @@ package object structure {
     }
 
     def zip[T, U](t: NonEmptyTree[T], u: NonEmptyTree[U]) = {
-      assert(t.root.zone.region.toSeq == u.root.zone.region, "The root zone is not the same in both trees")
+      assert(t.root.zone.region.toVector == u.root.zone.region.toVector, "The root zone is not the same in both trees")
       assert(t.depth == u.depth, "The depth is not the same in both trees")
 
       val newRoot =
@@ -144,7 +152,7 @@ package object structure {
     def distanceInf[T](
       t: NonEmptyTree[T],
       label: T => Boolean,
-      distance: (Vector[Double], Vector[Double]) => Double): NonEmptyTree[(Double, Path)] = {
+      distance: Distance): NonEmptyTree[(Double, Path)] = {
 
       import cats.implicits._
 
@@ -608,4 +616,10 @@ package object structure {
   @typeclass trait ContainsLabel[T] {
     def label(t: T): Boolean
   }
+
+  type Distance = (Vector[Double], Vector[Double]) => Double
+
+  def euclidianDistance: Distance =
+    (d1, d2) => (d1 zip d2).map { case(x1, x2) => math.abs(x2 - x1) }.sum
+
 }
