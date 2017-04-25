@@ -33,6 +33,7 @@ case class Lake(
     // def yDot(state: Array[Double], t: Double) = b*state(1)-r*math.pow(state(1),8)/(pow(m,8)+pow(state(1),8))
     def yDot(state: Vector[Double], t: Double) =
       state(0) - (b * state(1) - r * math.pow(state(1), 8) / (1 + pow(state(1), 8)))
+
     val dynamic = Dynamic(xDot, yDot)
     dynamic.integrate(state.toArray, integrationStep, timeStep)
   }

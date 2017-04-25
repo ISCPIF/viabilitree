@@ -52,11 +52,8 @@ object kernel {
   import viabilitree.kdtree.structure._
 
   object Content {
-    def reduce: ContentReduction[Content] =
-      (c1: Leaf[Content], c2: Leaf[Content]) => Some(c1.content)
-
-
-    implicit def kernelContent = ContainsLabel[kernel.Content](kernel.Content.label.get)
+    def reduce: ContentReduction[Content] = (c1: Leaf[Content], c2: Leaf[Content]) => Some(c1.content)
+    implicit def kernelContent = ContainsLabel[kernel.Content](Content.label.get)
   }
 
   @Lenses case class Content(
