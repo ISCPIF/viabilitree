@@ -5,7 +5,7 @@ name := "viabilitree"
 
 def settings =
   Seq(
-    scalaVersion := "2.12.1",
+    scalaVersion := "2.12.2",
     publishArtifact := false,
     addCompilerPlugin("org.scalamacros" %% "paradise" % "2.1.0" cross CrossVersion.full)
   )
@@ -64,7 +64,7 @@ lazy val export = Project(id = "export", base = file("export")) settings(default
 lazy val viability = Project(id = "viability", base = file("viability")) settings(defaultSettings: _*) dependsOn(kdtree, model)
 
 lazy val model = Project(id = "model", base = file("model"))  settings(defaultSettings: _*) settings (
-  libraryDependencies += "org.apache.commons" % "commons-math3" % "3.4.1")
+  libraryDependencies += "org.apache.commons" % "commons-math3" % "3.6.1")
 
 lazy val strategy = Project(id = "strategy", base = file("strategy")) settings(defaultSettings: _*) dependsOn(viability, kdtree)
 
@@ -82,6 +82,7 @@ lazy val lake = Project(id = "lake", base = file("example/lake")) settings(setti
 
 lazy val bilingual = Project(id = "bilingual", base = file("example/bilingual")) settings(settings: _*) dependsOn(viability, export, model)
 
+lazy val circle = Project(id = "circle", base = file("example/circle")) settings(settings: _*) dependsOn(kdtree, export)
 
 /*----- Libraries ------ */
 

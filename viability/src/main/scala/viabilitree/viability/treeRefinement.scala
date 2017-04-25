@@ -53,15 +53,15 @@ object treeRefinement {
      dynamic: (Vector[Double], Vector[Double]) => Vector[Double],
      controls: Vector[Double] => Vector[Control],
      shouldBeReassigned: CONTENT => Boolean,
-     findViableControl: (CONTENT, Vector[Double] => Boolean, TreeContent[CONTENT]) => CONTENT,
+     findViableControl: (CONTENT, Vector[Double] => Boolean, NonEmptyTree[CONTENT]) => CONTENT,
      findTrueLabel: FindTrueLabel[CONTENT],
      learnBoundary: LearnBoundary[CONTENT],
      sampler: Sampler,
-     dilate: (TreeContent[CONTENT], Random) => TreeContent[CONTENT],
+     dilate: (NonEmptyTree[CONTENT], Random) => NonEmptyTree[CONTENT],
      buildContent: (Vector[Double], Option[Int], Option[Vector[Double]], Boolean, Int) => CONTENT,
-     label: CONTENT => Boolean)(tree: TreeContent[CONTENT], rng: Random): Tree[CONTENT] = {
+     label: CONTENT => Boolean)(tree: NonEmptyTree[CONTENT], rng: Random): Tree[CONTENT] = {
 
-    def viableFunction(t: TreeContent[CONTENT], p: Vector[Double]) = tree.label(p, label)
+    def viableFunction(t: NonEmptyTree[CONTENT], p: Vector[Double]) = tree.label(p, label)
     def viable(p: Vector[Double], rng: Random) = viableFunction(dilate(tree, rng), p)
 
     val reassignedTree =
@@ -76,7 +76,7 @@ object treeRefinement {
 
     def ev = evaluator.sequential(contentBuilder(_, rng), sampler)
 
-    findTrueLabel(reassignedTree, rng).map {
+    findTrueLabel(reassignedTree, rng).mapNonEmpty {
       tree => learnBoundary(tree, ev, rng)
     }
   }

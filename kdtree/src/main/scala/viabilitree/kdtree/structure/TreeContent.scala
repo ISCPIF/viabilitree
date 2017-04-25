@@ -17,46 +17,4 @@
 
 package viabilitree.kdtree.structure
 
-import cats._
-import com.rits.cloning.Cloner
-
-import scala.reflect._
-
-object TreeContent {
-
-  def apply[T](content: T, zone: Zone, depth: Int): TreeContent[T] =
-    apply(Leaf(content, zone), depth)
-
-  def apply[T](_root: Node[T], _depth: Int): TreeContent[T] =
-    new TreeContent[T] {
-      val root = _root
-      val depth = _depth
-    }
-
-  def copy[T](tree: TreeContent[T])(root: Node[T] = tree.root, depth: Int = tree.depth) =
-    apply(root, depth)
-}
-
-trait TreeContent[T] {
-
-  def depth: Int
-  def root: Node[T]
-  def isAtomic(l: Leaf[T]) = l.depth >= depth
-  def leaves = viabilitree.kdtree.structure.leaves(root)
-  def atomicLeaves = leaves.filter(isAtomic)
-  def dimension = root.zone.region.size
-  def leaf(path: Path) = root.leaf(path)
-
-  // TODO implement lazy computations of leaves, possible thanks to immutable tree
-  //def leaves: Iterable[Leaf[T]]
-
-  def clone[T: ClassTag] = {
-    val cloner = new Cloner
-    cloner.registerImmutable(scala.reflect.classTag[T].runtimeClass)
-    cloner.dontCloneInstanceOf(classOf[Descendant])
-    cloner.dontCloneInstanceOf(None.getClass)
-    cloner.deepClone(this)
-  }
-
-}
 

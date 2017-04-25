@@ -1,22 +1,24 @@
 package viabilitree.kdtree.algorithm
 
 import viabilitree.kdtree.structure._
+
+import scala.reflect.ClassTag
 ;
 
 object input {
 
-  def zone[CONTENT](evaluator: Evaluator[CONTENT], label: CONTENT => Boolean, testPoint: CONTENT => Vector[Double])(zone: Zone, depth: Int, rng: util.Random) = {
+  def zone[CONTENT: ClassTag](evaluator: Evaluator[CONTENT], label: CONTENT => Boolean, testPoint: CONTENT => Vector[Double])(zone: Zone, depth: Int, rng: util.Random) = {
     //val point = sampler(zone, rng)
     //val content = contentBuilder(point)
-    val tree = TreeContent(Leaf[CONTENT](evaluator(Vector(zone), rng).head, zone), depth)
-    KdTreeComputation.findTrueLabel(evaluator, label, testPoint)(tree, rng) //, contentBuilder)
+    val tree = NonEmptyTree(Leaf[CONTENT](evaluator(Vector(zone), rng).head, zone), depth)
+    KdTreeComputation.findTrueLabel(evaluator, label, testPoint).apply(tree, rng) //, contentBuilder)
   }
 
-  def zoneAndPoint[CONTENT](contentBuilder: Vector[Double] => CONTENT, sampler: Sampler, label: CONTENT => Boolean)(zone: Zone, point: Vector[Double], depth: Int): util.Try[TreeContent[CONTENT]] = {
+  def zoneAndPoint[CONTENT](contentBuilder: Vector[Double] => CONTENT, sampler: Sampler, label: CONTENT => Boolean)(zone: Zone, point: Vector[Double], depth: Int): util.Try[NonEmptyTree[CONTENT]] = {
     val content = contentBuilder(sampler.align(point))
 
     def tree =
-      TreeContent(
+      NonEmptyTree(
         Leaf(
           content,
           zone

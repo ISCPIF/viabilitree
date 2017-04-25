@@ -117,15 +117,16 @@ package object export extends better.files.Implicits {
         kernelComputation.controls
       )
 
-    def viabilityKernelColumns[T](label: T => Boolean, testPoint: T => Vector[Double], control: T => Option[Int], controls: Vector[Double] => Vector[Control]) = (t: Leaf[T]) =>
-      (label(t.content), control(t.content)) match {
+    def viabilityKernelColumns[T](label: T => Boolean, testPoint: T => Vector[Double], control: T => Option[Int], controls: Vector[Double] => Vector[Control]) = (t: T, zone: Zone) =>
+      (label(t), control(t)) match {
         case (true, Some(c)) =>
-          val p = testPoint(t.content)
-          Some(p ++ intervals(t.zone) ++ controls(p).apply(c).value).map(_.map(_.toString))
+          val p = testPoint(t)
+          Some(p ++ intervals(zone) ++ controls(p).apply(c).value).map(_.map(_.toString))
         case _ => None
       }
 
     object Traceable {
+
       implicit def kernelComputation = new Traceable[KernelComputation, viability.kernel.Content] {
         override def columns(t: KernelComputation) =
           HyperRectangles.viabilityKernelColumns[Content](
@@ -138,18 +139,34 @@ package object export extends better.files.Implicits {
 
       implicit def oracleApproximation = new Traceable[OracleApproximation, OracleApproximation.Content] {
         override def columns(t: OracleApproximation) =
-          (l: Leaf[OracleApproximation.Content]) =>
-            l.content.label match {
+          (content: OracleApproximation.Content, zone: Zone) =>
+            content.label match {
               case true =>
-                def content = (l.content.testPoint ++ intervals(l.zone)).map(_.toString)
-                Some(content.toVector)
+                def c = (content.testPoint ++ intervals(zone)).map(_.toString)
+                Some(c)
               case false => None
             }
+      }
+
+      implicit def distanceTuple[U] = new Traceable[U, (Double, Path)] {
+        override def columns(t: U) =
+          (content, zone) => Some(Vector(content._1.toString))
+      }
+
+      implicit def tupleTraceable[U, T1, T2](implicit traceable1: Traceable[U, T1], traceable2: Traceable[U, T2]) = new Traceable[U, (T1, T2)] {
+        override def columns(t: U) = {
+          (content, zone) =>
+            (traceable1.columns(t)(content._1, zone), traceable2.columns(t)(content._2, zone)) match {
+              case (None, _) => None
+              case (_, None) => None
+              case (Some(a), Some(b)) => Some(a ++ b)
+            }
+        }
       }
     }
 
     trait Traceable[T, C] {
-      def columns(t: T): (Leaf[C] => Option[Vector[String]])
+      def columns(t: T): (C, Zone) => Option[Vector[String]]
     }
 
   }
@@ -159,7 +176,7 @@ package object export extends better.files.Implicits {
     saveHyperRectangles(tree, traceable.columns(t), file)
 
 
-  def saveHyperRectangles[T](tree: Tree[T], columns: Leaf[T] => Option[Vector[String]], file: File): Unit = {
+  def saveHyperRectangles[T](tree: Tree[T], columns: (T, Zone) => Option[Vector[String]], file: File): Unit = {
     file.delete(true)
 
     //todo add the first line in the .txt file, of the form x1 x2 ... x${dim} min1 max1 ... min${dim} max${dim} control1 ... control${aControl.size}
@@ -171,7 +188,7 @@ package object export extends better.files.Implicits {
 
 //    file << header.mkString(" ")
 
-    tree.leaves.flatMap(l => columns(l).toVector).foreach {
+    tree.leaves.flatMap(l => columns(l.content, l.zone).toVector).foreach {
       cols => file << cols.mkString(" ")
     }
   }

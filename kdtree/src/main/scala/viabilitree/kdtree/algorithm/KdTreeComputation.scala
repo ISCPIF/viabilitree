@@ -19,6 +19,8 @@ package viabilitree.kdtree.algorithm
 
 import viabilitree.kdtree.structure._
 import monocle._
+
+import scala.reflect.ClassTag
 import scala.util.Random
 
 object KdTreeComputation {
@@ -28,35 +30,35 @@ object KdTreeComputation {
 //    else dilate(dilate(t, evaluator, label, testPoint), n - 1, evaluator, label, testPoint)
 
   // TODO might beneficiate from a mutable version of learnBoundary
-  def dilate[CONTENT](evaluator: Evaluator[CONTENT], label: Lens[CONTENT, Boolean], testPoint: CONTENT => Vector[Double])(t: TreeContent[CONTENT], rng: Random): TreeContent[CONTENT] = {
-    val newT = t.clone
-    val leaves = newT.criticalLeaves(newT.root, label.get).filter(l => label.get(l.content) == false).toSeq.distinct
+  def dilate[CONTENT: ClassTag](evaluator: Evaluator[CONTENT], label: Lens[CONTENT, Boolean], testPoint: CONTENT => Vector[Double])(t: NonEmptyTree[CONTENT], rng: Random): NonEmptyTree[CONTENT] = {
+    val newT = NonEmptyTree.clone(t)
+    val leaves = newT.criticalLeaves(label.get, newT.root).filter(l => label.get(l.content) == false).toSeq.distinct
     var currentRoot = newT.root
     leaves.foreach {
       leaf =>
         currentRoot = newT.root.replace(leaf.path, label.set(true)(leaf.content)).rootCalling
     }
     //Tree(currentRoot, newT.depth)
-    val dilated = TreeContent(currentRoot, newT.depth)
-    learnBoundary(label.get, testPoint)(dilated, evaluator, rng) //buildContent(_, false))
+    val dilated = NonEmptyTree(currentRoot, newT.depth)
+    learnBoundary(label.get, testPoint).apply(dilated, evaluator, rng) //buildContent(_, false))
   }
 
-  def findTrueLabel[CONTENT](evaluator: Evaluator[CONTENT], label: CONTENT => Boolean, testPoint: CONTENT => Vector[Double]): FindTrueLabel[CONTENT]= { (t, rng) =>
+  def findTrueLabel[CONTENT: ClassTag](evaluator: Evaluator[CONTENT], label: CONTENT => Boolean, testPoint: CONTENT => Vector[Double]): FindTrueLabel[CONTENT] = { (t, rng) =>
     // TODO implement lazy computations of leaves
-    if (leaves(t).exists(l => label(l.content))) NonEmptyTree(t)
+    if (leaves(t).exists(l => label(l.content))) t
     else {
-      val newT = t.clone
+      val newT = NonEmptyTree.clone(t)
       import mutable._
 
 
       // TODO refine is sequential maybe costly if kernel is empty, refine all bigest leaves in parallel?
       // TODO heuristic guess of control?
-      def refineNonAtomicLeaves(l: List[Leaf[CONTENT]], tree: TreeContent[CONTENT]): Tree[CONTENT] = {
+      def refineNonAtomicLeaves(l: List[Leaf[CONTENT]], tree: NonEmptyTree[CONTENT]): Tree[CONTENT] = {
         l match {
           case Nil => EmptyTree(t.zone)
           case l@(h1 :: _) =>
 
-            def divide(toDivide: List[Leaf[CONTENT]], nextDivision: List[Leaf[CONTENT]], tree: TreeContent[CONTENT]): (List[Leaf[CONTENT]], TreeContent[CONTENT], Boolean) =
+            def divide(toDivide: List[Leaf[CONTENT]], nextDivision: List[Leaf[CONTENT]], tree: NonEmptyTree[CONTENT]): (List[Leaf[CONTENT]], NonEmptyTree[CONTENT], Boolean) =
               toDivide match {
                 case Nil => (nextDivision, tree, false)
                 case h2 :: tail =>
@@ -80,7 +82,7 @@ object KdTreeComputation {
             val (bigLeaves, smallLeaves) = l.partition(_.path.length == h1.path.length)
             val (nextDivision, newT, found) = divide(bigLeaves, List.empty, tree)
 
-            if (found) NonEmptyTree(newT)
+            if (found) newT
             else if (!smallLeaves.isEmpty) refineNonAtomicLeaves(nextDivision ::: smallLeaves, newT)
             else refineNonAtomicLeaves(nextDivision.filterNot(tree.isAtomic), newT)
         }
@@ -94,10 +96,10 @@ object KdTreeComputation {
   }
 
 
-  def learnBoundary[CONTENT](label: CONTENT => Boolean, testPoint: CONTENT => Vector[Double]): LearnBoundary[CONTENT] =
-    (tree: TreeContent[CONTENT], evaluator: Evaluator[CONTENT], rng: Random) => {
+  def learnBoundary[CONTENT: ClassTag](label: CONTENT => Boolean, testPoint: CONTENT => Vector[Double]): LearnBoundary[CONTENT] =
+    (tree: NonEmptyTree[CONTENT], evaluator: Evaluator[CONTENT], rng: Random) => {
       //  def learnBoundary(tree: Tree[CONTENT], evaluator: Evaluator[CONTENT] /*contentBuilder: Point => CONTENT*/)(implicit rng: Random): Tree[CONTENT] = {
-      def refine(tree: TreeContent[CONTENT]): TreeContent[CONTENT] = {
+      def refine(tree: NonEmptyTree[CONTENT]): NonEmptyTree[CONTENT] = {
         import mutable._
         val leavesToRefine = tree.leavesToRefine(label)
 
@@ -110,7 +112,7 @@ object KdTreeComputation {
             )(rng)
           )
       }
-      refine(tree.clone)
+      refine(NonEmptyTree.clone(tree))
     }
 
 
@@ -182,7 +184,7 @@ object KdTreeComputation {
     }
 
 
-  def erosion[CONTENT](
+  def erosion[CONTENT: ClassTag](
     learnBoundary: LearnBoundary[CONTENT],
     evaluator: Evaluator[CONTENT],
     label: Lens[CONTENT, Boolean],
@@ -190,8 +192,8 @@ object KdTreeComputation {
     (t: Tree[CONTENT], rng: Random) => {
       //.criticalLeaves(newT.root, label.get).filter(l => label.get(l.content) == true).toSeq.distinct ++ additionalLeaves
       t match {
-        case NonEmptyTree(t) =>
-          val newT = t.clone
+        case t: NonEmptyTree[CONTENT] =>
+          val newT = NonEmptyTree.clone(t)
           val leaves = leavesToErode(newT).filter(l => label.get(l.content) == true)
           var currentRoot = newT.root
           leaves.foreach {
@@ -199,7 +201,7 @@ object KdTreeComputation {
               // FIXME check that tree root is properly handled
               currentRoot = newT.root.replace(leaf.path, label.set(false)(leaf.content)).rootCalling
           }
-          val eroded = TreeContent(currentRoot, newT.depth)
+          val eroded = NonEmptyTree(currentRoot, newT.depth)
           learnBoundary(eroded, evaluator, rng) //buildContent(_, true))
         case x: EmptyTree[CONTENT] => x
       }

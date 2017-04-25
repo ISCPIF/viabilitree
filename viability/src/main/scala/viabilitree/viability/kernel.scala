@@ -5,6 +5,8 @@ import viabilitree.kdtree.structure._
 import viabilitree.kdtree.algorithm._
 import viabilitree.model._
 
+import scala.reflect.ClassTag
+
 object kernel {
 //
 //  def approximations[CONTENT](
@@ -153,7 +155,7 @@ object kernel {
       ev,
       Content.label,
       KdTreeComputation.leavesToErode(kernelComputation.domain, kernelComputation.zone, Content.label.get)
-    )(tree, rng)
+    ).apply(tree, rng)
   }
 
   def clean(tree: Tree[Content]) =
@@ -213,7 +215,7 @@ object kernel {
 
     def findTrueLabel: FindTrueLabel[CONTENT] = KdTreeComputation.findTrueLabel(ev, label.get, testPoint)
 
-    def findViableControl(content: CONTENT, viable: Vector[Double] => Boolean, tree: TreeContent[CONTENT]): CONTENT =
+    def findViableControl(content: CONTENT, viable: Vector[Double] => Boolean, tree: NonEmptyTree[CONTENT]): CONTENT =
       kernel.findViableControl[CONTENT](
         content = content,
         dynamic = dynamic,
@@ -227,10 +229,10 @@ object kernel {
 
     def learnBoundary = KdTreeComputation.learnBoundary(label.get, testPoint)
 
-    def dilate(t: TreeContent[CONTENT], rng: Random) =
+    def dilate(t: NonEmptyTree[CONTENT], rng: Random) =
       (0 until dilations).foldLeft(t) { (t, _) => KdTreeComputation.dilate(ev, label, testPoint)(t, rng) }
 
-    tree.flatMap { tree =>
+    tree.flatMapNonEmpty { tree =>
       treeRefinement.refine[CONTENT](
         dynamic,
         controls,
@@ -256,7 +258,7 @@ object kernel {
     resultPoint: CONTENT => Option[Vector[Double]],
     controlMax: CONTENT => Int,
     buildContent: (Vector[Double], Option[Int], Option[Vector[Double]], Boolean, Int) => CONTENT,
-    tree: TreeContent[CONTENT]): CONTENT = {
+    tree: NonEmptyTree[CONTENT]): CONTENT = {
 
       if (resultPoint(content).map(viable) getOrElse false) content
       else {
@@ -302,7 +304,7 @@ object kernel {
     }
 
 
-  def initialTree[CONTENT](
+  def initialTree[CONTENT: ClassTag](
     dynamic: (Vector[Double], Vector[Double]) => Vector[Double],
     depth: Int,
     zone: Zone,
@@ -316,7 +318,7 @@ object kernel {
     def contentBuilder(p: Vector[Double], rng: Random) = treeRefinement.exhaustiveFindViableControl(p, k, buildContent, dynamic, controls)
     def ev = evaluator.sequential(contentBuilder(_, rng), Sampler.grid(depth, zone))
 
-    input.zone[CONTENT](ev, label, testPoint)(zone, depth, rng)
+    input.zone(ev, label, testPoint)(zone, depth, rng)
   }
 
 

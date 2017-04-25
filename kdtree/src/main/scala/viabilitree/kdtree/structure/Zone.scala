@@ -55,6 +55,9 @@ object Zone {
     }
   }
 
+  def center(z: Zone): Vector[Double] =
+    z.region.map { i => i.min + (i.max - i.min) / 2}.toVector
+
   implicit def seqToZone(zone: Seq[(Double, Double)]) = apply(zone: _*)
 
 }
@@ -85,9 +88,8 @@ trait Zone {
       }
     }
 
-  def contains(point: Vector[Double]): Boolean = (point zip region).forall {
-    case (p, r) => r.min <= p && p < r.max
-  }
+  def contains(point: Vector[Double]): Boolean =
+    (point zip region).forall { case (p, r) => r.min <= p && p < r.max }
 
   //Draw a random point in a zone
   def randomPoint(rng: Random): Vector[Double] =
