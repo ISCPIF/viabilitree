@@ -55,11 +55,8 @@ lazy val kdtree = Project(id = "kdtree", base = file("kdtree")) settings(default
   libraryDependencies += simulacrum)
 
 lazy val export = Project(id = "export", base = file("export")) settings(defaultSettings: _*) dependsOn(kdtree, viability) settings (
-  // REPLACE with better files
-  //libraryDependencies += "com.github.scala-incubator.io" %% "scala-io-file" % "0.4.3",
   libraryDependencies += "com.github.pathikrit" %% "better-files" % "2.17.1",
-  libraryDependencies += "com.thoughtworks.xstream" % "xstream" % "1.4.7"
-  )
+  libraryDependencies += "com.thoughtworks.xstream" % "xstream" % "1.4.7")
 
 lazy val viability = Project(id = "viability", base = file("viability")) settings(defaultSettings: _*) dependsOn(kdtree, model)
 

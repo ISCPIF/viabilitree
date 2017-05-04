@@ -46,6 +46,8 @@ object LakeViabilityKernel extends App {
   saveHyperRectangles(vk)(ak,"/tmp/reslakeWithControl.txt")
   saveHyperRectangles(vk)(zippedTree,"/tmp/reslakeWithControlAndDistance.txt")
 
+
+
   //saveVTK2D(res, ControlledDynamicContent.label.get, "/tmp/res.vtk")
   //  //saveVTK2D(initial, ControlledDynamicContent.label.get, "/tmp/initial.vtk")
   //  saveVTK2D(res, ControlledDynamicContent.label.get, "/tmp/res.vtk")
