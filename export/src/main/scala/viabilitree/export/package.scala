@@ -180,10 +180,10 @@ package object export extends better.files.Implicits {
   def saveHyperRectangles[T, C](t: T)(tree: Tree[C], file: File)(implicit traceable: HyperRectangles.Traceable[T, C]): Unit =
     saveHyperRectangles(tree, traceable.columns(t), file)
 
-
   def saveHyperRectangles[T](tree: Tree[T], columns: (T, Zone) => Option[Vector[String]], file: File): Unit = {
     file.delete(true)
     file.parent.createDirectories()
+    file.touch()
 
     //todo add the first line in the .txt file, of the form x1 x2 ... x${dim} min1 max1 ... min${dim} max${dim} control1 ... control${aControl.size}
 //    def header =
