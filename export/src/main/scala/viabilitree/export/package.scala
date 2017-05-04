@@ -127,6 +127,9 @@ package object export extends better.files.Implicits {
         case (true, Some(c)) =>
           val p = testPoint(t)
           Some(p ++ intervals(zone) ++ controls(p).apply(c).value).map(_.map(_.toString))
+        case (true, None) =>
+          val p = testPoint(t)
+          Some(p ++ intervals(zone)).map(_.map(_.toString))
         case _ => None
       }
 
