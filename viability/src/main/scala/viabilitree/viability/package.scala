@@ -18,8 +18,7 @@
 
 package viabilitree
 
-import viabilitree.kdtree.structure._
-import viabilitree.model.Control
+import viabilitree.kdtree._
 
 import scala.collection.immutable.NumericRange
 
@@ -50,7 +49,7 @@ package object viability {
 
   def volume[T](tree: Tree[T])(implicit c: ContainsLabel[T]) = tree.volume(c.label)
 
-  lazy val Zone = viabilitree.kdtree.structure.Zone
+  lazy val Zone = viabilitree.kdtree.Zone
 
   implicit def vectorOfNumericRangeToVectorOfControl(v: Vector[NumericRange[Double]]) =
     (_: Vector[Double]) => v.transpose.map(Control(_))

@@ -19,7 +19,7 @@
 //
 //import fr.iscpif.kdtree.structure._
 //import math._
-//import fr.iscpif.kdtree.algorithm.GridSampler
+//import fr.iscpif.kdtree.viabilitree.algorithm.GridSampler
 //
 //object BilingualTest extends App {
 //

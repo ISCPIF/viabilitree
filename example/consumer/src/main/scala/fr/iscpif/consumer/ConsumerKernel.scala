@@ -18,7 +18,7 @@
 package fr.iscpif.consumer
 
 
-import viabilitree.kdtree.approximation._
+import viabilitree.approximation._
 import viabilitree.export._
 import math._
 import scala.util.Random

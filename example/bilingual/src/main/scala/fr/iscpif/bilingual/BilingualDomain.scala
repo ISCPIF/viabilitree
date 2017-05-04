@@ -9,7 +9,7 @@
 //package fr.iscpif.bilingual
 //
 //import fr.iscpif.viability._
-//import fr.iscpif.kdtree.algorithm._
+//import fr.iscpif.kdtree.viabilitree.algorithm._
 //import fr.iscpif.kdtree.structure._
 //import fr.iscpif.kdtree.content._
 //import fr.iscpif.kdtree.export._

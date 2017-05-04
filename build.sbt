@@ -49,16 +49,20 @@ lazy val defaultSettings =
 
 /* ---- Viablity -----*/
 
+
+
 lazy val kdtree = Project(id = "kdtree", base = file("kdtree")) settings(defaultSettings: _*) settings (
   libraryDependencies ++= monocle,
   libraryDependencies += cats,
   libraryDependencies += simulacrum)
 
-lazy val export = Project(id = "export", base = file("export")) settings(defaultSettings: _*) dependsOn(kdtree, viability) settings (
+lazy val approximation = Project(id = "approximation", base = file("approximation")) settings(defaultSettings: _*) dependsOn(kdtree)
+
+lazy val export = Project(id = "export", base = file("export")) settings(defaultSettings: _*) dependsOn(kdtree, approximation, viability) settings (
   libraryDependencies += "com.github.pathikrit" %% "better-files" % "2.17.1",
   libraryDependencies += "com.thoughtworks.xstream" % "xstream" % "1.4.7")
 
-lazy val viability = Project(id = "viability", base = file("viability")) settings(defaultSettings: _*) dependsOn(kdtree, model)
+lazy val viability = Project(id = "viability", base = file("viability")) settings(defaultSettings: _*) dependsOn(kdtree, approximation, model)
 
 lazy val model = Project(id = "model", base = file("model"))  settings(defaultSettings: _*) settings (
   libraryDependencies += "org.apache.commons" % "commons-math3" % "3.6.1")

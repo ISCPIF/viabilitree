@@ -17,13 +17,13 @@
 
 package viabilitree
 
-import viabilitree.kdtree.structure._
+import viabilitree.kdtree._
 import com.thoughtworks.xstream._
 import io.binary._
 import better.files._
 import cats._
 import cats.implicits._
-import viabilitree.kdtree.approximation.OracleApproximation
+import viabilitree.approximation.OracleApproximation
 
 import scala.util.Failure
 
@@ -203,8 +203,6 @@ package object export extends better.files.Implicits {
   object VTK {
 
     object Traceable {
-
-      import viabilitree.kdtree.structure._
 
       implicit def kernelContentDynamicIsTraceable[T](implicit l: ContainsLabel[T]) = new Traceable[T] {
         def label = l.label

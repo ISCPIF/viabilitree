@@ -1,10 +1,8 @@
 package viabilitree.viability
 
 import monocle.macros.Lenses
-import viabilitree.kdtree.algorithm._
+import viabilitree.approximation._
 import viabilitree.kdtree._
-import viabilitree.kdtree.structure._
-import viabilitree.viability.kernel._
 
 import util.Random
 
@@ -103,9 +101,9 @@ object basin {
 
     val sampler = Sampler.grid(basinComputation.depth, basinComputation.zone)
     def emptyContent(p: Vector[Double]) = Content.apply(p, None, None, true)
-    def ev = viabilitree.kdtree.algorithm.evaluator.sequential(emptyContent, sampler)
+    def ev = viabilitree.approximation.evaluator.sequential(emptyContent, sampler)
 
-    viabilitree.kdtree.algorithm.KdTreeComputation.erosion[Content](
+    viabilitree.approximation.KdTreeComputation.erosion[Content](
       learnBoundary,
       ev,
       Content.label,
