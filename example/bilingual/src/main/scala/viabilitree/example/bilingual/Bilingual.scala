@@ -21,7 +21,7 @@ import viabilitree.model._
 
 import scala.math._
 
-case class Bilingual(a: Double = 1.31, integrationStep: Double = 0.1, timeStep: Double = 1) {
+case class Bilingual(a: Double = 1.31, integrationStep: Double = 0.1, timeStep: Double = 1.0) {
 
   def dynamic(state: Vector[Double], control: Vector[Double]): Vector[Double] = {
     def sA = state(0)
