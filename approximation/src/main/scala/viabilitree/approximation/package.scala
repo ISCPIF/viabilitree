@@ -76,6 +76,15 @@ package object approximation {
         case InfiniteDomain => true
         case BlackBoxDomain(d) => d(point)
       }
+
+    def pointInDomain(d: Domain)(p: Vector[Double]): Boolean =
+      d match {
+        case BlackBoxDomain(f) => f(p)
+        case InfiniteDomain => true
+      }
+
+    def inter(d1: Domain, d2: Domain)(p: Vector[Double]) = pointInDomain(d1)(p) && pointInDomain(d2)(p)
+
   }
 
   sealed trait Domain
