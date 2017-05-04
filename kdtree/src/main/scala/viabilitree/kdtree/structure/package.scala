@@ -96,12 +96,6 @@ package object structure {
     def apply[T](content: T, zone: Zone, depth: Int): NonEmptyTree[T] =
       apply(Leaf(content, zone), depth)
 
-    def apply[T](_root: Node[T], _depth: Int): NonEmptyTree[T] =
-      new NonEmptyTree[T] {
-        val root = _root
-        val depth = _depth
-      }
-
     def copy[T](tree: NonEmptyTree[T])(root: Node[T] = tree.root, depth: Int = tree.depth) =
       apply(root, depth)
 
@@ -171,9 +165,7 @@ package object structure {
 
   }
 
-  trait NonEmptyTree[T] extends Tree[T] {
-    def depth: Int
-    def root: Node[T]
+  case class NonEmptyTree[T](root: Node[T], depth: Int) extends Tree[T] {
     def isAtomic(l: Leaf[T]) = l.depth >= depth
     def leaves = viabilitree.kdtree.structure.leaves(root)
     def atomicLeaves = leaves.filter(isAtomic)
