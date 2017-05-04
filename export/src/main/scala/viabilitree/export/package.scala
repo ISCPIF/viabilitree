@@ -17,13 +17,13 @@
 
 package viabilitree
 
-import viabilitree.kdtree.structure._
+import viabilitree.kdtree._
 import com.thoughtworks.xstream._
 import io.binary._
 import better.files._
 import cats._
 import cats.implicits._
-import viabilitree.kdtree.approximation.OracleApproximation
+import viabilitree.approximation.OracleApproximation
 
 import scala.util.Failure
 
@@ -33,20 +33,24 @@ package object export extends better.files.Implicits {
 
  // implicit def stringToFile(s: String) = new File(s)
 
-//  def save(o: AnyRef, output: File) = {
-//    val xstream = new XStream(new BinaryStreamDriver)
-//    val dest = new BufferedOutputStream(new GZIPOutputStream(new FileOutputStream(output)))
-//    try xstream.toXML(o, dest)
-//    finally dest.close
-//  }
-//
-//  def load[T](input: File) = {
-//    val xstream = new XStream(new BinaryStreamDriver)
-//    val source = new BufferedInputStream(new GZIPInputStream(new FileInputStream(input)))
-//    try  xstream.fromXML(source).asInstanceOf[T]
-//    finally source.close()
-//  }
-//
+  def save(o: AnyRef, output: File) = {
+    import java.io._
+    import java.util.zip._
+    val xstream = new XStream(new BinaryStreamDriver)
+    val dest = new BufferedOutputStream(new GZIPOutputStream(new FileOutputStream(output.toJava)))
+    try xstream.toXML(o, dest)
+    finally dest.close
+  }
+
+  def load[T](input: File) = {
+    import java.io._
+    import java.util.zip._
+    val xstream = new XStream(new BinaryStreamDriver)
+    val source = new BufferedInputStream(new GZIPInputStream(new FileInputStream(input.toJava)))
+    try  xstream.fromXML(source).asInstanceOf[T]
+    finally source.close()
+  }
+
 
 //  def traceTraj(t:Seq[Point], file: File): Unit = {
 //    val output = Resource.fromFile(file)
@@ -199,8 +203,6 @@ package object export extends better.files.Implicits {
   object VTK {
 
     object Traceable {
-
-      import viabilitree.kdtree.structure._
 
       implicit def kernelContentDynamicIsTraceable[T](implicit l: ContainsLabel[T]) = new Traceable[T] {
         def label = l.label

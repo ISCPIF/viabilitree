@@ -1,8 +1,8 @@
 package viabilitree.viability
 
 import util.Random
-import viabilitree.kdtree.structure._
-import viabilitree.kdtree.algorithm._
+import viabilitree.kdtree._
+import viabilitree.approximation._
 import viabilitree.model._
 
 import scala.reflect.ClassTag
@@ -49,7 +49,6 @@ object kernel {
 
 
   import monocle.macros.Lenses
-  import viabilitree.kdtree.structure._
 
   object Content {
     def reduce: ContentReduction[Content] = (c1: Leaf[Content], c2: Leaf[Content]) => Some(c1.content)
@@ -103,7 +102,6 @@ object kernel {
       testPoint = Content.testPoint.get)(rng)
 
   def approximate(kernelComputation: KernelComputation, rng: Random, maxNumberOfStep: Option[Int] = None, initialTree: Option[Tree[Content]] = None) = {
-    import viabilitree.kdtree.structure._
 
     def cleanBetweenStep(tree: Tree[Content]) = {
       def reduceFalse[CONTENT](criticalLeaves: Vector[Zone], label: CONTENT => Boolean, testPoint: CONTENT => Vector[Double]): ContentReduction[CONTENT] = {
@@ -145,9 +143,9 @@ object kernel {
 
     val sampler = Sampler.grid(kernelComputation.depth, kernelComputation.zone)
     def emptyContent(p: Vector[Double]) = Content.apply(p, None, None, true, 0)
-    def ev = viabilitree.kdtree.algorithm.evaluator.sequential(emptyContent, sampler)
+    def ev = viabilitree.approximation.evaluator.sequential(emptyContent, sampler)
 
-    viabilitree.kdtree.algorithm.KdTreeComputation.erosion[Content](
+    viabilitree.approximation.KdTreeComputation.erosion[Content](
       learnBoundary,
       ev,
       Content.label,
@@ -205,7 +203,7 @@ object kernel {
 
     val sampler = Sampler.grid(depth, zone)
     def emptyContent(p: Vector[Double]) = buildContent(p, None, None, false, 0)
-    def ev = viabilitree.kdtree.algorithm.evaluator.sequential(emptyContent, sampler)
+    def ev = viabilitree.approximation.evaluator.sequential(emptyContent, sampler)
     //def ev = evaluator(depth, zone, dimension, buildContent)
 
     def shouldBeReassigned(c: CONTENT): Boolean = label.get(c)

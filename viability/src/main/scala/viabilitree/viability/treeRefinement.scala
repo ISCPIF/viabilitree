@@ -17,8 +17,8 @@
 
 package viabilitree.viability
 
-import viabilitree.kdtree.algorithm._
-import viabilitree.kdtree.structure._
+import viabilitree.kdtree._
+import viabilitree.approximation._
 
 import scala.util.Random
 
