@@ -1,4 +1,4 @@
-package viabilitree.approximation.example.bilingual
+package viabilitree.example.bilingual
 
 import java.io.File
 import viabilitree.viability._
@@ -21,7 +21,7 @@ object BilingualViabDomain extends App {
     domain = (p: Vector[Double]) => p(0) + p(1) <= 1 && p.forall(_ >= 0)
   )
 
-  val (viabilityDomain, steps) = approximate(vk, rng)
+  val (viabilityDomain, steps) = approximate(vk, rng, maxNumberOfStep = Some(0))
   println("fin calcul noyau ")
   val output = s"/tmp/BilingualResult2017/"
   saveVTK3D(viabilityDomain, s"${output}Bilingual${vk.depth}viabdil${vk.dilations}withk.vtk")

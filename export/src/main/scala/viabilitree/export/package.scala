@@ -34,6 +34,7 @@ package object export extends better.files.Implicits {
  // implicit def stringToFile(s: String) = new File(s)
 
   def save(o: AnyRef, output: File) = {
+    output.parent.createDirectories()
     import java.io._
     import java.util.zip._
     val xstream = new XStream(new BinaryStreamDriver)
@@ -182,6 +183,7 @@ package object export extends better.files.Implicits {
 
   def saveHyperRectangles[T](tree: Tree[T], columns: (T, Zone) => Option[Vector[String]], file: File): Unit = {
     file.delete(true)
+    file.parent.createDirectories()
 
     //todo add the first line in the .txt file, of the form x1 x2 ... x${dim} min1 max1 ... min${dim} max${dim} control1 ... control${aControl.size}
 //    def header =
@@ -225,6 +227,7 @@ package object export extends better.files.Implicits {
 
   def saveVTK2D[T](tree: Tree[T], label: T => Boolean, file: File, x: Int, y: Int): Unit = {
     file.delete(true)
+    file.parent.createDirectories()
 
     def coords =
       tree.leaves.filter(l => label(l.content)).map {
@@ -284,6 +287,7 @@ DATASET UNSTRUCTURED_GRID""")
 
   def saveVTK3D[T](tree: Tree[T], label: T => Boolean, file: File, x: Int, y: Int, z: Int): Unit = {
     file.delete(true)
+    file.parent.createDirectories()
 
     def coords =
       tree.leaves.filter(l => label(l.content)).map {

@@ -15,16 +15,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package viabilitree.approximation.example.bilingual
+package viabilitree.example.bilingual
 
+import viabilitree.export._
 import viabilitree.viability._
 import viabilitree.viability.basin._
-import viabilitree.export._
 
-import io._
+import scala.Ordering.Implicits._
 import scala.collection.immutable._
+import scala.io._
 import scala.util.Random
-import Ordering.Implicits._
 
 object BilingualBasin extends App {
 
