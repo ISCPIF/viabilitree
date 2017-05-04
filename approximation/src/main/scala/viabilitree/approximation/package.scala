@@ -83,6 +83,7 @@ package object approximation {
         case InfiniteDomain => true
       }
 
+    def inter(ds: Domain*)(p: Vector[Double]) = ds.forall(d => pointInDomain(d)(p))
     def inter(d1: Domain, d2: Domain)(p: Vector[Double]) = pointInDomain(d1)(p) && pointInDomain(d2)(p)
 
   }

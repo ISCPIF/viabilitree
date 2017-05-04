@@ -53,7 +53,9 @@ object kernel {
   object Content {
     def reduce: ContentReduction[Content] = (c1: Leaf[Content], c2: Leaf[Content]) => Some(c1.content)
     implicit def kernelContent = ContainsLabel[kernel.Content](Content.label.get)
+    def initialControl = 0
   }
+
 
   @Lenses case class Content(
     testPoint: Vector[Double],
@@ -72,9 +74,7 @@ object kernel {
     controls: Vector[Double] => Vector[Control],
     k: Option[Vector[Double] => Boolean] = None,
     domain: Domain = InfiniteDomain,
-    dilations: Int = 0) {
-    def kValue = k.getOrElse(p => zone.contains(p))
-  }
+    dilations: Int = 0)
 
   def iterate(kernelComputation: KernelComputation, tree: Tree[Content], rng: Random) =
     kernel.approximate[Content](
@@ -92,12 +92,10 @@ object kernel {
 
   def initialTree(kernelComputation: KernelComputation, rng: Random) =
     kernel.initialTree[Content](
-      dynamic = kernelComputation.dynamic,
       depth = kernelComputation.depth,
       zone = kernelComputation.zone,
-      k = kernelComputation.kValue,
+      k = kernelComputation.k,
       domain = kernelComputation.domain,
-      controls = kernelComputation.controls,
       buildContent = Content.apply,
       label = Content.label.get,
       testPoint = Content.testPoint.get)(rng)
@@ -143,7 +141,7 @@ object kernel {
     def learnBoundary = KdTreeComputation.learnBoundary(Content.label.get, Content.testPoint.get)
 
     val sampler = Sampler.grid(kernelComputation.depth, kernelComputation.zone)
-    def emptyContent(p: Vector[Double]) = Content.apply(p, None, None, true, 0)
+    def emptyContent(p: Vector[Double]) = Content.apply(p, None, None, true, Content.initialControl)
     def ev = viabilitree.approximation.evaluator.sequential(emptyContent, sampler)
 
     viabilitree.approximation.KdTreeComputation.erosion[Content](
@@ -301,34 +299,24 @@ object kernel {
 
 
   def initialTree[CONTENT: ClassTag](
-    dynamic: (Vector[Double], Vector[Double]) => Vector[Double],
     depth: Int,
     zone: Zone,
-    k: Vector[Double] => Boolean,
+    k: Option[Vector[Double] => Boolean],
     domain: Domain,
-    controls: Vector[Double] => Vector[Control],
     buildContent: (Vector[Double], Option[Int], Option[Vector[Double]], Boolean, Int) => CONTENT,
     label: CONTENT => Boolean,
     testPoint: CONTENT => Vector[Double])(rng: Random): Tree[CONTENT] = {
 
-    def contentBuilder(p: Vector[Double], rng: Random) = treeRefinement.exhaustiveFindViableControl(p, Domain.inter(k, domain), buildContent, dynamic, controls)
+    def kValue: (Vector[Double] => Boolean) = k.getOrElse(_ => true)
+    def admissible(p: Vector[Double]) = Domain.inter(zone.contains(_), Domain.pointInDomain(domain)(_), kValue)(p)
+    def contentBuilder(p: Vector[Double], rng: Random) = buildContent(p, None, None, admissible(p), Content.initialControl)
     def ev = evaluator.sequential(contentBuilder(_, rng), Sampler.grid(depth, zone))
+    def treeWithPositiveLeave = input.zone(ev, label, testPoint)(zone, depth, rng)
 
-    input.zone(ev, label, testPoint)(zone, depth, rng)
+    treeWithPositiveLeave.mapNonEmpty { t =>
+      KdTreeComputation.learnBoundary(label, testPoint).apply(t, ev, rng)
+    }
   }
-
-
-
-//  def tree0[CONTENT](implicit rng: Random): Tree[CONTENT] = {
-//    def contentBuilder(p: Vector[Double]) = exhaustiveFindViableControl(p, k)
-//
-//    initialTree(contentBuilder).map {
-//      tree => kdTreeComputation.learnBoundary(tree, contentBuilder)
-//    }
-//  }
-
-
-
 
 
 }
