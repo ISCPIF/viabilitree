@@ -23,7 +23,7 @@ import scala.math._
 
 case class Bilingual(a: Double = 1.31, integrationStep: Double = 0.1, timeStep: Double = 1) {
 
-  def apply(state: Vector[Double], control: Vector[Double]): Vector[Double] = {
+  def dynamic(state: Vector[Double], control: Vector[Double]): Vector[Double] = {
     def sA = state(0)
     def sB = state(1)
     def s = state(2)
