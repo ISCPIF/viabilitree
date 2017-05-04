@@ -23,9 +23,9 @@ object BilingualViabDomain extends App {
   val (viabilityDomain, steps) = approximate(vk, rng)
   println("fin calcul noyau ")
   val output = s"/tmp/BilingualResult${vk.depth}/"
-  saveVTK3D(viabilityDomain, s"${output}Bilingual0_5${vk.depth}viabdil${vk.dilation}.vtk")
+  saveVTK3D(viabilityDomain, s"${output}Bilingual0_5${vk.depth}viabdil${vk.dilations}.vtk")
 //  traceViabilityKernel(viabilityDomain, vk.controls, s"${output}Bilingual0_5${vk.depth}dil${vk.dilation}.txt")
-  val file = new File(s"${output}Bilingual0_5${vk.depth}dil${vk.dilation}Noyau.bin")
+  val file = new File(s"${output}Bilingual0_5${vk.depth}dil${vk.dilations}Noyau.bin")
 
 //  save(viabilityDomain, file)
   println("fin save noyau ")

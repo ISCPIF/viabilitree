@@ -72,7 +72,7 @@ object kernel {
     controls: Vector[Double] => Vector[Control],
     k: Option[Vector[Double] => Boolean] = None,
     domain: Domain = InfiniteDomain,
-    dilation: Int = 0) {
+    dilations: Int = 0) {
     def kValue = k.getOrElse(p => zone.contains(p))
   }
 
@@ -87,7 +87,7 @@ object kernel {
       testPoint = Content.testPoint.get,
       resultPoint = Content.resultPoint.get,
       controlMax = Content.controlMax.get,
-      dilations = kernelComputation.dilation)(tree, rng)
+      dilations = kernelComputation.dilations)(tree, rng)
 
 
   def initialTree(kernelComputation: KernelComputation, rng: Random) =
@@ -96,6 +96,7 @@ object kernel {
       depth = kernelComputation.depth,
       zone = kernelComputation.zone,
       k = kernelComputation.kValue,
+      domain = kernelComputation.domain,
       controls = kernelComputation.controls,
       buildContent = Content.apply,
       label = Content.label.get,
@@ -304,13 +305,13 @@ object kernel {
     depth: Int,
     zone: Zone,
     k: Vector[Double] => Boolean,
+    domain: Domain,
     controls: Vector[Double] => Vector[Control],
     buildContent: (Vector[Double], Option[Int], Option[Vector[Double]], Boolean, Int) => CONTENT,
     label: CONTENT => Boolean,
     testPoint: CONTENT => Vector[Double])(rng: Random): Tree[CONTENT] = {
 
-    def dimension = zone.dimension
-    def contentBuilder(p: Vector[Double], rng: Random) = treeRefinement.exhaustiveFindViableControl(p, k, buildContent, dynamic, controls)
+    def contentBuilder(p: Vector[Double], rng: Random) = treeRefinement.exhaustiveFindViableControl(p, Domain.inter(k, domain), buildContent, dynamic, controls)
     def ev = evaluator.sequential(contentBuilder(_, rng), Sampler.grid(depth, zone))
 
     input.zone(ev, label, testPoint)(zone, depth, rng)
