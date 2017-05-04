@@ -1,51 +1,50 @@
 
 organization := "fr.iscpif"
-
 name := "viabilitree"
 
-def settings =
-  Seq(
-    scalaVersion := "2.12.2",
-    publishArtifact := false,
-    addCompilerPlugin("org.scalamacros" %% "paradise" % "2.1.0" cross CrossVersion.full)
-  )
+scalaVersion in ThisBuild := "2.12.2"
+
+publishTo in ThisBuild := isSnapshot { snapshot =>
+  val nexus = "https://oss.sonatype.org/"
+  if (snapshot) Some("snapshots" at nexus + "content/repositories/snapshots")
+  else Some("releases" at nexus + "service/local/staging/deploy/maven2")
+}.value
+
+pomIncludeRepository in ThisBuild := { _ => false}
+
+licenses in ThisBuild := Seq("Affero GPLv3" -> url("http://www.gnu.org/licenses/"))
+
+homepage in ThisBuild := Some(url("https://github.com/ISCPIF/viabilitree"))
+
+scmInfo in ThisBuild := Some(ScmInfo(url("https://github.com/ISCPIF/viabilitree.git"), "scm:git:git@github.com:ISCPIF/viabilitree.git"))
+// To sync with Maven central, you need to supply the following information:
+pomExtra in ThisBuild := {
+  <!-- Developer contact information -->
+    <developers>
+      <developer>
+        <id>romainreuillon</id>
+        <name>Romain Reuillon</name>
+        <url>https://github.com/romainreuillon/</url>
+      </developer>
+      <developer>
+        <id>isabelle</id>
+        <name>Isabelle Alvarez</name>
+      </developer>
+      <developer>
+        <id>ricardo</id>
+        <name>Ricardo De Aldama</name>
+      </developer>
+    </developers>
+}
 
 scalariformSettings
 
 lazy val defaultSettings =
-  settings ++ Seq(
+  Seq(
     organization := "fr.iscpif.viabilitree",
     publishArtifact := true,
-    publishTo := isSnapshot { snapshot =>
-      val nexus = "https://oss.sonatype.org/"
-      if (snapshot) Some("snapshots" at nexus + "content/repositories/snapshots")
-      else Some("releases" at nexus + "service/local/staging/deploy/maven2")
-    }.value,
-    pomIncludeRepository := { _ => false},
-    licenses := Seq("Affero GPLv3" -> url("http://www.gnu.org/licenses/")),
-    homepage := Some(url("https://github.com/ISCPIF/viabilitree")),
-    scmInfo := Some(ScmInfo(url("https://github.com/ISCPIF/viabilitree.git"), "scm:git:git@github.com:ISCPIF/viabilitree.git")),
-    // To sync with Maven central, you need to supply the following information:
-    pomExtra := {
-      <!-- Developer contact information -->
-        <developers>
-          <developer>
-            <id>romainreuillon</id>
-            <name>Romain Reuillon</name>
-            <url>https://github.com/romainreuillon/</url>
-          </developer>
-          <developer>
-            <id>isabelle</id>
-            <name>Isabelle Alvarez</name>
-          </developer>
-          <developer>
-            <id>ricardo</id>
-            <name>Ricardo De Aldama</name>
-          </developer>
-        </developers>
-    }
+    addCompilerPlugin("org.scalamacros" %% "paradise" % "2.1.0" cross CrossVersion.full)
   )
-
 
 /* ---- Viablity -----*/
 
@@ -79,11 +78,11 @@ lazy val strategy = Project(id = "strategy", base = file("strategy")) settings(d
 
 //lazy val population = Project(id = "population", base = file("example/population")) settings(settings: _*) dependsOn(viability, export, model)
 
-lazy val lake = Project(id = "lake", base = file("example/lake")) settings(settings: _*) dependsOn(viability, export, model, strategy)
+lazy val lake = Project(id = "lake", base = file("example/lake")) settings(publishArtifact := false) dependsOn(viability, export, model, strategy)
 
-lazy val bilingual = Project(id = "bilingual", base = file("example/bilingual")) settings(settings: _*) dependsOn(viability, export, model)
+lazy val bilingual = Project(id = "bilingual", base = file("example/bilingual")) settings(publishArtifact := false) dependsOn(viability, export, model)
 
-lazy val circle = Project(id = "circle", base = file("example/circle")) settings(settings: _*) dependsOn(kdtree, export)
+lazy val circle = Project(id = "circle", base = file("example/circle")) settings(publishArtifact := false) dependsOn(kdtree, export)
 
 /*----- Libraries ------ */
 
