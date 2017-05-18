@@ -46,7 +46,7 @@ lazy val defaultSettings =
     addCompilerPlugin("org.scalamacros" %% "paradise" % "2.1.0" cross CrossVersion.full)
   )
 
-/* ---- Viablity -----*/
+/* ---- Viability -----*/
 
 
 
@@ -83,6 +83,8 @@ lazy val lake = Project(id = "lake", base = file("example/lake")) settings(publi
 lazy val bilingual = Project(id = "bilingual", base = file("example/bilingual")) settings(publishArtifact := false) dependsOn(viability, export, model)
 
 lazy val circle = Project(id = "circle", base = file("example/circle")) settings(publishArtifact := false) dependsOn(kdtree, export)
+
+lazy val raz13 = Project(id = "raz13", base = file("example/raz13")) settings(publishArtifact := false) dependsOn(viability, export, model, strategy)
 
 /*----- Libraries ------ */
 

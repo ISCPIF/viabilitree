@@ -28,7 +28,7 @@ object LakeViabilityKernel extends App {
 
   val vk = KernelComputation(
     dynamic = lake.dynamic,
-    depth = 12,
+    depth = 18,
     zone = Vector((0.1, 1.0), (0.0, 1.4)),
     controls = Vector((0.09 to -0.09 by -0.01))
   )
