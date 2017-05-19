@@ -22,17 +22,34 @@ import math._
 
 case class RAZ13(
   integrationStep: Double = 0.01,
-  timeStep: Double = 0.1) {
+  timeStep: Double = 0.1,
+  Tm: Double = 15,
+  A2: Double = 0.2,
+  b: Double = 1.0,
+  C: Double = 2.0 ) {
 
-  def dynamic(state: Vector[Double], control: Vector[Double]) = {
-    def xDot(state: Vector[Double], t: Double) = control(0)
-    // TODO to avoid unnecessary approximation when m=1
-    // def yDot(state: Array[Double], t: Double) = b*state(1)-r*math.pow(state(1),8)/(pow(m,8)+pow(state(1),8))
-    def yDot(state: Vector[Double], t: Double) =
-      state(0) - (1 * state(1) - 1 * math.pow(state(1), 8) / (1 + pow(state(1), 8)))
+  def A1 = log(2)/Tm
+  // A1 peut valoir en fait ln(2)/TM, ie en TM alpha aura perdu la moitié de sa valeur initiale
+  def dynamic1(state: Vector[Double], control: Vector[Double]) = {
+    def alphaDot(state: Vector[Double], t: Double) = - A1 * state(0) + A2 * state(0) * (1-state(0))
+    def wDot(state: Vector[Double], t: Double) = b - C * control(0)
 
-    val dynamic = Dynamic(xDot, yDot)
+    val dynamic = Dynamic(alphaDot, wDot)
     dynamic.integrate(state.toArray, integrationStep, timeStep)
   }
 
+  def dynamic2(state: Vector[Double], control: Vector[Double]) = {
+    val A2bis = min((1-A2)/2,0.2)
+    // A2bis dans ]0,1-A2[
+    def alphaDot(state: Vector[Double], t: Double) =
+      - A1 * state(0) + (A2 + A2bis * state(0)) * state(0) * (1-state(0))
+    def wDot(state: Vector[Double], t: Double) = b - C * control(0)
+
+    val dynamic = Dynamic(alphaDot, wDot)
+    dynamic.integrate(state.toArray, integrationStep, timeStep)
+  }
+
+def dynamic(state: Vector[Double], control: Vector[Double]) = {
+  dynamic1(state,control)
+}
 }
