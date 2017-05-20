@@ -26,8 +26,19 @@ case class RAZ13(
   Tm: Double = 15.0,
   A2: Double = 0.2,
   b: Double = 1.0,
-  C: Double = 2.0 ) {
+  C: Double = 2.0,
+  A3: Double = 1.0,
+  M: Double = 30.0,
+  a3: Double = 1.0,
+  a2: Double = 0.0,
+  a1: Double = 0.0,
+  a0 : Double =1.0) {
 
+  /* PARAMETRES
+  M flood size for which impact is half the max (1/2)
+  A3 must be <= 1
+  Damage parameters a3, a2, a1, a0
+   */
   /* ON NE PEUT PAS FAIRE COMME CA
   def dynamic2(state: Vector[Double], control: Vector[Double]) = {
     val A2bis = min((1-A2)/2,0.2)
@@ -53,5 +64,15 @@ def dynamic(state: Vector[Double], control: Vector[Double]) = {
 
     val dynamic = Dynamic(alphaDot, wDot)
     dynamic.integrate(state.toArray, integrationStep, timeStep)
+  }
+
+  def damage(alpha: Double, s: Double):Double = {
+   // a3*s*s*s + a2*s*s + a1*s + a0*(1-alpha)
+    a0*(1-alpha)*s
+  }
+  def perturbation(state: Vector[Double], s:Double)={
+    def alphaDelta (state: Vector[Double], s:Double) = A3 * (1-state(0)) * (s / (M + s))
+    def wDelta (state: Vector[Double], s:Double) = - damage(state(0), s)
+
   }
 }

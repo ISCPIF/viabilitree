@@ -42,4 +42,6 @@ trait Model {
     }*/
 
 /*  def trajectoryWithViableStrategy(p:Point,viabKernel: ViabilityKernel, i:Int )*/
+
+def perturbation(state:Vector[Double], s:Double): Vector[Double] => Boolean
 }
