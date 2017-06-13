@@ -21,7 +21,7 @@ object Full extends App {
     )
 
   val tree = approximate(approximation)
-  saveHyperRectangles(approximation)(tree, s"${approximation.depth}Full.txt")
+ // saveHyperRectangles(approximation)(tree, s"${approximation.depth}Full.txt")
 
 
 }
