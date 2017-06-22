@@ -198,7 +198,7 @@ package object kdtree {
               f.attachHigh(hn)
               f
             } else {
-              
+
               throw new RuntimeException("Tree containing nodes with different divisions coordinates are not supported yet.")
             }
         }
