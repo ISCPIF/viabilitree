@@ -40,12 +40,11 @@ object LakeViabilityKernel extends App {
   val distanceTree =
     Tree.distanceInf(ak, viabilitree.viability.kernel.Content.label.get, euclidianDistance)
 
-  val zippedTree = Tree.zip(ak, distanceTree)
+  val zippedTree = Tree.zipContent(ak, distanceTree)
 
   saveVTK2D(ak,"/tmp/reslake.vtk")
   saveHyperRectangles(vk)(ak,"/tmp/reslakeWithControl.txt")
   saveHyperRectangles(vk)(zippedTree,"/tmp/reslakeWithControlAndDistance.txt")
-
 
 
   //saveVTK2D(res, ControlledDynamicContent.label.get, "/tmp/res.vtk")

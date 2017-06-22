@@ -2,6 +2,7 @@ package viabilitree.kdtree
 
 // Let us say (LeftNode, RightNode) are adjacent on coordinate k. Let lmin, lmax, rmin, rmax be the extremes of the
 // intervals corresponding to coordinate k. Then either lmax = rmin [LeftIsLow], or lmin = rmax [LeftIsHigh]
+// TODO Rename low => negative and high => positive
 sealed trait Adjacency
 
 case object LeftIsLow extends Adjacency {

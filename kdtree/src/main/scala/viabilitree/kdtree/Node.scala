@@ -22,6 +22,17 @@ import Path.extremeDivisions
 import viabilitree.kdtree.HelperFunctions._
 import util.Random
 
+
+object Node {
+
+  def recusiveCopy[T](node: Node[T]): Node[T] =
+    node match {
+      case (f: Fork[T]) => Fork.recursiveCopy[T](f)
+      case (l: Leaf[T]) => Leaf.copy[T](l)()
+    }
+}
+
+
 sealed trait Node[T] { node =>
 
   var parent: Option[Fork[T]] = None
@@ -65,18 +76,18 @@ sealed trait Node[T] { node =>
   //Only needed for the unbounded version
   //TODO: Use this for refine function
   // It chooses the direction to expand a node (it will be a initialNode)
-  def chooseDirection(preferredDirections: List[Direction], rng: Random): Direction = {
-    val spanList: List[(Double, Int)] = zone.region.map(i => i.max - i.min).toList.zipWithIndex
-    val smallestSpans: List[(Double, Int)] = spanList.filter(k => spanList.forall(i => k._1 <= i._1))
-    val smallestCoordinates: List[Int] = smallestSpans.map(x => x._2)
-    val selectedDirections = preferredDirections.filter(k => smallestCoordinates.exists(i => i == k.coordinate))
-    if (selectedDirections != Nil) randomElement(selectedDirections, rng)
-    else {
-      val direction = randomElement(smallestCoordinates, rng)
-      val sign = if (rng.nextBoolean()) Positive else Negative
-      new Direction(direction, sign)
-    }
-  }
+//  def chooseDirection(preferredDirections: List[Direction], rng: Random): Direction = {
+//    val spanList: List[(Double, Int)] = zone.region.map(i => i.max - i.min).toList.zipWithIndex
+//    val smallestSpans: List[(Double, Int)] = spanList.filter(k => spanList.forall(i => k._1 <= i._1))
+//    val smallestCoordinates: List[Int] = smallestSpans.map(x => x._2)
+//    val selectedDirections = preferredDirections.filter(k => smallestCoordinates.exists(i => i == k.coordinate))
+//    if (selectedDirections != Nil) randomElement(selectedDirections, rng)
+//    else {
+//      val direction = randomElement(smallestCoordinates, rng)
+//      val sign = if (rng.nextBoolean()) Positive else Negative
+//      new Direction(direction, sign)
+//    }
+//  }
 
   ///////// REFINING METHODS
 
@@ -98,14 +109,6 @@ sealed trait Node[T] { node =>
         pathSoundness(fork.lowChild) && pathSoundness(fork.highChild)
     }
 
-  def printPaths(node: Node[T]) {
-    node match {
-      case leaf: Leaf[T] =>
-        println(leaf.path); println("BRANCH END")
-      case fork: Fork[T] => println(fork.path); printPaths(fork.lowChild); printPaths(fork.highChild)
-    }
-  }
-
   def leaf(path: Path): Option[Leaf[T]]
 
   /////////////
@@ -114,7 +117,7 @@ sealed trait Node[T] { node =>
 
 object Fork {
 
-  private [kdtree] def zip[T, U](ft: Fork[T], fu: Fork[U]): Fork[(T, U)] = {
+  private [kdtree] def zipContent[T, U](ft: Fork[T], fu: Fork[U]): Fork[(T, U)] = {
     assert(ft.divisionCoordinate == fu.divisionCoordinate, "Trees should have a similar structure to be zipped")
     (ft.lowChild, fu.lowChild, ft.highChild, fu.highChild) match {
       case (ltl: Leaf[T], lul: Leaf[U], lth: Leaf[T], luh: Leaf[U]) =>
@@ -122,16 +125,16 @@ object Fork {
         val lhu = Leaf((lth.content, luh.content), lth.zone)
         Fork[(T, U)](ft.divisionCoordinate, ft.zone, llu, lhu)
       case (ftl: Fork[T], ful: Fork[U], fth: Fork[T], fuh: Fork[U]) =>
-        val flu = zip(ftl, ful)
-        val fhu = zip(fth, fuh)
+        val flu = zipContent(ftl, ful)
+        val fhu = zipContent(fth, fuh)
         Fork(ft.divisionCoordinate, ft.zone, flu, fhu)
       case (ftl: Fork[T], ful: Fork[U], lth: Leaf[T], luh: Leaf[U]) =>
-        val flu = zip(ftl, ful)
+        val flu = zipContent(ftl, ful)
         val lhu = Leaf((lth.content, luh.content), luh.zone)
         Fork[(T, U)](ft.divisionCoordinate, ft.zone, flu, lhu)
       case (ltl: Leaf[T], lul: Leaf[U], fth: Fork[T], fuh: Fork[U]) =>
         val llu = Leaf((ltl.content, lul.content), ltl.zone)
-        val fhu = zip(fth, fuh)
+        val fhu = zipContent(fth, fuh)
         Fork[(T, U)](ft.divisionCoordinate, ft.zone, llu, fhu)
       case _ => throw new RuntimeException("Trees should have a similar structure to be zipped")
     }
@@ -201,7 +204,7 @@ object Fork {
     }
   }
 
-  def copy[T](f: Fork[T])(lowChild: Node[T] = f.lowChild, highChild: Node[T] = f.highChild) =
+  def copy[T](f: Fork[T])(lowChild: Node[T], highChild: Node[T]): Fork[T] =
     Fork(
       divisionCoordinate = f.divisionCoordinate,
       zone = f.zone,
@@ -209,6 +212,8 @@ object Fork {
       highChild = highChild,
       parent = f.parent
     )
+
+  def recursiveCopy[T](f: Fork[T]): Fork[T] = map(f)(identity[T])
 
   def apply[T](divisionCoordinate: Int, zone: Zone, lowChild: Node[T] = null, highChild: Node[T] = null, parent: Option[Fork[T]] = None): Fork[T] = {
     val (_divisionCoordinate, _zone) = (divisionCoordinate, zone)
@@ -339,7 +344,7 @@ object Leaf {
     l
   }
 
-  def copy[T](leaf: Leaf[T])(content: T = leaf.content, zone: Zone = leaf.zone, parent: Option[Fork[T]] = None) =
+  def copy[T](leaf: Leaf[T])(content: T = leaf.content, zone: Zone = leaf.zone, parent: Option[Fork[T]] = None): Leaf[T] =
     apply(content, zone, parent)
 
   private [kdtree] def map[T, U](leaf: Leaf[T])(f: T => U) =
@@ -348,8 +353,9 @@ object Leaf {
   private [kdtree] def zipWithLeaf[T, U](leaf: Leaf[T])(f: Leaf[T] => U) =
     apply[(T, U)]((leaf.content, f(leaf)), leaf.zone)
 
-  private [kdtree] def zip[T, U](lt: Leaf[T], lu: Leaf[U]): Leaf[(T, U)] =
+  private [kdtree] def zipContent[T, U](lt: Leaf[T], lu: Leaf[U]): Leaf[(T, U)] =
     Leaf((lt.content, lu.content), lt.zone)
+
 
 }
 
@@ -421,12 +427,7 @@ trait Leaf[T] extends Node[T] { self =>
   def extendedHighPath(coordinate: Int) =
     (PathElement(coordinate, Descendant.High) :: reversePath.toList).reverse
 
-  def minimalCoordinates = {
-    val coordCardinals = path.groupBy(_.coordinate).map { case (k, v) => k -> v.size }
-    val allCoords = (0 until zone.dimension).map { d => coordCardinals.getOrElse(d, 0) }
-    val minCardinal = allCoords.min
-    allCoords.zipWithIndex.filter { case (c, _) => c == minCardinal }.map { case (_, i) => i }.sorted
-  }
+
 
   def leaf(path: Path): Option[Leaf[T]] =
     if (path.isEmpty) Some(this)

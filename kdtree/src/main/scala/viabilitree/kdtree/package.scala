@@ -37,10 +37,10 @@ package object kdtree {
         }
     }
 
-    def zip[T, U](t: Tree[T], u: Tree[U]) = {
+    def zipContent[T, U](t: Tree[T], u: Tree[U]) = {
       (t, u) match {
-        case (et: EmptyTree[T], eu: EmptyTree[U]) => EmptyTree.zip(et, eu)
-        case (tt: NonEmptyTree[T], tu: NonEmptyTree[U]) => NonEmptyTree.zip(tt, tu)
+        case (et: EmptyTree[T], eu: EmptyTree[U]) => EmptyTree.zipContent(et, eu)
+        case (tt: NonEmptyTree[T], tu: NonEmptyTree[U]) => NonEmptyTree.zipContent(tt, tu)
         case _ => throw new RuntimeException("Tree have diverging nature, one is empty and not the other one.")
       }
     }
@@ -52,6 +52,13 @@ package object kdtree {
       t match {
         case t: NonEmptyTree[T] => NonEmptyTree.distanceInf(t, label, distance)
         case e: EmptyTree[T] => EmptyTree[(Double, Path)](e.zone)
+      }
+
+    def intersect[T](t1: Tree[T], t2: Tree[T], label: T => Boolean) =
+      (t1, t2) match {
+        case (t1: NonEmptyTree[T], t2: NonEmptyTree[T]) => NonEmptyTree.intersect(t1, t2, label)
+        case (t1: EmptyTree[T], _) => t1
+        case (_, t2: EmptyTree[T]) => t2
       }
   }
 
@@ -75,7 +82,7 @@ package object kdtree {
       override def map[A, B](fa: EmptyTree[A])(f: (A) => B): EmptyTree[B] = EmptyTree[B](fa.zone)
     }
 
-    def zip[T, U](et: EmptyTree[T], eu: EmptyTree[U]) = {
+    def zipContent[T, U](et: EmptyTree[T], eu: EmptyTree[U]) = {
       assert(et.zone.region.toVector == eu.zone.region.toVector, "Trees should have a similar zone")
       EmptyTree[(T, U)](et.zone)
     }
@@ -128,14 +135,14 @@ package object kdtree {
       NonEmptyTree[(T, U)](newRoot, t.depth)
     }
 
-    def zip[T, U](t: NonEmptyTree[T], u: NonEmptyTree[U]) = {
+    def zipContent[T, U](t: NonEmptyTree[T], u: NonEmptyTree[U]) = {
       assert(t.root.zone.region.toVector == u.root.zone.region.toVector, "The root zone is not the same in both trees")
       assert(t.depth == u.depth, "The depth is not the same in both trees")
 
       val newRoot =
         (t.root, u.root) match {
-          case (lt: Leaf[T], lu: Leaf[U]) => Leaf.zip(lt, lu)
-          case (ft: Fork[T], fu: Fork[U]) => Fork.zip(ft, fu)
+          case (lt: Leaf[T], lu: Leaf[U]) => Leaf.zipContent(lt, lu)
+          case (ft: Fork[T], fu: Fork[U]) => Fork.zipContent(ft, fu)
           case _ => throw new RuntimeException("The root of the tree is not the same in both trees. The tree should have an identical structure to be zipped.")
         }
 
@@ -163,8 +170,47 @@ package object kdtree {
       }
     }
 
+    def intersect[T](t1: NonEmptyTree[T], t2: NonEmptyTree[T], label: T => Boolean): NonEmptyTree[T] = {
+      assert(Zone.equals(t1.root.zone, t2.root.zone))
+
+      def recurse(currentNodeT1: Node[T], currentNodeT2: Node[T], newParent: Option[Fork[T]] = None): Node[T] = {
+        (currentNodeT1, currentNodeT2) match {
+          case (l1: Leaf[T], _) =>
+            if (label(l1.content)) {
+              val n = Node.recusiveCopy(currentNodeT2)
+              n.parent = newParent
+              n
+            } else Leaf.copy(l1)(parent = newParent)
+          case (_, l2: Leaf[T]) =>
+            if (label(l2.content)) {
+              val n = Node.recusiveCopy(currentNodeT1)
+              n.parent = newParent
+              n
+            } else Leaf.copy(l2)(parent = newParent)
+          case (n1: Fork[T], n2: Fork[T]) =>
+
+            if(n1.divisionCoordinate == n2.divisionCoordinate) {
+              val f = Fork[T](zone = n1.zone, divisionCoordinate = n1.divisionCoordinate)
+              val ln = recurse(n1.lowChild, n2.lowChild, Some(f))
+              val hn = recurse(n1.highChild, n2.highChild, Some(f))
+              f.parent = newParent
+              f.attachLow(ln)
+              f.attachHigh(hn)
+              f
+            } else {
+              
+              throw new RuntimeException("Tree containing nodes with different divisions coordinates are not supported yet.")
+            }
+        }
+      }
+
+      // UGLY
+      NonEmptyTree(recurse(t1.root, t2.root, None), math.max(t1.depth, t2.depth))
+    }
+
   }
 
+  // TODO move depth to approximation
   case class NonEmptyTree[T](root: Node[T], depth: Int) extends Tree[T] {
     def isAtomic(l: Leaf[T]) = l.depth >= depth
     def leaves = viabilitree.kdtree.leaves(root)
@@ -329,7 +375,7 @@ package object kdtree {
         case (leaf, prefCoord) =>
           assert(leaf.contains(testPoint(leaf.content)), "TestPoint: " + testPoint(leaf.content) + "  Leaf: " + leaf.zone.region.map(x => println(x.min + " " + x.max)))
 
-          val minCoord = leaf.minimalCoordinates
+          val minCoord = Path.minimalCoordinates(leaf.path, leaf.zone.dimension)
 
           val coordinate =
             minCoord.exists(_ == prefCoord) match {

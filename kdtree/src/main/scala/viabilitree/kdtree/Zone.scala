@@ -60,10 +60,12 @@ object Zone {
 
   implicit def seqToZone(zone: Seq[(Double, Double)]) = apply(zone: _*)
 
+  def equals(z1: Zone, z2: Zone) =
+    z1.region.deep == z2.region.deep
+
 }
 
-trait Zone {
-  zone: Zone =>
+trait Zone { zone: Zone =>
   //TODO: Consider IndexSeq instead of Vector. Change val to def
   val region: Array[Interval]
   def dimension = region.size

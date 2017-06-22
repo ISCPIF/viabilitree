@@ -37,6 +37,9 @@ pomExtra in ThisBuild := {
     </developers>
 }
 
+libraryDependencies in ThisBuild += "org.scalatest" %% "scalatest" % "3.0.1" % "test"
+libraryDependencies in ThisBuild += "org.scalacheck" %% "scalacheck" % "1.13.4" % "test"
+
 scalariformSettings
 
 lazy val defaultSettings =

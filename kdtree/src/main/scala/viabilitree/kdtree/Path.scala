@@ -124,4 +124,14 @@ object Path {
     aux(sideDivisions)
   }
 
+
+  def minimalCoordinates(path: Path, dimensions: Int) = {
+    val coordCardinals = path.groupBy(_.coordinate).mapValues { _.size }
+    val allCoords = (0 until dimensions).map { d => coordCardinals.getOrElse(d, 0) }
+    val minCardinal = allCoords.min
+    allCoords.
+      zipWithIndex.
+      filter { case (c, _) => c == minCardinal }.
+      map { case (_, index) => index }.sorted
+  }
 }

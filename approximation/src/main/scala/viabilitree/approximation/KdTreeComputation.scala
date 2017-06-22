@@ -63,7 +63,7 @@ object KdTreeComputation {
                 case h2 :: tail =>
                   import mutable._
 
-                  val divisionCoordinate = h2.minimalCoordinates.head
+                  val divisionCoordinate = Path.minimalCoordinates(h2.path, h2.dimension).head
                   val empty = h2.emptyExtendedZoneAndPath(testPoint, divisionCoordinate)
                   val newT = tree.evaluateAndInsert(Vector(empty), evaluator)(rng)
 
