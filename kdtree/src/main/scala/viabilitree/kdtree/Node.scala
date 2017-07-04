@@ -111,8 +111,6 @@ sealed trait Node[T] { node =>
 
   def leaf(path: Path): Option[Leaf[T]]
 
-  /////////////
-
 }
 
 object Fork {
@@ -230,6 +228,15 @@ object Fork {
     newFork
   }
 
+  def apply[T](parent: Fork[T], divisionCoordinate: Int, sign: Sign): Fork[T] = {
+    val f = apply(divisionCoordinate, Zone.divide(parent.zone, divisionCoordinate, sign), parent = Some(parent))
+    sign match {
+      case Negative => parent.attachLow(f)
+      case Positive => parent.attachHigh(f)
+    }
+    f
+  }
+
 }
 
 
@@ -239,8 +246,6 @@ trait Fork[T] extends Node[T] { fork =>
 
   protected var _lowChild: Node[T] = null
   protected var _highChild: Node[T]  = null
-
-  def childrenDefined: Boolean = _lowChild != null && _highChild != null
 
   def reassignChild(from: Node[T], to: Node[T]) =
     descendantType(from) match {
@@ -269,8 +274,17 @@ trait Fork[T] extends Node[T] { fork =>
     if (!zone.contains(point)) None
     else lowChild.containingLeaf(point) orElse highChild.containingLeaf(point)
 
-  def lowChild = if (childrenDefined) _lowChild else throw new RuntimeException("Children are not defined. (1)")
-  def highChild = if (childrenDefined) _highChild else throw new RuntimeException("Children are not defined. (2)")
+  def lowChild =
+    _lowChild match {
+      case null => throw new RuntimeException(s"Low child is not defined at path $path")
+      case v => v
+    }
+
+  def highChild =
+    _highChild match {
+      case null => throw new RuntimeException(s"High child is not defined at path $path")
+      case v => v
+    }
 
   def borderLeaves(direction: Direction): Iterable[Leaf[T]] =
     divisionCoordinate match {
@@ -344,6 +358,15 @@ object Leaf {
     l
   }
 
+  def apply[T](content: T, parent: Fork[T], divisionCoodinate: Int, sign: Sign): Leaf[T] = {
+    val child = apply(content, Zone.divide(parent.zone, divisionCoodinate, sign), parent = Some(parent))
+    sign match {
+      case Negative => parent.attachLow(child)
+      case Positive => parent.attachHigh(child)
+    }
+    child
+  }
+
   def copy[T](leaf: Leaf[T])(content: T = leaf.content, zone: Zone = leaf.zone, parent: Option[Fork[T]] = None): Leaf[T] =
     apply(content, zone, parent)
 
@@ -355,7 +378,6 @@ object Leaf {
 
   private [kdtree] def zipContent[T, U](lt: Leaf[T], lu: Leaf[U]): Leaf[(T, U)] =
     Leaf((lt.content, lu.content), lt.zone)
-
 
 }
 
@@ -427,18 +449,8 @@ trait Leaf[T] extends Node[T] { self =>
   def extendedHighPath(coordinate: Int) =
     (PathElement(coordinate, Descendant.High) :: reversePath.toList).reverse
 
-
-
   def leaf(path: Path): Option[Leaf[T]] =
     if (path.isEmpty) Some(this)
     else None
-
-  /* def touches(leaf: Leaf[T]): Boolean = {
-   val dim = this.zone.region.length
-   var test1 = this.zone.region
-   var test2 = leaf.zone.region
-   var adjacent  = true
-
- }*/
 
 }

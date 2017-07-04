@@ -22,6 +22,8 @@ package viabilitree
 //import viabilitree.kdtree.structure.HelperFunctions.xor
 //import viabilitree.kdtree.structure.Path.{adjacency, adjacent}
 import viabilitree.kdtree.HelperFunctions._
+import viabilitree.kdtree.SymbolicNode.SymbolicPath
+
 import language.implicitConversions
 import scala.util.Random
 
@@ -170,42 +172,89 @@ package object kdtree {
       }
     }
 
+    // Should return a boolean tree => because of additional leaves creation when splitting diverges
     def intersect[T](t1: NonEmptyTree[T], t2: NonEmptyTree[T], label: T => Boolean): NonEmptyTree[T] = {
       assert(Zone.equals(t1.root.zone, t2.root.zone))
 
-      def recurse(currentNodeT1: Node[T], currentNodeT2: Node[T], newParent: Option[Fork[T]] = None): Node[T] = {
+      sealed trait AddOperation
+      case class AddNode(node: Node[T]) extends AddOperation
+      case class AddLeave(leaf: Leaf[T]) extends AddOperation
+      case class AddSymbolicPath(symbolicPath: SymbolicPath, label: Boolean) extends AddOperation
+
+
+      def intersectSimilarStructure(currentNodeT1: Node[T], currentNodeT2: Node[T]): List[AddOperation] = {
         (currentNodeT1, currentNodeT2) match {
           case (l1: Leaf[T], _) =>
-            if (label(l1.content)) {
-              val n = Node.recusiveCopy(currentNodeT2)
-              n.parent = newParent
-              n
-            } else Leaf.copy(l1)(parent = newParent)
+            if (label(l1.content)) List(AddNode(currentNodeT2))
+            else List(AddLeave(l1))
           case (_, l2: Leaf[T]) =>
-            if (label(l2.content)) {
-              val n = Node.recusiveCopy(currentNodeT1)
-              n.parent = newParent
-              n
-            } else Leaf.copy(l2)(parent = newParent)
+            if (label(l2.content)) List(AddNode(currentNodeT1))
+            else List(AddLeave(l2))
           case (n1: Fork[T], n2: Fork[T]) =>
-
-            if(n1.divisionCoordinate == n2.divisionCoordinate) {
-              val f = Fork[T](zone = n1.zone, divisionCoordinate = n1.divisionCoordinate)
-              val ln = recurse(n1.lowChild, n2.lowChild, Some(f))
-              val hn = recurse(n1.highChild, n2.highChild, Some(f))
-              f.parent = newParent
-              f.attachLow(ln)
-              f.attachHigh(hn)
-              f
-            } else {
-
-              throw new RuntimeException("Tree containing nodes with different divisions coordinates are not supported yet.")
-            }
+            if(n1.divisionCoordinate == n2.divisionCoordinate) intersectSimilarStructure(n1.lowChild, n2.lowChild) ++  intersectSimilarStructure(n1.highChild, n2.highChild)
+            else intersectDivergentStructure(n1, n2)
         }
       }
 
+
+      import SymbolicNode._
+
+      def intersectDivergentStructure(currentNodeT1: Node[T], currentNodeT2: Node[T]): List[AddOperation] = {
+        val sT1 = toSymbolicLeaf(currentNodeT1, SymbolicPath.empty)
+        val sT2 = toSymbolicLeaf(currentNodeT2, SymbolicPath.empty)
+
+        def ops =
+          for {
+            l1 <- sT1
+            l2 <- sT2
+          } yield {
+            lazy val l1Specific = SymbolicPath.diff(l1.path, l2.path)
+            lazy val l2Specific = SymbolicPath.diff(l2.path, l1.path)
+
+            (l1Specific.isEmpty, l2Specific.isEmpty) match {
+              case (true, _) => if (label(l1.leaf.content)) Some(AddLeave(l2.leaf)) else Some(AddLeave(l1.leaf))
+              case (_, true) => if(label(l2.leaf.content)) Some(AddLeave(l1.leaf)) else Some(AddLeave(l2.leaf))
+              case _ =>
+                if((l1Specific.keySet & l2Specific.keySet).isEmpty) Some(AddSymbolicPath(SymbolicPath.append(l1.path, l2Specific), label(l1.leaf.content) & label(l2.leaf.content)))
+                else None
+            }
+          }
+
+        ops.flatten
+      }
+
+      //      def recurse(currentNodeT1: Node[T], currentNodeT2: Node[T], newParent: Option[Fork[T]] = None, level: Int = 0): Node[T] = {
+//        (currentNodeT1, currentNodeT2) match {
+//          case (l1: Leaf[T], _) =>
+//            if (label(l1.content)) {
+//              val n = Node.recusiveCopy(currentNodeT2)
+//              n.parent = newParent
+//              n
+//            } else Leaf.copy(l1)(parent = newParent)
+//          case (_, l2: Leaf[T]) =>
+//            if (label(l2.content)) {
+//              val n = Node.recusiveCopy(currentNodeT1)
+//              n.parent = newParent
+//              n
+//            } else Leaf.copy(l2)(parent = newParent)
+//          case (n1: Fork[T], n2: Fork[T]) =>
+//            if(n1.divisionCoordinate == n2.divisionCoordinate) {
+//              val f = Fork[T](zone = n1.zone, divisionCoordinate = n1.divisionCoordinate)
+//              val ln = recurse(n1.lowChild, n2.lowChild, Some(f), level = level + 1)
+//              val hn = recurse(n1.highChild, n2.highChild, Some(f), level = level + 1)
+//              f.parent = newParent
+//              f.attachLow(ln)
+//              f.attachHigh(hn)
+//              f
+//            } else {
+//              throw new RuntimeException("Tree containing nodes with different divisions coordinates are not supported yet.")
+//            }
+//        }
+//      }
+
       // UGLY
-      NonEmptyTree(recurse(t1.root, t2.root, None), math.max(t1.depth, t2.depth))
+      //NonEmptyTree(intersectSimilarStructure(t1.root, t2.root), math.max(t1.depth, t2.depth))
+      ???
     }
 
   }
@@ -623,6 +672,52 @@ package object kdtree {
 
  }
  */
+
+  object SymbolicNode {
+    object SymbolicPath {
+      def empty: SymbolicPath = Map.empty
+
+      def diff(s1: SymbolicPath, s2: SymbolicPath) =
+        s1.map { case(d, v1) =>
+          def nv =
+            s2.get(d) match {
+              case None => v1
+              case Some(v2) => ((v1 zip v2) dropWhile { case(s1, s2) => s1 == s2 } unzip)._1
+            }
+          d -> nv
+        }
+
+      def append(s1: SymbolicPath, s2: SymbolicPath) =
+        (s1.keySet ++ s2.keySet).toSeq map { k => k -> (s1.getOrElse(k, List.empty) ++ s2.getOrElse(k, List.empty)) } toMap
+
+    }
+    type SymbolicPath = Map[Int, List[Sign]]
+    case class SymbolicNode[T](path: SymbolicPath, node: Node[T])
+    case class SymbolicLeaf[T](path: SymbolicPath, leaf: Leaf[T])
+
+    def toSymbolicNode[T](n: Node[T], symbolicPath: SymbolicPath, levels: Option[Int] = None): List[SymbolicNode[T]] =
+      (n, levels) match {
+        case (n, Some(0)) => List(SymbolicNode[T](symbolicPath.mapValues(_.reverse), n))
+         case (l: Leaf[T], _) => List(SymbolicNode[T](symbolicPath.mapValues(_.reverse), l))
+        case (f: Fork[T], _) =>
+          val pathOfCurrentCoordinate = symbolicPath.getOrElse(f.divisionCoordinate, List.empty)
+          def lowPath: SymbolicPath = symbolicPath.updated(f.divisionCoordinate, Negative :: pathOfCurrentCoordinate)
+          def highPath: SymbolicPath = symbolicPath.updated(f.divisionCoordinate, Positive :: pathOfCurrentCoordinate)
+          toSymbolicNode(f.lowChild, lowPath, levels.map(_ - 1)) ++ toSymbolicNode(f.highChild, highPath, levels.map(_ - 1))
+      }
+
+    def toSymbolicLeaf[T](n: Node[T], symbolicPath: SymbolicPath): List[SymbolicLeaf[T]] =
+      n match {
+        case l: Leaf[T] => List(SymbolicLeaf[T](symbolicPath.mapValues(_.reverse), l))
+        case f: Fork[T] =>
+          val pathOfCurrentCoordinate = symbolicPath.getOrElse(f.divisionCoordinate, List.empty)
+          def lowPath: SymbolicPath = symbolicPath.updated(f.divisionCoordinate, Negative :: pathOfCurrentCoordinate)
+          def highPath: SymbolicPath = symbolicPath.updated(f.divisionCoordinate, Positive :: pathOfCurrentCoordinate)
+          toSymbolicLeaf(f.lowChild, lowPath) ++ toSymbolicLeaf(f.highChild, highPath)
+      }
+
+
+  }
 
   implicit class LeafDecorator[T](l: Leaf[T]) {
 

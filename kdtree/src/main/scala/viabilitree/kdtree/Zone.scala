@@ -63,12 +63,19 @@ object Zone {
   def equals(z1: Zone, z2: Zone) =
     z1.region.deep == z2.region.deep
 
+  def divide(zone: Zone, divisionCoordinate: Int, sign: Sign) =
+    sign match {
+      case Negative => zone.divideLow(divisionCoordinate)
+      case Positive => zone.divideHigh(divisionCoordinate)
+    }
+
 }
 
 trait Zone { zone: Zone =>
   //TODO: Consider IndexSeq instead of Vector. Change val to def
   val region: Array[Interval]
   def dimension = region.size
+
 
   def divideLow(d: Int): Zone =
     new Zone {
