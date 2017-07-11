@@ -49,5 +49,6 @@ object Circle extends App {
 //  println("Dilated of eroded " + volume(dilate(approximation, eroded)))
 
   saveVTK3D(res, "/tmp/circle.vtk")
+  saveHyperRectangles(approximation)(res, "/tmp/circle.txt")
 
 }

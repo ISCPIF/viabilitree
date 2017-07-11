@@ -59,7 +59,7 @@ def dynamic(state: Vector[Double], control: Vector[Double]) = {
   // A1 peut valoir en fait ln(2)/TM, ie en TM alpha aura perdu la moitié de sa valeur initiale
   def dynamic(state: Vector[Double], control: Vector[Double]) = {
     def alphaDot(state: Vector[Double], t: Double) =
-      - A1 * state(0) + A2 * state(0) * (1 - state(0))
+      - A1 * state(0) + A2 * state(0) * (1 - state(0)) * control(0)
     def wDot(state: Vector[Double], t: Double) = b - C * control(0)
 
     val dynamic = Dynamic(alphaDot, wDot)
@@ -67,8 +67,8 @@ def dynamic(state: Vector[Double], control: Vector[Double]) = {
   }
 
   def damage(alpha: Double, s: Double):Double = {
-   // a3*s*s*s + a2*s*s + a1*s + a0*(1-alpha)
-    a0*(1-alpha)*s
+   a3*s*s*s + a2*s*s + a1*s + a0*(1-alpha)
+    // a0*(1-alpha)*s
   }
   def perturbation(state: Vector[Double], s:Double)={
     def alphaDelta (state: Vector[Double], s:Double) = A3 * (1-state(0)) * (s / (M + s))

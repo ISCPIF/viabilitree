@@ -19,4 +19,5 @@ object Empty extends App {
 
   approximate(approximation)
 
+
 }
