@@ -22,6 +22,17 @@ import Path.extremeDivisions
 import viabilitree.kdtree.HelperFunctions._
 import util.Random
 
+
+object Node {
+
+  def recusiveCopy[T](node: Node[T]): Node[T] =
+    node match {
+      case (f: Fork[T]) => Fork.recursiveCopy[T](f)
+      case (l: Leaf[T]) => Leaf.copy[T](l)()
+    }
+}
+
+
 sealed trait Node[T] { node =>
 
   var parent: Option[Fork[T]] = None
@@ -65,18 +76,18 @@ sealed trait Node[T] { node =>
   //Only needed for the unbounded version
   //TODO: Use this for refine function
   // It chooses the direction to expand a node (it will be a initialNode)
-  def chooseDirection(preferredDirections: List[Direction], rng: Random): Direction = {
-    val spanList: List[(Double, Int)] = zone.region.map(i => i.max - i.min).toList.zipWithIndex
-    val smallestSpans: List[(Double, Int)] = spanList.filter(k => spanList.forall(i => k._1 <= i._1))
-    val smallestCoordinates: List[Int] = smallestSpans.map(x => x._2)
-    val selectedDirections = preferredDirections.filter(k => smallestCoordinates.exists(i => i == k.coordinate))
-    if (selectedDirections != Nil) randomElement(selectedDirections, rng)
-    else {
-      val direction = randomElement(smallestCoordinates, rng)
-      val sign = if (rng.nextBoolean()) Positive else Negative
-      new Direction(direction, sign)
-    }
-  }
+//  def chooseDirection(preferredDirections: List[Direction], rng: Random): Direction = {
+//    val spanList: List[(Double, Int)] = zone.region.map(i => i.max - i.min).toList.zipWithIndex
+//    val smallestSpans: List[(Double, Int)] = spanList.filter(k => spanList.forall(i => k._1 <= i._1))
+//    val smallestCoordinates: List[Int] = smallestSpans.map(x => x._2)
+//    val selectedDirections = preferredDirections.filter(k => smallestCoordinates.exists(i => i == k.coordinate))
+//    if (selectedDirections != Nil) randomElement(selectedDirections, rng)
+//    else {
+//      val direction = randomElement(smallestCoordinates, rng)
+//      val sign = if (rng.nextBoolean()) Positive else Negative
+//      new Direction(direction, sign)
+//    }
+//  }
 
   ///////// REFINING METHODS
 
@@ -98,23 +109,13 @@ sealed trait Node[T] { node =>
         pathSoundness(fork.lowChild) && pathSoundness(fork.highChild)
     }
 
-  def printPaths(node: Node[T]) {
-    node match {
-      case leaf: Leaf[T] =>
-        println(leaf.path); println("BRANCH END")
-      case fork: Fork[T] => println(fork.path); printPaths(fork.lowChild); printPaths(fork.highChild)
-    }
-  }
-
   def leaf(path: Path): Option[Leaf[T]]
-
-  /////////////
 
 }
 
 object Fork {
 
-  private [kdtree] def zip[T, U](ft: Fork[T], fu: Fork[U]): Fork[(T, U)] = {
+  private [kdtree] def zipContent[T, U](ft: Fork[T], fu: Fork[U]): Fork[(T, U)] = {
     assert(ft.divisionCoordinate == fu.divisionCoordinate, "Trees should have a similar structure to be zipped")
     (ft.lowChild, fu.lowChild, ft.highChild, fu.highChild) match {
       case (ltl: Leaf[T], lul: Leaf[U], lth: Leaf[T], luh: Leaf[U]) =>
@@ -122,16 +123,16 @@ object Fork {
         val lhu = Leaf((lth.content, luh.content), lth.zone)
         Fork[(T, U)](ft.divisionCoordinate, ft.zone, llu, lhu)
       case (ftl: Fork[T], ful: Fork[U], fth: Fork[T], fuh: Fork[U]) =>
-        val flu = zip(ftl, ful)
-        val fhu = zip(fth, fuh)
+        val flu = zipContent(ftl, ful)
+        val fhu = zipContent(fth, fuh)
         Fork(ft.divisionCoordinate, ft.zone, flu, fhu)
       case (ftl: Fork[T], ful: Fork[U], lth: Leaf[T], luh: Leaf[U]) =>
-        val flu = zip(ftl, ful)
+        val flu = zipContent(ftl, ful)
         val lhu = Leaf((lth.content, luh.content), luh.zone)
         Fork[(T, U)](ft.divisionCoordinate, ft.zone, flu, lhu)
       case (ltl: Leaf[T], lul: Leaf[U], fth: Fork[T], fuh: Fork[U]) =>
         val llu = Leaf((ltl.content, lul.content), ltl.zone)
-        val fhu = zip(fth, fuh)
+        val fhu = zipContent(fth, fuh)
         Fork[(T, U)](ft.divisionCoordinate, ft.zone, llu, fhu)
       case _ => throw new RuntimeException("Trees should have a similar structure to be zipped")
     }
@@ -201,7 +202,7 @@ object Fork {
     }
   }
 
-  def copy[T](f: Fork[T])(lowChild: Node[T] = f.lowChild, highChild: Node[T] = f.highChild) =
+  def copy[T](f: Fork[T])(lowChild: Node[T], highChild: Node[T]): Fork[T] =
     Fork(
       divisionCoordinate = f.divisionCoordinate,
       zone = f.zone,
@@ -209,6 +210,8 @@ object Fork {
       highChild = highChild,
       parent = f.parent
     )
+
+  def recursiveCopy[T](f: Fork[T]): Fork[T] = map(f)(identity[T])
 
   def apply[T](divisionCoordinate: Int, zone: Zone, lowChild: Node[T] = null, highChild: Node[T] = null, parent: Option[Fork[T]] = None): Fork[T] = {
     val (_divisionCoordinate, _zone) = (divisionCoordinate, zone)
@@ -225,6 +228,15 @@ object Fork {
     newFork
   }
 
+  def apply[T](parent: Fork[T], divisionCoordinate: Int, sign: Sign): Fork[T] = {
+    val f = apply(divisionCoordinate, Zone.divide(parent.zone, divisionCoordinate, sign), parent = Some(parent))
+    sign match {
+      case Negative => parent.attachLow(f)
+      case Positive => parent.attachHigh(f)
+    }
+    f
+  }
+
 }
 
 
@@ -234,8 +246,6 @@ trait Fork[T] extends Node[T] { fork =>
 
   protected var _lowChild: Node[T] = null
   protected var _highChild: Node[T]  = null
-
-  def childrenDefined: Boolean = _lowChild != null && _highChild != null
 
   def reassignChild(from: Node[T], to: Node[T]) =
     descendantType(from) match {
@@ -264,8 +274,17 @@ trait Fork[T] extends Node[T] { fork =>
     if (!zone.contains(point)) None
     else lowChild.containingLeaf(point) orElse highChild.containingLeaf(point)
 
-  def lowChild = if (childrenDefined) _lowChild else throw new RuntimeException("Children are not defined. (1)")
-  def highChild = if (childrenDefined) _highChild else throw new RuntimeException("Children are not defined. (2)")
+  def lowChild =
+    _lowChild match {
+      case null => throw new RuntimeException(s"Low child is not defined at path $path")
+      case v => v
+    }
+
+  def highChild =
+    _highChild match {
+      case null => throw new RuntimeException(s"High child is not defined at path $path")
+      case v => v
+    }
 
   def borderLeaves(direction: Direction): Iterable[Leaf[T]] =
     divisionCoordinate match {
@@ -339,7 +358,16 @@ object Leaf {
     l
   }
 
-  def copy[T](leaf: Leaf[T])(content: T = leaf.content, zone: Zone = leaf.zone, parent: Option[Fork[T]] = None) =
+  def apply[T](content: T, parent: Fork[T], divisionCoodinate: Int, sign: Sign): Leaf[T] = {
+    val child = apply(content, Zone.divide(parent.zone, divisionCoodinate, sign), parent = Some(parent))
+    sign match {
+      case Negative => parent.attachLow(child)
+      case Positive => parent.attachHigh(child)
+    }
+    child
+  }
+
+  def copy[T](leaf: Leaf[T])(content: T = leaf.content, zone: Zone = leaf.zone, parent: Option[Fork[T]] = None): Leaf[T] =
     apply(content, zone, parent)
 
   private [kdtree] def map[T, U](leaf: Leaf[T])(f: T => U) =
@@ -348,7 +376,7 @@ object Leaf {
   private [kdtree] def zipWithLeaf[T, U](leaf: Leaf[T])(f: Leaf[T] => U) =
     apply[(T, U)]((leaf.content, f(leaf)), leaf.zone)
 
-  private [kdtree] def zip[T, U](lt: Leaf[T], lu: Leaf[U]): Leaf[(T, U)] =
+  private [kdtree] def zipContent[T, U](lt: Leaf[T], lu: Leaf[U]): Leaf[(T, U)] =
     Leaf((lt.content, lu.content), lt.zone)
 
 }
@@ -421,23 +449,8 @@ trait Leaf[T] extends Node[T] { self =>
   def extendedHighPath(coordinate: Int) =
     (PathElement(coordinate, Descendant.High) :: reversePath.toList).reverse
 
-  def minimalCoordinates = {
-    val coordCardinals = path.groupBy(_.coordinate).map { case (k, v) => k -> v.size }
-    val allCoords = (0 until zone.dimension).map { d => coordCardinals.getOrElse(d, 0) }
-    val minCardinal = allCoords.min
-    allCoords.zipWithIndex.filter { case (c, _) => c == minCardinal }.map { case (_, i) => i }.sorted
-  }
-
   def leaf(path: Path): Option[Leaf[T]] =
     if (path.isEmpty) Some(this)
     else None
-
-  /* def touches(leaf: Leaf[T]): Boolean = {
-   val dim = this.zone.region.length
-   var test1 = this.zone.region
-   var test2 = leaf.zone.region
-   var adjacent  = true
-
- }*/
 
 }
