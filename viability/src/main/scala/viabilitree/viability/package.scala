@@ -48,7 +48,7 @@ package object viability {
   def volume[T](tree: Tree[T])(implicit c: ContainsLabel[T]) = tree.volume(c.label)
 
   lazy val Zone = viabilitree.kdtree.Zone
-
+//TODO we need to construct the n-fold Cartesian product, transpose works with collections of same size ONLY since it is the computation of the DIAGONAL
   implicit def vectorOfNumericRangeToVectorOfControl(v: Vector[NumericRange[Double]]) =
     (_: Vector[Double]) => v.transpose.map(Control(_))
 

@@ -5,7 +5,7 @@ package viabilitree.approximation.example
   */
 object Full extends App {
   import viabilitree.approximation._
-  import viabilitree.export._
+ // import viabilitree.export._
 
   def oracle(p: Vector[Double]) = true
 
