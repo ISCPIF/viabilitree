@@ -48,9 +48,51 @@ package object viability {
   def volume[T](tree: Tree[T])(implicit c: ContainsLabel[T]) = tree.volume(c.label)
 
   lazy val Zone = viabilitree.kdtree.Zone
-//TODO we need to construct the n-fold Cartesian product, transpose works with collections of same size ONLY since it is the computation of the DIAGONAL
-  implicit def vectorOfNumericRangeToVectorOfControl(v: Vector[NumericRange[Double]]) =
-    (_: Vector[Double]) => v.transpose.map(Control(_))
+
+  // TODO we need to deal with empty list of control
+
+  implicit def vectorOfNumericRangeToVectorOfControl(v: Vector[NumericRange[Double]]) = {
+
+ //   (_: Vector[Double]) => v.transpose.map(Control(_))
+
+  def cross2NR (a:NumericRange[Double], b:NumericRange[Double]) = {
+    a.toVector.map(p => b.toVector.map(o => Vector(p, o))).flatten
+  }
+    def crossVVD2NR (a:Vector[Vector[Double]], b:NumericRange[Double]) : Vector[Vector[Double]] = {
+      a.map(p => b.toVector.map(o => p:+o)).flatten
+    }
+
+    def cross2withTail (enCours: Vector[Vector[Double]] , v: Vector[NumericRange[Double]] ) : Vector[Vector[Double]]= {
+
+      v.length match {
+        case 0 => enCours
+        case _ => {
+          val t = v.tail
+          val hd = v.head
+          t.length match {
+            case 0 => crossVVD2NR (enCours, hd)
+            case _ => cross2withTail (crossVVD2NR (enCours, hd), t)
+            }
+        }
+      }
+    }
+
+    def cross2withTail1 (v: Vector[NumericRange[Double]] ) : Vector[Vector[Double]]= {
+      val t = v.tail
+      val hd = v.head
+
+      t.length match {
+        case 0 => hd.map(p => Vector(p)).toVector
+        case 1 => {
+          val futurEnCours = cross2NR(hd, t.head)
+          cross2withTail(futurEnCours, t.tail)
+        }
+      }
+    }
+      val lofControl = cross2withTail1(v)
+    (_: Vector[Double]) => lofControl.map(Control(_))
+
+  }
 
   implicit def vectorOfVectorToVectorOfControl(v: Vector[Vector[Double]]) =
     (_: Vector[Double]) => v.map(Control(_))
