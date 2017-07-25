@@ -83,7 +83,7 @@ package object viability {
 
       t.length match {
         case 0 => hd.map(p => Vector(p)).toVector
-        case 1 => {
+        case _ => {
           val futurEnCours = cross2NR(hd, t.head)
           cross2withTail(futurEnCours, t.tail)
         }

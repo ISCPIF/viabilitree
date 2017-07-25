@@ -60,7 +60,7 @@ object LakeTestControl extends App {
   val lake = Lake()
   val rng = new util.Random(42)
 
-  val u1 = Vector((1.0 to 5.0 by 1.0), (1.0 to 5.0 by 1.0))
+  val u1 = Vector((1.0 to 5.0 by 1.0), (1.0 to 5.0 by 1.0), (1.0 to 2.0 by 1.0))
   val u2 = Vector(Vector(1.0,2.0),Vector(1.0,3.0),Vector(1.0,0.0))
 
   val unPoint = Vector(0.0, 1.0)
