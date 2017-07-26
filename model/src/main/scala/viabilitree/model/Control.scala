@@ -22,4 +22,6 @@ object Control {
   def apply(v: Double*): Control = Control(v.toVector)
 }
 
-case class Control(value: Vector[Double]) extends AnyVal
+case class Control(value: Vector[Double]) extends AnyVal {
+  def display = println(value)
+}
