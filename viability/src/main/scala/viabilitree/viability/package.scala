@@ -103,4 +103,8 @@ package object viability {
   def sameVolume[CONTENT](label: CONTENT => Boolean)(t1: Tree[CONTENT], t2: Tree[CONTENT]) =
     t1.volume(label) == t2.volume(label)
 
+  lazy val NeutralBoundary = approximation.NeutralBoundary
+  lazy val ZoneSide = approximation.ZoneSide
+  lazy val Touch = kdtree.Path.Touch
+
 }
