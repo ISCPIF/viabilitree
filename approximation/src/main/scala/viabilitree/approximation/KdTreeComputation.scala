@@ -100,13 +100,13 @@ object KdTreeComputation {
       //  def learnBoundary(tree: Tree[CONTENT], evaluator: Evaluator[CONTENT] /*contentBuilder: Point => CONTENT*/)(implicit rng: Random): Tree[CONTENT] = {
       def refine(tree: NonEmptyTree[CONTENT]): NonEmptyTree[CONTENT] = {
         import mutable._
-        val leavesToRefine = tree.leavesToRefine(label)
+        val leavesToRefineValue = leavesToRefine(tree, label)
 
-        if (leavesToRefine.isEmpty) tree
+        if (leavesToRefineValue.isEmpty) tree
         else
           refine(
             tree.evaluateAndInsert(
-              tree.root.zonesAndPathsToTest(leavesToRefine, testPoint).toVector,
+              tree.root.zonesAndPathsToTest(leavesToRefineValue, testPoint).toVector,
               evaluator)(rng))
       }
       refine(NonEmptyTree.clone(tree))
