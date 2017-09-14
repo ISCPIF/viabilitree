@@ -105,8 +105,22 @@ object Path {
 
   ////////////
 
+  object Touch {
+    def apply(descendant: Descendant) =
+      descendant match {
+        case Descendant.Low => Low
+        case Descendant.High => High
+      }
+
+    case object Low extends Touch
+    case object High extends Touch
+    case object Both extends Touch
+  }
+
+  sealed trait Touch
+
   // Check if divisions are always Low or always High
-  def extremeDivisions(path: Path, coordinate: Int): (Boolean, Option[Descendant]) = {
+  def extremeDivisions(path: Path, coordinate: Int): Option[Touch] = {
     val filteredPath = path.filter(x => x.coordinate == coordinate)
     val sideDivisions: List[Descendant] = filteredPath.map(x => x.descendant).toList
 
@@ -121,9 +135,9 @@ object Path {
     }
 
     aux(sideDivisions) match {
-      case true if sideDivisions.isEmpty => (true, None)
-      case true => (true, Some(sideDivisions.head))
-      case false => (false, None)
+      case true if sideDivisions.isEmpty => Some(Touch.Both)
+      case true => Some(Touch(sideDivisions.head))
+      case false => None
     }
   }
 

@@ -347,7 +347,7 @@ package object kdtree {
   //type Relabeliser[T] = (T, T => Boolean) => T
 
   // The critical pairs together with the coordinate of adjacency (no need to include the sign)
-  def pairsBetweenNodes[T](node1: Node[T], node2: Node[T], label: T => Boolean): Iterable[(Leaf[T], Leaf[T], Int)] = {
+  def criticalPairsBetweenNodes[T](node1: Node[T], node2: Node[T], label: T => Boolean): Iterable[(Leaf[T], Leaf[T], Int)] = {
     lazy val direction =
       Path.adjacency(node1.path, node2.path) match {
         case None => throw new RuntimeException("Zones must be adjacent.")
@@ -372,7 +372,7 @@ package object kdtree {
           (fork1.highChild, fork2.lowChild),
           (fork1.highChild, fork2.highChild)).flatMap {
             case (n1, n2) =>
-              if (Path.adjacent(n1.path, n2.path)) pairsBetweenNodes(n1, n2, label)
+              if (Path.adjacent(n1.path, n2.path)) criticalPairsBetweenNodes(n1, n2, label)
               else Nil
           }
 
@@ -554,7 +554,7 @@ package object kdtree {
             case leaf: Leaf[T] =>
               label(leaf.content) match {
                 case true =>
-                  leaf.touchesBoundaries match {
+                  leaf.touchesRootZoneBoundaries match {
                     case List() => List.empty
                     case coordinates => List((leaf, coordinates.head._1))
                   }

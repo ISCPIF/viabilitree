@@ -18,8 +18,9 @@ published by
 
 package viabilitree.kdtree
 
-import Path.extremeDivisions
+import Path.{ Touch, extremeDivisions }
 import viabilitree.kdtree.HelperFunctions._
+
 import util.Random
 
 object Node {
@@ -381,16 +382,12 @@ trait Leaf[T] extends Node[T] { self =>
 
   // This function is specific to the bounded case. The output
   // is an Option[Int] that gives the coordinate corresponding to the direction
-  def touchesBoundaries: List[(Int, Option[Descendant])] = {
+  def touchesRootZoneBoundaries: List[(Int, Touch)] = {
     val path = reversePath
     val range: Range = zone.region.indices
     val coordinate =
       range.flatMap {
-        coordinate =>
-          extremeDivisions(path, coordinate) match {
-            case (true, d) => Some(coordinate -> d)
-            case (false, _) => None
-          }
+        coordinate => extremeDivisions(path, coordinate).map { t => coordinate -> t }
         //coordinate -> extremeDivisions(path, coordinate)
       }
 

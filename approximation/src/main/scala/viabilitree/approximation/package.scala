@@ -1,5 +1,6 @@
 package viabilitree
 
+import viabilitree.kdtree.Path.Touch
 import viabilitree.kdtree._
 
 package object approximation {
@@ -90,12 +91,22 @@ package object approximation {
   //case class ZoneDomain(domain: Zone) extends Domain
   object InfiniteDomain extends Domain
 
+  object NeutralBoundary {
+    def separate(neutralBoundary: NeutralBoundary) = {
+      val zoneSides = neutralBoundary.elements.collect { case x: ZoneSide => x }
+      (zoneSides)
+    }
+
+    def empty = NeutralBoundary()
+
+  }
+
   case class NeutralBoundary(elements: NeutralBoundaryElement*)
   sealed trait NeutralBoundaryElement
-  case class ZoneSide(dimension: Int, descendant: Descendant)
-  case class HyperPlan(vector: Vector[Double])
+  case class ZoneSide(dimension: Int, touch: Touch) extends NeutralBoundaryElement
+  //  case class HyperPlan(vector: Vector[Double])
 
-  def leavesToRefine[T](t: NonEmptyTree[T], label: T => Boolean): Vector[(Leaf[T], Int)] = {
+  def leavesToRefine[T](t: NonEmptyTree[T], label: T => Boolean, neutralBoundary: NeutralBoundary = NeutralBoundary.empty): Vector[(Leaf[T], Int)] = {
 
     // The node together with the preferred coordinate (if another coordinate is bigger it will have no impact)
     // Former node to refine
@@ -103,16 +114,22 @@ package object approximation {
       def allLeaves =
         n match {
           case leaf: Leaf[T] if label(leaf.content) =>
-
-            leaf.touchesBoundaries match {
+            leaf.touchesRootZoneBoundaries match {
               case List() => List.empty
-              case coordinates => List((leaf, coordinates.head._1))
+              case coordinates =>
+                val neutralZoneSides = NeutralBoundary.separate(neutralBoundary)
+                def touchesNeutralZoneSide(dimension: Int, contact: Touch): Boolean =
+                  contact match {
+                    case Touch.Both => touchesNeutralZoneSide(dimension, Touch.Low) && touchesNeutralZoneSide(dimension, Touch.High)
+                    case t => neutralZoneSides.exists { case ZoneSide(zdim, zTouch) => zdim == dimension && zTouch == t }
+                  }
+                if (coordinates.forall { case (dim, desc) => touchesNeutralZoneSide(dim, desc) }) List.empty else List((leaf, coordinates.head._1))
             }
           // Label is false
           case leaf: Leaf[T] => List.empty
           case fork: Fork[T] =>
             leavesToRefine(fork.lowChild, label) ++ leavesToRefine(fork.highChild, label) ++
-              pairsToSet(pairsBetweenNodes(fork.lowChild, fork.highChild, label))
+              pairsToSet(criticalPairsBetweenNodes(fork.lowChild, fork.highChild, label))
         }
 
       val leaves = allLeaves.filterNot { case (leaf, _) => t.isAtomic(leaf) }
