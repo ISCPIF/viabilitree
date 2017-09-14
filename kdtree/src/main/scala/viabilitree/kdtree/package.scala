@@ -469,46 +469,6 @@ package object kdtree {
     }
   }
 
-  def leavesToRefine[T](t: NonEmptyTree[T], label: T => Boolean): Vector[(Leaf[T], Int)] = {
-
-    // The node together with the preferred coordinate (if another coordinate is bigger it will have no impact)
-    // Former node to refine
-    def leavesToRefine(n: Node[T], label: T => Boolean): Iterable[(Leaf[T], Int)] = {
-      def allLeaves =
-        n match {
-          case leaf: Leaf[T] if label(leaf.content) =>
-
-            leaf.touchesBoundaries match {
-              case List() => List.empty
-              case coordinates => List((leaf, coordinates.head._1))
-            }
-          // Label is false
-          case leaf: Leaf[T] => List.empty
-          case fork: Fork[T] =>
-            leavesToRefine(fork.lowChild, label) ++ leavesToRefine(fork.highChild, label) ++
-              pairsToSet(pairsBetweenNodes(fork.lowChild, fork.highChild, label))
-        }
-
-      val leaves = allLeaves.filterNot { case (leaf, _) => t.isAtomic(leaf) }
-
-      //TODO: Refactor the lines below
-      var distinctLeaves: List[(Leaf[T], Int)] = Nil
-      leaves.foreach(x => if (distinctLeaves.forall(y => y._1 != x._1)) distinctLeaves = x :: distinctLeaves)
-      distinctLeaves
-
-      /*  Source of non-deterministic behaviour (thanks Romain, 2 wasted journeys)
-      leaves.groupBy {
-        case (l, _) => l
-      }.toList.map {
-        case (_, l) => l.head
-      }
-      */
-    }
-
-    leavesToRefine(t.root, label).toVector
-
-  }
-
   implicit class NonEmptyTreeDecorator[T](t: NonEmptyTree[T]) {
 
     def volume(label: T => Boolean) = t.root.volume(label)
