@@ -30,7 +30,7 @@ object KdTreeComputation {
   //    else dilate(dilate(t, evaluator, label, testPoint), n - 1, evaluator, label, testPoint)
 
   // TODO might beneficiate from a mutable version of learnBoundary
-  def dilate[CONTENT: ClassTag](evaluator: Evaluator[CONTENT], label: Lens[CONTENT, Boolean], testPoint: CONTENT => Vector[Double])(t: NonEmptyTree[CONTENT], rng: Random): NonEmptyTree[CONTENT] = {
+  def dilate[CONTENT: ClassTag](evaluator: Evaluator[CONTENT], label: Lens[CONTENT, Boolean], testPoint: CONTENT => Vector[Double], neutralBoundary: NeutralBoundary)(t: NonEmptyTree[CONTENT], rng: Random): NonEmptyTree[CONTENT] = {
     val newT = NonEmptyTree.clone(t)
     val leaves = newT.criticalLeaves(label.get, newT.root).filter(l => label.get(l.content) == false).toSeq.distinct
     var currentRoot = newT.root
@@ -40,7 +40,7 @@ object KdTreeComputation {
     }
     //Tree(currentRoot, newT.depth)
     val dilated = NonEmptyTree(currentRoot, newT.depth)
-    learnBoundary(label.get, testPoint).apply(dilated, evaluator, rng) //buildContent(_, false))
+    learnBoundary(label.get, testPoint, neutralBoundary).apply(dilated, evaluator, rng) //buildContent(_, false))
   }
 
   def findTrueLabel[CONTENT: ClassTag](evaluator: Evaluator[CONTENT], label: CONTENT => Boolean, testPoint: CONTENT => Vector[Double]): FindTrueLabel[CONTENT] = { (t, rng) =>
@@ -95,12 +95,12 @@ object KdTreeComputation {
     }
   }
 
-  def learnBoundary[CONTENT: ClassTag](label: CONTENT => Boolean, testPoint: CONTENT => Vector[Double]): LearnBoundary[CONTENT] =
+  def learnBoundary[CONTENT: ClassTag](label: CONTENT => Boolean, testPoint: CONTENT => Vector[Double], neutralBoundary: NeutralBoundary): LearnBoundary[CONTENT] =
     (tree: NonEmptyTree[CONTENT], evaluator: Evaluator[CONTENT], rng: Random) => {
       //  def learnBoundary(tree: Tree[CONTENT], evaluator: Evaluator[CONTENT] /*contentBuilder: Point => CONTENT*/)(implicit rng: Random): Tree[CONTENT] = {
       def refine(tree: NonEmptyTree[CONTENT]): NonEmptyTree[CONTENT] = {
         import mutable._
-        val leavesToRefineValue = leavesToRefine(tree, label)
+        val leavesToRefineValue = leavesToRefine(tree, label, neutralBoundary)
 
         if (leavesToRefineValue.isEmpty) tree
         else

@@ -2,7 +2,7 @@ package viabilitree.viability
 
 import util.Random
 import viabilitree.kdtree._
-import viabilitree.approximation._
+import viabilitree.approximation.{ NeutralBoundary, _ }
 import viabilitree.model._
 
 import scala.reflect.ClassTag
@@ -71,6 +71,7 @@ object kernel {
     controls: Vector[Double] => Vector[Control],
     k: Option[Vector[Double] => Boolean] = None,
     domain: Domain = InfiniteDomain,
+    neutralBoundary: NeutralBoundary = NeutralBoundary.empty,
     dilations: Int = 0)
 
   def iterate(kernelComputation: KernelComputation, tree: Tree[Content], rng: Random) =
@@ -78,6 +79,7 @@ object kernel {
       dynamic = kernelComputation.dynamic,
       depth = kernelComputation.depth,
       zone = kernelComputation.zone,
+      neutralBoundary = kernelComputation.neutralBoundary,
       controls = kernelComputation.controls,
       buildContent = Content.apply,
       label = Content.label,
@@ -90,6 +92,7 @@ object kernel {
     kernel.initialTree[Content](
       depth = kernelComputation.depth,
       zone = kernelComputation.zone,
+      neutralBoundary = kernelComputation.neutralBoundary,
       k = kernelComputation.k,
       domain = kernelComputation.domain,
       buildContent = Content.apply,
@@ -133,7 +136,7 @@ object kernel {
   }
 
   def erode(kernelComputation: KernelComputation, tree: Tree[Content], rng: Random) = {
-    def learnBoundary = KdTreeComputation.learnBoundary(Content.label.get, Content.testPoint.get)
+    def learnBoundary = KdTreeComputation.learnBoundary(Content.label.get, Content.testPoint.get, kernelComputation.neutralBoundary)
 
     val sampler = Sampler.grid(kernelComputation.depth, kernelComputation.zone)
     def emptyContent(p: Vector[Double]) = Content.apply(p, None, None, true, Content.initialControl)
@@ -184,6 +187,7 @@ object kernel {
     dynamic: (Vector[Double], Vector[Double]) => Vector[Double],
     depth: Int,
     zone: Zone,
+    neutralBoundary: NeutralBoundary,
     controls: Vector[Double] => Vector[Control],
     buildContent: (Vector[Double], Option[Int], Option[Vector[Double]], Boolean, Int) => CONTENT,
     label: monocle.Lens[CONTENT, Boolean],
@@ -213,10 +217,10 @@ object kernel {
         buildContent = buildContent,
         tree = tree)
 
-    def learnBoundary = KdTreeComputation.learnBoundary(label.get, testPoint)
+    def learnBoundary = KdTreeComputation.learnBoundary(label.get, testPoint, neutralBoundary)
 
     def dilate(t: NonEmptyTree[CONTENT], rng: Random) =
-      (0 until dilations).foldLeft(t) { (t, _) => KdTreeComputation.dilate(ev, label, testPoint)(t, rng) }
+      (0 until dilations).foldLeft(t) { (t, _) => KdTreeComputation.dilate(ev, label, testPoint, neutralBoundary)(t, rng) }
 
     tree.flatMapNonEmpty { tree =>
       treeRefinement.refine[CONTENT](
@@ -290,6 +294,7 @@ object kernel {
   def initialTree[CONTENT: ClassTag](
     depth: Int,
     zone: Zone,
+    neutralBoundary: NeutralBoundary,
     k: Option[Vector[Double] => Boolean],
     domain: Domain,
     buildContent: (Vector[Double], Option[Int], Option[Vector[Double]], Boolean, Int) => CONTENT,
@@ -303,7 +308,7 @@ object kernel {
     def treeWithPositiveLeave = input.zone(ev, label, testPoint)(zone, depth, rng)
 
     treeWithPositiveLeave.mapNonEmpty { t =>
-      KdTreeComputation.learnBoundary(label, testPoint).apply(t, ev, rng)
+      KdTreeComputation.learnBoundary(label, testPoint, neutralBoundary).apply(t, ev, rng)
     }
   }
 

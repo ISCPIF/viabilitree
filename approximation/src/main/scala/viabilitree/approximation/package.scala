@@ -10,7 +10,7 @@ package object approximation {
   def sampler(o: OracleApproximation) = Sampler.grid(o.depth, o.box)
   def contentBuilder(oracle: Oracle)(p: Vector[Double]) = OracleApproximation.Content(p, oracle(p))
   def eval(o: OracleApproximation) = evaluator.sequential[OracleApproximation.Content](contentBuilder(o.oracle), sampler(o))(_, _)
-  def learnBoundary(o: OracleApproximation) = KdTreeComputation.learnBoundary(OracleApproximation.Content.label.get, OracleApproximation.Content.testPoint.get)
+  def learnBoundary(o: OracleApproximation) = KdTreeComputation.learnBoundary(OracleApproximation.Content.label.get, OracleApproximation.Content.testPoint.get, o.neutralBoundary)
 
   //  def approximate(initialTree: NonEmptyTree[Content], depth: Int, zone: Zone, dimension: Int, oracle: Oracle)(implicit rng: Random): NonEmptyTree[Content] = {
   //    KdTreeComputation.learnBoundary(evaluator(depth, zone, dimension, oracle), initialTree, Content.label.get, Content.testPoint.get)
@@ -30,7 +30,7 @@ package object approximation {
   }
 
   def dilate(o: OracleApproximation, tree: Tree[OracleApproximation.Content])(implicit rng: util.Random) =
-    tree.mapNonEmpty { KdTreeComputation.dilate(eval(o), OracleApproximation.Content.label, OracleApproximation.Content.testPoint.get)(_, rng) }
+    tree.mapNonEmpty { KdTreeComputation.dilate(eval(o), OracleApproximation.Content.label, OracleApproximation.Content.testPoint.get, o.neutralBoundary)(_, rng) }
 
   def erode(o: OracleApproximation, tree: Tree[OracleApproximation.Content], n: Int = 1)(implicit rng: util.Random) = {
     def erosion: Erosion[OracleApproximation.Content] = KdTreeComputation.erosion(
@@ -106,7 +106,7 @@ package object approximation {
   case class ZoneSide(dimension: Int, touch: Touch) extends NeutralBoundaryElement
   //  case class HyperPlan(vector: Vector[Double])
 
-  def leavesToRefine[T](t: NonEmptyTree[T], label: T => Boolean, neutralBoundary: NeutralBoundary = NeutralBoundary.empty): Vector[(Leaf[T], Int)] = {
+  def leavesToRefine[T](t: NonEmptyTree[T], label: T => Boolean, neutralBoundary: NeutralBoundary): Vector[(Leaf[T], Int)] = {
 
     // The node together with the preferred coordinate (if another coordinate is bigger it will have no impact)
     // Former node to refine

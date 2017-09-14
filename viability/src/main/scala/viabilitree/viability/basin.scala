@@ -91,7 +91,7 @@ object basin {
   }
 
   def erode(basinComputation: BasinComputation, tree: NonEmptyTree[Content], rng: Random) = {
-    def learnBoundary = KdTreeComputation.learnBoundary[Content](Content.label.get, Content.testPoint.get)
+    def learnBoundary = KdTreeComputation.learnBoundary[Content](Content.label.get, Content.testPoint.get, NeutralBoundary.empty)
 
     val sampler = Sampler.grid(basinComputation.depth, basinComputation.zone)
     def emptyContent(p: Vector[Double]) = Content.apply(p, None, None, true)
@@ -152,7 +152,7 @@ object basin {
     val sampler = Sampler.grid(tree.depth, tree.root.zone)
     def ev = evaluator.sequential(testAndLearnContent(_, rng), sampler)
 
-    KdTreeComputation.learnBoundary(label, testPoint).apply(reassignedTree, ev, rng)
+    KdTreeComputation.learnBoundary(label, testPoint, NeutralBoundary.empty).apply(reassignedTree, ev, rng)
   }
 
   def initialTree[CONTENT: Manifest](
@@ -170,7 +170,7 @@ object basin {
     def tree = NonEmptyTree(content(sampler.align(pointInTarget)), zone, depth)
     def ev = evaluator.sequential(content, sampler)
 
-    KdTreeComputation.learnBoundary(label, testPoint).apply(tree, ev, rng)
+    KdTreeComputation.learnBoundary(label, testPoint, NeutralBoundary.empty).apply(tree, ev, rng)
   }
 
   //    dynamic: (Vector[Double], Vector[Double]) => Vector[Double],
