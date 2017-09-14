@@ -169,7 +169,8 @@ object KdTreeComputation {
     domain match {
       case BlackBoxDomain(domain) =>
         (KdTreeComputation.innerCriticalLeaves(label)(t) ++ leavesOnBorderOfZone(zone, label)(t).
-          filter { l => t.isAtomic(l) }).filter { l => !onBorderOfBlackBoxDomain(domain)(l) }
+          filter { l => t.isAtomic(l) }).
+          filter { l => !onBorderOfBlackBoxDomain(domain)(l) }
       case InfiniteDomain =>
         KdTreeComputation.innerCriticalLeaves(label)(t) ++ leavesOnBorderOfZone(zone, label)(t).filter { l => t.isAtomic(l) }
       //case ZoneDomain(domain) => ???

@@ -540,24 +540,21 @@ package object kdtree {
       // The node together with the preferred coordinate (if another coordinate is bigger it will have no impact)
       // Former node to refine
       def leavesToRefine(n: Node[T], label: T => Boolean): Iterable[(Leaf[T], Int)] = {
-        val leaves =
-          (n match {
-            case leaf: Leaf[T] =>
-              label(leaf.content) match {
-                case true =>
-                  leaf.touchesBoundaries match {
-                    case List() => List.empty
-                    case coordinates => List((leaf, coordinates.head._1))
-
-                  }
-                case false => List.empty
+        def allLeaves =
+          n match {
+            case leaf: Leaf[T] if label(leaf.content) =>
+              leaf.touchesBoundaries match {
+                case List() => List.empty
+                case coordinates => List((leaf, coordinates.head._1))
               }
+            // Label is false
+            case leaf: Leaf[T] => List.empty
             case fork: Fork[T] =>
               leavesToRefine(fork.lowChild, label) ++ leavesToRefine(fork.highChild, label) ++
                 pairsToSet(pairsBetweenNodes(fork.lowChild, fork.highChild, label))
-          }).filterNot {
-            case (leaf, _) => t.isAtomic(leaf)
           }
+
+        val leaves = allLeaves.filterNot { case (leaf, _) => t.isAtomic(leaf) }
 
         //TODO: Refactor the lines below
         var distinctLeaves: List[(Leaf[T], Int)] = Nil
