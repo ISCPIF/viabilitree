@@ -90,4 +90,9 @@ package object approximation {
   //case class ZoneDomain(domain: Zone) extends Domain
   object InfiniteDomain extends Domain
 
+  case class NeutralBoundary(elements: NeutralBoundaryElement*)
+  sealed trait NeutralBoundaryElement
+  case class ZoneSide(dimension: Int, descendant: Descendant)
+  case class HyperPlan(vector: Vector[Double])
+
 }

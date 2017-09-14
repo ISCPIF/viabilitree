@@ -559,13 +559,11 @@ package object kdtree {
             case (leaf, _) => t.isAtomic(leaf)
           }
 
-        //TODO: Consider the lines below
+        //TODO: Refactor the lines below
         var distinctLeaves: List[(Leaf[T], Int)] = Nil
-        leaves.foreach(
-          x => {
-            if (distinctLeaves.forall(y => y._1 != x._1)) distinctLeaves = x :: distinctLeaves
-          })
+        leaves.foreach(x => if (distinctLeaves.forall(y => y._1 != x._1)) distinctLeaves = x :: distinctLeaves)
         distinctLeaves
+
         /*  Source of non-deterministic behaviour (thanks Romain, 2 wasted journeys)
         leaves.groupBy {
           case (l, _) => l
