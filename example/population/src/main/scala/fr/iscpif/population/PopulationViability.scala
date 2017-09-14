@@ -12,10 +12,10 @@ import control._
 import viabilitree.model.Control
 
 object PopulationViability extends App
-    with ViabilityKernel
-    with ZoneInput
-    with ZoneK
-    with GridSampler {
+  with ViabilityKernel
+  with ZoneInput
+  with ZoneK
+  with GridSampler {
   def a = 0.2
   def b = 3.0
   def c = 0.5

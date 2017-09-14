@@ -1,7 +1,5 @@
 package viabilitree.approximation.example.circle
 
-
-
 object Circle extends App {
 
   import viabilitree.approximation._
@@ -19,10 +17,8 @@ object Circle extends App {
         Vector(
           (-2.0, 2.0),
           (-2.0, 2.0),
-          (-2.0, 2.0)
-        ),
-      oracle = oracle
-    )
+          (-2.0, 2.0)),
+      oracle = oracle)
 
   implicit val random = new Random(42)
 
@@ -33,20 +29,20 @@ object Circle extends App {
   println("Nb true atomic leaves " + res.atomicLeaves.filter(_.content.label).size)
   println("Volume " + volume(res))
 
-//  val dilated = dilate(approximation, res)
-//
-//  println("Nb atomic leaves " + dilated.atomicLeaves.size)
-//  println("Nb true atomic leaves " + dilated.atomicLeaves.filter(_.content.label).size)
-//  println("Volume dilaté " + volume(dilated))
-//
-//  val eroded = erode(approximation, res)
-//
-//  println("Nb atomic leaves " + eroded.atomicLeaves.size)
-//  println("Nb true atomic leaves " + eroded.atomicLeaves.filter(_.content.label).size)
-//  println("Volume érodé " + volume(eroded))
-//
-//  println("Eroded of dilated " + volume(erode(approximation, dilated)))
-//  println("Dilated of eroded " + volume(dilate(approximation, eroded)))
+  //  val dilated = dilate(approximation, res)
+  //
+  //  println("Nb atomic leaves " + dilated.atomicLeaves.size)
+  //  println("Nb true atomic leaves " + dilated.atomicLeaves.filter(_.content.label).size)
+  //  println("Volume dilaté " + volume(dilated))
+  //
+  //  val eroded = erode(approximation, res)
+  //
+  //  println("Nb atomic leaves " + eroded.atomicLeaves.size)
+  //  println("Nb true atomic leaves " + eroded.atomicLeaves.filter(_.content.label).size)
+  //  println("Volume érodé " + volume(eroded))
+  //
+  //  println("Eroded of dilated " + volume(erode(approximation, dilated)))
+  //  println("Dilated of eroded " + volume(dilate(approximation, eroded)))
 
   saveVTK3D(res, "/tmp/circle.vtk")
   saveHyperRectangles(approximation)(res, "/tmp/circle.txt")

@@ -3,7 +3,7 @@ package viabilitree.model
 //TODO should return an Option of Control
 trait ControlStrategy <: (Vector[Double] => Control) {}
 
- /* def strategy[CONTENT <: ControlledDynamicContent.Content] (p: Point, v: Tree[CONTENT]): Control = {
+/* def strategy[CONTENT <: ControlledDynamicContent.Content] (p: Point, v: Tree[CONTENT]): Control = {
     val leafP = v.containingLeaf(p)
     val labelP: Boolean = leafP match {
       case None => false
@@ -25,4 +25,4 @@ trait ControlStrategy <: (Vector[Double] => Control) {}
     }
     controlValue}
 }
-*/
+*/ 

@@ -20,14 +20,13 @@ package object approximation {
 
     o.point match {
       case None =>
-        val initialTree = input.zone (eval (o), OracleApproximation.Content.label.get, OracleApproximation.Content.testPoint.get) (o.box, o.depth, rng)
+        val initialTree = input.zone(eval(o), OracleApproximation.Content.label.get, OracleApproximation.Content.testPoint.get)(o.box, o.depth, rng)
         util.Success(clean(initialTree.mapNonEmpty(learn)))
       case Some(p) =>
         val initialTree = input.zoneAndPoint(contentBuilder(o.oracle), sampler(o), OracleApproximation.Content.label.get)(o.box, p, o.depth)
         initialTree.map(learn).map(t => clean(t))
     }
   }
-
 
   def dilate(o: OracleApproximation, tree: Tree[OracleApproximation.Content])(implicit rng: util.Random) =
     tree.mapNonEmpty { KdTreeComputation.dilate(eval(o), OracleApproximation.Content.label, OracleApproximation.Content.testPoint.get)(_, rng) }
@@ -37,8 +36,7 @@ package object approximation {
       learnBoundary(o),
       eval(o),
       OracleApproximation.Content.label,
-      KdTreeComputation.leavesToErode(o.domain, o.box, OracleApproximation.Content.label.get)
-    )
+      KdTreeComputation.leavesToErode(o.domain, o.box, OracleApproximation.Content.label.get))
 
     KdTreeComputation.erode(erosion)(tree, n, rng)
   }
@@ -56,7 +54,6 @@ package object approximation {
       maximalReduction(
         tree.criticalLeaves(OracleApproximation.Content.label.get).map(_.zone).toVector,
         OracleApproximation.Content.testPoint.get))
-
 
   /* --- Algorithm ---- */
 

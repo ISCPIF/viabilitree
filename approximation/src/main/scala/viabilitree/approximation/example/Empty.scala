@@ -12,12 +12,9 @@ object Empty extends App {
       box = Vector(
         (-2.0, 2.0),
         (-2.0, 2.0),
-        (-2.0, 2.0)
-      ),
-      oracle = oracle
-    )
+        (-2.0, 2.0)),
+      oracle = oracle)
 
   approximate(approximation)
-
 
 }

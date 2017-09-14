@@ -31,7 +31,7 @@ package object export extends better.files.Implicits {
 
   implicit def stringToFile(s: String) = File(s)
 
- // implicit def stringToFile(s: String) = new File(s)
+  // implicit def stringToFile(s: String) = new File(s)
 
   def save(o: AnyRef, output: File) = {
     output.parent.createDirectories()
@@ -48,19 +48,17 @@ package object export extends better.files.Implicits {
     import java.util.zip._
     val xstream = new XStream(new BinaryStreamDriver)
     val source = new BufferedInputStream(new GZIPInputStream(new FileInputStream(input.toJava)))
-    try  xstream.fromXML(source).asInstanceOf[T]
+    try xstream.fromXML(source).asInstanceOf[T]
     finally source.close()
   }
 
-
-//  def traceTraj(t:Seq[Point], file: File): Unit = {
-//    val output = Resource.fromFile(file)
-//    t.foreach { p =>
-//      output.writeStrings(p.map(_.toString), " ")
-//      output.write("\n")
-//    }
-//  }
-
+  //  def traceTraj(t:Seq[Point], file: File): Unit = {
+  //    val output = Resource.fromFile(file)
+  //    t.foreach { p =>
+  //      output.writeStrings(p.map(_.toString), " ")
+  //      output.write("\n")
+  //    }
+  //  }
 
   /* ------------------------- Hyper-rectangles ---------------------- */
 
@@ -77,35 +75,32 @@ package object export extends better.files.Implicits {
     traceViabilityKernel(aViabilityKernel,theCorrespondingModel.controls,s"fileName.txt")
     */
 
-//  def traceViabilityKernel[T](tree: Tree[T], label: T => Boolean, testPoint: T => Vector[Double], control: T => Option[Int], controls: Vector[Double] => Vector[Control], file: File): Unit = {
-//    file.delete(true)
-//
-//    //todo add the first line in the .txt file, of the form x1 x2 ... x${dim} min1 max1 ... min${dim} max${dim} control1 ... control${aControl.size}
-////    def header =
-////      (0 until tree.dimension).map(d => s"x$d") ++
-////        (0 until tree.dimension).map(d => s"min$d") ++
-////        (0 until tree.dimension).map(d => s"max$d") ++
-////        (0 until controls.size).map(c => s"control$c")
-//
-////    file << header.mkString(" ")
-//
-//    tree.leaves.filter(l => label(l.content)).foreach {
-//      leaf =>
-//        val point = testPoint(leaf.content)
-//        val radius = leaf.zone.region
-//        val test = radius.flatMap(inter => Seq(inter.min, inter.max))
-//        val controlInx = control(leaf.content).get
-//        val controlValue = controls(point)(controlInx)
-//        val pointLString = point.map(x => x.toString)
-//        val radiusLString = radius.flatMap(inter => Seq(inter.min, inter.max))
-//        val controlLString = controlValue.value.map(c => c.toString)
-//        val uneLigne = pointLString ++ radiusLString ++ controlLString
-//        file << uneLigne.mkString(" ")
-//    }
-//  }
-
-
-
+  //  def traceViabilityKernel[T](tree: Tree[T], label: T => Boolean, testPoint: T => Vector[Double], control: T => Option[Int], controls: Vector[Double] => Vector[Control], file: File): Unit = {
+  //    file.delete(true)
+  //
+  //    //todo add the first line in the .txt file, of the form x1 x2 ... x${dim} min1 max1 ... min${dim} max${dim} control1 ... control${aControl.size}
+  ////    def header =
+  ////      (0 until tree.dimension).map(d => s"x$d") ++
+  ////        (0 until tree.dimension).map(d => s"min$d") ++
+  ////        (0 until tree.dimension).map(d => s"max$d") ++
+  ////        (0 until controls.size).map(c => s"control$c")
+  //
+  ////    file << header.mkString(" ")
+  //
+  //    tree.leaves.filter(l => label(l.content)).foreach {
+  //      leaf =>
+  //        val point = testPoint(leaf.content)
+  //        val radius = leaf.zone.region
+  //        val test = radius.flatMap(inter => Seq(inter.min, inter.max))
+  //        val controlInx = control(leaf.content).get
+  //        val controlValue = controls(point)(controlInx)
+  //        val pointLString = point.map(x => x.toString)
+  //        val radiusLString = radius.flatMap(inter => Seq(inter.min, inter.max))
+  //        val controlLString = controlValue.value.map(c => c.toString)
+  //        val uneLigne = pointLString ++ radiusLString ++ controlLString
+  //        file << uneLigne.mkString(" ")
+  //    }
+  //  }
 
   object HyperRectangles {
 
@@ -119,8 +114,7 @@ package object export extends better.files.Implicits {
         Content.label.get,
         Content.testPoint.get,
         Content.control.get,
-        kernelComputation.controls
-      )
+        kernelComputation.controls)
 
     def viabilityKernelColumns[T](label: T => Boolean, testPoint: T => Vector[Double], control: T => Option[Int], controls: Vector[Double] => Vector[Control]) = (t: T, zone: Zone) =>
       (label(t), control(t)) match {
@@ -141,8 +135,7 @@ package object export extends better.files.Implicits {
             Content.label.get,
             Content.testPoint.get,
             Content.control.get,
-            t.controls
-          )
+            t.controls)
       }
 
       implicit def oracleApproximation = new Traceable[OracleApproximation, OracleApproximation.Content] {
@@ -179,7 +172,6 @@ package object export extends better.files.Implicits {
 
   }
 
-
   def saveHyperRectangles[T, C](t: T)(tree: Tree[C], file: File)(implicit traceable: HyperRectangles.Traceable[T, C]): Unit =
     saveHyperRectangles(tree, traceable.columns(t), file)
 
@@ -189,13 +181,13 @@ package object export extends better.files.Implicits {
     file.touch()
 
     //todo add the first line in the .txt file, of the form x1 x2 ... x${dim} min1 max1 ... min${dim} max${dim} control1 ... control${aControl.size}
-//    def header =
-//      (0 until tree.dimension).map(d => s"x$d") ++
-//        (0 until tree.dimension).map(d => s"min$d") ++
-//        (0 until tree.dimension).map(d => s"max$d") ++
-//        (0 until controls.size).map(c => s"control$c")
+    //    def header =
+    //      (0 until tree.dimension).map(d => s"x$d") ++
+    //        (0 until tree.dimension).map(d => s"min$d") ++
+    //        (0 until tree.dimension).map(d => s"max$d") ++
+    //        (0 until controls.size).map(c => s"control$c")
 
-//    file << header.mkString(" ")
+    //    file << header.mkString(" ")
 
     tree.leaves.flatMap(l => columns(l.content, l.zone).toVector).foreach {
       cols => file << cols.mkString(" ")
@@ -204,7 +196,6 @@ package object export extends better.files.Implicits {
 
   /* ------------------------- VTK ---------------------- */
 
-
   object VTK {
 
     object Traceable {
@@ -212,7 +203,6 @@ package object export extends better.files.Implicits {
       implicit def kernelContentDynamicIsTraceable[T](implicit l: ContainsLabel[T]) = new Traceable[T] {
         def label = l.label
       }
-
 
       implicit def oracleAproximationIsTraceable = new Traceable[OracleApproximation.Content] {
         def label = OracleApproximation.Content.label.get
@@ -250,8 +240,7 @@ package object export extends better.files.Implicits {
         List(x, y, 0.0),
         List(xmax, y, 0.0),
         List(x, ymax, 0.0),
-        List(xmax, ymax, 0.0)
-      )
+        List(xmax, ymax, 0.0))
     }
 
     val toWrite = coords.map(points)
@@ -315,8 +304,7 @@ DATASET UNSTRUCTURED_GRID""")
         List(x, y, zmax),
         List(xmax, y, zmax),
         List(xmax, ymax, zmax),
-        List(x, ymax, zmax)
-      )
+        List(x, ymax, zmax))
     }
 
     val toWrite = coords.map(points)

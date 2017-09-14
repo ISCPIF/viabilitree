@@ -20,8 +20,6 @@ package viabilitree.approximation.example.lake
 import viabilitree.model._
 import math._
 
-
-
 case class Lake(
   integrationStep: Double = 0.01,
   timeStep: Double = 0.1,

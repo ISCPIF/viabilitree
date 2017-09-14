@@ -8,45 +8,44 @@ import viabilitree.model._
 import scala.reflect.ClassTag
 
 object kernel {
-//
-//  def approximations[CONTENT](
-//    dynamic: (Point, Control) => Point,
-//    depth: Int,
-//    zone: Zone,
-//    dimension: Int,
-//    controls: Seq[Control],
-//    shouldBeReassigned: CONTENT => Boolean,
-//    findViableControl: (CONTENT, Point => Boolean, NonEmptyTree[CONTENT]) => CONTENT,
-//    findTrueLabel: FindTrueLabel[CONTENT],
-//    learnBoundary: LearnBoundary[CONTENT],
-//    dilate: (NonEmptyTree[CONTENT], Random) => NonEmptyTree[CONTENT],
-//    buildContent: (Point, Option[Int], Option[Point], Int) => CONTENT,
-//    label: CONTENT => Boolean,
-//    testPoint: CONTENT => Point)(tree: Tree[CONTENT], rng: Random): Iterator[NonEmptyTree[CONTENT]] =
-//    Iterator.iterate(tree -> false) {
-//      case (tree, _) =>
-//        val newTree =
-//          approximate(
-//            dynamic = dynamic,
-//            depth = depth,
-//            zone = zone,
-//            dimension = dimension,
-//            controls = controls,
-//            findViableControl = findViableControl,
-//            findTrueLabel = findTrueLabel,
-//            learnBoundary = learnBoundary,
-//            dilate = dilate,
-//            buildContent = buildContent,
-//            label = label,
-//            testPoint = testPoint
-//          )(tree, rng)
-//            newTree match {
-//              case None => None -> true
-//              case Some(nt) => newTree -> sameVolume(label)(Some(nt), tree)
-//            }
-//      }.takeWhile { case (_, stop) => !stop }.flatMap { case (t, _) => t }
-//
-
+  //
+  //  def approximations[CONTENT](
+  //    dynamic: (Point, Control) => Point,
+  //    depth: Int,
+  //    zone: Zone,
+  //    dimension: Int,
+  //    controls: Seq[Control],
+  //    shouldBeReassigned: CONTENT => Boolean,
+  //    findViableControl: (CONTENT, Point => Boolean, NonEmptyTree[CONTENT]) => CONTENT,
+  //    findTrueLabel: FindTrueLabel[CONTENT],
+  //    learnBoundary: LearnBoundary[CONTENT],
+  //    dilate: (NonEmptyTree[CONTENT], Random) => NonEmptyTree[CONTENT],
+  //    buildContent: (Point, Option[Int], Option[Point], Int) => CONTENT,
+  //    label: CONTENT => Boolean,
+  //    testPoint: CONTENT => Point)(tree: Tree[CONTENT], rng: Random): Iterator[NonEmptyTree[CONTENT]] =
+  //    Iterator.iterate(tree -> false) {
+  //      case (tree, _) =>
+  //        val newTree =
+  //          approximate(
+  //            dynamic = dynamic,
+  //            depth = depth,
+  //            zone = zone,
+  //            dimension = dimension,
+  //            controls = controls,
+  //            findViableControl = findViableControl,
+  //            findTrueLabel = findTrueLabel,
+  //            learnBoundary = learnBoundary,
+  //            dilate = dilate,
+  //            buildContent = buildContent,
+  //            label = label,
+  //            testPoint = testPoint
+  //          )(tree, rng)
+  //            newTree match {
+  //              case None => None -> true
+  //              case Some(nt) => newTree -> sameVolume(label)(Some(nt), tree)
+  //            }
+  //      }.takeWhile { case (_, stop) => !stop }.flatMap { case (t, _) => t }
+  //
 
   import monocle.macros.Lenses
 
@@ -56,14 +55,12 @@ object kernel {
     def initialControl = 0
   }
 
-
   @Lenses case class Content(
     testPoint: Vector[Double],
     control: Option[Int],
     resultPoint: Option[Vector[Double]],
     label: Boolean,
     controlMax: Int)
-
 
   /* ------------------  API ---------------------*/
 
@@ -88,7 +85,6 @@ object kernel {
       resultPoint = Content.resultPoint.get,
       controlMax = Content.controlMax.get,
       dilations = kernelComputation.dilations)(tree, rng)
-
 
   def initialTree(kernelComputation: KernelComputation, rng: Random) =
     kernel.initialTree[Content](
@@ -117,25 +113,24 @@ object kernel {
 
       tree.clean(
         Content.label.get,
-        reduceFalse(tree.criticalLeaves(Content.label.get).map(_.zone).toVector,
+        reduceFalse(
+          tree.criticalLeaves(Content.label.get).map(_.zone).toVector,
           Content.label.get,
-          Content.testPoint.get)
-      )
+          Content.testPoint.get))
     }
 
     def whileVolumeDiffers(tree: Tree[Content], previousVolume: Option[Double] = None, step: Int = 0): (Tree[Content], Int) =
-    if(maxNumberOfStep.map(ms => step >= ms).getOrElse(false)) (tree, step)
-    else {
-      val newTree = cleanBetweenStep(iterate(kernelComputation, tree, rng))
-      val newVolume = volume(newTree)
-      def sameVolume = previousVolume.map(_ == newVolume).getOrElse(false)
-      if (sameVolume) (tree, step)
-      else whileVolumeDiffers(newTree, Some(newVolume), step + 1)
-    }
+      if (maxNumberOfStep.map(ms => step >= ms).getOrElse(false)) (tree, step)
+      else {
+        val newTree = cleanBetweenStep(iterate(kernelComputation, tree, rng))
+        val newVolume = volume(newTree)
+        def sameVolume = previousVolume.map(_ == newVolume).getOrElse(false)
+        if (sameVolume) (tree, step)
+        else whileVolumeDiffers(newTree, Some(newVolume), step + 1)
+      }
 
     whileVolumeDiffers(initialTree.getOrElse(kernel.initialTree(kernelComputation, rng)))
   }
-
 
   def erode(kernelComputation: KernelComputation, tree: Tree[Content], rng: Random) = {
     def learnBoundary = KdTreeComputation.learnBoundary(Content.label.get, Content.testPoint.get)
@@ -148,45 +143,42 @@ object kernel {
       learnBoundary,
       ev,
       Content.label,
-      KdTreeComputation.leavesToErode(kernelComputation.domain, kernelComputation.zone, Content.label.get)
-    ).apply(tree, rng)
+      KdTreeComputation.leavesToErode(kernelComputation.domain, kernelComputation.zone, Content.label.get)).apply(tree, rng)
   }
 
   def clean(tree: Tree[Content]) =
     tree.clean(
       Content.label.get,
-      maximalReduction(tree.criticalLeaves(Content.label.get).map(_.zone).toVector,
-      Content.testPoint.get)
-    )
+      maximalReduction(
+        tree.criticalLeaves(Content.label.get).map(_.zone).toVector,
+        Content.testPoint.get))
 
-//    learnBoundary: LearnBoundary[CONTENT],
-//    evaluator: Evaluator[CONTENT],
-//    label: Lens[CONTENT, Boolean]): Erosion[CONTENT] =
-//    (t: TreeContent[CONTENT], additionalLeaves: Seq[Leaf[CONTENT]], rng: Random) => {
-//      val newT = t.clone
-//      val leaves = newT.criticalLeaves(newT.root, label.get).filter(l => label.get(l.content) == true).toSeq.distinct ++ additionalLeaves
-//      var currentRoot = newT.root
-//      leaves.foreach {
-//        leaf =>
-//          currentRoot = newT.root.replace(leaf.path, label.set(false)(leaf.content)).rootCalling
-//      }
-//      val eroded = TreeContent(currentRoot, newT.depth)
-//      learnBoundary(eroded, evaluator, rng) //buildContent(_, true))
-//    }
+  //    learnBoundary: LearnBoundary[CONTENT],
+  //    evaluator: Evaluator[CONTENT],
+  //    label: Lens[CONTENT, Boolean]): Erosion[CONTENT] =
+  //    (t: TreeContent[CONTENT], additionalLeaves: Seq[Leaf[CONTENT]], rng: Random) => {
+  //      val newT = t.clone
+  //      val leaves = newT.criticalLeaves(newT.root, label.get).filter(l => label.get(l.content) == true).toSeq.distinct ++ additionalLeaves
+  //      var currentRoot = newT.root
+  //      leaves.foreach {
+  //        leaf =>
+  //          currentRoot = newT.root.replace(leaf.path, label.set(false)(leaf.content)).rootCalling
+  //      }
+  //      val eroded = TreeContent(currentRoot, newT.depth)
+  //      learnBoundary(eroded, evaluator, rng) //buildContent(_, true))
+  //    }
 
   /* -------------------------------------------------------*/
 
-//
-//  def evaluator[CONTENT](
-//    depth: Int,
-//    zone: Zone,
-//    dimension: Int,
-//     buildContent: (Vector[Double], Option[Int], Option[Vector[Double]], Boolean, Int) => CONTENT) = {
-//
-//  }
-//
-
-
+  //
+  //  def evaluator[CONTENT](
+  //    depth: Int,
+  //    zone: Zone,
+  //    dimension: Int,
+  //     buildContent: (Vector[Double], Option[Int], Option[Vector[Double]], Boolean, Int) => CONTENT) = {
+  //
+  //  }
+  //
 
   def approximate[CONTENT: Manifest](
     dynamic: (Vector[Double], Vector[Double]) => Vector[Double],
@@ -237,11 +229,9 @@ object kernel {
         sampler,
         dilate,
         buildContent,
-        label.get
-      )(tree, rng)
+        label.get)(tree, rng)
     }
   }
-
 
   def findViableControl[CONTENT](
     content: CONTENT,
@@ -254,49 +244,48 @@ object kernel {
     buildContent: (Vector[Double], Option[Int], Option[Vector[Double]], Boolean, Int) => CONTENT,
     tree: NonEmptyTree[CONTENT]): CONTENT = {
 
-      if (resultPoint(content).map(viable) getOrElse false) content
-      else {
+    if (resultPoint(content).map(viable) getOrElse false) content
+    else {
 
-        val point = testPoint(content)
-        val ctrls = controls(point)
+      val point = testPoint(content)
+      val ctrls = controls(point)
 
-        def remainingControls(first: Int) = (first until ctrls.size)
+      def remainingControls(first: Int) = (first until ctrls.size)
 
-        def testControlIndex(ctrlIndex: Int) = {
-          val control = ctrls(ctrlIndex)
-          val resultPoint = dynamic(point, control.value)
-          ctrlIndex -> resultPoint
+      def testControlIndex(ctrlIndex: Int) = {
+        val control = ctrls(ctrlIndex)
+        val resultPoint = dynamic(point, control.value)
+        ctrlIndex -> resultPoint
+      }
+
+      // In case a preferential ordering strategy can be implemented
+      //        def guessControl(p: CONTENT, tree: NonEmptyTree[CONTENT]): Seq[Int] = Seq.empty
+      //
+      //        val guessed = guessControl(content, tree).view.flatMap { ctrlIndex =>
+      //            // If negative value test min of Int
+      //            if (ctrlIndex < content.controlMax) None
+      //            else Some(testControlIndex(ctrlIndex))
+      //        }.find {
+      //          case (control, resultPoint) => viable(resultPoint)
+      //        }
+      //
+      //        guessed match {
+      //          case Some((control, result)) =>
+      //            ControlledDynamicContent.Content(content.testPoint, Some(control), Some(result), true, content.controlMax)
+      //          case None =>
+
+      val searched =
+        remainingControls(controlMax(content)).view.map(testControlIndex).find {
+          case (i, resultPoint) => viable(resultPoint)
         }
 
-        // In case a preferential ordering strategy can be implemented
-//        def guessControl(p: CONTENT, tree: NonEmptyTree[CONTENT]): Seq[Int] = Seq.empty
-//
-//        val guessed = guessControl(content, tree).view.flatMap { ctrlIndex =>
-//            // If negative value test min of Int
-//            if (ctrlIndex < content.controlMax) None
-//            else Some(testControlIndex(ctrlIndex))
-//        }.find {
-//          case (control, resultPoint) => viable(resultPoint)
-//        }
-//
-//        guessed match {
-//          case Some((control, result)) =>
-//            ControlledDynamicContent.Content(content.testPoint, Some(control), Some(result), true, content.controlMax)
-//          case None =>
-
-          val searched =
-            remainingControls(controlMax(content)).view.map(testControlIndex).find {
-              case (i, resultPoint) => viable(resultPoint)
-            }
-
-          searched match {
-            case Some((control, result)) => buildContent(testPoint(content), Some(control), Some(result), true, control + 1)
-            case None => buildContent(testPoint(content), None, None, false, ctrls.size)
-          }
-
+      searched match {
+        case Some((control, result)) => buildContent(testPoint(content), Some(control), Some(result), true, control + 1)
+        case None => buildContent(testPoint(content), None, None, false, ctrls.size)
       }
-    }
 
+    }
+  }
 
   def initialTree[CONTENT: ClassTag](
     depth: Int,
@@ -317,6 +306,5 @@ object kernel {
       KdTreeComputation.learnBoundary(label, testPoint).apply(t, ev, rng)
     }
   }
-
 
 }

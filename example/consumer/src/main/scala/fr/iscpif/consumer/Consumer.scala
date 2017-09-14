@@ -3,7 +3,7 @@ package fr.iscpif.consumer
 import viabilitree.model._
 
 case class Consumer(
-  integrationStep: Double =  0.002,
+  integrationStep: Double = 0.002,
   timeStep: Double = 0.1) {
 
   def dynamic(state: Vector[Double], control: Vector[Double]) = {

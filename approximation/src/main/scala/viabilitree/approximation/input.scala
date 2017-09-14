@@ -2,8 +2,7 @@ package viabilitree.approximation
 
 import viabilitree.kdtree._
 
-import scala.reflect.ClassTag
-;
+import scala.reflect.ClassTag;
 
 object input {
 
@@ -21,11 +20,8 @@ object input {
       NonEmptyTree(
         Leaf(
           content,
-          zone
-        ),
-        depth
-      )
-
+          zone),
+        depth)
 
     label(content) match {
       case true => util.Success(tree)
@@ -33,17 +29,17 @@ object input {
     }
   }
 
-//  def initialTree[CONTENT](
-//    contentBuilder: Point => CONTENT,
-//    zone: Zone,
-//    depth: Int,
-//    sampler: Sampler,
-//    findTrueLabel: FindTrueLabel[CONTENT])(implicit rng: Random, m: Manifest[CONTENT]): Option[Tree[CONTENT]] = {
-//    val point = sampler(zone, rng)
-//    val content = contentBuilder(point)
-//
-//    val tree = Tree(Leaf[CONTENT](content, zone), depth)
-//    findTrueLabel(tree, rng)
-//  }
+  //  def initialTree[CONTENT](
+  //    contentBuilder: Point => CONTENT,
+  //    zone: Zone,
+  //    depth: Int,
+  //    sampler: Sampler,
+  //    findTrueLabel: FindTrueLabel[CONTENT])(implicit rng: Random, m: Manifest[CONTENT]): Option[Tree[CONTENT]] = {
+  //    val point = sampler(zone, rng)
+  //    val content = contentBuilder(point)
+  //
+  //    val tree = Tree(Leaf[CONTENT](content, zone), depth)
+  //    findTrueLabel(tree, rng)
+  //  }
 
 }

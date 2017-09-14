@@ -2,7 +2,6 @@ package viabilitree.approximation.example.circle
 
 object InterCircle extends App {
 
-
   import viabilitree.kdtree._
   import viabilitree.approximation._
   import viabilitree.export._
@@ -13,17 +12,14 @@ object InterCircle extends App {
     def oracle(p: Vector[Double]) =
       pow(p(0) + x, 2) + pow(p(1) + y, 2) + pow(p(2) + z, 2) <= pow(1, 3)
 
-
     OracleApproximation(
       depth = 18,
       box =
         Vector(
           (-2.0, 2.0),
           (-2.0, 2.0),
-          (-2.0, 2.0)
-        ),
-      oracle = oracle
-    )
+          (-2.0, 2.0)),
+      oracle = oracle)
   }
 
   implicit val random = new Random(42)

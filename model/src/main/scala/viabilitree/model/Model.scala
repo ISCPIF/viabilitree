@@ -37,11 +37,11 @@ trait Model {
     else p :: trajectory(dynamic(p, c(p)), c, i - 1)
   }
 
-/*  def trajectory(p: Point, c: Point => Point, i: Int): List[Point] = {
+  /*  def trajectory(p: Point, c: Point => Point, i: Int): List[Point] = {
     trajectoryReverse(p, c, i).reverse
     }*/
 
-/*  def trajectoryWithViableStrategy(p:Point,viabKernel: ViabilityKernel, i:Int )*/
+  /*  def trajectoryWithViableStrategy(p:Point,viabKernel: ViabilityKernel, i:Int )*/
 
-def perturbation(state:Vector[Double], s:Double): Vector[Double] => Boolean
+  def perturbation(state: Vector[Double], s: Double): Vector[Double] => Boolean
 }

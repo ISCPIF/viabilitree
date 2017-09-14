@@ -15,7 +15,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 package viabilitree
 
 import viabilitree.kdtree._
@@ -44,7 +43,6 @@ package object viability {
     }
   }
 
-
   def volume[T](tree: Tree[T])(implicit c: ContainsLabel[T]) = tree.volume(c.label)
 
   lazy val Zone = viabilitree.kdtree.Zone
@@ -53,16 +51,16 @@ package object viability {
 
   implicit def vectorOfNumericRangeToVectorOfControl(v: Vector[NumericRange[Double]]) = {
 
- //   (_: Vector[Double]) => v.transpose.map(Control(_))
+    //   (_: Vector[Double]) => v.transpose.map(Control(_))
 
-  def cross2NR (a:NumericRange[Double], b:NumericRange[Double]) = {
-    a.toVector.map(p => b.toVector.map(o => Vector(p, o))).flatten
-  }
-    def crossVVD2NR (a:Vector[Vector[Double]], b:NumericRange[Double]) : Vector[Vector[Double]] = {
-      a.map(p => b.toVector.map(o => p:+o)).flatten
+    def cross2NR(a: NumericRange[Double], b: NumericRange[Double]) = {
+      a.toVector.map(p => b.toVector.map(o => Vector(p, o))).flatten
+    }
+    def crossVVD2NR(a: Vector[Vector[Double]], b: NumericRange[Double]): Vector[Vector[Double]] = {
+      a.map(p => b.toVector.map(o => p :+ o)).flatten
     }
 
-    def cross2withTail (enCours: Vector[Vector[Double]] , v: Vector[NumericRange[Double]] ) : Vector[Vector[Double]]= {
+    def cross2withTail(enCours: Vector[Vector[Double]], v: Vector[NumericRange[Double]]): Vector[Vector[Double]] = {
 
       v.length match {
         case 0 => enCours
@@ -70,14 +68,14 @@ package object viability {
           val t = v.tail
           val hd = v.head
           t.length match {
-            case 0 => crossVVD2NR (enCours, hd)
-            case _ => cross2withTail (crossVVD2NR (enCours, hd), t)
-            }
+            case 0 => crossVVD2NR(enCours, hd)
+            case _ => cross2withTail(crossVVD2NR(enCours, hd), t)
+          }
         }
       }
     }
 
-    def cross2withTail1 (v: Vector[NumericRange[Double]] ) : Vector[Vector[Double]]= {
+    def cross2withTail1(v: Vector[NumericRange[Double]]): Vector[Vector[Double]] = {
       val t = v.tail
       val hd = v.head
 
@@ -89,14 +87,13 @@ package object viability {
         }
       }
     }
-      val lofControl = cross2withTail1(v)
+    val lofControl = cross2withTail1(v)
     (_: Vector[Double]) => lofControl.map(Control(_))
 
   }
 
   implicit def vectorOfVectorToVectorOfControl(v: Vector[Vector[Double]]) =
     (_: Vector[Double]) => v.map(Control(_))
-
 
   type Control = model.Control
   lazy val Control = model.Control

@@ -17,7 +17,6 @@
 
 package fr.iscpif.consumer
 
-
 import viabilitree.approximation._
 import viabilitree.export._
 import math._
@@ -39,9 +38,7 @@ object ConsumerKernel extends App {
       depth = 20,
       box = Vector((0.0, b), (0.0, e)),
       oracle = oracle,
-      point = Some(Vector(0.001, 0.001))
-    )
-
+      point = Some(Vector(0.001, 0.001)))
 
   val rng = new Random(42)
 
@@ -55,15 +52,15 @@ object ConsumerKernel extends App {
   saveHyperRectangles(approximation)(res, s"/tmp/testConsumerPointD${approximation.depth}.txt")
   saveHyperRectangles(approximation)(leClean, s"/tmp/testConsumerCleanPointD${approximation.depth}.txt")
 
-//  def zone = Seq((0.0, b), (0.0, e))
-//
-//  def point = Seq(0.001, 0.001)
-//
-//  def depth = 16
-//
-//  val kernel = apply.get
-//
-//  saveVTK2D(kernel, s"/tmp/consumer/kernelV${depth}.vtk")
-//  saveVTK2D(dilate(dilate(kernel)), s"/tmp/consumer/kernel_dilatedV${depth}.vtk")
+  //  def zone = Seq((0.0, b), (0.0, e))
+  //
+  //  def point = Seq(0.001, 0.001)
+  //
+  //  def depth = 16
+  //
+  //  val kernel = apply.get
+  //
+  //  saveVTK2D(kernel, s"/tmp/consumer/kernelV${depth}.vtk")
+  //  saveVTK2D(dilate(dilate(kernel)), s"/tmp/consumer/kernel_dilatedV${depth}.vtk")
 
 }

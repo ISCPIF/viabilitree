@@ -8,9 +8,7 @@ import util.Random
 
 object basin {
 
-
   /* ----------------- API --------------------- */
-
 
   case class BasinComputation(
     zone: Zone,
@@ -21,7 +19,6 @@ object basin {
     controls: Vector[Double] => Vector[Control],
     k: Option[Oracle] = None,
     domain: Domain = InfiniteDomain)
-
 
   /* TODO verify preconditions: point in target, in defined.... */
   def initialTree(
@@ -35,8 +32,7 @@ object basin {
       Content.apply,
       Content.label.get,
       Content.testPoint.get,
-      rng
-    )
+      rng)
 
   def iterate(
     basinComputation: BasinComputation,
@@ -72,15 +68,14 @@ object basin {
 
       tree.clean(
         Content.label.get,
-        reduce(tree.criticalLeaves(Content.label.get).map(_.zone).toVector,
+        reduce(
+          tree.criticalLeaves(Content.label.get).map(_.zone).toVector,
           Content.label.get,
-          Content.testPoint.get)
-      )
+          Content.testPoint.get))
     }
 
-
     def whileVolumeDiffers(tree: NonEmptyTree[Content], previousVolume: Option[Double] = None, step: Int = 0): (NonEmptyTree[Content], Int) =
-      if(maxNumberOfStep.map(ms => step >= ms).getOrElse(false)) (tree, step)
+      if (maxNumberOfStep.map(ms => step >= ms).getOrElse(false)) (tree, step)
       else {
         val cleanTree = cleanNonCritical(tree)
         val withNewTarget = basinComputation.copy(target = p => cleanTree.contains(p, Content.label.get(_)))
@@ -95,7 +90,6 @@ object basin {
     whileVolumeDiffers(cleanedInitialTree)
   }
 
-
   def erode(basinComputation: BasinComputation, tree: NonEmptyTree[Content], rng: Random) = {
     def learnBoundary = KdTreeComputation.learnBoundary[Content](Content.label.get, Content.testPoint.get)
 
@@ -107,13 +101,10 @@ object basin {
       learnBoundary,
       ev,
       Content.label,
-      KdTreeComputation.leavesToErode(basinComputation.domain, basinComputation.zone, Content.label.get)
-    ).apply(tree, rng)
+      KdTreeComputation.leavesToErode(basinComputation.domain, basinComputation.zone, Content.label.get)).apply(tree, rng)
   }
 
-
   /* --------------------------------------------*/
-
 
   object Content {
     implicit def kernelContent: ContainsLabel[Content] = ContainsLabel[Content](Content.label.get)
@@ -124,7 +115,6 @@ object basin {
     control: Option[Vector[Double]],
     resultPoint: Option[Vector[Double]],
     label: Boolean)
-
 
   def step[CONTENT: Manifest](
     dynamic: (Vector[Double], Vector[Double]) => Vector[Double],
@@ -140,10 +130,10 @@ object basin {
 
     import Domain._
 
-    def appliedControl(x: Vector[Double], rng: Random) = controls(x).view.map { ctrl => ctrl.value -> dynamic(x, ctrl.value)}
+    def appliedControl(x: Vector[Double], rng: Random) = controls(x).view.map { ctrl => ctrl.value -> dynamic(x, ctrl.value) }
 
     def learnContent(x: Vector[Double], rng: Random): CONTENT =
-      appliedControl(x, rng).find { case(_, result) => contains(domain, result) && k(result) && target(result) } match {
+      appliedControl(x, rng).find { case (_, result) => contains(domain, result) && k(result) && target(result) } match {
         case Some((ctrl, result)) => buildContent(x, Some(ctrl), Some(result), true)
         case None => buildContent(x, None, None, false)
       }
@@ -156,7 +146,7 @@ object basin {
 
     def reassignedTree =
       tree.reassign {
-        content => if(label(content)) content else testAndLearnContent(testPoint(content), rng)
+        content => if (label(content)) content else testAndLearnContent(testPoint(content), rng)
       }
 
     val sampler = Sampler.grid(tree.depth, tree.root.zone)
@@ -183,18 +173,14 @@ object basin {
     KdTreeComputation.learnBoundary(label, testPoint).apply(tree, ev, rng)
   }
 
-
-
-
-//    dynamic: (Vector[Double], Vector[Double]) => Vector[Double],
-//    tree: NonEmptyTree[CONTENT],
-//    target: Oracle,
-//    k: Oracle,
-//    controls: Vector[Double] => Vector[Control],
-//    buildContent: (Vector[Double], Option[Vector[Double]], Option[Vector[Double]], Boolean) => CONTENT,
-//    label: CONTENT => Boolean,
-//    testPoint: CONTENT => Vector[Double],
-//    rng: Random) = {}
-
+  //    dynamic: (Vector[Double], Vector[Double]) => Vector[Double],
+  //    tree: NonEmptyTree[CONTENT],
+  //    target: Oracle,
+  //    k: Oracle,
+  //    controls: Vector[Double] => Vector[Control],
+  //    buildContent: (Vector[Double], Option[Vector[Double]], Option[Vector[Double]], Boolean) => CONTENT,
+  //    label: CONTENT => Boolean,
+  //    testPoint: CONTENT => Vector[Double],
+  //    rng: Random) = {}
 
 }

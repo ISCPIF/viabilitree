@@ -18,7 +18,6 @@ published by
 
 package viabilitree.kdtree
 
-
 object Path {
 
   /////// FUNCTIONS TO COMPUTE ADJACENCY
@@ -123,7 +122,6 @@ object Path {
     }
     aux(sideDivisions)
   }
-
 
   def minimalCoordinates(path: Path, dimensions: Int) = {
     val coordCardinals = path.groupBy(_.coordinate).mapValues { _.size }

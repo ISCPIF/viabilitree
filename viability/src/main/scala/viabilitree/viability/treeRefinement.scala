@@ -50,16 +50,16 @@ object treeRefinement {
   // Number of dilation can be coded in dilate function
   // Was timestep
   def refine[CONTENT: Manifest](
-     dynamic: (Vector[Double], Vector[Double]) => Vector[Double],
-     controls: Vector[Double] => Vector[Control],
-     shouldBeReassigned: CONTENT => Boolean,
-     findViableControl: (CONTENT, Vector[Double] => Boolean, NonEmptyTree[CONTENT]) => CONTENT,
-     findTrueLabel: FindTrueLabel[CONTENT],
-     learnBoundary: LearnBoundary[CONTENT],
-     sampler: Sampler,
-     dilate: (NonEmptyTree[CONTENT], Random) => NonEmptyTree[CONTENT],
-     buildContent: (Vector[Double], Option[Int], Option[Vector[Double]], Boolean, Int) => CONTENT,
-     label: CONTENT => Boolean)(tree: NonEmptyTree[CONTENT], rng: Random): Tree[CONTENT] = {
+    dynamic: (Vector[Double], Vector[Double]) => Vector[Double],
+    controls: Vector[Double] => Vector[Control],
+    shouldBeReassigned: CONTENT => Boolean,
+    findViableControl: (CONTENT, Vector[Double] => Boolean, NonEmptyTree[CONTENT]) => CONTENT,
+    findTrueLabel: FindTrueLabel[CONTENT],
+    learnBoundary: LearnBoundary[CONTENT],
+    sampler: Sampler,
+    dilate: (NonEmptyTree[CONTENT], Random) => NonEmptyTree[CONTENT],
+    buildContent: (Vector[Double], Option[Int], Option[Vector[Double]], Boolean, Int) => CONTENT,
+    label: CONTENT => Boolean)(tree: NonEmptyTree[CONTENT], rng: Random): Tree[CONTENT] = {
 
     def viableFunction(t: NonEmptyTree[CONTENT], p: Vector[Double]) = tree.label(p, label)
     def viable(p: Vector[Double], rng: Random) = viableFunction(dilate(tree, rng), p)
@@ -80,7 +80,6 @@ object treeRefinement {
       tree => learnBoundary(tree, ev, rng)
     }
   }
-
 
 }
 //

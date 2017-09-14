@@ -26,7 +26,7 @@ class Dynamic(equations: (Vector[Double], Double) => Double*) extends FirstOrder
         val y = Array.ofDim[Double](equations.size)
         integrator.integrate(this, curT, curY, s, y)
         // FIXME use Try and propagate up the stack
-        if(y.exists(_.isNaN)) throw new RuntimeException(s"""Dynamic from ${curY.toVector} using integration step ${integrationStep} produces NaN: ${y.toVector}"""")
+        if (y.exists(_.isNaN)) throw new RuntimeException(s"""Dynamic from ${curY.toVector} using integration step ${integrationStep} produces NaN: ${y.toVector}"""")
         (s, y) :: ys
       }
     }.reverse

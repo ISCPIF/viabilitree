@@ -4,9 +4,9 @@ import viabilitree.model._
 import scala.math._
 
 /**
-  * Created by ia on 11/07/2017.
-  */
-class Lake2 (
+ * Created by ia on 11/07/2017.
+ */
+class Lake2(
   integrationStep: Double = 0.01,
   timeStep: Double = 0.1,
   b: Double = 0.8,

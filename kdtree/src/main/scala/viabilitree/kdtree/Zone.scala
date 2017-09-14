@@ -56,7 +56,7 @@ object Zone {
   }
 
   def center(z: Zone): Vector[Double] =
-    z.region.map { i => i.min + (i.max - i.min) / 2}.toVector
+    z.region.map { i => i.min + (i.max - i.min) / 2 }.toVector
 
   implicit def seqToZone(zone: Seq[(Double, Double)]) = apply(zone: _*)
 
@@ -75,7 +75,6 @@ trait Zone { zone: Zone =>
   //TODO: Consider IndexSeq instead of Vector. Change val to def
   val region: Array[Interval]
   def dimension = region.size
-
 
   def divideLow(d: Int): Zone =
     new Zone {
@@ -106,8 +105,7 @@ trait Zone { zone: Zone =>
 
   def volume: Double =
     zone.region.foldLeft(1.0)(
-      (x, interval) => x * interval.span
-    )
+      (x, interval) => x * interval.span)
 
   def normalizedVolume(referenceZone: Zone): Double = {
     val referenceSpans: Array[Double] = referenceZone.region.map(x => x.span)

@@ -30,8 +30,7 @@ object LakeViabilityKernel extends App {
     dynamic = lake.dynamic,
     depth = 18,
     zone = Vector((0.1, 1.0), (0.0, 1.4)),
-    controls = Vector((0.09 to 0.09 by 0.0))
-  )
+    controls = Vector((0.09 to 0.09 by 0.0)))
 
   val (ak, steps) = approximate(vk, rng)
 
@@ -42,16 +41,15 @@ object LakeViabilityKernel extends App {
 
   val zippedTree = Tree.zipContent(ak, distanceTree)
 
-  saveVTK2D(ak,"/tmp/reslake.vtk")
-  saveHyperRectangles(vk)(ak,"/tmp/reslakeWithControl.txt")
-  saveHyperRectangles(vk)(zippedTree,"/tmp/reslakeWithControlAndDistance.txt")
-
+  saveVTK2D(ak, "/tmp/reslake.vtk")
+  saveHyperRectangles(vk)(ak, "/tmp/reslakeWithControl.txt")
+  saveHyperRectangles(vk)(zippedTree, "/tmp/reslakeWithControlAndDistance.txt")
 
   //saveVTK2D(res, ControlledDynamicContent.label.get, "/tmp/res.vtk")
   //  //saveVTK2D(initial, ControlledDynamicContent.label.get, "/tmp/initial.vtk")
   //  saveVTK2D(res, ControlledDynamicContent.label.get, "/tmp/res.vtk")
 
- // println(volume(res))
+  // println(volume(res))
 
 }
 
@@ -61,26 +59,24 @@ object LakeTestControl extends App {
   val rng = new util.Random(42)
 
   val u1 = Vector((1.0 to 5.0 by 1.0), (1.0 to 5.0 by 1.0), (1.0 to 2.0 by 1.0))
-  val u2 = Vector(Vector(1.0,2.0),Vector(1.0,3.0),Vector(1.0,0.0))
+  val u2 = Vector(Vector(1.0, 2.0), Vector(1.0, 3.0), Vector(1.0, 0.0))
 
   val unPoint = Vector(0.0, 1.0)
 
   val vk1 = KernelComputation(
-  dynamic = lake.dynamic,
-  depth = 18,
-  zone = Vector((0.1, 1.0), (0.0, 1.4)),
-  controls = u1
-  )
+    dynamic = lake.dynamic,
+    depth = 18,
+    zone = Vector((0.1, 1.0), (0.0, 1.4)),
+    controls = u1)
 
   val vk2 = KernelComputation(
     dynamic = lake.dynamic,
     depth = 18,
     zone = Vector((0.1, 1.0), (0.0, 1.4)),
-    controls = u2
-  )
+    controls = u2)
 
-val lu1 = vk1.controls(unPoint)
-val lu2 = vk2.controls(unPoint)
+  val lu1 = vk1.controls(unPoint)
+  val lu2 = vk2.controls(unPoint)
 
   println(lu1)
   println(lu2)
