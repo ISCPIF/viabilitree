@@ -106,7 +106,7 @@ object Path {
   ////////////
 
   // Check if divisions are always Low or always High
-  def extremeDivisions(path: Path, coordinate: Int): Boolean = {
+  def extremeDivisions(path: Path, coordinate: Int): (Boolean, Option[Descendant]) = {
     val filteredPath = path.filter(x => x.coordinate == coordinate)
     val sideDivisions: List[Descendant] = filteredPath.map(x => x.descendant).toList
 
@@ -119,7 +119,12 @@ object Path {
         }
       }
     }
-    aux(sideDivisions)
+
+    aux(sideDivisions) match {
+      case true if sideDivisions.isEmpty => (true, None)
+      case true => (true, Some(sideDivisions.head))
+      case false => (false, None)
+    }
   }
 
   def minimalCoordinates(path: Path, dimensions: Int) = {

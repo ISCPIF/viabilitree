@@ -545,9 +545,10 @@ package object kdtree {
             case leaf: Leaf[T] =>
               label(leaf.content) match {
                 case true =>
-                  leaf.touchesBoundary match {
-                    case Some(coordinate) => List((leaf, coordinate))
-                    case None => List.empty
+                  leaf.touchesBoundaries match {
+                    case List() => List.empty
+                    case coordinates => List((leaf, coordinates.head._1))
+
                   }
                 case false => List.empty
               }
@@ -597,9 +598,9 @@ package object kdtree {
             case leaf: Leaf[T] =>
               label(leaf.content) match {
                 case true =>
-                  leaf.touchesBoundary match {
-                    case Some(coordinate) => List((leaf, coordinate))
-                    case None => List.empty
+                  leaf.touchesBoundaries match {
+                    case List() => List.empty
+                    case coordinates => List((leaf, coordinates.head._1))
                   }
                 case false => List.empty
               }

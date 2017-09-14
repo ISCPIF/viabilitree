@@ -381,11 +381,20 @@ trait Leaf[T] extends Node[T] { self =>
 
   // This function is specific to the bounded case. The output
   // is an Option[Int] that gives the coordinate corresponding to the direction
-  def touchesBoundary: Option[Int] = {
+  def touchesBoundaries: List[(Int, Option[Descendant])] = {
     val path = reversePath
     val range: Range = zone.region.indices
-    val coordinate = range.find(coordinate => extremeDivisions(path, coordinate))
-    coordinate
+    val coordinate =
+      range.flatMap {
+        coordinate =>
+          extremeDivisions(path, coordinate) match {
+            case (true, d) => Some(coordinate -> d)
+            case (false, _) => None
+          }
+        //coordinate -> extremeDivisions(path, coordinate)
+      }
+
+    coordinate.toList
   }
 
   def borderLeaves(direction: Direction): Iterable[Leaf[T]] = Vector(this)
