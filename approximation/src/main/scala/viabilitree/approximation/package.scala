@@ -119,10 +119,8 @@ package object approximation {
               case coordinates =>
                 val neutralZoneSides = NeutralBoundary.separate(neutralBoundary)
                 def touchesNeutralZoneSide(dimension: Int, contact: Touch): Boolean =
-                  contact match {
-                    case Touch.Both => touchesNeutralZoneSide(dimension, Touch.Low) && touchesNeutralZoneSide(dimension, Touch.High)
-                    case t => neutralZoneSides.exists { case ZoneSide(zdim, zTouch) => zdim == dimension && zTouch == t }
-                  }
+                  neutralZoneSides.exists { case ZoneSide(zdim, zTouch) => zdim == dimension && Touch.touches(contact, zTouch) }
+
                 if (coordinates.forall { case (dim, desc) => touchesNeutralZoneSide(dim, desc) }) List.empty else List((leaf, coordinates.head._1))
             }
           // Label is false

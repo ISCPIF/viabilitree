@@ -18,6 +18,8 @@ published by
 
 package viabilitree.kdtree
 
+import org.scalacheck.Prop.True
+
 object Path {
 
   /////// FUNCTIONS TO COMPUTE ADJACENCY
@@ -110,6 +112,15 @@ object Path {
       descendant match {
         case Descendant.Low => Low
         case Descendant.High => High
+      }
+
+    def touches(t1: Touch, t2: Touch) =
+      (t1, t2) match {
+        case (Low, Low) => true
+        case (High, High) => true
+        case (Both, _) => true
+        case (_, Both) => true
+        case _ => false
       }
 
     case object Low extends Touch
