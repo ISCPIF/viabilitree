@@ -39,7 +39,6 @@ object Path {
         case Descendant.High =>
           val direction = new AdjacencyDirection(reducedX(0).coordinate, LeftIsHigh)
           Some(direction)
-        case Descendant.NotDescendant => throw new RuntimeException("Error: [Descendant.NotDescendant] should not happen.")
       }
       else None
     }

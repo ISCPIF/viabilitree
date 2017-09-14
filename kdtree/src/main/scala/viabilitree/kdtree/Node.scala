@@ -43,9 +43,9 @@ sealed trait Node[T] { node =>
     case None => List.empty
     case Some(parent) => {
       parent.descendantType(this) match {
-        case Descendant.Low => PathElement(parent.divisionCoordinate, Descendant.Low) :: parent.reversePath.toList
-        case Descendant.High => PathElement(parent.divisionCoordinate, Descendant.High) :: parent.reversePath.toList
-        case Descendant.NotDescendant =>
+        case Some(Descendant.Low) => PathElement(parent.divisionCoordinate, Descendant.Low) :: parent.reversePath.toList
+        case Some(Descendant.High) => PathElement(parent.divisionCoordinate, Descendant.High) :: parent.reversePath.toList
+        case None =>
           throw new RuntimeException("The node must be Low(child) or High(child) of its parent. (2)")
       }
     }
@@ -244,15 +244,15 @@ trait Fork[T] extends Node[T] { fork =>
 
   def reassignChild(from: Node[T], to: Node[T]) =
     descendantType(from) match {
-      case Descendant.Low => attachLow(to)
-      case Descendant.High => attachHigh(to)
-      case Descendant.NotDescendant => throw new RuntimeException("The original leaf should be lowChild or highChild")
+      case Some(Descendant.Low) => attachLow(to)
+      case Some(Descendant.High) => attachHigh(to)
+      case None => throw new RuntimeException("The original leaf should be lowChild or highChild")
     }
 
-  def descendantType(child: Node[_]): Descendant = {
-    if (_lowChild == child) Descendant.Low
-    else if (highChild == child) Descendant.High
-    else Descendant.NotDescendant
+  def descendantType(child: Node[_]): Option[Descendant] = {
+    if (_lowChild == child) Some(Descendant.Low)
+    else if (highChild == child) Some(Descendant.High)
+    else None
   }
 
   def attachLow(child: Node[T]) {

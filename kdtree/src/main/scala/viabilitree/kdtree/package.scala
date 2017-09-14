@@ -269,7 +269,7 @@ package object kdtree {
   object Descendant {
     case object Low extends Descendant
     case object High extends Descendant
-    case object NotDescendant extends Descendant
+    //case object NotDescendant extends Descendant
   }
 
   def maximalReduction[T](criticalLeaves: Vector[Zone], testPoint: T => Vector[Double]): ContentReduction[T] = {
