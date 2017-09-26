@@ -126,6 +126,8 @@ object Path {
     case object Low extends Touch
     case object High extends Touch
     case object Both extends Touch
+
+    implicit def fromDescendant(descendant: Descendant) = Touch(descendant)
   }
 
   sealed trait Touch
