@@ -16,7 +16,8 @@ object RAZ13viability extends App {
     dynamic = riverfront.dynamic,
     depth = 10,
     zone = Vector((0.0, 1.0), (0.0, 10.0)),
-    controls = Vector((0.0 to U by 1.0)))
+    controls = Vector((0.0 to U by 2.0))
+  )
 
   val (ak, steps) = approximate(vk, rng)
   println(s"fin calcul noyau ${steps}")

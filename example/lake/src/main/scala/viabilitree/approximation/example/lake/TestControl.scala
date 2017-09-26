@@ -26,7 +26,9 @@ object TestControl extends App {
     dynamic = lake,
     depth = 4,
     zone = Vector((0.1, 1.0), (0.0, 1.4)),
-    controls = Vector((0.0 to 0.0 by 0.0), (-0.1 to 0.01 by 0.01)))
+    controls = Vector((0.0 to 0.0 by 0.1), (-0.1 to 0.01 by 0.01)))
+
+  // Note NumericalRange n'accepte pas un step à zéro (0.0 to 0.0 by 0.0) NON mais (0.0 to 0.0 by 0.1) OUI
 
   val (ak, steps) = approximate(vk, rng)
   saveHyperRectangles(vk)(ak, s"/tmp/TestControlLakeD${vk.depth}.txt")
