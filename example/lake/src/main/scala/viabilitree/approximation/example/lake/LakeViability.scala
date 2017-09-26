@@ -21,6 +21,7 @@ import viabilitree.viability._
 import viabilitree.viability.kernel._
 import viabilitree.export._
 
+
 object LakeViabilityKernel extends App {
 
   val lake = Lake()
@@ -60,8 +61,16 @@ object LakeTestControl extends App {
   val lake = Lake()
   val rng = new util.Random(42)
 
-  val u1 = Vector((1.0 to 5.0 by 1.0), (1.0 to 5.0 by 1.0), (1.0 to 2.0 by 1.0))
-  val u2 = Vector(Vector(1.0,2.0),Vector(1.0,3.0),Vector(1.0,0.0))
+  val u1 = Vector((0.09 to -0.09 by -0.01),(0.09 to 0.09 by 0.1))
+
+// OK   val u1 = Vector((0.09 to -0.09 by -0.01), (2.0 to 3.0 by 0.1), (-2.0 to -3.0 by -0.1) )
+  //  OK val u1 = Vector(Vector(0.09))
+// OK  val u1 = Vector((0.09 to -0.09 by -0.01))
+
+
+  //  val u1 = Vector((0.09 to -0.09 by -0.01), (2.0 to 2.0 by 0.0), (1.0 to 1.0 by 0.0))
+//  val u2 = Vector(Vector(1.0,2.0),Vector(1.0,3.0),Vector(1.0,0.0))
+//val u2 = Vector((0.0 to 0.0 by 0.0),(-0.1 to 0.01 by 0.01))
 
   val unPoint = Vector(0.0, 1.0)
 
@@ -72,18 +81,51 @@ object LakeTestControl extends App {
   controls = u1
   )
 
+/*
   val vk2 = KernelComputation(
     dynamic = lake.dynamic,
     depth = 18,
     zone = Vector((0.1, 1.0), (0.0, 1.4)),
     controls = u2
   )
+*/
 
 val lu1 = vk1.controls(unPoint)
-val lu2 = vk2.controls(unPoint)
+//val lu2 = vk2.controls(unPoint)
 
   println(lu1)
-  println(lu2)
+//  println(lu2)
+
+//  val (ak, steps) = approximate(vk1, rng)
+//  saveHyperRectangles(vk1)(ak,s"/tmp/TestControlLakeD${vk1.depth}.txt")
+
 
 }
+
+object LakeViabilityKernelTest extends App {
+
+  val lake = Lake()
+  val rng = new util.Random(42)
+
+  val vk = KernelComputation(
+    dynamic = lake.dynamic,
+    depth = 18,
+    zone = Vector((0.1, 1.0), (0.0, 1.4)),
+    controls = Vector((0.09 to -0.09 by -0.0))
+  )
+
+  val (ak, steps) = approximate(vk, rng)
+
+  saveVTK2D(ak,"/tmp/reslake.vtk")
+  saveHyperRectangles(vk)(ak,"/tmp/reslakeWithControl.txt")
+
+
+  //saveVTK2D(res, ControlledDynamicContent.label.get, "/tmp/res.vtk")
+  //  //saveVTK2D(initial, ControlledDynamicContent.label.get, "/tmp/initial.vtk")
+  //  saveVTK2D(res, ControlledDynamicContent.label.get, "/tmp/res.vtk")
+
+  // println(volume(res))
+
+}
+
 

@@ -75,4 +75,5 @@ def dynamic(state: Vector[Double], control: Vector[Double]) = {
     def wDelta (state: Vector[Double], s:Double) = - damage(state(0), s)
 
   }
+
 }
