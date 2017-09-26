@@ -463,7 +463,7 @@ package object kdtree {
       case e: EmptyTree[T] => e
     }
 
-    def contains(p: Vector[Double], label: T => Boolean): Boolean = t match {
+    def contains(label: T => Boolean, p: Vector[Double]): Boolean = t match {
       case t: NonEmptyTree[T] => t.contains(p, label)
       case _: EmptyTree[_] => false
     }
