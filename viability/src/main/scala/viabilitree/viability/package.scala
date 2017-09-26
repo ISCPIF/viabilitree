@@ -48,20 +48,15 @@ package object viability {
   lazy val Zone = viabilitree.kdtree.Zone
 
   // TODO we need to deal with empty list of control
-
   implicit def vectorOfNumericRangeToVectorOfControl(v: Vector[NumericRange[Double]]) = {
 
-    //   (_: Vector[Double]) => v.transpose.map(Control(_))
-
-    def cross2NR(a: NumericRange[Double], b: NumericRange[Double]) = {
+    def cross2NR(a: NumericRange[Double], b: NumericRange[Double]) =
       a.toVector.map(p => b.toVector.map(o => Vector(p, o))).flatten
-    }
-    def crossVVD2NR(a: Vector[Vector[Double]], b: NumericRange[Double]): Vector[Vector[Double]] = {
+
+    def crossVVD2NR(a: Vector[Vector[Double]], b: NumericRange[Double]): Vector[Vector[Double]] =
       a.map(p => b.toVector.map(o => p :+ o)).flatten
-    }
 
-    def cross2withTail(enCours: Vector[Vector[Double]], v: Vector[NumericRange[Double]]): Vector[Vector[Double]] = {
-
+    def cross2withTail(enCours: Vector[Vector[Double]], v: Vector[NumericRange[Double]]): Vector[Vector[Double]] =
       v.length match {
         case 0 => enCours
         case _ => {
@@ -73,7 +68,6 @@ package object viability {
           }
         }
       }
-    }
 
     def cross2withTail1(v: Vector[NumericRange[Double]]): Vector[Vector[Double]] = {
       val t = v.tail
@@ -87,9 +81,9 @@ package object viability {
         }
       }
     }
+
     val lofControl = cross2withTail1(v)
     (_: Vector[Double]) => lofControl.map(Control(_))
-
   }
 
   implicit def vectorOfVectorToVectorOfControl(v: Vector[Vector[Double]]) =
@@ -103,8 +97,10 @@ package object viability {
   def sameVolume[CONTENT](label: CONTENT => Boolean)(t1: Tree[CONTENT], t2: Tree[CONTENT]) =
     t1.volume(label) == t2.volume(label)
 
-  lazy val NeutralBoundary = approximation.NeutralBoundary
   lazy val ZoneSide = approximation.ZoneSide
   lazy val Touch = kdtree.Path.Touch
+
+  lazy val High = Descendant.High
+  lazy val Low = Descendant.Low
 
 }

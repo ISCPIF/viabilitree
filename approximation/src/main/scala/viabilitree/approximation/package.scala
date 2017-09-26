@@ -93,15 +93,14 @@ package object approximation {
 
   object NeutralBoundary {
     def separate(neutralBoundary: NeutralBoundary) = {
-      val zoneSides = neutralBoundary.elements.collect { case x: ZoneSide => x }
+      val zoneSides = neutralBoundary.collect { case x: ZoneSide => x }
       (zoneSides)
     }
 
-    def empty = NeutralBoundary()
-
+    def empty = Vector.empty
   }
 
-  case class NeutralBoundary(elements: NeutralBoundaryElement*)
+  type NeutralBoundary = Vector[NeutralBoundaryElement]
   sealed trait NeutralBoundaryElement
   case class ZoneSide(dimension: Int, touch: Touch) extends NeutralBoundaryElement
   //  case class HyperPlan(vector: Vector[Double])
