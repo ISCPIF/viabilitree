@@ -16,11 +16,15 @@ object RAZ13Viability extends App {
     dynamic = riverfront.dynamic,
     depth = 10,
     zone = Vector((0.0, 1.0), (0.0, 10.0)),
-    controls = Vector((0.0 to U by 2.0))
-    neutralBoundary = Vector(ZoneSide(1, Low)))
+    controls = Vector((0.0 to U by 2.0)),
+    neutralBoundary = Vector(ZoneSide(0, Low), ZoneSide(0, High),ZoneSide(1, High) ))
 
   val (ak, steps) = approximate(vk, rng)
+  val output = s"/tmp/RAZ13/"
+  saveVTK2D(ak, s"${output}raz13${vk.depth}U${U}.vtk")
+  saveHyperRectangles(vk)(ak, s"${output}raz13${vk.depth}U${U}.txt")
 
+ /*
   val vk2 = KernelComputation(
     dynamic = riverfront.dynamic,
     depth = 10,
@@ -33,5 +37,5 @@ object RAZ13Viability extends App {
   val output = s"/tmp/RAZ13/"
   saveVTK2D(ak, s"${output}raz13${vk.depth}U${U}.vtk")
   saveHyperRectangles(vk)(ak, s"${output}raz13${vk.depth}U${U}.txt")
-
+*/
 }
