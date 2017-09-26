@@ -117,10 +117,26 @@ package object approximation {
               case List() => List.empty
               case coordinates =>
                 val neutralZoneSides = NeutralBoundary.separate(neutralBoundary)
-                def touchesNeutralZoneSide(dimension: Int, contact: Touch): Boolean =
-                  neutralZoneSides.exists { case ZoneSide(zdim, zTouch) => zdim == dimension && Touch.touches(contact, zTouch) }
 
-                if (coordinates.forall { case (dim, desc) => touchesNeutralZoneSide(dim, desc) }) List.empty else List((leaf, coordinates.head._1))
+                import Touch._
+                def touches(leafBoundary: Touch, neutralBoundary: Touch) =
+                  (leafBoundary, neutralBoundary) match {
+                    case (Low, Low) => true
+                    case (High, High) => true
+                    case (_, Both) => true
+                    case (Both, _) => false // neutral boundary is not both
+                    case _ => false
+                  }
+
+                def touchesNeutralZoneSide(dimension: Int, contact: Touch): Boolean =
+                  neutralZoneSides.exists { case neutralZoneSide => neutralZoneSide.dimension == dimension && touches(contact, neutralZoneSide.touch) }
+
+                val nonNeutralCoordinate = coordinates.filter { case (dim, desc) => !touchesNeutralZoneSide(dim, desc) }
+
+                nonNeutralCoordinate match {
+                  case List() => List()
+                  case h :: t => List((leaf, h._1))
+                }
             }
           // Label is false
           case leaf: Leaf[T] => List.empty
@@ -129,7 +145,7 @@ package object approximation {
               pairsToSet(criticalPairsBetweenNodes(fork.lowChild, fork.highChild, label))
         }
 
-      val leaves = allLeaves.filterNot { case (leaf, _) => t.isAtomic(leaf) }
+      val leaves = allLeaves.filter { case (leaf, _) => !t.isAtomic(leaf) }
 
       //TODO: Refactor the lines below
       var distinctLeaves: List[(Leaf[T], Int)] = Nil
