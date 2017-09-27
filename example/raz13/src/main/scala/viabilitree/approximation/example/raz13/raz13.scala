@@ -55,6 +55,7 @@ def dynamic(state: Vector[Double], control: Vector[Double]) = {
   dynamic1(state,control)
 }
 */
+  def vMax = 5.0
   def A1 = log(2) / Tm
   // A1 peut valoir en fait ln(2)/TM, ie en TM alpha aura perdu la moitié de sa valeur initiale
   def dynamic(state: Vector[Double], control: Vector[Double]) = {
@@ -73,6 +74,32 @@ def dynamic(state: Vector[Double], control: Vector[Double]) = {
   def perturbation(state: Vector[Double], s: Double) = {
     def alphaDelta(state: Vector[Double], s: Double) = A3 * (1 - state(0)) * (s / (M + s))
     def wDelta(state: Vector[Double], s: Double) = -damage(state(0), s)
-
+    (alphaDelta(state,s),wDelta(state,s))
   }
+  def jump(state:Vector[Double], s: Double) = {
+    val (alphaDelta,wDelta) = perturbation(state,s)
+    Vector(state(0) + alphaDelta, state(1) + wDelta )
+  }
+  // pour avoir un vecteur en sortie
+/*
+  def jump(state:Vector[Double], s: Double) = {
+    val (alphaDelta,wDelta) = perturbation(state,s)
+    (state(0) + alphaDelta, state(1) + wDelta )
+  }
+*/
+
+  // On a besoin d'une soft_appartenance à un noyau qui tienne compte de la manière dont on sort de l'ensemble
+  def softJump(state:Vector[Double],jumpV: Vector[Double] => Vector[Double],
+               viableSet: viabilitree.kdtree.Tree[viabilitree.viability.kernel.Content],
+               viabProblem : viabilitree.viability.kernel.KernelComputation)= {
+    val jumpState = jumpV(state)
+    val zoneLim = viabProblem.zone
+    val wLim = zoneLim.region(1).max
+    (viableSet.contains(viabilitree.viability.kernel.Content.label.get, state) &&
+      (viableSet.contains(viabilitree.viability.kernel.Content.label.get, jumpState)) ||
+      jumpState(1)>= wLim)
+  }
+
+  // ici c'est différent il faut être pragmatique
+
 }
