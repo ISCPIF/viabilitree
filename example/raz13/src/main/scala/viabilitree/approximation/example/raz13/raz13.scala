@@ -68,7 +68,10 @@ def dynamic(state: Vector[Double], control: Vector[Double]) = {
   }
 
   def damage(alpha: Double, s: Double): Double = {
-    a3 * s * s * s + a2 * s * s + a1 * s + a0 * (1 - alpha)
+    s  match {
+      case 0 => 0
+      case _ => a3 * s * s * s + a2 * s * s + a1 * s + a0 * (1 - alpha)
+    }
     // a0*(1-alpha)*s
   }
   def perturbation(state: Vector[Double], s: Double) = {
