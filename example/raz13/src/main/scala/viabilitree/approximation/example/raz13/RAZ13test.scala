@@ -4,7 +4,7 @@ import viabilitree.approximation.OracleApproximation
 import viabilitree.export._
 import viabilitree.model.Control
 
-object RAZ13test extends App{
+object RAZ13test extends App {
   val riverfront = RAZ13()
   val rng = new util.Random(42)
   val U: Double = 10.0
@@ -21,8 +21,7 @@ object RAZ13test extends App{
       zone = Vector((0.0, 1.0), (0.0, 20.0)),
       controls = Vector((0.0 to U by 2.0)),
       domain = (p: Vector[Double]) => p(0) <= 1.0 && p(0) >= 0,
-      neutralBoundary = Vector(ZoneSide(0, Low), ZoneSide(0, High))
-    )
+      neutralBoundary = Vector(ZoneSide(0, Low), ZoneSide(0, High)))
 
     val (ak, steps) = approximate(vk, rng)
     (vk, ak, steps)
@@ -31,9 +30,9 @@ object RAZ13test extends App{
   val (vk, ak, steps) = kernel0
   println(steps)
 
-// TEST de softJump
+  // TEST de softJump
 
-//    val lesTestPoints = ak.leaves.forall(l => l.content.testPoint)
+  //    val lesTestPoints = ak.leaves.forall(l => l.content.testPoint)
 }
 
 object RAZ13test2 extends App {

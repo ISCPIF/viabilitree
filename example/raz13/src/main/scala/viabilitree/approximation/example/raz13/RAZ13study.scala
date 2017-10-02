@@ -3,15 +3,14 @@ package viabilitree.approximation.example.raz13
 import viabilitree.export._
 import viabilitree.model._
 
-
-
+import scalaz.IsEmpty
 
 object RAZ13study extends App {
   val riverfront = RAZ13()
   val rng = new util.Random(42)
   val U: Double = 10.0
   //  val v: Double = 1.5
-  val depth: Int = 20
+  val depth: Int = 10
 
   val output = s"/tmp/RAZ13Study/"
 
@@ -58,10 +57,9 @@ object RAZ13study extends App {
     (o1, kd1)
   }
 
-
-  def kernelTheta(v:Double,kd: viabilitree.kdtree.Tree[viabilitree.approximation.OracleApproximation.Content],
-                  oa: viabilitree.approximation.OracleApproximation,
-                  lesControls: Vector[Double] => Vector[Control] = vk0.controls) = {
+  def kernelTheta(v: Double, kd: viabilitree.kdtree.Tree[viabilitree.approximation.OracleApproximation.Content],
+    oa: viabilitree.approximation.OracleApproximation,
+    lesControls: Vector[Double] => Vector[Control] = vk0.controls) = {
     import viabilitree.viability._
     import viabilitree.viability.kernel._
 
@@ -83,16 +81,21 @@ object RAZ13study extends App {
 
   }
 
-  for (v <- List(0.2, 0.5, 0.8, 1, 2, 2.5, 3, 3.5)) {
+  val listeV = List(3.0)
+  for (v <- listeV) {
     println("v")
     println(v)
 
     val (o1, kd1) = thetaV(v, ak0, vk0)
     println("ok ak0 erode de v")
 
-    val (vk1, ak1, steps1) = kernelTheta(v,kd1, o1, vk0.controls)
-    println(steps1)
-    println("kernel de K erode v")
-
+    viabilitree.approximation.volume(kd1) match {
+      case 0 => println("erosion vide")
+      case _ => {
+        val (vk1, ak1, steps1) = kernelTheta(v, kd1, o1, vk0.controls)
+        println(steps1)
+        println("kernel de K erode v")
+      }
+    }
   }
 }

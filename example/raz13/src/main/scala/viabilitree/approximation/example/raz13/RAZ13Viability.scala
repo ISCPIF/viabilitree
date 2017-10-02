@@ -49,7 +49,7 @@ object RAZ13Viability extends App {
       depth = 10,
       box = Vector((0.0, 1.0), (0.0, 10.0)),
       //      oracle = (p: Vector[Double]) => p(0) * p(0) + p(1) * p(1) <= 25.0 && p(0) >= 0 && p(0) <= 1 && p(1) <= 10 && p(1) <= 0
-      oracle = (p: Vector[Double]) => (p(0)-2) * (p(0) -2)+ (p(1)-5) *(p(1)-5) <= 20.0)
+      oracle = (p: Vector[Double]) => (p(0) - 2) * (p(0) - 2) + (p(1) - 5) * (p(1) - 5) <= 20.0)
 
     val kd1 = approximate(o1)(rng).get
     /*
@@ -71,7 +71,7 @@ object RAZ13Viability extends App {
       depth = 10,
       box = Vector((0.0, 1.0), (0.0, 10.0)),
       //      oracle = (p: Vector[Double]) => p(0) * p(0) + p(1) * p(1) <= 25.0 && p(0) >= 0 && p(0) <= 1 && p(1) <= 10 && p(1) <= 0
-      oracle = (p: Vector[Double]) => (p(0)-2) * (p(0) -2)+ (p(1)-5) *(p(1)-5) <= 20.0 && ak.contains(viabilitree.viability.kernel.Content.label.get, p))
+      oracle = (p: Vector[Double]) => (p(0) - 2) * (p(0) - 2) + (p(1) - 5) * (p(1) - 5) <= 20.0 && ak.contains(viabilitree.viability.kernel.Content.label.get, p))
 
     val kd2 = approximate(o2)(rng).get
     /*
@@ -97,8 +97,7 @@ object RAZ13Viability extends App {
       controls = Vector((0.0 to U by 2.0)),
       domain = (p: Vector[Double]) => p(0) <= 1.0 && p(0) >= 0,
       neutralBoundary = Vector(ZoneSide(0, Low), ZoneSide(0, High)),
-      k=Some((p: Vector[Double]) => kd2.contains(viabilitree.approximation.OracleApproximation.Content.label.get,p))
-    )
+      k = Some((p: Vector[Double]) => kd2.contains(viabilitree.approximation.OracleApproximation.Content.label.get, p)))
 
     val (ak2, steps3) = approximate(vk2, rng)
     saveVTK2D(ak2, s"${output}raz13${vk.depth}U${U}KERNEL2.vtk")
@@ -108,9 +107,9 @@ object RAZ13Viability extends App {
     saveVTK2D(kde2, s"${output}raz13${vk.depth}U${U}ERODE2.vtk")
     saveHyperRectangles(vk2)(ak2, s"${output}raz13${vk.depth}U${U}ERODE2.txt")
 
-// Cette érosion-là fonctionne
+    // Cette érosion-là fonctionne
 
-    (vk2, ak2, steps3, kde2 )
+    (vk2, ak2, steps3, kde2)
   }
 
   val (vk2, ak2, steps3, kde2) = kernel2
