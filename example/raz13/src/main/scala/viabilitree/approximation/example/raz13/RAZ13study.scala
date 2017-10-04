@@ -2,6 +2,7 @@ package viabilitree.approximation.example.raz13
 
 import viabilitree.export._
 import viabilitree.model._
+import viabilitree.viability.basin.BasinComputation
 
 import scalaz.IsEmpty
 
@@ -58,8 +59,8 @@ object RAZ13study extends App {
   }
 
   def kernelTheta(v: Double, kd: viabilitree.kdtree.Tree[viabilitree.approximation.OracleApproximation.Content],
-    oa: viabilitree.approximation.OracleApproximation,
-    lesControls: Vector[Double] => Vector[Control] = vk0.controls) = {
+                  oa: viabilitree.approximation.OracleApproximation,
+                  lesControls: Vector[Double] => Vector[Control] = vk0.controls) = {
     import viabilitree.viability._
     import viabilitree.viability.kernel._
 
@@ -81,21 +82,57 @@ object RAZ13study extends App {
 
   }
 
-  val listeV = List(3.0)
-  for (v <- listeV) {
-    println("v")
-    println(v)
+  def captHv(v: Double,ak: viabilitree.kdtree.Tree[viabilitree.viability.kernel.Content],
+             viabProblem:viabilitree.viability.kernel.KernelComputation,T:Int)={
+    import viabilitree.viability.basin._
 
-    val (o1, kd1) = thetaV(v, ak0, vk0)
-    println("ok ak0 erode de v")
+    val zoneLim = viabProblem.zone
+    val wLim = zoneLim.region(1).max
+    val searchPoint:Vector[Double] = Vector(1.0,wLim)
 
-    viabilitree.approximation.volume(kd1) match {
-      case 0 => println("erosion vide")
-      case _ => {
-        val (vk1, ak1, steps1) = kernelTheta(v, kd1, o1, vk0.controls)
-        println(steps1)
-        println("kernel de K erode v")
+    val bc = BasinComputation(
+      zone = viabProblem.zone,
+      depth = viabProblem.depth,
+      dynamic = viabProblem.dynamic,
+      controls = viabProblem.controls,
+      target = (p: Vector[Double]) => ak.contains(viabilitree.viability.kernel.Content.label.get,p),
+      pointInTarget = searchPoint
+    )
+    val (captTree, steps, listCapt) = viabilitree.viability.basin.approximate(bc, rng, Some(T))
+    listCapt
+
+  }
+
+  def study() = {
+    val listeV = List(1.5)
+    val tMax = 3
+
+    for (v <- listeV) {
+      println("v")
+      println(v)
+
+      val (o1, kd1) = thetaV(v, ak0, vk0)
+      println("ok ak0 erode de v")
+
+      viabilitree.approximation.volume(kd1) match {
+        case 0 => println("erosion vide")
+        case _ => {
+          val (vk1, ak1, steps1) = kernelTheta(v, kd1, o1, vk0.controls)
+          println(steps1)
+          println("kernel de K erode v")
+
+          viabilitree.viability.volume(ak1) match {
+            case 0 => println("noyau d'erosion vide")
+            case _ => {
+              val (grosCapt, stepsC, listeCapt) = captHv(v, ak1, vk1, tMax)
+              println(steps1)
+              println("capture de K erode v")
+
+            }
+          }
+        }
       }
     }
   }
+  study
 }
