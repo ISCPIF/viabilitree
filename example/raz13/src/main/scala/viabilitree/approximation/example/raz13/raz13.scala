@@ -92,7 +92,7 @@ def dynamic(state: Vector[Double], control: Vector[Double]) = {
 */
 
   // On a besoin d'une soft_appartenance à un noyau qui tienne compte de la manière dont on sort de l'ensemble
-// TODO fix pb when some states are outside wLim (ex. v=3) outOfMemoryError
+  // TODO fix pb when some states are outside wLim (ex. v=3) outOfMemoryError
 
   def softJump(state: Vector[Double], jumpV: Vector[Double] => Vector[Double],
     viableSet: viabilitree.kdtree.Tree[viabilitree.viability.kernel.Content],

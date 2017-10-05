@@ -73,7 +73,7 @@ object basin {
           Content.label.get,
           Content.testPoint.get))
     }
-// TODO list of result should be an option and maybe of the form List(t,tree)
+    // TODO list of result should be an option and maybe of the form List(t,tree)
     def whileVolumeDiffers(tree: NonEmptyTree[Content], previousVolume: Option[Double] = None, step: Int = 0): (NonEmptyTree[Content], Int) =
       if (maxNumberOfStep.map(ms => step >= ms).getOrElse(false)) (tree, step)
       else {
@@ -99,8 +99,8 @@ object basin {
       }
 
     def cleanedInitialTree = cleanNonCritical(initialTree(basinComputation, rng))
-       whileVolumeDiffersList(cleanedInitialTree, None, maxNumberOfStep.getOrElse(0), List(cleanedInitialTree))
-   // whileVolumeDiffersList(cleanedInitialTree)
+    whileVolumeDiffersList(cleanedInitialTree, None, maxNumberOfStep.getOrElse(0), List(cleanedInitialTree))
+    // whileVolumeDiffersList(cleanedInitialTree)
   }
 
   def erode(basinComputation: BasinComputation, tree: NonEmptyTree[Content], rng: Random) = {

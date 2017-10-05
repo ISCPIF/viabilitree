@@ -59,8 +59,8 @@ object RAZ13study extends App {
   }
 
   def kernelTheta(v: Double, kd: viabilitree.kdtree.Tree[viabilitree.approximation.OracleApproximation.Content],
-                  oa: viabilitree.approximation.OracleApproximation,
-                  lesControls: Vector[Double] => Vector[Control] = vk0.controls) = {
+    oa: viabilitree.approximation.OracleApproximation,
+    lesControls: Vector[Double] => Vector[Control] = vk0.controls) = {
     import viabilitree.viability._
     import viabilitree.viability.kernel._
 
@@ -82,25 +82,34 @@ object RAZ13study extends App {
 
   }
 
-  def captHv(v: Double,ak: viabilitree.kdtree.Tree[viabilitree.viability.kernel.Content],
-             viabProblem:viabilitree.viability.kernel.KernelComputation,T:Int)={
+  def captHv(v: Double, ak: viabilitree.kdtree.Tree[viabilitree.viability.kernel.Content],
+    viabProblem: viabilitree.viability.kernel.KernelComputation, T: Int) = {
     import viabilitree.viability.basin._
 
     val zoneLim = viabProblem.zone
     val wLim = zoneLim.region(1).max
-    val searchPoint:Vector[Double] = Vector(1.0,wLim)
+    val searchPoint: Vector[Double] = Vector(1.0, wLim)
 
     val bc = BasinComputation(
       zone = viabProblem.zone,
       depth = viabProblem.depth,
       dynamic = viabProblem.dynamic,
       controls = viabProblem.controls,
-      target = (p: Vector[Double]) => ak.contains(viabilitree.viability.kernel.Content.label.get,p),
-      pointInTarget = searchPoint
-    )
-    val (captTree, steps, listCapt) = viabilitree.viability.basin.approximate(bc, rng, Some(T))
-    listCapt
-
+      target = (p: Vector[Double]) => ak.contains(viabilitree.viability.kernel.Content.label.get, p),
+      pointInTarget = searchPoint)
+    val (captTree: viabilitree.kdtree.NonEmptyTree[viabilitree.viability.basin.Content], steps, listCapt) = viabilitree.viability.basin.approximate(bc, rng, Some(T))
+    val captTreesT: List[viabilitree.kdtree.NonEmptyTree[viabilitree.viability.basin.Content]] = if (viabilitree.viability.volume(listCapt.head) == viabilitree.viability.volume(captTree)) {
+      listCapt
+    } else {
+      captTree :: listCapt
+    }
+    captTreesT.reverse.zipWithIndex.foreach {
+      case (tree, count) => {
+        saveVTK2D(tree, s"${output}raz13${bc.depth}U${U}Captv${v}T${count}.vtk")
+        saveHyperRectangles(bc)(tree, s"${output}raz13${bc.depth}U${U}Captv${v}T${count}.txt")
+      }
+    }
+    (captTree, steps, listCapt)
   }
 
   def study() = {
