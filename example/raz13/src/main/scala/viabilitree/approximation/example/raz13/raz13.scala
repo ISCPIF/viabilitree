@@ -96,7 +96,7 @@ def dynamic(state: Vector[Double], control: Vector[Double]) = {
 
   def softJump(state: Vector[Double], jumpV: Vector[Double] => Vector[Double],
     viableSet: viabilitree.kdtree.Tree[viabilitree.viability.kernel.Content],
-    viabProblem: viabilitree.viability.kernel.KernelComputation) = {
+    viabProblem: viabilitree.viability.kernel.KernelComputation):Boolean = {
     val jumpState = jumpV(state)
     val zoneLim = viabProblem.zone
     val wLim = zoneLim.region(1).max

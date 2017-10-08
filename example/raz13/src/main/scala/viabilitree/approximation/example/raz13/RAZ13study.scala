@@ -134,7 +134,7 @@ object RAZ13study extends App {
             case 0 => println("noyau d'erosion vide")
             case _ => {
               val (grosCapt, stepsC, listeCapt) = captHv(v, ak1, vk1, tMax)
-              println(steps1)
+              println(stepsC)
               println("capture de K erode v")
 
             }

@@ -39,7 +39,7 @@ object BilingualBasin extends App {
 
   val bc = BasinComputation(
     zone = Vector((0.0, 1.0), (0.0, 1.0), (0.0, 1.0)),
-    depth = 9,
+    depth = 15,
     pointInTarget = Vector(70.0 / 99, 24.0 / 99, 1.0 / 99),
     dynamic = model.dynamic,
     target = p => fileTarget.contains(p.map(c => math.round(c * 99).toInt)),
@@ -47,12 +47,13 @@ object BilingualBasin extends App {
     domain = (p: Vector[Double]) => p(0) + p(1) <= 1 && p.forall(_ >= 0))
 
   val (basin, step, list) = approximate(bc, rng)
-  val eroded = erode(bc, basin, rng)
-
+  println(step)
+//  val eroded = erode(bc, basin, rng)
+println(list.length)
   println(volume(basin))
-  println(volume(eroded))
+//  println(volume(eroded))
 
-  saveVTK3D(basin, s"/tmp/bilingual${bc.depth}.vtk")
-  saveVTK3D(eroded, s"/tmp/bilingual${bc.depth}_eroded.vtk")
+  saveVTK3D(basin, s"/tmp/bilingual${bc.depth}CONTROL.vtk")
+//  saveVTK3D(eroded, s"/tmp/bilingual${bc.depth}_eroded.vtk")
 
 }
