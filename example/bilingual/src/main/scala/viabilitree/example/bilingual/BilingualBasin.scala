@@ -48,12 +48,12 @@ object BilingualBasin extends App {
 
   val (basin, step, list) = approximate(bc, rng)
   println(step)
-//  val eroded = erode(bc, basin, rng)
-println(list.length)
+  //  val eroded = erode(bc, basin, rng)
+  println(list.length)
   println(volume(basin))
-//  println(volume(eroded))
+  //  println(volume(eroded))
 
   saveVTK3D(basin, s"/tmp/bilingual${bc.depth}CONTROL.vtk")
-//  saveVTK3D(eroded, s"/tmp/bilingual${bc.depth}_eroded.vtk")
+  //  saveVTK3D(eroded, s"/tmp/bilingual${bc.depth}_eroded.vtk")
 
 }

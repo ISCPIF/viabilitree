@@ -53,13 +53,15 @@ package object export extends better.files.Implicits {
     finally source.close()
   }
 
-  //  def traceTraj(t:Seq[Point], file: File): Unit = {
-  //    val output = Resource.fromFile(file)
-  //    t.foreach { p =>
-  //      output.writeStrings(p.map(_.toString), " ")
-  //      output.write("\n")
-  //    }
-  //  }
+  def traceTraj(t:Seq[Vector[Double]], file: File): Unit = {
+    file.delete(true)
+    file.parent.createDirectories()
+    file.touch()
+    t.foreach { p =>
+      file.append(p.mkString(" "))
+      file.append("\n")
+    }
+  }
 
   /* ------------------------- Hyper-rectangles ---------------------- */
 

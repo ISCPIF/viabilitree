@@ -9,7 +9,7 @@ object RAZ13testKernelTheta extends App {
   val rng = new util.Random(42)
   val U: Double = 10.0
 
-  val depth: Int = 16
+  val depth: Int = 20
 
   val output = s"/tmp/RAZ13Test/"
 
@@ -44,20 +44,20 @@ object RAZ13testKernelTheta extends App {
       oracle = (p: Vector[Double]) => riverfront.softJump(p, q => riverfront.jump(q, v), ak, vk))
 
     val kd1 = approximate(o1)(rng).get
+    save(kd1, s"${output}raz13${vk.depth}U${U}v${v}ORACLE.bin")
     /*
     Pas la même signature pour OracleApproximation et KernelComputation
 */
 
     saveVTK2D(kd1, s"${output}raz13${vk.depth}U${U}v${v}ORACLE.vtk")
-//    saveHyperRectangles(o1)(kd1, s"${output}raz13${vk.depth}U${U}v${v}ORACLE.txt")
+    //    saveHyperRectangles(o1)(kd1, s"${output}raz13${vk.depth}U${U}v${v}ORACLE.txt")
 
     (o1, kd1)
   }
 
-
   def kernelTheta(v: Double, kd: viabilitree.kdtree.Tree[viabilitree.approximation.OracleApproximation.Content],
-                  oa: viabilitree.approximation.OracleApproximation,
-                  lesControls: Vector[Double] => Vector[Control] = vk0.controls) = {
+    oa: viabilitree.approximation.OracleApproximation,
+    lesControls: Vector[Double] => Vector[Control] = vk0.controls) = {
     import viabilitree.viability._
     import viabilitree.viability.kernel._
 
@@ -74,13 +74,12 @@ object RAZ13testKernelTheta extends App {
     /* seulement pour les tests     */
     saveVTK2D(ak, s"${output}raz13${vk.depth}U${U}Kv${v}.vtk")
     saveHyperRectangles(vk)(ak, s"${output}raz13${vk.depth}U${U}Kv${v}.txt")
-
+    save(ak, s"${output}raz13${vk.depth}U${U}Kv${v}Noyau.bin")
     (vk, ak, steps)
   }
 
-
   def study = {
-    val listeV = List(0.25, 0.5, 0.75, 1.0, 1.25, 1.5)
+    val listeV = List(1.25)
     val tMax = 3
 
     for (v <- listeV) {
@@ -90,13 +89,16 @@ object RAZ13testKernelTheta extends App {
       val (o1, kd1) = thetaV(v, ak0, vk0)
       println("ok ak0 erode de v")
 
- /*     viabilitree.approximation.volume(kd1) match {
+//      println(viabilitree.approximation.volume(kd1))
+
+     viabilitree.approximation.volume(kd1) match {
         case 0 => println("erosion vide")
         case _ => {
           val (vk1, ak1, steps1) = kernelTheta(v, kd1, o1, vk0.controls)
           println(steps1)
           println("kernel de K erode v")
 
+          /*
           viabilitree.viability.volume(ak1) match {
             case 0 => println("noyau d'erosion vide")
             case _ => {
@@ -106,9 +108,12 @@ object RAZ13testKernelTheta extends App {
 
             }
           }
+*/
+
         }
       }
-*/    }
+    }
   }
-study
+  study
 }
+
