@@ -7,11 +7,10 @@ import math._
   * Created by scala on 09/10/17.
   */
 class Raz13B extends Model {
-  def integrationStep: Double = 0.01
+  var integrationStep: Double = 0.01
+  var timeStep: Double = 0.1
 
-  def timeStep: Double = 0.1
-
-  var Tm: Double = 3.0
+  var Tm: Double = 2.0
   var A2: Double = 0.1
   var b: Double = 1.0
   var C: Double = 2.0

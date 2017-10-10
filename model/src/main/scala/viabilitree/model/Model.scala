@@ -18,7 +18,16 @@
 package viabilitree.model
 
 trait Model {
+
+  var integrationStep: Double
+
+  var timeStep : Double
+// TODO dynamic with timeStep and integrationStep as variables
+//  def dynamic(point: Vector[Double], control: Vector[Double], timeStep: Double = timeStep, integrationStep: Double=integrationStep): Vector[Double]
+
   def dynamic(point: Vector[Double], control: Vector[Double]): Vector[Double]
+
+
 
   /*  override def strategy(p: Point): Point = {
     if !label(p) Nil

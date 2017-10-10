@@ -59,7 +59,7 @@ package object export extends better.files.Implicits {
     file.touch()
     t.foreach { p =>
       file.append(p.mkString(" "))
-      file.append("\n")
+      file.append(s"\n")
     }
   }
 

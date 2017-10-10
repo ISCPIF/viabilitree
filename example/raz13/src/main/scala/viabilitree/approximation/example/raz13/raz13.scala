@@ -23,7 +23,7 @@ import math._
 case class RAZ13 (
   integrationStep: Double = 0.01,
   timeStep: Double = 0.1,
-  Tm: Double = 3.0,
+  Tm: Double = 2.0,
   A2: Double = 0.1,
   b: Double = 1.0,
   C: Double = 2.0,
