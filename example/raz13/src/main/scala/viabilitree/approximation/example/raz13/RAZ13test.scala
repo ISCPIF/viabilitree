@@ -78,6 +78,7 @@ object RAZ13testKernelTheta extends App {
     (vk, ak, steps)
   }
 
+
   def study = {
     val listeV = List(1.25)
     val tMax = 3
