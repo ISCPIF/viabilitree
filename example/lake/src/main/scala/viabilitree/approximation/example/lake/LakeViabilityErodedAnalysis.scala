@@ -61,11 +61,16 @@ object TestErosion extends App {
     zone = Vector((0.1, 1.0), (0.0, 1.4)),
     controls = Vector((-0.09 to 0.09 by 0.01)))
 
+/* CE QUI FONCTIONNE ACTUELLEMENT
+  val (ak, steps) = approximate(vk, rng)
+*/
+
   val (ak, steps) = approximate(vk, rng)
 
   saveVTK2D(ak, "/tmp/lakeRaw.vtk")
   saveVTK2D(erode(vk, ak, rng), "/tmp/lakeEroded.vtk")
 
+  /*     PAS ENCORE RESTAURE  */
   //  implicit val rng = new Random(42)
   //
   //  val lake = new LakeViability with ZoneK {
@@ -85,6 +90,7 @@ object TestErosion extends App {
 
 }
 //
+/*     PAS ENCORE RESTAURE  */
 //object LakeViabilityExportTest extends App {
 //
 //  implicit val rng = new Random(42)

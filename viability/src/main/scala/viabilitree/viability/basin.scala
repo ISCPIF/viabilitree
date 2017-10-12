@@ -89,7 +89,8 @@ object basin {
     def whileVolumeDiffersList(tree: NonEmptyTree[Content], previousVolume: Option[Double] = None, step: Int = 0, previousTrees: List[NonEmptyTree[Content]]): (NonEmptyTree[Content], Int, List[NonEmptyTree[Content]]) =
       if (maxNumberOfStep.map(ms => step >= ms).getOrElse(false)) (tree, step, previousTrees)
       else {
-        val cleanTree = cleanNonCritical(tree)
+//        val cleanTree = cleanNonCritical(tree)
+        val cleanTree = tree
         val withNewTarget = basinComputation.copy(target = p => cleanTree.contains(p, Content.label.get(_)))
         val newTree = iterate(withNewTarget, cleanTree, rng)
         val newVolume = volume(newTree)
@@ -99,7 +100,7 @@ object basin {
       }
 
     def cleanedInitialTree = cleanNonCritical(initialTree(basinComputation, rng))
-    whileVolumeDiffersList(cleanedInitialTree, None, maxNumberOfStep.getOrElse(0), List(cleanedInitialTree))
+    whileVolumeDiffersList(cleanedInitialTree, None, 0, List(cleanedInitialTree))
     // whileVolumeDiffersList(cleanedInitialTree)
   }
 

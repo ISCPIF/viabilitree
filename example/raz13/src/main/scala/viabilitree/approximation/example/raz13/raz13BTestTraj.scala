@@ -3,6 +3,8 @@ package viabilitree.approximation.example.raz13
 import viabilitree.export._
 import viabilitree.model._
 import viabilitree.approximation.OracleApproximation
+import viabilitree.kdtree.Tree
+import viabilitree.viability.kernel.Content
 
 
 
@@ -11,17 +13,19 @@ object raz13BTestTraj extends App{
   val rng = new util.Random(42)
   val U: Double = 10.0
 
-  riverfront.timeStep = 0.1
-  riverfront.integrationStep =0.01
+  riverfront.timeStep = 1.0
+  riverfront.integrationStep =0.005
   riverfront.C = 0.2
 
   val depth: Int = 20
 
-  val output = s"/tmp/RAZ13/total/"
+  val output = s"/tmp/RAZ13/avecBasin/"
 
   def kernel0 = {
     import viabilitree.viability._
     import viabilitree.viability.kernel._
+    import better.files._
+
     val vk = KernelComputation(
       dynamic = riverfront.dynamic,
       depth = depth,
@@ -31,9 +35,11 @@ object raz13BTestTraj extends App{
       neutralBoundary = Vector(ZoneSide(0, Low), ZoneSide(0, High), ZoneSide(1, High)))
 
     val (ak, steps) = approximate(vk, rng)
+    save(ak,s"${output}raz13${vk.depth}U${U}K0.bin")
     saveVTK2D(ak, s"${output}raz13${vk.depth}U${U}K0.vtk")
-    saveHyperRectangles(vk)(ak, s"${output}raz13${vk.depth}U${U}K0.txt")
-
+//    saveHyperRectangles(vk)(ak, s"${output}raz13${vk.depth}U${U}K0.txt")
+    def testFile(file:File) = {if (file.exists) println("ok file")}
+    testFile(s"${output}raz13${vk.depth}U${U}K0.bin")
     (vk, ak, steps)
   }
 
@@ -77,7 +83,6 @@ object raz13BTestTraj extends App{
       domain = (p: Vector[Double]) => p(0) <= 1.0 && p(0) >= 0,
       k = Some((p: Vector[Double]) => kd.contains(viabilitree.approximation.OracleApproximation.Content.label.get, p)),
       neutralBoundary = Vector(ZoneSide(0, Low), ZoneSide(0, High), ZoneSide(1, High)))
-
     vk
   }
 
@@ -101,11 +106,37 @@ object raz13BTestTraj extends App{
     val ak1: viabilitree.kdtree.Tree[viabilitree.viability.kernel.Content] = load(s"${output}raz13${depth}U${U}K_v${v}dt${riverfront.timeStep}C${riverfront.C}.bin")
     ak1
   }
-
   /* fonctions de calcul des bassins de capture des noyaux des zones d'érosion */
   /* pour les tests on donne un paramètre tMax qui est l'horizon maximal de recherche d'un bassin */
-  def captHv(v: Double, ak: viabilitree.kdtree.Tree[viabilitree.viability.kernel.Content],
-             viabProblem: viabilitree.viability.kernel.KernelComputation, T: Int) = {
+
+  def targetFromTree(ak: Tree[Content]) = {
+    import viabilitree.viability._
+    kernelOrBasinToOracle(ak)
+  }
+
+  def defineViabBasin(ak: Tree[Content],
+                     viabProblem: viabilitree.viability.kernel.KernelComputation) = {
+    import viabilitree.viability.basin._
+
+    val zoneLim = viabProblem.zone
+    val wLim = zoneLim.region(1).max
+    val searchPoint: Vector[Double] = Vector(1.0, wLim)
+    def targetFunction: Vector[Double]=> Boolean = targetFromTree(ak)
+
+    val bc = BasinComputation(
+      zone = viabProblem.zone,
+      depth = viabProblem.depth,
+      dynamic = viabProblem.dynamic,
+      controls = viabProblem.controls,
+//      target = (p: Vector[Double]) => ak.contains(viabilitree.viability.kernel.Content.label.get, p),
+      target = (p: Vector[Double]) => targetFunction(p),
+      pointInTarget = searchPoint)
+    bc
+  }
+
+
+  def defineViabasin(ak: viabilitree.kdtree.Tree[viabilitree.viability.kernel.Content],
+                     viabProblem: viabilitree.viability.kernel.KernelComputation) = {
     import viabilitree.viability.basin._
 
     val zoneLim = viabProblem.zone
@@ -119,6 +150,20 @@ object raz13BTestTraj extends App{
       controls = viabProblem.controls,
       target = (p: Vector[Double]) => ak.contains(viabilitree.viability.kernel.Content.label.get, p),
       pointInTarget = searchPoint)
+    bc
+  }
+
+
+  def captHv(v: Double, ak: viabilitree.kdtree.Tree[viabilitree.viability.kernel.Content],
+             viabProblem: viabilitree.viability.kernel.KernelComputation, T: Int) = {
+    import viabilitree.viability.basin._
+
+    val zoneLim = viabProblem.zone
+    val wLim = zoneLim.region(1).max
+    val searchPoint: Vector[Double] = Vector(1.0, wLim)
+
+    val bc = defineViabasin(ak,viabProblem)
+
     val (captTree: viabilitree.kdtree.NonEmptyTree[viabilitree.viability.basin.Content], steps, listCapt) = viabilitree.viability.basin.approximate(bc, rng, Some(T))
     val captTreesT: List[viabilitree.kdtree.NonEmptyTree[viabilitree.viability.basin.Content]] = if (viabilitree.viability.volume(listCapt.head) == viabilitree.viability.volume(captTree)) {
       listCapt
@@ -128,11 +173,41 @@ object raz13BTestTraj extends App{
     captTreesT.reverse.zipWithIndex.foreach {
       case (tree, count) => {
         save(tree,s"${output}raz13${bc.depth}U${U}C${riverfront.C}Captv${v}dt${riverfront.timeStep}T${count}.bin")
+        print("sauvegarde n° ")
+        println(count)
         saveVTK2D(tree, s"${output}raz13${bc.depth}U${U}C${riverfront.C}Captv${v}dt${riverfront.timeStep}T${count}.vtk")
         saveHyperRectangles(bc)(tree, s"${output}raz13${bc.depth}U${U}C${riverfront.C}Captv${v}dt${riverfront.timeStep}T${count}.txt")
       }
     }
-    (captTree, steps, listCapt)
+    (bc, captTree, steps, listCapt)
+  }
+
+  def captHvFromCapt(v: Double, ak: Tree[Content],
+             viabProblem: viabilitree.viability.kernel.KernelComputation, T: Int) = {
+    import viabilitree.viability._
+
+    val zoneLim = viabProblem.zone
+    val wLim = zoneLim.region(1).max
+    val searchPoint: Vector[Double] = Vector(1.0, wLim)
+
+    val bc = defineViabBasin(ak,viabProblem)
+
+    val (captTree: viabilitree.kdtree.NonEmptyTree[viabilitree.viability.basin.Content], steps, listCapt) = viabilitree.viability.basin.approximate(bc, rng, Some(T))
+    val captTreesT: List[viabilitree.kdtree.NonEmptyTree[viabilitree.viability.basin.Content]] = if (viabilitree.viability.volume(listCapt.head) == viabilitree.viability.volume(captTree)) {
+      listCapt
+    } else {
+      captTree :: listCapt
+    }
+    captTreesT.reverse.zipWithIndex.foreach {
+      case (tree, count) => {
+        save(tree,s"${output}raz13${bc.depth}U${U}C${riverfront.C}Captv${v}dt${riverfront.timeStep}T${count}.bin")
+        print("sauvegarde n° ")
+        println(count)
+        saveVTK2D(tree, s"${output}raz13${bc.depth}U${U}C${riverfront.C}Captv${v}dt${riverfront.timeStep}T${count}.vtk")
+        saveHyperRectangles(bc)(tree, s"${output}raz13${bc.depth}U${U}C${riverfront.C}Captv${v}dt${riverfront.timeStep}T${count}.txt")
+      }
+    }
+    (bc, captTree, steps, listCapt)
   }
 
   /************************************** TRAVAIL *********************
@@ -142,16 +217,19 @@ object raz13BTestTraj extends App{
   val (vk0, ak0, steps0) = kernel0
   println("K0")
 
+
+
   /************************************ ETUDE **************************
     * study
     */
 
   def study = {
-    val listeV = List(0.5,1.25)
-    val tMax = 10
+    val listeV = List(1.25)
+    val tMax = 40
+    val tSuite = 10
 
     for (v <- listeV) {
-      println("v")
+      print ("CALCUL pour v = ")
       println(v)
       /* chargement des érodés s'ils sont calculés */
 /*
@@ -186,16 +264,18 @@ object raz13BTestTraj extends App{
          print("volume de l'érodé = ")
          println(vol)
          /* chargement des noyaux d'érosion s'ils sont calculés */
-         /*
                val vk1 = defineViabErosion(v, kd1, o1, vk0.controls)
                val ak1 = loadKernelV(v,vk1.depth)
                println("chargement noyau")
-         */
-
          /* calcul des noyaux des érodés s'il ne le sont pas */
+/*
          val (vk1, ak1, steps1) = kernelTheta(v, kd1, o1, vk0.controls)
          print("calcul du noyau de l'érodé en nb de pas = ")
          println(steps1)
+*/
+         val volK = viabilitree.viability.volume(ak1)
+         print("volume de kernel de K erode v ")
+         println(volK)
          /* pour les tests
          print("volume de kernel de K erode v ")
          val volK = viabilitree.viability.volume(ak1)
@@ -206,13 +286,17 @@ object raz13BTestTraj extends App{
          viabilitree.viability.volume(ak1) match {
            case 0 => println("zone vide : pas de calcul de bassin")
            case _ => {
-             val (grosCapt, stepsC, listeCapt) = captHv(v, ak1, vk1, tMax)
+             val (bc, grosCapt, stepsC, listeCapt) = captHv(v, ak1, vk1, tMax)
              println("capture de K erode v")
              print ("pour un horizon T = ")
              println(stepsC)
-             (grosCapt, stepsC, listeCapt)
+             save(grosCapt,s"${output}raz13${bc.depth}U${U}C${riverfront.C}Captv${v}dt${riverfront.timeStep}T${stepsC}Final.bin")
+             val timeHorizon = listeCapt.length
+             print("dernier save réalisé. Longueur de la liste = ")
+             println(timeHorizon)
            }
          }
+         /* chargement des bassins de capture des noyaux des érodés s'il sont calculés */
         }
       }
     }
