@@ -1,13 +1,13 @@
 package viabilitree.approximation.example.raz13
 
-import viabilitree.model.{Dynamic, Model}
+import viabilitree.model.{ Dynamic, Model }
 
 import scala.math.log
 
 /**
-  * Created by scala on 09/10/17.
-  */
-class Raz13B extends Model{
+ * Created by scala on 09/10/17.
+ */
+class Raz13B extends Model {
   def integrationStep: Double = 0.01
   def timeStep: Double = 0.1
   var Tm: Double = 3.0
@@ -23,7 +23,6 @@ class Raz13B extends Model{
   var v_m: Double = 0.8
   def vMax = 5.0
   def A1 = log(2) / Tm
-
 
   def dynamic(state: Vector[Double], control: Vector[Double]) = {
     def alphaDot(state: Vector[Double], t: Double) =

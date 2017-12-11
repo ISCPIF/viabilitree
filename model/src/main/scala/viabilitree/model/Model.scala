@@ -30,11 +30,10 @@ trait Model {
     }
   }*/
 
-
   def trajectory(p: Vector[Double], c: Vector[Double] => Vector[Double], i: Int): List[Vector[Double]] = {
     if (i == 0) List(p)
     else p :: trajectory(dynamic(p, c(p)), c, i - 1)
   }
 
- // def perturbation(state: Vector[Double], s: Double): Vector[Double] => Boolean
+  // def perturbation(state: Vector[Double], s: Double): Vector[Double] => Boolean
 }

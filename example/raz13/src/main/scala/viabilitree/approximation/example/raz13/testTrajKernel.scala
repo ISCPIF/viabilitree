@@ -64,12 +64,12 @@ object testTrajKernel extends App {
 
       val kd1: viabilitree.kdtree.Tree[viabilitree.approximation.OracleApproximation.Content] = load(s"${output}raz13${vk0.depth}U${U}v${v}ORACLE.bin")
       println("ok kd1 = ak0 erode de v")
-// to verify that the save / load process is OK well it is
-/*      val taille = viabilitree.approximation.volume(kd1)
+      // to verify that the save / load process is OK well it is
+      /*      val taille = viabilitree.approximation.volume(kd1)
       println(taille)
       */
-    val p:Vector[Double] = Vector(0.996582,0.107422)
-//      val traj: List[Vector[Double]] =  viabilitree.model.Model.trajectory(p,Vector(Vector(0.0)),10)
+      val p: Vector[Double] = Vector(0.996582, 0.107422)
+      //      val traj: List[Vector[Double]] =  viabilitree.model.Model.trajectory(p,Vector(Vector(0.0)),10)
       /*   viabilitree.approximation.volume(kd1) match {
     case 0 => println("erosion vide")
     case _ => {

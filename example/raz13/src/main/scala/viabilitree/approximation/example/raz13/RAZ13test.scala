@@ -89,9 +89,9 @@ object RAZ13testKernelTheta extends App {
       val (o1, kd1) = thetaV(v, ak0, vk0)
       println("ok ak0 erode de v")
 
-//      println(viabilitree.approximation.volume(kd1))
+      //      println(viabilitree.approximation.volume(kd1))
 
-     viabilitree.approximation.volume(kd1) match {
+      viabilitree.approximation.volume(kd1) match {
         case 0 => println("erosion vide")
         case _ => {
           val (vk1, ak1, steps1) = kernelTheta(v, kd1, o1, vk0.controls)
