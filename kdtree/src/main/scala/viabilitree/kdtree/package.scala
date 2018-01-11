@@ -441,8 +441,8 @@ package object kdtree {
 
   implicit class TreeDecorator[T](t: Tree[T]) {
 
-    def volume(label: T => Boolean): Double = t match {
-      case t: NonEmptyTree[T] => new NonEmptyTreeDecorator(t).volume(label)
+    def volume(implicit withLabel: ContainsLabel[T]): Double = t match {
+      case t: NonEmptyTree[T] => new NonEmptyTreeDecorator(t).volume(withLabel.label)
       case EmptyTree(_) => 0.0
     }
 
