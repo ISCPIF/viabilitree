@@ -99,54 +99,38 @@ object RAZ13study extends App {
       pointInTarget = searchPoint)
 
     bc.approximateAll()
-
-    //
-    //    val (captTree: viabilitree.kdtree.NonEmptyTree[viabilitree.viability.basin.Content], steps, listCapt) = viabilitree.viability.basin.approximate(bc, rng, Some(T))
-    //    val captTreesT: List[viabilitree.kdtree.NonEmptyTree[viabilitree.viability.basin.Content]] = if (viabilitree.viability.volume(listCapt.head) == viabilitree.viability.volume(captTree)) {
-    //      listCapt
-    //    } else {
-    //      captTree :: listCapt
-    //    }
-    //    captTreesT.reverse.zipWithIndex.foreach {
-    //      case (tree, count) => {
-    //        saveVTK2D(tree, s"${output}raz13${bc.depth}U${U}Captv${v}T${count}.vtk")
-    //        saveHyperRectangles(bc)(tree, s"${output}raz13${bc.depth}U${U}Captv${v}T${count}.txt")
-    //      }
-    //    }
-    //    (captTree, steps, listCapt)
   }
 
-  //
-  //  def study() = {
-  //    val listeV = List(1.5)
-  //    val tMax = 3
-  //
-  //    for (v <- listeV) {
-  //      println("v")
-  //      println(v)
-  //
-  //      val (o1, kd1) = thetaV(v, ak0, vk0)
-  //      println("ok ak0 erode de v")
-  //
-  //      viabilitree.approximation.volume(kd1) match {
-  //        case 0 => println("erosion vide")
-  //        case _ => {
-  //          val (vk1, ak1, steps1) = kernelTheta(v, kd1, o1, vk0.controls)
-  //          println(steps1)
-  //          println("kernel de K erode v")
-  //
-  //          viabilitree.viability.volume(ak1) match {
-  //            case 0 => println("noyau d'erosion vide")
-  //            case _ => {
-  //              val (grosCapt, stepsC, listeCapt) = captHv(v, ak1, vk1, tMax)
-  //              println(stepsC)
-  //              println("capture de K erode v")
-  //
-  //            }
-  //          }
-  //        }
-  //      }
-  //    }
-  //  }
-  //  study
+    def study() = {
+      val listeV = List(1.5)
+      val tMax = 3
+
+      for (v <- listeV) {
+        println("v")
+        println(v)
+
+        val (o1, kd1) = thetaV(v, ak0, vk0)
+        println("ok ak0 erode de v")
+
+        viabilitree.approximation.volume(kd1) match {
+          case 0 => println("erosion vide")
+          case _ => {
+            val (vk1, ak1, steps1) = kernelTheta(v, kd1, o1, vk0.controls)
+            println(steps1)
+            println("kernel de K erode v")
+
+            volume(ak1) match {
+              case 0 => println("noyau d'erosion vide")
+              case _ => {
+                val listeCapt = captHv(v, ak1, vk1, tMax)
+                println(listeCapt.length)
+                println("capture de K erode v")
+
+              }
+            }
+          }
+        }
+      }
+    }
+    study
 }
