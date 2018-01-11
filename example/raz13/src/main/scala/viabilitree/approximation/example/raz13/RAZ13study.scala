@@ -7,6 +7,7 @@ import viabilitree.viability.basin._
 import viabilitree.kdtree._
 import viabilitree.approximation._
 import viabilitree.viability._
+import cats.implicits._
 
 object RAZ13study extends App {
   val riverfront = RAZ13()
@@ -84,7 +85,7 @@ object RAZ13study extends App {
 
   }
 
-  def captHv(v: Double, ak: Kernel, viabProblem: KernelComputation, T: Int) = {
+  def captHv(v: Double, ak: Kernel, viabProblem: KernelComputation, T: Option[Int]) = {
 
     val zoneLim = viabProblem.zone
     val wLim = zoneLim.region(1).max
@@ -92,45 +93,54 @@ object RAZ13study extends App {
 
     val bc = BasinComputation(
       zone = viabProblem.zone,
-      depth = viabProblem.depth,
+      depth = viabProblem.depth * 2,
       dynamic = viabProblem.dynamic,
       controls = viabProblem.controls,
       target = ak.contains,
       pointInTarget = searchPoint)
 
-    bc.approximateAll()
+    bc.approximateAll(maxNumberOfStep = T)
   }
 
-    def study() = {
-      val listeV = List(1.5)
-      val tMax = 3
+  def study() = {
+    val listeV = List(1.5)
+    val tMax = 3
 
-      for (v <- listeV) {
-        println("v")
-        println(v)
+    for (v <- listeV) {
+      println("v")
+      println(v)
 
-        val (o1, kd1) = thetaV(v, ak0, vk0)
-        println("ok ak0 erode de v")
+      val (o1, kd1) = thetaV(v, ak0, vk0)
+      println("ok ak0 erode de v volume " + kd1.volume)
 
-        viabilitree.approximation.volume(kd1) match {
-          case 0 => println("erosion vide")
-          case _ => {
-            val (vk1, ak1, steps1) = kernelTheta(v, kd1, o1, vk0.controls)
-            println(steps1)
-            println("kernel de K erode v")
+      viabilitree.approximation.volume(kd1) match {
+        case 0 => println("erosion vide")
+        case _ => {
+          val (vk1, ak1, steps1) = kernelTheta(v, kd1, o1, vk0.controls)
+          println(steps1)
+          println("kernel de K erode v volume " + ak1.volume)
 
-            volume(ak1) match {
-              case 0 => println("noyau d'erosion vide")
-              case _ => {
-                val listeCapt = captHv(v, ak1, vk1, tMax)
-                println(listeCapt.length)
-                println("capture de K erode v")
+          /*
+            val nak1 = ak1.map{c => c.copy(label = !c.label)}
+            saveVTK2D(nak1, s"${output}raz13${vk1.depth}U${U}Kv${v}NEG.vtk")
+            println("complémentaire du kernel de K erode v volume " + nak1.volume)
+*/
 
+          ak1.volume match {
+            case 0 => println("noyau d'erosion vide")
+            case _ => {
+              val listeCapt = captHv(v, ak1, vk1, None)
+              println("nb de pas" + listeCapt.length)
+              println("capture de K erode v de volume " + listeCapt.last.volume)
+              listeCapt.zipWithIndex.foreach{
+                case(aCapt, step) => saveVTK2D(aCapt, s"${output}raz13${vk1.depth}U${U}CaptKv${v}No${step}.vtk")
               }
+
             }
           }
         }
       }
     }
-    study
+  }
+  study
 }
