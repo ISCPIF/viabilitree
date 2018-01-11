@@ -104,7 +104,6 @@ object basin {
         val withNewTarget = basinComputation.copy(target = p => tree.contains(p))
         val newTree = iterate(withNewTarget, tree, rng)
         val cleanNewTree = cleanNonCritical(newTree)
-
         val newVolume = volume(newTree)
         def sameVolume = previousVolume.map(_ == newVolume).getOrElse(false)
         if (sameVolume) (tree, step)

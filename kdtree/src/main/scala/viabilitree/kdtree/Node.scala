@@ -61,8 +61,6 @@ sealed trait Node[T] { node =>
     case Some(parent) => parent.rootCalling
   }
 
-  def contains(point: Vector[Double]) = containingLeaf(point).isDefined
-
   def containingLeaf(point: Vector[Double]): Option[Leaf[T]]
 
   def borderLeaves(direction: Direction): Iterable[Leaf[T]]

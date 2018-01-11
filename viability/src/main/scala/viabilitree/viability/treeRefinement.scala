@@ -61,7 +61,7 @@ object treeRefinement {
     buildContent: (Vector[Double], Option[Int], Option[Vector[Double]], Boolean, Int) => CONTENT,
     label: CONTENT => Boolean)(tree: NonEmptyTree[CONTENT], rng: Random): Tree[CONTENT] = {
 
-    def viableFunction(t: NonEmptyTree[CONTENT], p: Vector[Double]) = tree.label(p, label)
+    def viableFunction(t: NonEmptyTree[CONTENT], p: Vector[Double]) = tree.label(label, p)
     def viable(p: Vector[Double], rng: Random) = viableFunction(dilate(tree, rng), p)
 
     val reassignedTree =

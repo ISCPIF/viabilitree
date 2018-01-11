@@ -423,7 +423,7 @@ package object kdtree {
     def zonesAndPathsToTest(leavesAndPrefCoord: Iterable[(Leaf[T], Int)], testPoint: T => Vector[Double]): List[(Zone, Path)] =
       leavesAndPrefCoord.toList.map {
         case (leaf, prefCoord) =>
-          assert(leaf.contains(testPoint(leaf.content)), "TestPoint: " + testPoint(leaf.content) + "  Leaf: " + leaf.zone.region.map(x => println(x.min + " " + x.max)))
+          assert(leaf.containingLeaf(testPoint(leaf.content)).isDefined, "TestPoint: " + testPoint(leaf.content) + "  Leaf: " + leaf.zone.region.map(x => println(x.min + " " + x.max)))
 
           val minCoord = Path.minimalCoordinates(leaf.path, leaf.zone.dimension)
 
@@ -478,7 +478,7 @@ package object kdtree {
 
     def contains(p: Vector[Double])(implicit withLabel: ContainsLabel[T]): Boolean = contains(withLabel.label(_), p)
     def contains(label: T => Boolean, p: Vector[Double]): Boolean = t match {
-      case t: NonEmptyTree[T] => t.contains(p, label)
+      case t: NonEmptyTree[T] => t.contains(label, p)
       case _: EmptyTree[_] => false
     }
   }
@@ -550,8 +550,9 @@ package object kdtree {
     }
 
     // TODO Choose whether if p has not been found return false
-    def label(p: Vector[Double], label: T => Boolean) = contains(p, label)
-    def contains(p: Vector[Double], label: T => Boolean) =
+    def label(label: T => Boolean, p: Vector[Double]) = contains(label, p)
+    def contains(p: Vector[Double])(implicit withLabel: ContainsLabel[T]): Boolean = contains(withLabel.label(_), p)
+    def contains(label: T => Boolean, p: Vector[Double]) =
       t.zone.contains(p) match {
         case false => false
         case true => t.containingLeaf(p).map(l => label(l.content)).getOrElse(false)

@@ -47,10 +47,9 @@ object BilingualBasin extends App {
     domain = (p: Vector[Double]) => p(0) + p(1) <= 1 && p.forall(_ >= 0))
 
   val (basin, step) = bc.approximate()
-  println(step)
+
   //  val eroded = erode(bc, basin, rng)
-  println(step)
-  println(volume(basin))
+  println(s"steps $step; volume ${volume(basin)}")
   //  println(volume(eroded))
 
   saveVTK3D(basin, s"/tmp/bilingual${bc.depth}CONTROL.vtk")
