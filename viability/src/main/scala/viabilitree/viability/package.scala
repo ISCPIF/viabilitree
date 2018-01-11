@@ -44,47 +44,44 @@ package object viability {
   }
 
   def volume[T](tree: Tree[T])(implicit c: ContainsLabel[T]) = tree.volume(c.label)
-
-
+  
   lazy val Zone = viabilitree.kdtree.Zone
 
   // TODO we need to deal with empty list of control
   implicit def vectorOfNumericRangeToVectorOfControl(v: Vector[NumericRange[Double]]) = {
 
-    def cross2NR(a: NumericRange[Double], b: NumericRange[Double]) =
-      a.toVector.map(p => b.toVector.map(o => Vector(p, o))).flatten
+    def cartesianProduct(v: Vector[NumericRange[Double]]): Vector[Vector[Double]] = {
 
-    def crossVVD2NR(a: Vector[Vector[Double]], b: NumericRange[Double]): Vector[Vector[Double]] =
-      a.map(p => b.toVector.map(o => p :+ o)).flatten
+      def cartesianProduct(a: NumericRange[Double], b: NumericRange[Double]) =
+        a.toVector.map(p => b.toVector.map(o => Vector(p, o))).flatten
 
-    def cross2withTail(enCours: Vector[Vector[Double]], v: Vector[NumericRange[Double]]): Vector[Vector[Double]] =
-      v.length match {
-        case 0 => enCours
-        case _ => {
-          val t = v.tail
-          val hd = v.head
-          t.length match {
-            case 0 => crossVVD2NR(enCours, hd)
-            case _ => cross2withTail(crossVVD2NR(enCours, hd), t)
-          }
+      def cross2WithTail(accumulator: Vector[Vector[Double]], v: Vector[NumericRange[Double]]): Vector[Vector[Double]] = {
+        def crossVector(a: Vector[Vector[Double]], b: NumericRange[Double]): Vector[Vector[Double]] =
+          a.map(p => b.toVector.map(o => p :+ o)).flatten
+
+        v.length match {
+          case 0 => accumulator
+          case _ =>
+            val t = v.tail
+            val hd = v.head
+            t.length match {
+              case 0 => crossVector(accumulator, hd)
+              case _ => cross2WithTail(crossVector(accumulator, hd), t)
+            }
         }
       }
 
-    def cross2withTail1(v: Vector[NumericRange[Double]]): Vector[Vector[Double]] = {
+
       val t = v.tail
       val hd = v.head
 
       t.length match {
         case 0 => hd.map(p => Vector(p)).toVector
-        case _ => {
-          val futurEnCours = cross2NR(hd, t.head)
-          cross2withTail(futurEnCours, t.tail)
-        }
+        case _ => cross2WithTail(cartesianProduct(hd, t.head), t.tail)
       }
     }
 
-    val lofControl = cross2withTail1(v)
-    (_: Vector[Double]) => lofControl.map(Control(_))
+    (_: Vector[Double]) => cartesianProduct(v).map(Control(_))
   }
 
   implicit def vectorOfVectorToVectorOfControl(v: Vector[Vector[Double]]) =
