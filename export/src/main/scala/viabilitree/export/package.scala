@@ -53,7 +53,7 @@ package object export extends better.files.Implicits {
     finally source.close()
   }
 
-  def traceTraj(t:Seq[Vector[Double]], file: File): Unit = {
+  def traceTraj(t: Seq[Vector[Double]], file: File): Unit = {
     file.delete(true)
     file.parent.createDirectories()
     file.touch()

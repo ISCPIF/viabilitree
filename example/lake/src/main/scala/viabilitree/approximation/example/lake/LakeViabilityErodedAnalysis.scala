@@ -61,7 +61,7 @@ object TestErosion extends App {
     zone = Vector((0.1, 1.0), (0.0, 1.4)),
     controls = Vector((-0.09 to 0.09 by 0.01)))
 
-/* CE QUI FONCTIONNE ACTUELLEMENT
+  /* CE QUI FONCTIONNE ACTUELLEMENT
   val (ak, steps) = approximate(vk, rng)
 */
 

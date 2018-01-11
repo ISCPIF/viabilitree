@@ -79,7 +79,13 @@ lazy val strategy = Project(id = "strategy", base = file("strategy")) settings(d
 
 //lazy val consumer = Project(id = "consumer", base = file("example/consumer")) settings(settings: _*) dependsOn(viability, export, model)
 
-//lazy val population = Project(id = "population", base = file("example/population")) settings(settings: _*) dependsOn(viability, export, model)
+lazy val population =
+  Project(id = "population", base = file("example/population")) settings(
+    publishArtifact := false,
+    OsgiKeys . exportPackage := Seq ( "viabilitree.*", "fr.iscpif.population.*"),
+    OsgiKeys . importPackage := Seq ( "*;resolution:=optional" ),
+    OsgiKeys . privatePackage := Seq ( "*" ),
+    OsgiKeys . requireCapability := """osgi.ee;filter:="(&(osgi.ee=JavaSE)(version=1.8))"""") dependsOn(viability, export, model) enablePlugins(SbtOsgi)
 
 lazy val lake = Project(id = "lake", base = file("example/lake")) settings(publishArtifact := false) dependsOn(viability, export, model, strategy)
 
@@ -102,4 +108,7 @@ lazy val monocle = Seq(
 lazy val cats = "org.typelevel" %% "cats" % "0.9.0"
 
 lazy val simulacrum = "com.github.mpilquist" %% "simulacrum" % "0.10.0"
+
+
+
 

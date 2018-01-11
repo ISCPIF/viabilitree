@@ -20,7 +20,7 @@ package viabilitree.approximation.example.raz13
 import viabilitree.model._
 import math._
 
-case class RAZ13 (
+case class RAZ13(
   integrationStep: Double = 0.01,
   timeStep: Double = 0.1,
   Tm: Double = 2.0,
@@ -118,5 +118,4 @@ def dynamic(state: Vector[Double], control: Vector[Double]) = {
   // ici c'est différent il faut être pragmatique
 
 }
-
 
