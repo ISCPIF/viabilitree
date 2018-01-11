@@ -21,13 +21,11 @@ trait Model {
 
   var integrationStep: Double
 
-  var timeStep : Double
-// TODO dynamic with timeStep and integrationStep as variables
-//  def dynamic(point: Vector[Double], control: Vector[Double], timeStep: Double = timeStep, integrationStep: Double=integrationStep): Vector[Double]
+  var timeStep: Double
+  // TODO dynamic with timeStep and integrationStep as variables
+  //  def dynamic(point: Vector[Double], control: Vector[Double], timeStep: Double = timeStep, integrationStep: Double=integrationStep): Vector[Double]
 
   def dynamic(point: Vector[Double], control: Vector[Double]): Vector[Double]
-
-
 
   /*  override def strategy(p: Point): Point = {
     if !label(p) Nil
@@ -39,11 +37,10 @@ trait Model {
     }
   }*/
 
-
   def trajectory(p: Vector[Double], c: Vector[Double] => Vector[Double], i: Int): List[Vector[Double]] = {
     if (i == 0) List(p)
     else p :: trajectory(dynamic(p, c(p)), c, i - 1)
   }
 
- // def perturbation(state: Vector[Double], s: Double): Vector[Double] => Boolean
+  // def perturbation(state: Vector[Double], s: Double): Vector[Double] => Boolean
 }

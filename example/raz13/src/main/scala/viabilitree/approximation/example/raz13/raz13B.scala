@@ -4,8 +4,8 @@ import viabilitree.model._
 import math._
 
 /**
-  * Created by scala on 09/10/17.
-  */
+ * Created by scala on 09/10/17.
+ */
 class Raz13B extends Model {
   var integrationStep: Double = 0.01
   var timeStep: Double = 0.1
@@ -25,7 +25,6 @@ class Raz13B extends Model {
   def vMax = 5.0
 
   def A1 = log(2) / Tm
-
 
   def dynamic(state: Vector[Double], control: Vector[Double]) = {
     def alphaDot(state: Vector[Double], t: Double) =
@@ -79,8 +78,8 @@ class Raz13B extends Model {
   // TODO fix pb when some states are outside wLim (ex. v=3) outOfMemoryError
 
   def softJump(state: Vector[Double], jumpV: Vector[Double] => Vector[Double],
-               viableSet: viabilitree.kdtree.Tree[viabilitree.viability.kernel.Content],
-               viabProblem: viabilitree.viability.kernel.KernelComputation): Boolean = {
+    viableSet: viabilitree.kdtree.Tree[viabilitree.viability.kernel.Content],
+    viabProblem: viabilitree.viability.kernel.KernelComputation): Boolean = {
     val jumpState = jumpV(state)
     val zoneLim = viabProblem.zone
     val wLim = zoneLim.region(1).max

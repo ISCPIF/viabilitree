@@ -45,7 +45,6 @@ package object viability {
 
   def volume[T](tree: Tree[T])(implicit c: ContainsLabel[T]) = tree.volume(c.label)
 
-
   lazy val Zone = viabilitree.kdtree.Zone
 
   // TODO we need to deal with empty list of control
@@ -94,10 +93,9 @@ package object viability {
   lazy val Control = model.Control
 
   //(p: Vector[Double]) => ak.contains(viabilitree.viability.kernel.Content.label.get, p)
-  def kernelOrBasinToOracle[T](t: Tree[T])(implicit c:ContainsLabel[T]) = {
-    (p: Vector[Double]) => t.contains(c.label,p)
+  def kernelOrBasinToOracle[T](t: Tree[T])(implicit c: ContainsLabel[T]) = {
+    (p: Vector[Double]) => t.contains(c.label, p)
   }
-
 
   implicit def indexedSeqToVector[T](i: IndexedSeq[T]) = i.toVector
 

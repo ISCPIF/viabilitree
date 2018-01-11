@@ -7,15 +7,43 @@
  */
 package fr.iscpif.population
 
-import fr.iscpif.viability._
-import fr.iscpif.kdtree.algorithm._
-import fr.iscpif.kdtree.structure._
-import fr.iscpif.kdtree.content._
-import fr.iscpif.kdtree.export._
+import viabilitree.export._
+import viabilitree.approximation._
+
 import scala.util.Random
-import scalax.io.Resource
 import math._
 
+object PopulationKernel extends App {
+
+  val a = 0.2
+  val b = 3.0
+  val c = 0.5
+  val d = -2.0
+  val e = 2.0
+
+  def oracle(p: Vector[Double]): Boolean = {
+    p(0) >= a && p(0) <= b &&
+      p(1) <= sqrt(2 * c * log(b / p(0))) && p(1) >= -sqrt(2 * c * log(p(0) / a))
+  }
+
+  val depth = 18
+
+  val approximation =
+    OracleApproximation(
+      depth = depth,
+      box =
+        Vector(
+          (a, b),
+          (c, d)),
+      oracle = oracle,
+      point = Option(Vector(1.0, 0.0)))
+
+  implicit val random = new Random(42)
+  val res = approximate(approximation).get
+
+  saveVTK2D(res, s"/tmp/population/kernelVTItest${depth}.vtk")
+}
+/*
 object PopulationKernel extends App with OracleApproximation with ZoneAndPointInput {
 
   val a = 0.2
@@ -23,15 +51,6 @@ object PopulationKernel extends App with OracleApproximation with ZoneAndPointIn
   val c = 0.5
   val d = -2.0
   val e = 2.0
-  /*
-for these parameters, for every value of x in [a,b], there is a value of y such that (x,y) is in the kernel
- */
-  /*
-  def oracle(p: _root_.fr.iscpif.kdtree.structure.Point): Boolean = {
-    p(0)>= a && p(0)<= b &&
-      p(1)>= -sqrt(2*c*log(b/p(0)))  &&    p(1)<= sqrt(2*c*log(p(0)/a))
-  }
-*/
 
   def oracle(p: _root_.fr.iscpif.kdtree.structure.Point): Boolean = {
     p(0) >= a && p(0) <= b &&
@@ -47,3 +66,4 @@ for these parameters, for every value of x in [a,b], there is a value of y such 
   saveVTK2D(apply.get, s"/tmp/population/kernelVTItest${depth}.vtk")
 
 }
+*/
