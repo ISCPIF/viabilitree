@@ -24,6 +24,7 @@ import better.files._
 import cats._
 import cats.implicits._
 import viabilitree.approximation.OracleApproximation
+import viabilitree.viability.basin.BasinComputation
 
 import scala.util.Failure
 
@@ -52,13 +53,15 @@ package object export extends better.files.Implicits {
     finally source.close()
   }
 
-  //  def traceTraj(t:Seq[Point], file: File): Unit = {
-  //    val output = Resource.fromFile(file)
-  //    t.foreach { p =>
-  //      output.writeStrings(p.map(_.toString), " ")
-  //      output.write("\n")
-  //    }
-  //  }
+  def traceTraj(t:Seq[Vector[Double]], file: File): Unit = {
+    file.delete(true)
+    file.parent.createDirectories()
+    file.touch()
+    t.foreach { p =>
+      file.append(p.mkString(" "))
+      file.append(s"\n")
+    }
+  }
 
   /* ------------------------- Hyper-rectangles ---------------------- */
 
@@ -136,6 +139,17 @@ package object export extends better.files.Implicits {
             Content.testPoint.get,
             Content.control.get,
             t.controls)
+      }
+
+      implicit def basinComputation = new Traceable[BasinComputation, viability.basin.Content] {
+        override def columns(t: BasinComputation) =
+          (content: viabilitree.viability.basin.Content, zone: Zone) =>
+            content.label match {
+              case true =>
+                def c = (content.testPoint ++ intervals(zone) ++ content.control).map(_.toString)
+                Some(c)
+              case false => None
+            }
       }
 
       implicit def oracleApproximation = new Traceable[OracleApproximation, OracleApproximation.Content] {
