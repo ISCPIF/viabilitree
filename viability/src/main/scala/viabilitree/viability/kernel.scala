@@ -49,13 +49,23 @@ object kernel {
 
   import monocle.macros.Lenses
 
-  object Content {
-    def reduce: ContentReduction[Content] = (c1: Leaf[Content], c2: Leaf[Content]) => Some(c1.content)
-    implicit def kernelContent = ContainsLabel[kernel.Content](Content.label.get)
+  type Kernel = Tree[KernelContent]
+
+  implicit class KernelComputationDecorator(o: KernelComputation) {
+    def approximate(maxNumberOfStep: Option[Int] = None, initialTree: Option[Tree[KernelContent]] = None)(implicit rng: util.Random) = kernel.approximate(o, rng, maxNumberOfStep, initialTree)
+    def erode(k: Kernel)(implicit rng: util.Random) = kernel.erode(o, k, rng)
+    def dilate(k: Kernel)(implicit rng: util.Random) = kernel.dilate(o, k, rng)
+    def volume(k: Kernel) = k.volume(KernelContent.label.get)
+    def clean(k: Kernel) = kernel.clean(k)
+  }
+
+  object KernelContent {
+    def reduce: ContentReduction[KernelContent] = (c1: Leaf[KernelContent], c2: Leaf[KernelContent]) => Some(c1.content)
+    implicit def kernelContent: ContainsLabel[KernelContent] = ContainsLabel[KernelContent](KernelContent.label.get)
     def initialControl = 0
   }
 
-  @Lenses case class Content(
+  @Lenses case class KernelContent(
     testPoint: Vector[Double],
     control: Option[Int],
     resultPoint: Option[Vector[Double]],
@@ -74,34 +84,34 @@ object kernel {
     neutralBoundary: NeutralBoundary = NeutralBoundary.empty,
     dilations: Int = 0)
 
-  def iterate(kernelComputation: KernelComputation, tree: Tree[Content], rng: Random) =
-    kernel.approximate[Content](
+  def iterate(kernelComputation: KernelComputation, tree: Tree[KernelContent], rng: Random) =
+    kernel.approximate[KernelContent](
       dynamic = kernelComputation.dynamic,
       depth = kernelComputation.depth,
       zone = kernelComputation.zone,
       neutralBoundary = kernelComputation.neutralBoundary,
       controls = kernelComputation.controls,
-      buildContent = Content.apply,
-      label = Content.label,
-      testPoint = Content.testPoint.get,
-      resultPoint = Content.resultPoint.get,
-      controlMax = Content.controlMax.get,
+      buildContent = KernelContent.apply,
+      label = KernelContent.label,
+      testPoint = KernelContent.testPoint.get,
+      resultPoint = KernelContent.resultPoint.get,
+      controlMax = KernelContent.controlMax.get,
       dilations = kernelComputation.dilations)(tree, rng)
 
   def initialTree(kernelComputation: KernelComputation, rng: Random) =
-    kernel.initialTree[Content](
+    kernel.initialTree[KernelContent](
       depth = kernelComputation.depth,
       zone = kernelComputation.zone,
       neutralBoundary = kernelComputation.neutralBoundary,
       k = kernelComputation.k,
       domain = kernelComputation.domain,
-      buildContent = Content.apply,
-      label = Content.label.get,
-      testPoint = Content.testPoint.get)(rng)
+      buildContent = KernelContent.apply,
+      label = KernelContent.label.get,
+      testPoint = KernelContent.testPoint.get)(rng)
 
-  def approximate(kernelComputation: KernelComputation, rng: Random, maxNumberOfStep: Option[Int] = None, initialTree: Option[Tree[Content]] = None) = {
+  def approximate(kernelComputation: KernelComputation, rng: Random, maxNumberOfStep: Option[Int] = None, initialTree: Option[Tree[KernelContent]] = None) = {
 
-    def cleanBetweenStep(tree: Tree[Content]) = {
+    def cleanBetweenStep(tree: Tree[KernelContent]) = {
       def reduceFalse[CONTENT](criticalLeaves: Vector[Zone], label: CONTENT => Boolean, testPoint: CONTENT => Vector[Double]): ContentReduction[CONTENT] = {
         def pointInCriticalLeaf(t: CONTENT) = criticalLeaves.exists(l => l.contains(testPoint(t)))
 
@@ -115,14 +125,14 @@ object kernel {
       }
 
       tree.clean(
-        Content.label.get,
+        KernelContent.label.get,
         reduceFalse(
-          tree.criticalLeaves(Content.label.get).map(_.zone).toVector,
-          Content.label.get,
-          Content.testPoint.get))
+          tree.criticalLeaves(KernelContent.label.get).map(_.zone).toVector,
+          KernelContent.label.get,
+          KernelContent.testPoint.get))
     }
 
-    def whileVolumeDiffers(tree: Tree[Content], previousVolume: Option[Double] = None, step: Int = 0): (Tree[Content], Int) =
+    def whileVolumeDiffers(tree: Tree[KernelContent], previousVolume: Option[Double] = None, step: Int = 0): (Tree[KernelContent], Int) =
       if (maxNumberOfStep.map(ms => step >= ms).getOrElse(false)) (tree, step)
       else {
         val newTree = cleanBetweenStep(iterate(kernelComputation, tree, rng))
@@ -135,26 +145,33 @@ object kernel {
     whileVolumeDiffers(initialTree.getOrElse(kernel.initialTree(kernelComputation, rng)))
   }
 
-  def erode(kernelComputation: KernelComputation, tree: Tree[Content], rng: Random) = {
-    def learnBoundary = KdTreeComputation.learnBoundary(Content.label.get, Content.testPoint.get, kernelComputation.neutralBoundary)
+  def erode(kernelComputation: KernelComputation, kernel: Kernel, rng: Random) = {
+    def learnBoundary = KdTreeComputation.learnBoundary(KernelContent.label.get, KernelContent.testPoint.get, kernelComputation.neutralBoundary)
 
     val sampler = Sampler.grid(kernelComputation.depth, kernelComputation.zone)
-    def emptyContent(p: Vector[Double]) = Content.apply(p, None, None, true, Content.initialControl)
+    def emptyContent(p: Vector[Double]) = KernelContent.apply(p, None, None, true, KernelContent.initialControl)
     def ev = viabilitree.approximation.evaluator.sequential(emptyContent, sampler)
 
-    viabilitree.approximation.KdTreeComputation.erosion[Content](
+    viabilitree.approximation.KdTreeComputation.erosion[KernelContent](
       learnBoundary,
       ev,
-      Content.label,
-      KdTreeComputation.leavesToErode(kernelComputation.domain, kernelComputation.zone, Content.label.get)).apply(tree, rng)
+      KernelContent.label,
+      KdTreeComputation.leavesToErode(kernelComputation.domain, kernelComputation.zone, KernelContent.label.get)).apply(kernel, rng)
   }
 
-  def clean(tree: Tree[Content]) =
+  def dilate(kernelComputation: KernelComputation, kernel: Kernel, rng: Random) = {
+    val sampler = Sampler.grid(kernelComputation.depth, kernelComputation.zone)
+    def emptyContent(p: Vector[Double]) = KernelContent.apply(p, None, None, false, KernelContent.initialControl)
+    def ev = viabilitree.approximation.evaluator.sequential(emptyContent, sampler)
+    KdTreeComputation.dilate(ev, KernelContent.label, KernelContent.testPoint.get, kernelComputation.neutralBoundary, kernel, rng)
+  }
+
+  def clean(tree: Tree[KernelContent]) =
     tree.clean(
-      Content.label.get,
+      KernelContent.label.get,
       maximalReduction(
-        tree.criticalLeaves(Content.label.get).map(_.zone).toVector,
-        Content.testPoint.get))
+        tree.criticalLeaves(KernelContent.label.get).map(_.zone).toVector,
+        KernelContent.testPoint.get))
 
   //    learnBoundary: LearnBoundary[CONTENT],
   //    evaluator: Evaluator[CONTENT],
@@ -197,9 +214,11 @@ object kernel {
     dilations: Int)(tree: Tree[CONTENT], rng: Random): Tree[CONTENT] = {
 
     val sampler = Sampler.grid(depth, zone)
-    def emptyContent(p: Vector[Double]) = buildContent(p, None, None, false, 0)
-    def ev = viabilitree.approximation.evaluator.sequential(emptyContent, sampler)
-    //def ev = evaluator(depth, zone, dimension, buildContent)
+
+    def ev = {
+      def emptyContent(p: Vector[Double]) = buildContent(p, None, None, false, KernelContent.initialControl)
+      viabilitree.approximation.evaluator.sequential(emptyContent, sampler)
+    }
 
     def shouldBeReassigned(c: CONTENT): Boolean = label.get(c)
 
@@ -303,7 +322,7 @@ object kernel {
 
     def kValue: (Vector[Double] => Boolean) = k.getOrElse(_ => true)
     def admissible(p: Vector[Double]) = Domain.inter(zone.contains(_), Domain.pointInDomain(domain)(_), kValue)(p)
-    def contentBuilder(p: Vector[Double], rng: Random) = buildContent(p, None, None, admissible(p), Content.initialControl)
+    def contentBuilder(p: Vector[Double], rng: Random) = buildContent(p, None, None, admissible(p), KernelContent.initialControl)
     def ev = evaluator.sequential(contentBuilder(_, rng), Sampler.grid(depth, zone))
     def treeWithPositiveLeave = input.zone(ev, label, testPoint)(zone, depth, rng)
 

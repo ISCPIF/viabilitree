@@ -37,7 +37,7 @@ object LakeViabilityKernel extends App {
   import viabilitree.kdtree._
 
   val distanceTree =
-    Tree.distanceInf(ak, viabilitree.viability.kernel.Content.label.get, euclidianDistance)
+    Tree.distanceInf(ak, viabilitree.viability.kernel.KernelContent.label.get, euclidianDistance)
 
   val zippedTree = Tree.zipContent(ak, distanceTree)
 

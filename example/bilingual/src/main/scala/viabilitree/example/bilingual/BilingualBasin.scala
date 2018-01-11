@@ -34,7 +34,7 @@ object BilingualBasin extends App {
     }
 
   val fileTarget = TreeSet(fileContent.toSeq: _*)
-  val rng = new Random(42)
+  implicit val rng = new Random(42)
   val model = Bilingual()
 
   val bc = BasinComputation(
@@ -46,10 +46,10 @@ object BilingualBasin extends App {
     controls = Vector((-0.1 to 0.1 by 0.01)),
     domain = (p: Vector[Double]) => p(0) + p(1) <= 1 && p.forall(_ >= 0))
 
-  val (basin, step, list) = approximate(bc, rng)
+  val (basin, step) = bc.approximate()
   println(step)
   //  val eroded = erode(bc, basin, rng)
-  println(list.length)
+  println(step)
   println(volume(basin))
   //  println(volume(eroded))
 

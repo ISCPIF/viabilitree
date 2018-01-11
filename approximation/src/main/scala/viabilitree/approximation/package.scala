@@ -8,36 +8,46 @@ package object approximation {
   /* ---- API ----- */
 
   def sampler(o: OracleApproximation) = Sampler.grid(o.depth, o.box)
-  def contentBuilder(oracle: Oracle)(p: Vector[Double]) = OracleApproximation.Content(p, oracle(p))
-  def eval(o: OracleApproximation) = evaluator.sequential[OracleApproximation.Content](contentBuilder(o.oracle), sampler(o))(_, _)
-  def learnBoundary(o: OracleApproximation) = KdTreeComputation.learnBoundary(OracleApproximation.Content.label.get, OracleApproximation.Content.testPoint.get, o.neutralBoundary)
+  def contentBuilder(oracle: Oracle)(p: Vector[Double]) = OracleApproximationContent(p, oracle(p))
+  def eval(o: OracleApproximation) = evaluator.sequential[OracleApproximationContent](contentBuilder(o.oracle), sampler(o))(_, _)
+  def learnBoundary(o: OracleApproximation) = KdTreeComputation.learnBoundary(OracleApproximationContent.label.get, OracleApproximationContent.testPoint.get, o.neutralBoundary)
 
   //  def approximate(initialTree: NonEmptyTree[Content], depth: Int, zone: Zone, dimension: Int, oracle: Oracle)(implicit rng: Random): NonEmptyTree[Content] = {
   //    KdTreeComputation.learnBoundary(evaluator(depth, zone, dimension, oracle), initialTree, Content.label.get, Content.testPoint.get)
   //  }
 
-  def approximate(o: OracleApproximation)(implicit rng: util.Random): util.Try[Tree[OracleApproximation.Content]] = {
-    def learn(tree: NonEmptyTree[OracleApproximation.Content]) = learnBoundary(o)(tree, eval(o), rng)
+  type Approximation = Tree[OracleApproximationContent]
+
+  implicit class OracleApproximationDecorator(o: OracleApproximation) {
+    def approximate(implicit rng: util.Random) = approximation.approximate(o)(rng)
+    def dilate(a: Approximation)(implicit rng: util.Random) = approximation.dilate(o, a)(rng)
+    def erode(a: Approximation)(implicit rng: util.Random) = approximation.erode(o, a)(rng)
+    def volume(a: Approximation) = approximation.volume(a)
+    def clean(a: Approximation) = approximation.clean(a)
+  }
+
+  def approximate(o: OracleApproximation)(implicit rng: util.Random): util.Try[Tree[OracleApproximationContent]] = {
+    def learn(tree: NonEmptyTree[OracleApproximationContent]) = learnBoundary(o)(tree, eval(o), rng)
 
     o.point match {
       case None =>
-        val initialTree = input.zone(eval(o), OracleApproximation.Content.label.get, OracleApproximation.Content.testPoint.get)(o.box, o.depth, rng)
+        val initialTree = input.zone(eval(o), OracleApproximationContent.label.get, OracleApproximationContent.testPoint.get)(o.box, o.depth, rng)
         util.Success(clean(initialTree.mapNonEmpty(learn)))
       case Some(p) =>
-        val initialTree = input.zoneAndPoint(contentBuilder(o.oracle), sampler(o), OracleApproximation.Content.label.get)(o.box, p, o.depth)
+        val initialTree = input.zoneAndPoint(contentBuilder(o.oracle), sampler(o), OracleApproximationContent.label.get)(o.box, p, o.depth)
         initialTree.map(learn).map(t => clean(t))
     }
   }
 
-  def dilate(o: OracleApproximation, tree: Tree[OracleApproximation.Content])(implicit rng: util.Random) =
-    tree.mapNonEmpty { KdTreeComputation.dilate(eval(o), OracleApproximation.Content.label, OracleApproximation.Content.testPoint.get, o.neutralBoundary)(_, rng) }
+  def dilate(o: OracleApproximation, tree: Tree[OracleApproximationContent])(implicit rng: util.Random) =
+    tree.mapNonEmpty { KdTreeComputation.dilate(eval(o), OracleApproximationContent.label, OracleApproximationContent.testPoint.get, o.neutralBoundary)(_, rng) }
 
-  def erode(o: OracleApproximation, tree: Tree[OracleApproximation.Content], n: Int = 1)(implicit rng: util.Random) = {
-    def erosion: Erosion[OracleApproximation.Content] = KdTreeComputation.erosion(
+  def erode(o: OracleApproximation, tree: Tree[OracleApproximationContent], n: Int = 1)(implicit rng: util.Random) = {
+    def erosion: Erosion[OracleApproximationContent] = KdTreeComputation.erosion(
       learnBoundary(o),
       eval(o),
-      OracleApproximation.Content.label,
-      KdTreeComputation.leavesToErode(o.domain, o.box, OracleApproximation.Content.label.get))
+      OracleApproximationContent.label,
+      KdTreeComputation.leavesToErode(o.domain, o.box, OracleApproximationContent.label.get))
 
     KdTreeComputation.erode(erosion)(tree, n, rng)
   }
@@ -47,14 +57,14 @@ package object approximation {
   //      KdTreeComputation.erode(t, evaluator(t.depth, t.zone, t.dimension, oracle), Content.label, Content.testPoint.get)
   //    }
 
-  def volume(tree: Tree[OracleApproximation.Content]) = tree.volume(OracleApproximation.Content.label.get)
+  def volume(tree: Tree[OracleApproximationContent]) = tree.volume(OracleApproximationContent.label.get)
 
-  def clean(tree: Tree[OracleApproximation.Content]) =
+  def clean(tree: Tree[OracleApproximationContent]) =
     tree.clean(
-      OracleApproximation.Content.label.get,
+      OracleApproximationContent.label.get,
       maximalReduction(
-        tree.criticalLeaves(OracleApproximation.Content.label.get).map(_.zone).toVector,
-        OracleApproximation.Content.testPoint.get))
+        tree.criticalLeaves(OracleApproximationContent.label.get).map(_.zone).toVector,
+        OracleApproximationContent.testPoint.get))
 
   /* --- Algorithm ---- */
 

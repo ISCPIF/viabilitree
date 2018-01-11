@@ -18,8 +18,6 @@ published by
 
 package viabilitree.kdtree
 
-import org.scalacheck.Prop.True
-
 object Path {
 
   /////// FUNCTIONS TO COMPUTE ADJACENCY

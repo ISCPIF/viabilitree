@@ -20,6 +20,7 @@ package viabilitree
 
 //import viabilitree.kdtree.structure.HelperFunctions.xor
 //import viabilitree.kdtree.structure.Path.{adjacency, adjacent}
+import simulacrum.typeclass
 import viabilitree.kdtree.HelperFunctions._
 import viabilitree.kdtree.SymbolicNode.SymbolicPath
 
@@ -27,6 +28,16 @@ import language.implicitConversions
 import scala.util.Random
 
 package object kdtree {
+
+  object ContainsLabel {
+    implicit def apply[CONTENT](f: CONTENT => Boolean): ContainsLabel[CONTENT] = new ContainsLabel[CONTENT] {
+      def label(t: CONTENT) = f(t)
+    }
+  }
+
+  trait ContainsLabel[T] {
+    def label(t: T): Boolean
+  }
 
   object Tree {
     import cats._
@@ -61,6 +72,7 @@ package object kdtree {
         case (t1: EmptyTree[T], _) => t1
         case (_, t2: EmptyTree[T]) => t2
       }
+
   }
 
   sealed trait Tree[T] {
@@ -428,7 +440,8 @@ package object kdtree {
   }
 
   implicit class TreeDecorator[T](t: Tree[T]) {
-    def volume(label: T => Boolean) = t match {
+
+    def volume(label: T => Boolean): Double = t match {
       case t: NonEmptyTree[T] => new NonEmptyTreeDecorator(t).volume(label)
       case EmptyTree(_) => 0.0
     }
@@ -463,6 +476,7 @@ package object kdtree {
       case e: EmptyTree[T] => e
     }
 
+    def contains(p: Vector[Double])(implicit withLabel: ContainsLabel[T]): Boolean = contains(withLabel.label(_), p)
     def contains(label: T => Boolean, p: Vector[Double]): Boolean = t match {
       case t: NonEmptyTree[T] => t.contains(p, label)
       case _: EmptyTree[_] => false
@@ -471,7 +485,7 @@ package object kdtree {
 
   implicit class NonEmptyTreeDecorator[T](t: NonEmptyTree[T]) {
 
-    def volume(label: T => Boolean) = t.root.volume(label)
+    def volume(implicit withLabel: ContainsLabel[T]): Double = t.root.volume(withLabel.label(_))
 
     def reassign(update: T => T)(implicit m: Manifest[T]) = {
       val newT = NonEmptyTree.clone(t)
@@ -683,11 +697,6 @@ package object kdtree {
         NonEmptyTree(currentRoot, t.depth)
       }
     }
-  }
-
-  import simulacrum._
-  @typeclass trait ContainsLabel[T] {
-    def label(t: T): Boolean
   }
 
   type Distance = (Vector[Double], Vector[Double]) => Double

@@ -105,13 +105,13 @@ def dynamic(state: Vector[Double], control: Vector[Double]) = {
   // TODO fix pb when some states are outside wLim (ex. v=3) outOfMemoryError
 
   def softJump(state: Vector[Double], jumpV: Vector[Double] => Vector[Double],
-    viableSet: viabilitree.kdtree.Tree[viabilitree.viability.kernel.Content],
+    viableSet: viabilitree.kdtree.Tree[viabilitree.viability.kernel.KernelContent],
     viabProblem: viabilitree.viability.kernel.KernelComputation): Boolean = {
     val jumpState = jumpV(state)
     val zoneLim = viabProblem.zone
     val wLim = zoneLim.region(1).max
-    (viableSet.contains(viabilitree.viability.kernel.Content.label.get, state) &&
-      (viableSet.contains(viabilitree.viability.kernel.Content.label.get, jumpState)) ||
+    (viableSet.contains(viabilitree.viability.kernel.KernelContent.label.get, state) &&
+      (viableSet.contains(viabilitree.viability.kernel.KernelContent.label.get, jumpState)) ||
       jumpState(1) >= wLim)
   }
 

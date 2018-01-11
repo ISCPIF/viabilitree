@@ -29,6 +29,12 @@ object KdTreeComputation {
   //    if(n <= 0) t
   //    else dilate(dilate(t, evaluator, label, testPoint), n - 1, evaluator, label, testPoint)
 
+  def dilate[CONTENT: ClassTag](evaluator: Evaluator[CONTENT], label: Lens[CONTENT, Boolean], testPoint: CONTENT => Vector[Double], neutralBoundary: NeutralBoundary, t: Tree[CONTENT], rng: Random): Tree[CONTENT] =
+    t match {
+      case t: NonEmptyTree[CONTENT] => dilate[CONTENT](evaluator, label, testPoint, neutralBoundary)(t, rng)
+      case t: EmptyTree[CONTENT] => t
+    }
+
   // TODO might beneficiate from a mutable version of learnBoundary
   def dilate[CONTENT: ClassTag](evaluator: Evaluator[CONTENT], label: Lens[CONTENT, Boolean], testPoint: CONTENT => Vector[Double], neutralBoundary: NeutralBoundary)(t: NonEmptyTree[CONTENT], rng: Random): NonEmptyTree[CONTENT] = {
     val newT = NonEmptyTree.clone(t)

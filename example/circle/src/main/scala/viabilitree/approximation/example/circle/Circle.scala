@@ -22,7 +22,7 @@ object Circle extends App {
 
   implicit val random = new Random(42)
 
-  val res = approximate(approximation).get
+  val res = approximation.approximate.get
 
   println("Nb leaves " + res.leaves.size)
   println("Nb atomic leaves " + res.atomicLeaves.size)

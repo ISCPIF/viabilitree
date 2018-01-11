@@ -23,7 +23,7 @@ import io.binary._
 import better.files._
 import cats._
 import cats.implicits._
-import viabilitree.approximation.OracleApproximation
+import viabilitree.approximation.{ OracleApproximation, OracleApproximationContent }
 import viabilitree.viability.basin.BasinComputation
 
 import scala.util.Failure
@@ -114,9 +114,9 @@ package object export extends better.files.Implicits {
 
     def viabilityControlledDynamic(kernelComputation: KernelComputation) =
       viabilityKernelColumns(
-        Content.label.get,
-        Content.testPoint.get,
-        Content.control.get,
+        KernelContent.label.get,
+        KernelContent.testPoint.get,
+        KernelContent.control.get,
         kernelComputation.controls)
 
     def viabilityKernelColumns[T](label: T => Boolean, testPoint: T => Vector[Double], control: T => Option[Int], controls: Vector[Double] => Vector[Control]) = (t: T, zone: Zone) =>
@@ -132,18 +132,18 @@ package object export extends better.files.Implicits {
 
     object Traceable {
 
-      implicit def kernelComputation = new Traceable[KernelComputation, viability.kernel.Content] {
+      implicit def kernelComputation = new Traceable[KernelComputation, viability.kernel.KernelContent] {
         override def columns(t: KernelComputation) =
-          HyperRectangles.viabilityKernelColumns[Content](
-            Content.label.get,
-            Content.testPoint.get,
-            Content.control.get,
+          HyperRectangles.viabilityKernelColumns[KernelContent](
+            KernelContent.label.get,
+            KernelContent.testPoint.get,
+            KernelContent.control.get,
             t.controls)
       }
 
-      implicit def basinComputation = new Traceable[BasinComputation, viability.basin.Content] {
+      implicit def basinComputation = new Traceable[BasinComputation, viability.basin.BasinContent] {
         override def columns(t: BasinComputation) =
-          (content: viabilitree.viability.basin.Content, zone: Zone) =>
+          (content: viabilitree.viability.basin.BasinContent, zone: Zone) =>
             content.label match {
               case true =>
                 def c = (content.testPoint ++ intervals(zone) ++ content.control).map(_.toString)
@@ -152,9 +152,9 @@ package object export extends better.files.Implicits {
             }
       }
 
-      implicit def oracleApproximation = new Traceable[OracleApproximation, OracleApproximation.Content] {
+      implicit def oracleApproximation = new Traceable[OracleApproximation, OracleApproximationContent] {
         override def columns(t: OracleApproximation) =
-          (content: OracleApproximation.Content, zone: Zone) =>
+          (content: OracleApproximationContent, zone: Zone) =>
             content.label match {
               case true =>
                 def c = (content.testPoint ++ intervals(zone)).map(_.toString)
@@ -218,8 +218,8 @@ package object export extends better.files.Implicits {
         def label = l.label
       }
 
-      implicit def oracleAproximationIsTraceable = new Traceable[OracleApproximation.Content] {
-        def label = OracleApproximation.Content.label.get
+      implicit def oracleAproximationIsTraceable = new Traceable[OracleApproximationContent] {
+        def label = OracleApproximationContent.label.get
       }
 
     }

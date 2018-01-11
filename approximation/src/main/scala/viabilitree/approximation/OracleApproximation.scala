@@ -28,9 +28,11 @@ case class OracleApproximation(
   point: Option[Vector[Double]] = None,
   neutralBoundary: NeutralBoundary = NeutralBoundary.empty)
 
-object OracleApproximation {
-  @Lenses case class Content(testPoint: Vector[Double], label: Boolean)
+object OracleApproximationContent {
+  implicit def containsLabel: ContainsLabel[OracleApproximationContent] = ContainsLabel[OracleApproximationContent](OracleApproximationContent.label.get)
 }
+
+@Lenses case class OracleApproximationContent(testPoint: Vector[Double], label: Boolean)
 
 //trait OracleApproximation extends KdTreeComputation with RandomSampler with Input {
 //

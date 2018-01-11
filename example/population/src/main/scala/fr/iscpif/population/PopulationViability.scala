@@ -14,7 +14,7 @@ import viabilitree.export._
 import viabilitree.viability.kernel._
 
 object PopulationViability extends App {
-  val depth=16
+  val depth = 16
   Pop.run(depth)
 }
 

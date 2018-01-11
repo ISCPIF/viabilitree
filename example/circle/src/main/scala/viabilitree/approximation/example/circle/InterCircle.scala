@@ -27,7 +27,7 @@ object InterCircle extends App {
   val res1 = approximate(approximation(-0.5, -0.5, -0.5)).get
   val res2 = approximate(approximation(0.5, 0.5, 0.5)).get
 
-  val inter = Tree.intersect(res1, res2, OracleApproximation.Content.label.get)
+  val inter = Tree.intersect(res1, res2, OracleApproximationContent.label.get)
 
   saveVTK3D(inter, "/tmp/inter.vtk")
 

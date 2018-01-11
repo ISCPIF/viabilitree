@@ -105,9 +105,9 @@ lazy val monocle = Seq(
   "com.github.julien-truffaut"  %%  "monocle-macro"   % monocleVersion
 )
 
-lazy val cats = "org.typelevel" %% "cats" % "0.9.0"
+lazy val cats = "org.typelevel" %% "cats-core" % "1.0.1"
 
-lazy val simulacrum = "com.github.mpilquist" %% "simulacrum" % "0.10.0"
+lazy val simulacrum = "com.github.mpilquist" %% "simulacrum" % "0.11.0"
 
 
 

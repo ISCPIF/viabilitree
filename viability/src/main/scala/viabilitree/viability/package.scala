@@ -71,7 +71,6 @@ package object viability {
         }
       }
 
-
       val t = v.tail
       val hd = v.head
 
@@ -100,9 +99,7 @@ package object viability {
   def sameVolume[CONTENT](label: CONTENT => Boolean)(t1: Tree[CONTENT], t2: Tree[CONTENT]) =
     t1.volume(label) == t2.volume(label)
 
-  lazy val ZoneSide = approximation.ZoneSide
   lazy val Touch = kdtree.Path.Touch
-
   lazy val High = Descendant.High
   lazy val Low = Descendant.Low
 
