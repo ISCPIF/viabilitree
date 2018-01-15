@@ -39,11 +39,11 @@ object RAZ13study extends App {
 
   //calcule le noyau initial : normalement tout l'espace
   val (vk0, ak0, steps) = kernel0
-  println(steps)
+  println("kernel0" + steps)
+  println("depth " + depth)
 
   //On applique l'inondation de taille v. C'est à dire que les états state se retrouve en (state + perturbation) et on apprend le nouvel ensemble.
   def thetaV(v: Double, ak: Kernel, vk: KernelComputation) = {
-
     val o1 = OracleApproximation(
       depth = depth,
       box = vk0.zone,
@@ -65,7 +65,6 @@ object RAZ13study extends App {
     kd: Approximation,
     oa: OracleApproximation,
     lesControls: Vector[Double] => Vector[Control] = vk0.controls) = {
-
     val vk = KernelComputation(
 /*
       dynamic = riverfront.copy(integrationStep =  0.7).dynamic,
