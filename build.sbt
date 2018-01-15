@@ -81,6 +81,7 @@ lazy val strategy = Project(id = "strategy", base = file("strategy")) settings(d
 
 lazy val population =
   Project(id = "population", base = file("example/population")) settings(
+    libraryDependencies += "com.github.pathikrit" %% "better-files" % "2.17.1",
     publishArtifact := false,
     OsgiKeys . exportPackage := Seq ( "viabilitree.*", "fr.iscpif.population.*"),
     OsgiKeys . importPackage := Seq ( "*;resolution:=optional" ),
