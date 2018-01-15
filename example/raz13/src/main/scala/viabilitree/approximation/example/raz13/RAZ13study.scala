@@ -14,9 +14,9 @@ object RAZ13study extends App {
   implicit val rng = new util.Random(42)
   val U: Double = 10.0
   //  val v: Double = 1.5
-  val depth: Int = 10
+  val depth: Int = 14
 
-  val output = s"/tmp/RAZ13Study/"
+  val output = s"/tmp/RAZ13Study/test0115/"
 
   def kernel0 = {
     import viabilitree.viability._
@@ -39,11 +39,11 @@ object RAZ13study extends App {
 
   //calcule le noyau initial : normalement tout l'espace
   val (vk0, ak0, steps) = kernel0
-  println(steps)
+  println("kernel0" + steps)
+  println("depth " + depth)
 
   //On applique l'inondation de taille v. C'est à dire que les états state se retrouve en (state + perturbation) et on apprend le nouvel ensemble.
   def thetaV(v: Double, ak: Kernel, vk: KernelComputation) = {
-
     val o1 = OracleApproximation(
       depth = depth,
       box = vk0.zone,
@@ -65,8 +65,10 @@ object RAZ13study extends App {
     kd: Approximation,
     oa: OracleApproximation,
     lesControls: Vector[Double] => Vector[Control] = vk0.controls) = {
-
     val vk = KernelComputation(
+/*
+      dynamic = riverfront.copy(integrationStep =  0.7).dynamic,
+*/
       dynamic = riverfront.dynamic,
       depth = depth,
       zone = oa.box,
@@ -93,7 +95,7 @@ object RAZ13study extends App {
 
     val bc = BasinComputation(
       zone = viabProblem.zone,
-      depth = viabProblem.depth * 2,
+      depth = viabProblem.depth + 4,
       dynamic = viabProblem.dynamic,
       controls = viabProblem.controls,
       target = ak.contains,
@@ -101,10 +103,37 @@ object RAZ13study extends App {
 
     bc.approximateAll(maxNumberOfStep = T)
   }
+  def study0() = {
+    val listeV = List(1.5)
+    val tMax = 3
+
+    for (v <- listeV) {
+      println("v")
+      println(v)
+
+      val (o1, kd1) = thetaV(v, ak0, vk0)
+      println("ok ak0 erode de v volume " + kd1.volume)
+
+      viabilitree.approximation.volume(kd1) match {
+        case 0 => println("erosion vide")
+        case _ => {
+          val (vk1, ak1, steps1) = kernelTheta(v, kd1, o1, vk0.controls)
+          println(steps1)
+          println("kernel de K erode v volume " + ak1.volume)
+          saveVTK2D(ak1, s"${output}raz13${vk1.depth}U${U}Kv${v}.vtk")
+          /*
+            val nak1 = ak1.map{c => c.copy(label = !c.label)}
+            saveVTK2D(nak1, s"${output}raz13${vk1.depth}U${U}Kv${v}NEG.vtk")
+            println("complémentaire du kernel de K erode v volume " + nak1.volume)
+*/
+        }
+      }
+    }
+  }
 
   def study() = {
     val listeV = List(1.5)
-    val tMax = 3
+    val tMax = 20
 
     for (v <- listeV) {
       println("v")
