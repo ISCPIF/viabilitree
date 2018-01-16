@@ -16,7 +16,7 @@ object RAZ13study extends App {
   //  val v: Double = 1.5
   val depth: Int = 14
 
-  val output = s"/tmp/RAZ13Study/test0115/"
+  val output = s"/tmp/RAZ13Study/test0116/"
 
   def kernel0 = {
     import viabilitree.viability._
@@ -26,7 +26,7 @@ object RAZ13study extends App {
       dynamic = riverfront.dynamic,
       depth = depth,
       zone = Vector((0.0, 1.0), (0.0, 20.0)),
-      controls = Vector((0.0 to U by 2.0)),
+      controls = Vector((0.0 to U by 1.0)),
       domain = (p: Vector[Double]) => p(0) <= 1.0 && p(0) >= 0,
       neutralBoundary = Vector(ZoneSide(0, Low), ZoneSide(0, High), ZoneSide(1, High)))
 
@@ -42,7 +42,8 @@ object RAZ13study extends App {
   println("kernel0" + steps)
   println("depth " + depth)
 
-  //On applique l'inondation de taille v. C'est à dire que les états state se retrouve en (state + perturbation) et on apprend le nouvel ensemble.
+  //On applique l'inondation de taille v. C'est à dire que les états state se retrouvent en (state + perturbation)
+  // ceci doit être aussi dans le noyau et on apprend le nouvel ensemble.
   def thetaV(v: Double, ak: Kernel, vk: KernelComputation) = {
     val o1 = OracleApproximation(
       depth = depth,
@@ -58,6 +59,16 @@ object RAZ13study extends App {
     saveHyperRectangles(o1)(kd1, s"${output}raz13${vk.depth}U${U}v${v}ORACLE.txt")
 */
     (o1, kd1)
+  }
+
+  // On applique l'inondation de taille v et on apprend l'ensemble d'arrivée, a priori depuis un noyau ou un bassin de capture
+  def oplusV(v:Double,ak: Kernel, vk: KernelComputation) = {
+    val o1 = OracleApproximation(
+      depth = depth,
+      box = vk0.zone,
+      oracle = (p: Vector[Double]) => riverfront.softInverseJump(p, q => riverfront.inverseJumpDirect(q, v), ak, vk))
+
+    val kd1 = o1.approximate(rng).get
   }
 
   def kernelTheta(
@@ -132,8 +143,11 @@ object RAZ13study extends App {
   }
 
   def study() = {
+//    val listeV = List(0.5, 1.0, 1.5, 2.0, 2.5)
     val listeV = List(1.5)
     val tMax = 20
+    val unAlpha = 0.25
+    val unW = 10.0
 
     for (v <- listeV) {
       println("v")
@@ -164,6 +178,13 @@ object RAZ13study extends App {
               listeCapt.zipWithIndex.foreach{
                 case(aCapt, step) => saveVTK2D(aCapt, s"${output}raz13${vk1.depth}U${U}CaptKv${v}No${step}.vtk")
               }
+
+              // peculiar study for (unAlpha, unW)
+              // for each v, find if it is in the kernel Hv
+              // if not find in which Capt K(v,t) it is and note this t
+              // THEN for another v' (smaller than vMax, last v for which it is in Hv
+              // compute Hv' + theta(v')
+              // see in which J(v,t) it is included
 
             }
           }

@@ -104,6 +104,7 @@ def dynamic(state: Vector[Double], control: Vector[Double]) = {
   // On a besoin d'une soft_appartenance à un noyau qui tienne compte de la manière dont on sort de l'ensemble
   // TODO fix pb when some states are outside wLim (ex. v=3) outOfMemoryError
 
+  // true if the present point is in the kernel and if its image by the perturbation is also in the kernel OR if it is out the upper limit
   def softJump(state: Vector[Double], jumpV: Vector[Double] => Vector[Double],
     viableSet: viabilitree.kdtree.Tree[viabilitree.viability.kernel.KernelContent],
     viabProblem: viabilitree.viability.kernel.KernelComputation): Boolean = {
@@ -116,6 +117,27 @@ def dynamic(state: Vector[Double], control: Vector[Double]) = {
   }
 
   // ici c'est différent il faut être pragmatique
+  // inverse i.e. valeurs desquelles on est parti avant la perturbation s
+  def inverseJumpDirect(state: Vector[Double], s: Double) = {
+    val (alphaDirect, wDirect) = inversePerturbation(state, s)
+    Vector(alphaDirect, wDirect)
+  }
+
+  def inversePerturbation(state: Vector[Double], s: Double) = {
+    val Aa = s*A3/(M+s)
+    def alphaDirect(state: Vector[Double], s: Double) = (state(0) - Aa)/(1-Aa)
+    def wDirect(state: Vector[Double], s: Double) = state(1) + damage(alphaDirect(state, s),s)
+    (alphaDirect(state, s), wDirect(state, s))
+  }
+
+  // true if the present point is the image of a kernel point by a perturbation (jumpV)
+  def softInverseJump(state: Vector[Double], jumpV: Vector[Double] => Vector[Double],
+               viableSet: viabilitree.kdtree.Tree[viabilitree.viability.kernel.KernelContent],
+               viabProblem: viabilitree.viability.kernel.KernelComputation): Boolean = {
+    val jumpState = jumpV(state)
+    (viableSet.contains(viabilitree.viability.kernel.KernelContent.label.get, jumpState))
+  }
+
 
 }
 
