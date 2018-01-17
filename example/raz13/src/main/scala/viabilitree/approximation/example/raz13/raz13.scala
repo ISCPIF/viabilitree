@@ -124,20 +124,19 @@ def dynamic(state: Vector[Double], control: Vector[Double]) = {
   }
 
   def inversePerturbation(state: Vector[Double], s: Double) = {
-    val Aa = s*A3/(M+s)
-    def alphaDirect(state: Vector[Double], s: Double) = (state(0) - Aa)/(1-Aa)
-    def wDirect(state: Vector[Double], s: Double) = state(1) + damage(alphaDirect(state, s),s)
+    val Aa = s * A3 / (M + s)
+    def alphaDirect(state: Vector[Double], s: Double) = (state(0) - Aa) / (1 - Aa)
+    def wDirect(state: Vector[Double], s: Double) = state(1) + damage(alphaDirect(state, s), s)
     (alphaDirect(state, s), wDirect(state, s))
   }
 
   // true if the present point is the image of a kernel point by a perturbation (jumpV)
   def softInverseJump(state: Vector[Double], jumpV: Vector[Double] => Vector[Double],
-               viableSet: viabilitree.kdtree.Tree[viabilitree.viability.kernel.KernelContent],
-               viabProblem: viabilitree.viability.kernel.KernelComputation): Boolean = {
+    viableSet: viabilitree.kdtree.Tree[viabilitree.viability.kernel.KernelContent],
+    viabProblem: viabilitree.viability.kernel.KernelComputation): Boolean = {
     val jumpState = jumpV(state)
     (viableSet.contains(viabilitree.viability.kernel.KernelContent.label.get, jumpState))
   }
-
 
 }
 
