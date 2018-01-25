@@ -62,7 +62,7 @@ object RAZ13study extends App {
   }
 
   // On applique l'inondation de taille v et on apprend l'ensemble d'arrivée, a priori depuis un noyau ou un bassin de capture
-  def oplusV(v:Double,ak: Kernel, vk: KernelComputation) = {
+  def oplusV(v: Double, ak: Kernel, vk: KernelComputation) = {
     val o1 = OracleApproximation(
       depth = depth,
       box = vk0.zone,
@@ -77,7 +77,7 @@ object RAZ13study extends App {
     oa: OracleApproximation,
     lesControls: Vector[Double] => Vector[Control] = vk0.controls) = {
     val vk = KernelComputation(
-/*
+      /*
       dynamic = riverfront.copy(integrationStep =  0.7).dynamic,
 */
       dynamic = riverfront.dynamic,
@@ -143,7 +143,7 @@ object RAZ13study extends App {
   }
 
   def study() = {
-//    val listeV = List(0.5, 1.0, 1.5, 2.0, 2.5)
+    //    val listeV = List(0.5, 1.0, 1.5, 2.0, 2.5)
     val listeV = List(1.5)
     val tMax = 20
     val unAlpha = 0.25
@@ -175,8 +175,8 @@ object RAZ13study extends App {
               val listeCapt = captHv(v, ak1, vk1, None)
               println("nb de pas" + listeCapt.length)
               println("capture de K erode v de volume " + listeCapt.last.volume)
-              listeCapt.zipWithIndex.foreach{
-                case(aCapt, step) => saveVTK2D(aCapt, s"${output}raz13${vk1.depth}U${U}CaptKv${v}No${step}.vtk")
+              listeCapt.zipWithIndex.foreach {
+                case (aCapt, step) => saveVTK2D(aCapt, s"${output}raz13${vk1.depth}U${U}CaptKv${v}No${step}.vtk")
               }
 
               // peculiar study for (unAlpha, unW)

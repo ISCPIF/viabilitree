@@ -204,7 +204,7 @@ package object export extends better.files.Implicits {
     //    file << header.mkString(" ")
 
     tree.leaves.flatMap(l => columns(l.content, l.zone).toVector).foreach {
-      cols => file << cols.mkString(" ")
+      cols => file.appendLines(cols.mkString(" "))
     }
   }
 
@@ -323,25 +323,25 @@ DATASET UNSTRUCTURED_GRID""")
 
     val toWrite = coords.map(points)
 
-    file << """# vtk DataFile Version 2.0
+    file.appendLines("""# vtk DataFile Version 2.0)
 Prof 18 slice 1
 ASCII
-DATASET UNSTRUCTURED_GRID"""
+DATASET UNSTRUCTURED_GRID""")
 
-    file << s"POINTS ${toWrite.size * 8} float"
+    file.appendLines(s"POINTS ${toWrite.size * 8} float")
 
     toWrite.flatten.foreach {
-      p => file << p.mkString(" ")
+      p => file.appendLines(p.mkString(" "))
     }
 
-    file << s"CELLS ${toWrite.size} ${toWrite.size * 9}\n"
+    file.appendLines(s"CELLS ${toWrite.size} ${toWrite.size * 9}\n")
 
     Iterator.iterate(0)(_ + 1).grouped(8).take(toWrite.size).foreach {
-      c => file << s"""8 ${c.mkString(" ")}"""
+      c => file.appendLines(s"""8 ${c.mkString(" ")}""")
     }
 
-    file << s"CELL_TYPES ${toWrite.size}\n"
-    file << Vector.fill(toWrite.size)("12").mkString(" ")
+    file.appendLines(s"CELL_TYPES ${toWrite.size}\n")
+    file.appendLines(Vector.fill(toWrite.size)("12").mkString(" "))
   }
 
 }
