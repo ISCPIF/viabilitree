@@ -114,6 +114,7 @@ object RAZ13study extends App {
 
     bc.approximateAll(maxNumberOfStep = T)
   }
+
   def study0() = {
     val listeV = List(1.5)
     val tMax = 3
@@ -139,6 +140,20 @@ object RAZ13study extends App {
 */
         }
       }
+    }
+  }
+
+  def oneStateStudyForV(state: Vector[Double], v: Double, kv: Kernel, viabProblem: KernelComputation, listeBasin: List[Basin]) = {
+    var stringToPrint: String = state.toString
+    val inKernel: Boolean = kv.contains(state)
+    var inCapt = true
+    var noCapt = 0
+    if (!inKernel) {
+      val captdt = listeBasin.zipWithIndex.collectFirst {
+        case (aCapt: Basin, count: Int) if (aCapt.contains(state)) => count
+      }.getOrElse(-1)
+      if (captdt < 0) inCapt = false
+      if (!inCapt) { noCapt = captdt }
     }
   }
 
