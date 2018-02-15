@@ -44,10 +44,11 @@ package object export extends better.files.Implicits {
     finally dest.close
   }
 
-  def load[T](input: File) = {
+  def load[T](input: File, classLoader: Option[ClassLoader] = None) = {
     import java.io._
     import java.util.zip._
     val xstream = new XStream(new BinaryStreamDriver)
+    xstream.setClassLoader(classLoader.getOrElse(this.getClass.getClassLoader))
     val source = new BufferedInputStream(new GZIPInputStream(new FileInputStream(input.toJava)))
     try xstream.fromXML(source).asInstanceOf[T]
     finally source.close()
