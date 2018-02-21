@@ -10,6 +10,7 @@ import fr.iscpif.kdtree.content._
 import scala.util.Random
 import viabilitree.viability._
 import viabilitree.export._
+import viabilitree.kdtree.Tree
 import viabilitree.viability.kernel._
 
 
@@ -89,9 +90,13 @@ object Pop {
 
     val f = file.toScala / s"${steps}depth${depth}.vtk"
     saveVTK2D(ak, f)
+    println(volume(ak))
     val f2 = file.toScala / s"${steps}depth${depth}withControl${u_max}.txt"
     saveHyperRectangles(vk)(ak, f2)
-
+    val f3 = file.toScala / s"${steps}depth${depth}withControl${u_max}.bin"
+    save(ak,f3)
+    val ak2 = load[Tree[KernelContent]](f3)
+    println(volume(ak2))
     val tps = (System.currentTimeMillis - begin)
     tps
   }
