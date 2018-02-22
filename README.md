@@ -8,9 +8,9 @@ Mathematical viability theory offers concepts and methods that are suitable to s
 
 ## Viability problem
 
-### Exemple
+### Simple example
 #### Population Growth Model
-This example is taken from \citet{AubinStPierre07}. The population model is defined from Maltus and Verhulst \citep{Verhulst}. The population viability problem consists in maintaining the size of a population in a given interval $`[a;b]`$. The state of the system is described by the variables $`x(t)`$, the size of the population, and $`y(t)`$, the population growth rate. The dynamics are described by the following equations:
+This example is taken from [4]. The population model is defined from Maltus and Verhulst, 1845. The population viability problem consists in maintaining the size of a population in a given interval $`[a;b]`$. The state of the system is described by the variables $`x(t)`$, the size of the population, and $`y(t)`$, the population growth rate. The dynamics are described by the following equations:
 ```math
 \left\{
 \begin{array}{lll}
@@ -18,21 +18,18 @@ x(t+dt) &=& x(t)+x(t)y(t)dt\\
 y(t+dt) &=& y(t)+u(t)dt  \text{  with  }  \left| u(t) \right| \leq c
 \end{array}\right.
 ```
-The dynamics are controlled by taking the growth rate evolution in interval $`[-c,c]`$. This viability problem can be resolved analytically (see \citet{AubinStPierre07} for details). When $`dt`$ tends toward $`0`$, the theoretical viability kernel is defined by:
+The dynamics are controlled by taking the growth rate evolution in interval $`[-c,c]`$. This viability problem can be resolved analytically (see [4]} for details). When $`dt`$ tends toward $`0`$, the theoretical viability kernel is defined by:
 ```math
-\begin{equation}
 Viab(K) = \left\{ (x,y)\in \R^2| \hspace{1mm} x \in [a;b], y\in [-\sqrt{2c\text{log}(\frac{x}{a})}; \sqrt{2c\text{log}(\frac{b}{x})}] \right\}
-\label{Kernelpop}
-\end{equation}
 ```
 ![Figure 1: Viability kernel of the population viability problem](images/populationGitlab.png)
 
-_Figure 1 shows an approximation of the viability kernel for the population problem with constraint set $`K=[a=0.2,b=3]\times[d=-2,e=2]`$, parameters $`dt=0.1`$, control set $`U=[-0.5;0.5]`$ with discretization step 0.02. The color stands for the value of the control $`u`$. In black the boundary of the true kernel._
+_Figure 1 shows an approximation of the viability kernel for the population problem with constraint set $`K=[a=0.2,b=3]\times[d=-2,e=2]`$, parameters $`dt=0.1`$, control set $`U=[-0.5;0.5]`$ with discretization step 0.02. The color stands for the value of a control $`u`$ which allows the state to stay in the viability kernel. In black the boundary of the true kernel._
 
 ### Mathematical Viability Theory ([2], [3])
 In Viabilitree we consider a viability problem defined by a controlled dynamical system $`S`$, a set-valued map $`U`$ (the set of admissible controls depending on the state of the system), and a compact subset $`K`$ of the state space (the set of constraints):
 ```math
-({S)\left\{
+(S)\left\{
 \begin{array}{lll}
 x'(t)&=&\Phi(x(t),u(t))\\
 u(t)&\in & U(x(t))
@@ -56,3 +53,4 @@ x(t)&\in & K
 [1] Rouquier et al
 [2] Aubin, 1991
 [3] Aubin, et al 2011
+[4] Aubin et Saint-Pierre 2007
