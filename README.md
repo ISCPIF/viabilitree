@@ -22,7 +22,9 @@ The dynamics are controlled by taking the growth rate evolution in interval $`[-
 ```math
 Viab(K) = \left\{ (x,y)\in \R^2| \hspace{1mm} x \in [a;b], y\in [-\sqrt{2c\text{log}(\frac{x}{a})}; \sqrt{2c\text{log}(\frac{b}{x})}] \right\}
 ```
-![Figure 1: Viability kernel of the population viability problem](images/populationGitlab.png)
+[comment]: <> ![Figure 1: Viability kernel of the population viability problem](images/populationGitlab.png)
+
+<img src="images/populationGitlab.png" width="150" alt="Figure 1: Viability kernel of the population viability problem">
 
 _Figure 1 shows an approximation of the viability kernel for the population problem with constraint set $`K=[a=0.2,b=3]\times[d=-2,e=2]`$, parameters $`dt=0.1`$, control set $`U=[-0.5;0.5]`$ with discretization step 0.02. The color stands for the value of a control $`u`$ which allows the state to stay in the viability kernel. In black the boundary of the true kernel._
 
