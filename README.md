@@ -24,7 +24,14 @@ Viab(K) = \left\{ (x,y)\in {\mathbb R}^2| \quad  x \in [a;b], y\in [-\sqrt{2c\te
 ```
 <img src="images/populationGitlab.png" width="300" alt="Figure 1: Viability kernel of the population viability problem">
 
-_Figure 1 shows an approximation of the viability kernel for the population problem with constraint set $`K=[a=0.2,b=3]\times[d=-2,e=2]`$, parameters $`dt=0.1`$, control set $`U=[-0.5;0.5]`$ with discretization step 0.02. The color stands for the value of a control $`u`$ which allows the state to stay in the viability kernel. In black the boundary of the true kernel._
+The above figure shows an approximation of the viability kernel for the population problem with:
+* constraint set $`K=[a=0.2,b=3]\times[d=-2,e=2]`$, 
+* parameters $`dt=0.1`$, 
+* control set $`U=[-0.5;0.5]`$ with discretization step 0.02. 
+The color stands for the value of a control $`u`$ which allows the state to stay in the viability kernel. In black the boundary of the true kernel.
+
+The corresponding code is the following:
+
 
 ### Mathematical Viability Theory ([2], [3])
 In Viabilitree we consider a viability problem defined by a controlled dynamical system $`S`$, a set-valued map $`U`$ (the set of admissible controls depending on the state of the system), and a compact subset $`K`$ of the state space (the set of constraints):

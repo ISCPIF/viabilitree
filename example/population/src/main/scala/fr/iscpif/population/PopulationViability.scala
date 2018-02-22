@@ -12,7 +12,6 @@ import viabilitree.viability._
 import viabilitree.export._
 import viabilitree.kdtree.Tree
 import viabilitree.viability.kernel._
-import better.files._
 
 object PopulationViability extends App {
   val depth = 10
