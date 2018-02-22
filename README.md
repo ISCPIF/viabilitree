@@ -29,22 +29,22 @@ Viab(K) = \left\{ (x,y)\in \R^2| \hspace{1mm} x \in [a;b], y\in [-\sqrt{2c\text{
 _Figure 1 shows an approximation of the viability kernel for the population problem with constraint set $`K=[a=0.2,b=3]\times[d=-2,e=2]`$, parameters $`dt=0.1`$, control set $`U=[-0.5;0.5]`$ with discretization step 0.02. The color stands for the value of the control $`u`$. In black the boundary of the true kernel._
 
 ### Mathematical Viability Theory ([2], [3])
-In Viabilitree we consider a viability problem defined by a controlled dynamical system $`{\mathcal S}`$, a set-valued map $`U`$ (the set of admissible controls depending on the state of the system), and a compact subset $`K`$ of the state space (the set of constraints):
+In Viabilitree we consider a viability problem defined by a controlled dynamical system $`S`$, a set-valued map $`U`$ (the set of admissible controls depending on the state of the system), and a compact subset $`K`$ of the state space (the set of constraints):
 ```math
-({\mathcal S})\left\{
+({S)\left\{
 \begin{array}{lll}
 x'(t)&=&\Phi(x(t),u(t))\\
 u(t)&\in & U(x(t))
 \end{array}\right.
 ```
- $`x(t)`$ is the state of the system $`{\mathcal S}`$, $`x(t)\in {\mathbb R}^p`$ a finite dimensional vector space.
- $`u(t)`$ is the control, with $`u(t)\in \mathbb{R}^q`$.
- The set-valued map $`U : X\leadsto Y`$ gives the set of admissible control for each state $`x`$. $`\Phi`$ is a function from $`\mbox{Graph}(U)`$ to $`X`$.
-$`K\subset X`$ is a compact subset of $`X`$, it is the set of desirable states, the constraint set in which the state $`x(t)`$ is supposed to stay.
+ $`x(t)`$ is the state of the system $`S`$, $`x(t)\in {\mathbb R}^p`$ a finite dimensional vector space.
+ $`u(t)`$ is the control, with $`u(t)\in {\mathbb{R}}^q`$.
+ The set-valued map $`U : {\mathbb R}^p\leadsto {\mathbb{R}}^q`$ gives the set of admissible control for each state $`x`$. $`\Phi`$ is a function from $`\text{Graph}(U)`$ to $`{\mathbb R}^p`$.
+$`K\subset {\mathbb R}^p`$ is a compact subset of $`{\mathbb R}^p`$, it is the set of desirable states, the constraint set in which the state $`x(t)`$ is supposed to stay.
 
-The viability kernel $`viab_{{\mathcal S}}(K)`$ is the subset of $`K`$ (possibly empty) that gathers the states from which it is possible to find a control function $`u(t)`$ such that the evolution $`x(.)`$ stays in the compact set $`K`$.
+The viability kernel $`viab_S(K)`$ is the subset of $`K`$ (possibly empty) that gathers the states from which it is possible to find a control function $`u(t)`$ such that the evolution $`x(.)`$ stays in the compact set $`K`$.
 ```math
-x\in viab_{{\mathcal S}}(K) \Leftrightarrow  \exists u(.) \quad \forall t\geq 0 \left\{
+x\in viab_S(K) \Leftrightarrow  \exists u(.) \quad \forall t\geq 0 \left\{
 \begin{array}{lll}
 x'(t)&=&\Phi(x(t),u(t))\\
 u(t)&\in & U(x(t))\\
