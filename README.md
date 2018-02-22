@@ -26,6 +26,7 @@ Viab(K) = \left\{ (x,y)\in \R^2| \hspace{1mm} x \in [a;b], y\in [-\sqrt{2c\text{
 \end{equation}
 ```
 ![Figure 1: Viability kernel of the population viability problem](images/populationGitlab.png)
+
 _Figure 1 shows an approximation of the viability kernel for the population problem with constraint set $`K=[a=0.2,b=3]\times[d=-2,e=2]`$, parameters $`dt=0.1`$, control set $`U=[-0.5;0.5]`$ with discretization step 0.02. The color stands for the value of the control $`u`$. In black the boundary of the true kernel._
 
 ### Mathematical Viability Theory ([2], [3])
