@@ -12,10 +12,14 @@ Mathematical viability theory offers concepts and methods that are suitable to s
 #### Population Growth Model
 This example is taken from \citet{AubinStPierre07}. The population model is defined from Maltus and Verhulst \citep{Verhulst}. The population viability problem consists in maintaining the size of a population in a given interval $`[a;b]`$. The state of the system is described by the variables $x(t)$, the size of the population, and $y(t)$, the population growth rate. The dynamics are described by the following equations:
 ```math
+a^2+b^2=c^2
+```
+
+```math
 \left\{
 \begin{array}{lll}
 x(t+dt) &=& x(t)+x(t)y(t)dt\\
-y(t+dt) &=& y(t)+u(t)dt \hspace{1mm}  with \hspace{1mm} \left| u(t) \right| \leq c
+y(t+dt) &=& y(t)+u(t)dt  with \hspace{1mm} \left| u(t) \right| \leq c
 \end{array}\right.
 ```
 The dynamics are controlled by taking the growth rate evolution in interval $[-c,c]$. This viability problem can be resolved analytically (see \citet{AubinStPierre07} for details). When $dt$ tends toward $0$, the theoretical viability kernel is defined by:
