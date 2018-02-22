@@ -10,17 +10,43 @@ import fr.iscpif.kdtree.content._
 import scala.util.Random
 import viabilitree.viability._
 import viabilitree.export._
+import viabilitree.kdtree.Tree
 import viabilitree.viability.kernel._
 import better.files._
 
+
 object PopulationViability extends App {
-  val depth = 16
-  def stringToFile(s: String): better.files.File = File(s)
-  val s = "testTest"
-  Pop.run(depth, stringToFile(s))
+  val depth = 10
+  val umax = 0.5
+  //  def stringToFile(s: String): better.files.File = File(s)
+  val file : java.io.File = new java.io.File("testTest")
+  Pop.run(depth,file, umax)
 }
 
+
 object Pop {
+
+  def run2(depth: Int) = {
+    val population = Population()
+    val rng = new Random(42)
+    def a = 0.2
+    def b = 3.0
+    def c = 0.5
+    def d = -2.0
+    def e = 2.0
+
+    val vk = KernelComputation(
+      dynamic = population.dynamic,
+      depth = depth,
+      zone = Vector((a, b), (d, e)),
+      controls = Vector(-0.5 to 0.5 by 0.02))
+
+    val begin = System.currentTimeMillis()
+    val (ak, steps) = approximate(vk, rng)
+    // saveVTK2D(ak, s"/tmp/populationFINAL/population${steps}.vtk")
+    val tps = (System.currentTimeMillis - begin)
+    tps
+  }
 
   def run1(depth: Int) = {
     val population = Population()
@@ -43,7 +69,8 @@ object Pop {
     val tps = (System.currentTimeMillis - begin)
     tps
   }
-  def run(depth: Int, file: File) = {
+
+  def run(depth: Int, file: java.io.File, u_max: Double) = {
     val population = Population()
     val rng = new Random(42)
     def a = 0.2
@@ -56,12 +83,21 @@ object Pop {
       dynamic = population.dynamic,
       depth = depth,
       zone = Vector((a, b), (d, e)),
-      controls = Vector(-0.5 to 0.5 by 0.02))
+ //     controls = Vector(-0.5 to 0.5 by 0.02))
+      controls = Vector(-u_max to u_max by 0.02))
 
     val begin = System.currentTimeMillis()
     val (ak, steps) = approximate(vk, rng)
 
-    saveVTK2D(ak, file)
+    val f = file.toScala / s"${steps}depth${depth}.vtk"
+    saveVTK2D(ak, f)
+    println(volume(ak))
+    val f2 = file.toScala / s"${steps}depth${depth}withControl${u_max}.txt"
+    saveHyperRectangles(vk)(ak, f2)
+    val f3 = file.toScala / s"${steps}depth${depth}withControl${u_max}.bin"
+    save(ak,f3)
+    val ak2 = load[Tree[KernelContent]](f3)
+    println(volume(ak2))
     val tps = (System.currentTimeMillis - begin)
     tps
   }

@@ -61,7 +61,7 @@ lazy val kdtree = Project(id = "kdtree", base = file("kdtree")) settings(default
 lazy val approximation = Project(id = "approximation", base = file("approximation")) settings(defaultSettings: _*) dependsOn(kdtree)
 
 lazy val export = Project(id = "export", base = file("export")) settings(defaultSettings: _*) dependsOn(kdtree, approximation, viability) settings (
-  libraryDependencies += "com.github.pathikrit" %% "better-files" % "2.17.1",
+  libraryDependencies += "com.github.pathikrit" %% "better-files" % "3.2.0",
   libraryDependencies += "com.thoughtworks.xstream" % "xstream" % "1.4.7")
 
 lazy val viability = Project(id = "viability", base = file("viability")) settings(defaultSettings: _*) dependsOn(kdtree, approximation, model)
@@ -81,7 +81,7 @@ lazy val strategy = Project(id = "strategy", base = file("strategy")) settings(d
 
 lazy val population =
   Project(id = "population", base = file("example/population")) settings(
-    libraryDependencies += "com.github.pathikrit" %% "better-files" % "2.17.1",
+    libraryDependencies += "com.github.pathikrit" %% "better-files" % "3.2.0",
     publishArtifact := false,
     OsgiKeys . exportPackage := Seq ( "viabilitree.*", "fr.iscpif.population.*"),
     OsgiKeys . importPackage := Seq ( "*;resolution:=optional" ),

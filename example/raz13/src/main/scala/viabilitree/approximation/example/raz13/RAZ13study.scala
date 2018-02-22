@@ -16,7 +16,7 @@ object RAZ13study extends App {
   //  val v: Double = 1.5
   val depth: Int = 14
 
-  val output = s"/tmp/RAZ13Study/test0116/"
+  val output = s"/tmp/RAZ13Study/test0219/"
 
   def kernel0 = {
     import viabilitree.viability._
@@ -33,6 +33,7 @@ object RAZ13study extends App {
     val (ak, steps) = approximate(vk, rng)
     saveVTK2D(ak, s"${output}raz13${vk.depth}U${U}K0.vtk")
     saveHyperRectangles(vk)(ak, s"${output}raz13${vk.depth}U${U}K0.txt")
+    save(ak, s"${output}raz13${vk.depth}U${U}K0.bin")
 
     (vk, ak, steps)
   }
@@ -42,6 +43,7 @@ object RAZ13study extends App {
   println("kernel0" + steps)
   println("depth " + depth)
 
+  // EROSION DE K
   //On applique l'inondation de taille v. C'est à dire que les états state se retrouvent en (state + perturbation)
   // ceci doit être aussi dans le noyau et on apprend le nouvel ensemble.
   def thetaV(v: Double, ak: Kernel, vk: KernelComputation) = {
@@ -93,6 +95,7 @@ object RAZ13study extends App {
     /* seulement pour les tests     */
     saveVTK2D(ak, s"${output}raz13${vk.depth}U${U}Kv${v}.vtk")
     saveHyperRectangles(vk)(ak, s"${output}raz13${vk.depth}U${U}Kv${v}.txt")
+    save(ak,s"${output}raz13${vk.depth}U${U}Kv${v}.bin")
 
     (vk, ak, steps)
 
@@ -157,7 +160,7 @@ object RAZ13study extends App {
     }
   }
 
-  def study() = {
+  def studyMaps1_2() = {
     //    val listeV = List(0.5, 1.0, 1.5, 2.0, 2.5)
     val listeV = List(1.5)
     val tMax = 20
@@ -191,9 +194,12 @@ object RAZ13study extends App {
               println("nb de pas" + listeCapt.length)
               println("capture de K erode v de volume " + listeCapt.last.volume)
               listeCapt.zipWithIndex.foreach {
-                case (aCapt, step) => saveVTK2D(aCapt, s"${output}raz13${vk1.depth}U${U}CaptKv${v}No${step}.vtk")
+                case (aCapt, step) => {
+                  saveVTK2D(aCapt, s"${output}raz13${vk1.depth}U${U}CaptKv${v}No${step}.vtk")
+                  save(aCapt, s"${output}raz13${vk1.depth}U${U}CaptKv${v}No${step}.bin")
+                }
               }
-
+            }
               // peculiar study for (unAlpha, unW)
               // for each v, find if it is in the kernel Hv
               // if not find in which Capt K(v,t) it is and note this t
@@ -206,6 +212,5 @@ object RAZ13study extends App {
         }
       }
     }
-  }
-  study
+  studyMaps1_2
 }
