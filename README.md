@@ -31,32 +31,26 @@ _Figure 1 shows an approximation of the viability kernel for the population prob
 ### Mathematical Viability Theory ([2], [3])
 In Viabilitree we consider a viability problem defined by a controlled dynamical system $`{\mathcal S}`$, a set-valued map $`U`$ (the set of admissible controls depending on the state of the system), and a compact subset $`K`$ of the state space (the set of constraints):
 ```math
-\begin{equation}
-\label{SD}
 ({\mathcal S})\left\{
 \begin{array}{lll}
 x'(t)&=&\Phi(x(t),u(t))\\
 u(t)&\in & U(x(t))
 \end{array}\right.
-\end{equation}
 ```
  $`x(t)`$ is the state of the system $`{\mathcal S}`$, $`x(t)\in {\mathbb R}^p`$ a finite dimensional vector space.
  $`u(t)`$ is the control, with $`u(t)\in \mathbb{R}^q`$.
- The set-valued map $`U : X\leadsto Y`$ gives the set of admissible control for each state $`x \in X`$. $`\Phi$ is a function from $`\mbox{Graph}(U)`$ to $`X`$.
+ The set-valued map $`U : X\leadsto Y`$ gives the set of admissible control for each state $`x`$. $`\Phi`$ is a function from $`\mbox{Graph}(U)`$ to $`X`$.
 $`K\subset X`$ is a compact subset of $`X`$, it is the set of desirable states, the constraint set in which the state $`x(t)`$ is supposed to stay.
 
 The viability kernel $`viab_{{\mathcal S}}(K)`$ is the subset of $`K`$ (possibly empty) that gathers the states from which it is possible to find a control function $`u(t)`$ such that the evolution $`x(.)`$ stays in the compact set $`K`$.
-
-\begin{equation}
-\label{ViabProblem}
+```math
 x\in viab_{{\mathcal S}}(K) \Leftrightarrow  \exists u(.) \quad \forall t\geq 0 \left\{
 \begin{array}{lll}
 x'(t)&=&\Phi(x(t),u(t))\\
 u(t)&\in & U(x(t))\\
 x(t)&\in & K
 \end{array}\right.
-\end{equation}
-
+```
 #### References
 [1] Rouquier et al
 [2] Aubin, 1991
