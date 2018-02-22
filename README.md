@@ -10,7 +10,7 @@ Mathematical viability theory offers concepts and methods that are suitable to s
 
 ### Exemple
 #### Population Growth Model
-This example is taken from \citet{AubinStPierre07}. The population model is defined from Maltus and Verhulst \citep{Verhulst}. The population viability problem consists in maintaining the size of a population in a given interval $[a;b]$. The state of the system is described by the variables $x(t)$, the size of the population, and $y(t)$, the population growth rate. The dynamics are described by the following equations:
+This example is taken from \citet{AubinStPierre07}. The population model is defined from Maltus and Verhulst \citep{Verhulst}. The population viability problem consists in maintaining the size of a population in a given interval $`[a;b]`$. The state of the system is described by the variables $x(t)$, the size of the population, and $y(t)$, the population growth rate. The dynamics are described by the following equations:
 \begin{equation}
 \left\{
 \begin{array}{lll}
