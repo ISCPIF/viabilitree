@@ -18,9 +18,8 @@ object PopulationViability extends App {
   val umax = 0.5
   //  def stringToFile(s: String): better.files.File = File(s)
   val file : java.io.File = new java.io.File("testTest")
-  Pop.run(depth,file, umax)
+  Pop.run3(depth,file, umax)
 }
-
 
 object Pop {
 
@@ -68,7 +67,7 @@ object Pop {
     tps
   }
 
-  def run(depth: Int, file: java.io.File, u_max: Double) = {
+  def run3(depth: Int, file: java.io.File, u_max: Double) = {
     val population = Population()
     val rng = new Random(42)
     def a = 0.2
@@ -99,6 +98,49 @@ object Pop {
     val tps = (System.currentTimeMillis - begin)
     tps
   }
+
+ /* def run(depth: Int, file: java.io.File, u_max: Double) = {
+    import viabilitree.model.Dynamic
+
+    val rng = new Random(42)
+    def a = 0.2
+    def b = 3.0
+    def c = 0.5
+    def d = -2.0
+    def e = 2.0
+
+    def populationDynamic(integrationStep: Double = 0.01, timeStep: Double = 0.1)(state: Vector[Double], control: Vector[Double]) = {
+      def xDot(state: Vector[Double], t: Double) = state(1) * state(0)
+      def yDot(state: Vector[Double], t: Double) = control(0)
+      val dynamic = Dynamic(xDot, yDot)
+      val res = dynamic.integrate(state.toArray, integrationStep, timeStep)
+      res
+    }
+
+    val vk = KernelComputation(
+      dynamic = populationDynamic,
+      depth = depth,
+      zone = Vector((a, b), (d, e)),
+      controls = Vector(-u_max to u_max by 0.02))
+
+    val (ak, steps) = approximate(vk, rng)
+
+    println(volume(ak))
+
+    // save viability kernel to files
+
+    /*
+    val f = file.toScala / s"${steps}depth${depth}.vtk"
+    saveVTK2D(ak, f)
+    val f2 = file.toScala / s"${steps}depth${depth}withControl${u_max}.txt"
+    saveHyperRectangles(vk)(ak, f2)
+    val f3 = file.toScala / s"${steps}depth${depth}withControl${u_max}.bin"
+    save(ak,f3)
+    // val ak2 = load[Tree[KernelContent]](f3)
+    */
+
+  }
+*/
 }
 
 /*
