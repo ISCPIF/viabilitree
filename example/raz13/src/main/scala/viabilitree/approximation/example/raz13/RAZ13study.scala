@@ -116,7 +116,7 @@ object RAZ13study extends App {
   }
 
   def study0() = {
-    val listeV = List(1.5)
+    val listeV = List(0.8, 1.2, 1.5 )
     val tMax = 3
 
     for (v <- listeV) {

@@ -13,12 +13,11 @@ import viabilitree.export._
 import viabilitree.viability.kernel._
 import better.files._
 
-
 object PopulationViability extends App {
   val depth = 16
-  def stringToFile(s: String):better.files.File = File(s)
+  def stringToFile(s: String): better.files.File = File(s)
   val s = "testTest"
-  Pop.run(depth,stringToFile(s))
+  Pop.run(depth, stringToFile(s))
 }
 
 object Pop {
@@ -40,11 +39,11 @@ object Pop {
 
     val begin = System.currentTimeMillis()
     val (ak, steps) = approximate(vk, rng)
-//    saveVTK2D(ak, s"/tmp/populationFINAL/population${steps}.vtk")
+    //    saveVTK2D(ak, s"/tmp/populationFINAL/population${steps}.vtk")
     val tps = (System.currentTimeMillis - begin)
     tps
   }
-  def run(depth: Int, file:File) = {
+  def run(depth: Int, file: File) = {
     val population = Population()
     val rng = new Random(42)
     def a = 0.2
