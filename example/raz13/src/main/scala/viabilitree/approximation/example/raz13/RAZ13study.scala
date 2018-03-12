@@ -95,7 +95,7 @@ object RAZ13study extends App {
     /* seulement pour les tests     */
     saveVTK2D(ak, s"${output}raz13${vk.depth}U${U}Kv${v}.vtk")
     saveHyperRectangles(vk)(ak, s"${output}raz13${vk.depth}U${U}Kv${v}.txt")
-    save(ak,s"${output}raz13${vk.depth}U${U}Kv${v}.bin")
+    save(ak, s"${output}raz13${vk.depth}U${U}Kv${v}.bin")
 
     (vk, ak, steps)
 
@@ -119,7 +119,7 @@ object RAZ13study extends App {
   }
 
   def study0() = {
-    val listeV = List(0.8, 1.2, 1.5 )
+    val listeV = List(0.8, 1.2, 1.5)
     val tMax = 3
 
     for (v <- listeV) {
@@ -200,17 +200,17 @@ object RAZ13study extends App {
                 }
               }
             }
-              // peculiar study for (unAlpha, unW)
-              // for each v, find if it is in the kernel Hv
-              // if not find in which Capt K(v,t) it is and note this t
-              // THEN for another v' (smaller than vMax, last v for which it is in Hv
-              // compute Hv' + theta(v')
-              // see in which J(v,t) it is included
+            // peculiar study for (unAlpha, unW)
+            // for each v, find if it is in the kernel Hv
+            // if not find in which Capt K(v,t) it is and note this t
+            // THEN for another v' (smaller than vMax, last v for which it is in Hv
+            // compute Hv' + theta(v')
+            // see in which J(v,t) it is included
 
-            }
           }
         }
       }
     }
+  }
   studyMaps1_2
 }

@@ -17,8 +17,8 @@ object PopulationViability extends App {
   val depth = 10
   val umax = 0.5
   //  def stringToFile(s: String): better.files.File = File(s)
-  val file : java.io.File = new java.io.File("testTest")
-  Pop.run3(depth,file, umax)
+  val file: java.io.File = new java.io.File("testTest")
+  Pop.run3(depth, file, umax)
 }
 
 object Pop {
@@ -80,7 +80,7 @@ object Pop {
       dynamic = population.dynamic,
       depth = depth,
       zone = Vector((a, b), (d, e)),
- //     controls = Vector(-0.5 to 0.5 by 0.02))
+      //     controls = Vector(-0.5 to 0.5 by 0.02))
       controls = Vector(-u_max to u_max by 0.02))
 
     val begin = System.currentTimeMillis()
@@ -92,14 +92,14 @@ object Pop {
     val f2 = file.toScala / s"${steps}depth${depth}withControl${u_max}.txt"
     saveHyperRectangles(vk)(ak, f2)
     val f3 = file.toScala / s"${steps}depth${depth}withControl${u_max}.bin"
-    save(ak,f3)
+    save(ak, f3)
     val ak2 = load[Tree[KernelContent]](f3)
     println(volume(ak2))
     val tps = (System.currentTimeMillis - begin)
     tps
   }
 
- /* def run(depth: Int, file: java.io.File, u_max: Double) = {
+  /* def run(depth: Int, file: java.io.File, u_max: Double) = {
     import viabilitree.model.Dynamic
 
     val rng = new Random(42)
