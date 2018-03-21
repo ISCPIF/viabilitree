@@ -37,6 +37,30 @@ pomExtra in ThisBuild := {
     </developers>
 }
 
+releasePublishArtifactsAction := PgpKeys.publishSigned.value
+
+releaseVersionBump := sbtrelease.Version.Bump.Minor
+
+releaseTagComment    := s"Releasing ${(version in ThisBuild).value}"
+
+releaseCommitMessage := s"Bump version to ${(version in ThisBuild).value}"
+
+import sbtrelease.ReleasePlugin.autoImport.ReleaseTransformations._
+
+releaseProcess := Seq[ReleaseStep](
+  checkSnapshotDependencies,
+  inquireVersions,
+  runClean,
+  runTest,
+  setReleaseVersion,
+  tagRelease,
+  releaseStepCommand("publishSigned"),
+  setNextVersion,
+  commitNextVersion,
+  releaseStepCommand("sonatypeReleaseAll"),
+  pushChanges
+)
+
 libraryDependencies in ThisBuild += "org.scalatest" %% "scalatest" % "3.0.1" % "test"
 libraryDependencies in ThisBuild += "org.scalacheck" %% "scalacheck" % "1.13.4" % "test"
 
