@@ -37,6 +37,30 @@ pomExtra in ThisBuild := {
     </developers>
 }
 
+releasePublishArtifactsAction := PgpKeys.publishSigned.value
+
+releaseVersionBump := sbtrelease.Version.Bump.Minor
+
+releaseTagComment    := s"Releasing ${(version in ThisBuild).value}"
+
+releaseCommitMessage := s"Bump version to ${(version in ThisBuild).value}"
+
+import sbtrelease.ReleasePlugin.autoImport.ReleaseTransformations._
+
+releaseProcess := Seq[ReleaseStep](
+  checkSnapshotDependencies,
+  inquireVersions,
+  runClean,
+  runTest,
+  setReleaseVersion,
+  tagRelease,
+  releaseStepCommand("publishSigned"),
+  setNextVersion,
+  commitNextVersion,
+  releaseStepCommand("sonatypeReleaseAll"),
+  pushChanges
+)
+
 libraryDependencies in ThisBuild += "org.scalatest" %% "scalatest" % "3.0.1" % "test"
 libraryDependencies in ThisBuild += "org.scalacheck" %% "scalacheck" % "1.13.4" % "test"
 
@@ -61,7 +85,7 @@ lazy val kdtree = Project(id = "kdtree", base = file("kdtree")) settings(default
 lazy val approximation = Project(id = "approximation", base = file("approximation")) settings(defaultSettings: _*) dependsOn(kdtree)
 
 lazy val export = Project(id = "export", base = file("export")) settings(defaultSettings: _*) dependsOn(kdtree, approximation, viability) settings (
-  libraryDependencies += "com.github.pathikrit" %% "better-files" % "3.2.0",
+  libraryDependencies += "com.github.pathikrit" %% "better-files" % "3.4.0",
   libraryDependencies += "com.thoughtworks.xstream" % "xstream" % "1.4.7")
 
 lazy val viability = Project(id = "viability", base = file("viability")) settings(defaultSettings: _*) dependsOn(kdtree, approximation, model)
@@ -81,9 +105,9 @@ lazy val consumer = Project(id = "consumer", base = file("example/consumer")) se
 
 lazy val population =
   Project(id = "population", base = file("example/population")) settings(
-    libraryDependencies += "com.github.pathikrit" %% "better-files" % "3.2.0",
+    libraryDependencies += "com.github.pathikrit" %% "better-files" % "3.4.0",
     publishArtifact := false,
-    OsgiKeys . exportPackage := Seq ( "viabilitree.*", "fr.iscpif.population.*"),
+    OsgiKeys . exportPackage := Seq ( "viabilitree.*", "fr.iscpif.population.*", "better.files.*"),
     OsgiKeys . importPackage := Seq ( "*;resolution:=optional" ),
     OsgiKeys . privatePackage := Seq ( "*" ),
     OsgiKeys . requireCapability := """osgi.ee;filter:="(&(osgi.ee=JavaSE)(version=1.8))"""") dependsOn(viability, export, model) enablePlugins(SbtOsgi)

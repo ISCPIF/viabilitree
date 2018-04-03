@@ -47,7 +47,7 @@ object BilingualViabDomain extends App {
   val (viabilityDomain, steps) = approximate(vk, rng)
   //  val (viabilityDomain, steps) = approximate(vk, rng, maxNumberOfStep = Some(0))
   println(s"fin calcul noyau ${steps}")
-  val output = s"/tmp/BilingualResult2017/"
+  val output = s"/tmp/BilingualResult2018/"
   saveVTK3D(viabilityDomain, s"${output}Bilingual${vk.depth}viabdil${vk.dilations}withk.vtk")
   saveHyperRectangles(vk)(viabilityDomain, s"${output}Bilingual${vk.depth}dil${vk.dilations}withk.txt")
   val file = new File(s"${output}Bilingual0_5${vk.depth}dil${vk.dilations}Noyau.bin")
