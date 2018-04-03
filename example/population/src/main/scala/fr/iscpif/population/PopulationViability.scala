@@ -9,6 +9,7 @@ import fr.iscpif.kdtree.content._
 
 import scala.util.Random
 import viabilitree.viability._
+import java.io.File
 import viabilitree.export._
 import viabilitree.kdtree.Tree
 import viabilitree.viability.kernel._
@@ -120,7 +121,8 @@ object Pop {
     val begin = System.currentTimeMillis()
     val (ak, steps) = approximate(vk, rng)
 
-    println("nb of steps : ", steps)
+    println("nb of steps : ")
+    println(steps)
 
     val tps = (System.currentTimeMillis - begin)
     tps
