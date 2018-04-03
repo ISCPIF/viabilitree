@@ -15,11 +15,11 @@ import viabilitree.viability.kernel._
 
 
 object PopulationViability extends App {
-  val depth = 10
+  val depth = 20
   val umax = 0.5
   //  def stringToFile(s: String): better.files.File = File(s)
-  val file : java.io.File = new java.io.File("testTest")
-  Pop.run(depth,file, umax)
+  val file : java.io.File = new java.io.File("experimentTime")
+  Pop.runTest(depth,file, umax)
 }
 
 
@@ -99,6 +99,48 @@ object Pop {
     println(volume(ak2))
     val tps = (System.currentTimeMillis - begin)
     tps
+  }
+
+  def runTest(depth: Int, file: java.io.File, u_max: Double) = {
+    val population = Population()
+    val rng = new Random(42)
+    def a = 0.2
+    def b = 3.0
+    def c = 0.5
+    def d = -2.0
+    def e = 2.0
+
+    val vk = KernelComputation(
+      dynamic = population.dynamic,
+      depth = depth,
+      zone = Vector((a, b), (d, e)),
+      //     controls = Vector(-0.5 to 0.5 by 0.02))
+      controls = Vector(-u_max to u_max by 0.02))
+
+    val begin = System.currentTimeMillis()
+    val (ak, steps) = approximate(vk, rng)
+
+    println("nb of steps : ", steps)
+
+    val tps = (System.currentTimeMillis - begin)
+    tps
+
+    println(tps)
+
+
+    /*
+    val f = file.toScala / s"${steps}depth${depth}.vtk"
+    saveVTK2D(ak, f)
+    println(volume(ak))
+    val f2 = file.toScala / s"${steps}depth${depth}withControl${u_max}.txt"
+    saveHyperRectangles(vk)(ak, f2)
+    val f3 = file.toScala / s"${steps}depth${depth}withControl${u_max}.bin"
+    save(ak,f3)
+    val ak2 = load[Tree[KernelContent]](f3)
+    println(volume(ak2))
+    val tps = (System.currentTimeMillis - begin)
+    tps
+    */
   }
 }
 

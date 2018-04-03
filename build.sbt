@@ -77,7 +77,7 @@ lazy val strategy = Project(id = "strategy", base = file("strategy")) settings(d
 
 //lazy val cyclic = Project(id = "cyclic", base = file("example/cyclic")) settings(settings: _*) dependsOn(viability, export, model)
 
-//lazy val consumer = Project(id = "consumer", base = file("example/consumer")) settings(settings: _*) dependsOn(viability, export, model)
+lazy val consumer = Project(id = "consumer", base = file("example/consumer")) settings(publishArtifact := false) dependsOn(viability, export, model)
 
 lazy val population =
   Project(id = "population", base = file("example/population")) settings(
