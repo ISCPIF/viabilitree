@@ -23,11 +23,10 @@ The dynamics are controlled by taking the growth rate evolution in interval $`[-
 Viab(K) = \left\{ (x,y)\in {\mathbb R}^2| \quad  x \in [a;b], y\in [-\sqrt{2c\text{log}(\frac{x}{a})}; \sqrt{2c\text{log}(\frac{b}{x})}] \right\}
 ```
 
-<img src="images/populationGitlab.png" width="300" alt="Figure 1: Viability kernel of the population viability problem">*Figure 1: Viability kernel of the population viability problem*
+<img src="images/populationGitlab.png" width="300" alt="Figure 1: Viability kernel of the population viability problem">[Figure 1: Viability kernel of the population viability problem][Figure 1]
 
-{::comment}
-![Approximation of the population growth viability kernel](images/populationGitlab.png "Direct approximation")*Figure 1: Viability kernel of the population viability problem*
-{:/comment}
+[//]: # (![Approximation of the population growth viability kernel](images/populationGitlab.png "Direct approximation")*Figure 1: Viability kernel of the population viability problem*)
+
 
 The above figure shows an approximation of the viability kernel for the population problem with:
 * constraint set $`K=[a=0.2,b=3]\times[d=-2,e=2]`$, 

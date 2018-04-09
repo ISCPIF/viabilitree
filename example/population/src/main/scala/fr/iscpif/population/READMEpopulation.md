@@ -188,4 +188,6 @@ The computation  is done by the call to function  _approximate_  of class _Oracl
 
 The resulting VTK files can be processed with Paraview.
 
+<img src="/images/approximationTrueK18.png" width="300" alt="Figure 2: Direct approximation of the Viability kernel indicator function">[Figure 2: Direct approximation of the Viability kernel indicator function][Figure 2]
+
 ![Direct Approximation of Viab(K)](/images/populationGitlab.png "Direct approximation")*Figure 2*
