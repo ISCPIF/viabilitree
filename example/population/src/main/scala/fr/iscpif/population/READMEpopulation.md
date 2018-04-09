@@ -28,7 +28,7 @@ The color stands for the value of a control $`u`$ which allows the state to stay
 
 The corresponding code is the following:
 
-###Step 1: Code for the dynamics
+### Step 1: Code for the dynamics
 For the definition of the model: dynamics, perturbations, etc, a class Population is created. Here it only stores the definition of the dynamics (1).
 ```scala
 import viabilitree.model.Dynamic
