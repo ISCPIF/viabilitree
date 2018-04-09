@@ -1,0 +1,86 @@
+Index: example/raz13/src/main/scala/viabilitree/approximation/example/raz13/raz13.scala
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- example/raz13/src/main/scala/viabilitree/approximation/example/raz13/raz13.scala	(revision )
++++ example/raz13/src/main/scala/viabilitree/approximation/example/raz13/raz13.scala	(revision )
+@@ -23,16 +23,16 @@
+ case class RAZ13(
+   integrationStep: Double = 0.1,
+   timeStep: Double = 1.0,
+-  Tm: Double = 15.0,
+-  A2: Double = 0.2,
+-  b: Double = 1.0,
+-  C: Double = 2.0,
++  Tm: Double = 10.0,
++  A2: Double = 0.4,
++  B: Double = 1500.0,
++  C: Double = 50,
+   A3: Double = 1.0,
+   M: Double = 30.0,
+-  a3: Double = 1.0,
+-  a2: Double = 0.0,
+-  a1: Double = 0.0,
+-  a0: Double = 1.0) {
++  a: Double = 206.0,
++  b: Double = -0.9948,
++  c: Double = 0.0015,
++  d:Double = 5000.0)  {
+ 
+   /* PARAMETRES
+   M flood size for which impact is half the max (1/2)
+@@ -59,26 +59,31 @@
+   def A1 = log(2) / Tm
+   // A1 peut valoir en fait ln(2)/TM, ie en TM alpha aura perdu la moitié de sa valeur initiale
+   def dynamic(state: Vector[Double], control: Vector[Double]) = {
++    def wDot(state: Vector[Double], t: Double) = B - C * control(0)
+     def alphaDot(state: Vector[Double], t: Double) =
+-      -A1 * state(0) + A2 * state(0) * (1 - state(0)) * control(0)
+-    def wDot(state: Vector[Double], t: Double) = b - C * control(0)
++      -A1 * state(1) + A2 * state(1) * (1 - state(1)) * control(0)
+ 
+-    val dynamic = Dynamic(alphaDot, wDot)
++
++    val dynamic = Dynamic(wDot,alphaDot)
++
+     dynamic.integrate(state.toArray, integrationStep, timeStep)
+   }
+ 
+   def damage(alpha: Double, s: Double): Double = {
+-    case s a3 * s * s * s + a2 * s * s + a1 * s + a0 * (1 - alpha)
++    s  match {
++      case 0 => 0
++      case _ => a * s * s * s + b * s * s + c * s + d * (1 - alpha)
++    }
+     // a0*(1-alpha)*s
+   }
+   def perturbation(state: Vector[Double], s: Double) = {
+-    def alphaDelta(state: Vector[Double], s: Double) = A3 * (1 - state(0)) * (s / (M + s))
+-    def wDelta(state: Vector[Double], s: Double) = -damage(state(0), s)
+-    (alphaDelta(state,s),wDelta(state,s))
++    def alphaDelta(state: Vector[Double], s: Double) = A3 * (1 - state(1)) * (s / (M + s))
++    def wDelta(state: Vector[Double], s: Double) = -damage(state(1), s)
++    (wDelta(state,s), alphaDelta(state,s))
+   }
+   def jump(state:Vector[Double], s: Double) = {
+-    val (alphaDelta,wDelta) = perturbation(state,s)
+-    Vector(state(0) + alphaDelta, state(1) + wDelta )
++    val (wDelta, alphaDelta) = perturbation(state,s)
++    Vector(state(0) + wDelta , state(1) + alphaDelta )
+   }
+   // pour avoir un vecteur en sortie
+ /*
+@@ -94,10 +99,10 @@
+                viabProblem : viabilitree.viability.kernel.KernelComputation)= {
+     val jumpState = jumpV(state)
+     val zoneLim = viabProblem.zone
+-    val wLim = zoneLim.region(1).max
++    val wLim = zoneLim.region(0).max
+     (viableSet.contains(viabilitree.viability.kernel.Content.label.get, state) &&
+       (viableSet.contains(viabilitree.viability.kernel.Content.label.get, jumpState)) ||
+-      jumpState(1)>= wLim)
++      jumpState(0)>= wLim)
+   }
+ 
+   // ici c'est différent il faut être pragmatique

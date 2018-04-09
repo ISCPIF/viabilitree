@@ -1,0 +1,142 @@
+Index: example/raz13/src/main/scala/viabilitree/approximation/example/raz13/RAZ13study.scala
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- example/raz13/src/main/scala/viabilitree/approximation/example/raz13/RAZ13study.scala	(revision )
++++ example/raz13/src/main/scala/viabilitree/approximation/example/raz13/RAZ13study.scala	(revision )
+@@ -1,5 +1,6 @@
+ package viabilitree.approximation.example.raz13
+ 
++import viabilitree.approximation.KdTreeComputation.LeafSelection
+ import viabilitree.approximation.OracleApproximation
+ import viabilitree.export._
+ import viabilitree.model.Control
+@@ -11,19 +12,19 @@
+   val U: Double = 10.0
+ 
+   val output = s"/tmp/RAZ13Study/"
+-  val depth = 20
++  val depth = 16
+ 
+-   def kernel0 = {
++  def kernel0 = {
+     import viabilitree.viability._
+     import viabilitree.viability.kernel._
+ 
+     val vk = KernelComputation(
+       dynamic = riverfront.dynamic,
+       depth = depth,
+-      zone = Vector((0.0, 1.0), (0.0, 20.0)),
++      zone = Vector((0.0, 2000.0),(0.0, 1.0)),
+       controls = Vector((0.0 to U by 2.0)),
+-      domain = (p: Vector[Double]) => p(0) <= 1.0 && p(0) >= 0,
+-      neutralBoundary = Vector(ZoneSide(0, Low), ZoneSide(0, High), ZoneSide(1, High)))
++      domain = (p: Vector[Double]) => p(1) <= 1.0 && p(1) >= 0,
++      neutralBoundary = Vector(ZoneSide(0, High), ZoneSide(1, Low), ZoneSide(1, High)))
+ 
+     val (ak, steps) = approximate(vk, rng)
+     (vk, ak, steps)
+@@ -32,6 +33,9 @@
+   val (vk0, ak0, steps0) = kernel0
+   println(steps0)
+ 
++  saveVTK2D(ak0, s"${output}raz13${vk0.depth}U${U}K0.vtk")
++  saveHyperRectangles(vk0)(ak0, s"${output}raz13${vk0.depth}U${U}K0.txt")
++
+   //On applique l'inondation de taille v. C'est à dire que les états state se retrouve en (state + perturbation) et on apprend le nouvel ensemble.
+   // Retourne la perturbation appliquée à un noyau de viabilité i.e. érode le noyau de la taille de la perturbation
+   // Cette fonction s'applique pour tout noyau ak
+@@ -49,17 +53,58 @@
+     Pas la même signature pour OracleApproximation et KernelComputation
+      */
+ 
+-/* seulement pour les tests
++    // seulement pour les tests
+     saveVTK2D(kd1, s"${output}raz13${vk.depth}U${U}ORACLE.vtk")
+     saveHyperRectangles(o1)(kd1, s"${output}raz13${vk.depth}U${U}ORACLE.txt")
+-*/
++
+ 
+     (o1, kd1)
+   }
+- // Calcule le noyau de l'ensemble oa pour le problème vk avec le nouvel ensemble de contraintes (kd)
++  // Calcule le noyau de l'ensemble oa pour le problème vk avec le nouvel ensemble de contraintes (kd)
+   // On aura  $I_v=\viab(K \oplus \theta(v))=kernelTheta(ak_oplus_v(v,ak0,vk0)...)$
+   // kernelTheta(k_v,o_v)
+ 
++
++  /* def captTheta(kd:viabilitree.kdtree.Tree[OracleApproximation.Content],
++                 oa:OracleApproximation, lesControls: Vector[Double]=>Vector[Control] = vk0.controls) = {
++     import viabilitree.viability._
++     import viabilitree.viability.basin._
++
++     def pointInKdTree = {
++       val lesLeaves: Iterable[Leaf[OracleApproximation.Content]] = kd.leaves
++
++       val p:Vector[Double] = lesLeaves.collectFirst(l:Leaf[OracleApproximation.Content] => label(l.content))
++      }
++
++     val vk = BasinComputation(
++       dynamic = riverfront.dynamic,
++       depth = depth,
++       zone = oa.box,
++       controls = lesControls,
++       target = (p: Vector[Double]) => kd.contains(viabilitree.approximation.OracleApproximation.Content.label.get,p),
++       pointInTarget =
++       domain = (p: Vector[Double]) => p(0) <= 1.0 && p(0) >= 0,
++     )
++
++
++     /*
++     Pas la même signature pour OracleApproximation et KernelComputation
++      */
++
++     /* seulement pour les tests
++         saveVTK2D(kd1, s"${output}raz13${vk.depth}U${U}ORACLE.vtk")
++         saveHyperRectangles(o1)(kd1, s"${output}raz13${vk.depth}U${U}ORACLE.txt")
++     */
++     val (ak, steps) = approximate(vk, rng)
++     (vk, ak, steps)
++   }
++ */
++
++  val v= 2.0
++  val (o_v, k_v) = ak_oplus_v(v,ak0,vk0)
++  saveVTK2D(k_v, s"${output}raz13${o_v.depth}U${U}v${v}k_v.vtk")
++  saveHyperRectangles(o_v)(k_v, s"${output}raz13${o_v.depth}U${U}v${v}k_v.txt")
++
+   def kernelTheta(kd:viabilitree.kdtree.Tree[OracleApproximation.Content], oa:OracleApproximation, lesControls: Vector[Double]=>Vector[Control] = vk0.controls) = {
+     import viabilitree.viability._
+     import viabilitree.viability.kernel._
+@@ -69,10 +114,10 @@
+       depth = depth,
+       zone = oa.box,
+       controls = lesControls,
+-      domain = (p: Vector[Double]) => p(0) <= 1.0 && p(0) >= 0,
++      domain = (p: Vector[Double]) => p(1) <= 1.0 && p(1) >= 0,
+       k = Some((p: Vector[Double]) => kd.contains(viabilitree.approximation.OracleApproximation.Content.label.get,p)),
+-      neutralBoundary = Vector(ZoneSide(0, Low), ZoneSide(0, High)))
+-//    neutralBoundary = Vector(ZoneSide(0, Low), ZoneSide(0, High), ZoneSide(1, High)))
++      neutralBoundary = Vector(ZoneSide(1, Low), ZoneSide(1, High)))
++    //    neutralBoundary = Vector(ZoneSide(0, Low), ZoneSide(0, High), ZoneSide(1, High)))
+ 
+     /*
+     Pas la même signature pour OracleApproximation et KernelComputation
+@@ -85,11 +130,6 @@
+     val (ak, steps) = approximate(vk, rng)
+     (vk, ak, steps)
+   }
+-  val v=.0
+-  val (o_v, k_v) = ak_oplus_v(v,ak0,vk0)
+-  saveVTK2D(k_v, s"${output}raz13${o_v.depth}U${U}v${v}k_v.vtk")
+-  saveHyperRectangles(o_v)(k_v, s"${output}raz13${o_v.depth}U${U}v${v}k_v.txt")
+-
+ 
+ 
+ 
+@@ -102,3 +142,4 @@
+ 
+   println("ok")
+ }
++
