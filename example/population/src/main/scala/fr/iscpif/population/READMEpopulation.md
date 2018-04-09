@@ -44,7 +44,7 @@ case class Population(integrationStep: Double = 0.01, timeStep: Double = 0.1) {
   }
  }
 ```
-_timeStep_ stands for the time discretization parameter `$dt$` in (2).
+_timeStep_ stands for the time discretization parameter $`dt`$ in (2).
 
 _integrationStep_ is a private parameter used by the _integrate_ method.
 
@@ -136,5 +136,7 @@ An alternative format (valid for any dimension) is available:
     saveHyperRectangles(vk)(ak, f)
 ``` 
 This format is described in the **export** package. Each line corresponds with a leaf of the kd-tree, characterized by its testpoint, its extends along each dimension (a min and a max), and a viable control which was found for the testpoint.
+
+Figure 1 shows both files in Paraview.
 
 
