@@ -189,4 +189,4 @@ The computation  is done by the call to function  _approximate_  of class _Oracl
 
 The resulting VTK files can be processed with Paraview.
 
-![Direct Approximation of Viab(K)]("../../../../../../images/populationGitlab.png")*Figure 2*
+![Direct Approximation of Viab(K)](/images/populationGitlab.png "Direct approximation")*Figure 2*
