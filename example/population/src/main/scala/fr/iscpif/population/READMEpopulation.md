@@ -100,7 +100,7 @@ object PopulationViability extends App {
 // computation of the viability kernel corresponding to problem vk
     val (ak, steps) = approximate(vk, rng)
 // save viability kernel to file (vtk format, to be processed by paraview)
-    val f = new File(s"population${steps}depth${depth}.vtk")
+    val f = new java.io.File(s"population${steps}depth${depth}.vtk")
     saveVTK2D(ak, f)
   }
 }
@@ -125,7 +125,7 @@ _ak_ is the resulting viability kernel. It is a Tree with KernelContent (Tree[Ke
 ```scala
     val (ak, steps) = approximate(vk, rng)
 ```    
-After running the code, *ak* stores an approximation of the viability kernel for (2), as a kd-tree, which was computed in *steps* steps. The latter is saved to a text file with a simple VTK format, so it can be processed by Paraview [https://www.paraview.org/].
+After running the code, *ak* stores an approximation of the viability kernel for (2), as a kd-tree, which was computed in *steps* steps. The kd-tree is saved to a text file with a simple VTK format, so it can be processed by Paraview [https://www.paraview.org/].
 ```scala
     saveVTK2D(ak, f)
 ```    
@@ -133,7 +133,7 @@ the VTK format is available only for 2D and 3D trees. For 3D example see the **b
 
 An alternative format (valid for any dimension) is available:
 ```scala
-    saveHyperRectangles(vk)(ak, f2)
+    saveHyperRectangles(vk)(ak, f)
 ``` 
 This format is described in the **export** package. Each line corresponds with a leaf of the kd-tree, characterized by its testpoint, its extends along each dimension (a min and a max), and a viable control which was found for the testpoint.
 
