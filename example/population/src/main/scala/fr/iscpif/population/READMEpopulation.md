@@ -19,9 +19,9 @@ Viab(K) = \left\{ (x,y)\in {\mathbb R}^2| \quad  x \in [a;b], y\in [-\sqrt{2c\te
 ```
 
 <img src="../../../../../../images/populationGitlab.png" width="300" alt="Figure 1: Viability kernel of the population viability problem">
-{: #fig1}
+{: #fig1}*Figure 1*
 
-The above figure shows an approximation of the viability kernel for the population problem with:
+Figure 1 above shows an approximation of the viability kernel for the population problem with:
 * constraint set $`K=[a=0.2,b=3]\times[d=-2,e=2]`$, 
 * parameters $`dt=0.1`$, 
 * control set $`U=[-0.5;0.5]`$ with discretization step 0.02. 
