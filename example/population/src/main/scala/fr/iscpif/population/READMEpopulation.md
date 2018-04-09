@@ -105,7 +105,7 @@ object PopulationViability extends App {
   }
 }
 ```
-#####Correspondance of the code with the mathematical model
+##### Correspondance of the code with the mathematical model
 
 _umax_ corresponds with $`c`$.
 
@@ -115,13 +115,13 @@ _vk_ is the viability problem as stated in (2)
 
 _ak_ is the resulting viability kernel. It is a Tree with KernelContent (Tree[KernelContent]])
 
-#####Private Parameters
+##### Private Parameters
 ```scala
   val rng = new Random(42)
 ```
 *rng* is the seed parameter for the random generator. It is used to generate test points when splitting a leaf of the kd-tree in new leaves. Two runs with the same seed will generate the same points.
 
-#####Output
+##### Output
 ```scala
     val (ak, steps) = approximate(vk, rng)
 ```    
