@@ -138,7 +138,7 @@ An alternative format (valid for any dimension) is available:
 ``` 
 This format is described in the **export** package. Each line corresponds with a leaf of the kd-tree, characterized by its testpoint, its extends along each dimension (a min and a max), and a viable control which was found for the testpoint.
 
-[Figure 1](:#fig1) shows both files in Paraview.
+[Figure 1](#fig1) shows both files in Paraview.
 
 ## Approximation of a set
 
