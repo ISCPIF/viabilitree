@@ -187,3 +187,6 @@ The approximation problem is defined as an instance of _OracleApproximation_ wit
 
 The computation  is done by the call to function  _approximate_  of class _OracleApproximation_
 
+The resulting VTK files can be processed with Paraview.
+
+![Direct Approximation of Viab(K)]("../../../../../../images/populationGitlab.png")*Figure 2*
