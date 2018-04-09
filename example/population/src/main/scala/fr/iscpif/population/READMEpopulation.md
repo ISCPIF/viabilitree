@@ -19,6 +19,7 @@ Viab(K) = \left\{ (x,y)\in {\mathbb R}^2| \quad  x \in [a;b], y\in [-\sqrt{2c\te
 ```
 
 <img src="../../../../../../images/populationGitlab.png" width="300" alt="Figure 1: Viability kernel of the population viability problem">
+{: #fig1}
 
 The above figure shows an approximation of the viability kernel for the population problem with:
 * constraint set $`K=[a=0.2,b=3]\times[d=-2,e=2]`$, 
@@ -137,6 +138,52 @@ An alternative format (valid for any dimension) is available:
 ``` 
 This format is described in the **export** package. Each line corresponds with a leaf of the kd-tree, characterized by its testpoint, its extends along each dimension (a min and a max), and a viable control which was found for the testpoint.
 
-Figure 1 shows both files in Paraview.
+[Figure 1](:#fig1) shows both files in Paraview.
 
+## Approximation of a set
+
+The **population** package gives an example of the basic learning function in **Viabilitree**. Scala object *PopulationApproximation* shows how to approximate the set Viab(K), the theoretical viability kernel is defined by:
+```math
+Viab(K) = \left\{ (x,y)\in {\mathbb R}^2| \quad  x \in [a;b], y\in [-\sqrt{2c\text{log}(\frac{x}{a})}; \sqrt{2c\text{log}(\frac{b}{x})}] \right\}
+```
+```scala
+import viabilitree.export._
+import viabilitree.approximation._
+object PopulationApproximation extends App {
+
+  val a = 0.2
+  val b = 3.0
+  val c = 0.5
+  val d = -2.0
+  val e = 2.0
+
+  def oracle(p: Vector[Double]): Boolean = {
+    p(0) >= a && p(0) <= b &&
+      p(1) <= sqrt(2 * c * log(b / p(0))) && p(1) >= -sqrt(2 * c * log(p(0) / a))
+  }
+
+  val depth = 18
+
+  val approximation =
+    OracleApproximation(
+      depth = depth,
+      box =
+        Vector((a, b), (d, e)),
+      oracle = oracle,
+      point = Option(Vector(1.0, 0.0)))
+
+  implicit val random = new Random(42)
+  val res = approximate(approximation).get
+
+  saveVTK2D(res, s"/tmp/population/kernelVFtest${depth}.vtk")
+}
+```
+The approximation problem is defined as an instance of _OracleApproximation_ with the following parameters:
+
+* _depth_  defines the accuracy of the approximation. There are $`2^{depth}`$ grid points (here, $`2^18`$ points per axes).
+* _box_: the area to explore (here it is identical to the constraint set of the viability problem)
+* _oracle_: the oracle function $`f`$ to call in order to label examples. This function apply to a Vector[Double]) and returns a Boolean.
+* _point_ (optional): if known (an Option of) a point $`x`$ that belongs to the set to approximate: $`f(x)`$ returns TRUE.
+
+The computation  is done by the call to function  _approximate_  of class _OracleApproximation_
 
