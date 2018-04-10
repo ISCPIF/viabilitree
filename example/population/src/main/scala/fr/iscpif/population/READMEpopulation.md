@@ -1,5 +1,12 @@
 # Population growth model
 
+## Description of the package
+Package **population** contains 4 files:
+* This READMEpopulation.md file
+* Population.scala: class declaration for the dynamics of the population growth model. 
+* PopulationViability.scala: declaration of the viability problem and computation of the viability kernel. There are several way to compute a viability kernel (with a function; directly). There is an example of the syntax mandatory if you entend to use [openmole]. See in text at the [OpenMole section](#OpenMOLE)
+* PopulationApproximation.scala: an example of a learning function (learning the true viability kernel from its indicator function)
+
 ## Viability of the population growth model
 Population model from Aubin & Saint-Pierre, 2007
 
@@ -195,3 +202,45 @@ The resulting VTK files can be processed with Paraview.
 
 [Figure 2: Direct approximation of the Viability kernel indicator function](#Fig2)
 
+## Requirement for OpenMOLE
+<a name="OpenMOLE"></a>
+If you want to use your viability code with OpenMOLE, please visit first the [OpenMOLE website][openmole].
+
+### Code with function
+Previous code cannot be called by OpenMOLE. The code must be wrapped in a function, for example below:
+```scala
+object PopulationViability extends App {
+  val depth=16
+  Pop.run(depth)
+}
+
+object Pop {
+
+  def run(depth: Int) = {
+    val population = Population()
+    val rng = new Random(42)
+    def a = 0.2
+    def b = 3.0
+    def c = 0.5
+    def d = -2.0
+    def e = 2.0
+
+    val vk = KernelComputation(
+      dynamic = population.dynamic,
+      depth = depth,
+      zone = Vector((a, b), (d, e)),
+      controls = Vector(-0.5 to 0.5 by 0.02))
+
+    val begin = System.currentTimeMillis()
+    val (ak, steps) = approximate(vk, rng)
+    // saveVTK2D(ak, s"/tmp/populationFINAL/population${steps}.vtk")
+    val tps = (System.currentTimeMillis - begin)
+    tps
+  }
+}
+```  
+
+
+<!-- Identifiers, in alphabetical order -->
+
+[openmole]: http://www.openmole.org/ "OpenMOLE website: for numerical exploration of complex models"
