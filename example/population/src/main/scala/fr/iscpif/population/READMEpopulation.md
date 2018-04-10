@@ -4,7 +4,7 @@
 Package **population** contains 4 files:
 * This READMEpopulation.md file
 * Population.scala: class declaration for the dynamics of the population growth model. 
-* PopulationViability.scala: declaration of the viability problem and computation of the viability kernel. There are several way to compute a viability kernel (with a function; directly). There is an example of the syntax mandatory if you entend to use [openmole]. See in text at the [OpenMole section](#OpenMOLE)
+* PopulationViability.scala: declaration of the viability problem and computation of the viability kernel. There are several way to compute a viability kernel (with a function; directly). There is an example of the syntax mandatory if you intend to use [openmole]. See in text at the [OpenMole section](#OpenMOLE)
 * PopulationApproximation.scala: an example of a learning function (learning the true viability kernel from its indicator function)
 
 ## Viability of the population growth model
@@ -238,9 +238,78 @@ object Pop {
     tps
   }
 }
-```  
+```
+This code will be called by OpenMOLE in a task like the one below (see [openMOLE documentation][openmoleDOC] for more information)
+```
+val kernelTask = ScalaTask(
+"""val tempsFinal = fr.iscpif.population.Pop.run""") set(
+  inputs += (),
+  outputs += (computTime),
+  plugins += pluginsOf(fr.iscpif.population.Pop)
+  )
+```
+In order to link the viability code to openmole it is necessary to produce the .jar code that will be called.  
+To do this, modify the **build.sbt** file to include the **osgiBundle** settings. For **population* we have:
+```scala
+lazy val population =
+  Project(id = "population", base = file("example/population")) settings(
+    publishArtifact := false,
+    OsgiKeys . exportPackage := Seq ( "viabilitree.*", "fr.iscpif.population.*"),
+    OsgiKeys . importPackage := Seq ( "*;resolution:=optional" ),
+    OsgiKeys . privatePackage := Seq ( "*" ),
+    OsgiKeys . requireCapability := """osgi.ee;filter:="(&(osgi.ee=JavaSE)(version=1.8))"""") dependsOn(viability, export, model) enablePlugins(SbtOsgi)
+```
+instead of just:
+```scala
+lazy val population =
+  Project(id = "population", base = file("example/population")) settings(publishArtifact := false)  dependsOn(viability, export, model) enablePlugins(SbtOsgi)
+```
+The following *sbt* command creates the executable file.
+```
+sbt osgiBundle
+```
 
+### Save each computation in a separate file when using OpenMOLE
+
+OpenMOLE can follow an experimental design but generally it aggregates outputs. To keep all the (for example) viability kernel computed with OpenMOLE it is necessaty to declare the output directory in the main.
+```scala
+val file : java.io.File = new java.io.File("directory")
+```
+File names are then append to the directory name. Function **run** of Object *Pop* (in *PopulationViability*) will save each kernel in all available formats in the input *file* directory. 
+
+```scala
+  def run(depth: Int, file: java.io.File, u_max: Double) = {
+    val population = Population()
+    val rng = new Random(42)
+    def a = 0.2
+    def b = 3.0
+    def c = 0.5
+    def d = -2.0
+    def e = 2.0
+
+    val vk = KernelComputation(
+      dynamic = population.dynamic,
+      depth = depth,
+      zone = Vector((a, b), (d, e)),
+      controls = Vector(-u_max to u_max by 0.02))
+      
+    val (ak, steps) = approximate(vk, rng)
+    val result = volume(ak)
+    
+    val f = file.toScala / s"${steps}depth${depth}.vtk"
+    saveVTK2D(ak, f)
+    val f2 = file.toScala / s"${steps}depth${depth}withControl${u_max}.txt"
+    saveHyperRectangles(vk)(ak, f2)
+    val f3 = file.toScala / s"${steps}depth${depth}withControl${u_max}.bin"
+    save(ak,f3)
+    /* reload an already computed kernel
+    val ak2 = load[Tree[KernelContent]](f3)
+    */
+    result
+  }
+```
 
 <!-- Identifiers, in alphabetical order -->
 
 [openmole]: http://www.openmole.org/ "OpenMOLE website: for numerical exploration of complex models"
+[openmoleDOC]: https://next.openmole.org/Scala.html "OpenMOLE tasks for scala"
