@@ -18,7 +18,9 @@ The dynamics are controlled by taking the growth rate evolution in interval $`[-
 Viab(K) = \left\{ (x,y)\in {\mathbb R}^2| \quad  x \in [a;b], y\in [-\sqrt{2c\text{log}(\frac{x}{a})}; \sqrt{2c\text{log}(\frac{b}{x})}] \right\}
 ```
 
-<img src="../../../../../../images/populationGitlab.png" width="300" alt="Figure 1: Viability kernel of the population viability problem">*Figure 1*{: name="fig1"}
+<img src="../../../../../../images/populationGitlab.png" width="300" alt="Figure 1: Viability kernel of the population viability problem">
+
+[Figure 1: Viability kernel of the population viability problem](#Fig1)
 
 Figure 1 above shows an approximation of the viability kernel for the population problem with:
 * constraint set $`K=[a=0.2,b=3]\times[d=-2,e=2]`$, 
@@ -137,7 +139,7 @@ An alternative format (valid for any dimension) is available:
 ``` 
 This format is described in the **export** package. Each line corresponds with a leaf of the kd-tree, characterized by its testpoint, its extends along each dimension (a min and a max), and a viable control which was found for the testpoint.
 
-[Figure 1](#fig1) shows both files in Paraview.
+[Figure 1](#Fig1) shows both files in Paraview.
 
 ## Approximation of a set
 
@@ -188,6 +190,7 @@ The computation  is done by the call to function  _approximate_  of class _Oracl
 
 The resulting VTK files can be processed with Paraview.
 
-<img src="/images/approximationTrueK18.png" width="300" alt="Figure 2: Direct approximation of the Viability kernel indicator function">[Figure 2: Direct approximation of the Viability kernel indicator function][Figure 2]
+<img src="/images/ApproximationTrueKernel.png" width="300" alt="Figure 2: Direct approximation of the Viability kernel indicator function">
 
-![Direct Approximation of Viab(K)](/images/populationGitlab.png "Direct approximation")*Figure 2*
+[Figure 2: Direct approximation of the Viability kernel indicator function](#Fig2)
+
