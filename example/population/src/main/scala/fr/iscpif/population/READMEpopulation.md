@@ -18,6 +18,7 @@ The dynamics are controlled by taking the growth rate evolution in interval $`[-
 Viab(K) = \left\{ (x,y)\in {\mathbb R}^2| \quad  x \in [a;b], y\in [-\sqrt{2c\text{log}(\frac{x}{a})}; \sqrt{2c\text{log}(\frac{b}{x})}] \right\}
 ```
 
+<a name="Fig1"></a>
 <img src="../../../../../../images/populationGitlab.png" width="300" alt="Figure 1: Viability kernel of the population viability problem">
 
 [Figure 1: Viability kernel of the population viability problem](#Fig1)
@@ -139,7 +140,7 @@ An alternative format (valid for any dimension) is available:
 ``` 
 This format is described in the **export** package. Each line corresponds with a leaf of the kd-tree, characterized by its testpoint, its extends along each dimension (a min and a max), and a viable control which was found for the testpoint.
 
-[Figure 1]#Fig1] shows both files in Paraview.
+[Figure 1](#Fig1) shows both files in Paraview.
 
 ## Approximation of a set
 
