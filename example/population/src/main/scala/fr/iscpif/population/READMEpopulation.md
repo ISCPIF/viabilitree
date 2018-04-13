@@ -131,24 +131,6 @@ _ak_ is the resulting viability kernel. It is a Tree with KernelContent (Tree[Ke
 ```
 *rng* is the seed parameter for the random generator. It is used to generate test points when splitting a leaf of the kd-tree in new leaves. Two runs with the same seed will generate the same points.
 
-##### Output
-```scala
-    val (ak, steps) = approximate(vk, rng)
-```    
-After running the code, *ak* stores an approximation of the viability kernel for (2), as a kd-tree, which was computed in *steps* steps. The kd-tree is saved to a text file with a simple VTK format, so it can be processed by Paraview [https://www.paraview.org/].
-```scala
-    saveVTK2D(ak, f)
-```    
-the VTK format is available only for 2D and 3D trees. For 3D example see the **bilingual** example.
-
-An alternative format (valid for any dimension) is available:
-```scala
-    saveHyperRectangles(vk)(ak, f)
-``` 
-This format is described in the **export** package. Each line corresponds with a leaf of the kd-tree, characterized by its testpoint, its extends along each dimension (a min and a max), and a viable control which was found for the testpoint.
-
-[Figure 1](#Fig1) shows both files in Paraview.
-
 ## Approximation of a set
 
 The **population** package gives an example of the basic learning function in **Viabilitree**. Scala object *PopulationApproximation* shows how to approximate the set Viab(K), the theoretical viability kernel is defined by:
@@ -202,12 +184,31 @@ The resulting VTK files can be processed with Paraview.
 
 [Figure 2: Direct approximation of the Viability kernel indicator function](#Fig2)
 
-## Requirement for OpenMOLE
+## Output
+
+```scala
+    val (ak, steps) = approximate(vk, rng)
+```    
+After running the code, *ak* stores an approximation of the viability kernel for (2), as a kd-tree, which was computed in *steps* steps. The kd-tree is saved to a text file with a simple VTK format, so it can be processed by Paraview [https://www.paraview.org/].
+```scala
+    saveVTK2D(ak, f)
+```    
+the VTK format is available only for 2D and 3D trees. For 3D example see the **bilingual** example.
+
+An alternative format (valid for any dimension) is available:
+```scala
+    saveHyperRectangles(vk)(ak, f)
+``` 
+This format is described in the **export** package. Each line corresponds with a leaf of the kd-tree, characterized by its testpoint, its extends along each dimension (a min and a max), and a viable control which was found for the testpoint.
+
+[Figure 1](#Fig1) shows both files in Paraview.
+
 <a name="OpenMOLE"></a>
+## Requirement for OpenMOLE
 If you want to use your viability code with OpenMOLE, please visit first the [OpenMOLE website][openmole].
 
 ### Code with function
-Previous code cannot be called by OpenMOLE. The code must be wrapped in a function, for example below:
+Previous code cannot be called by OpenMOLE. The code must be wrapped in a function, for example as below:
 ```scala
 object PopulationViability extends App {
   val depth=16
@@ -239,6 +240,8 @@ object Pop {
   }
 }
 ```
+
+### Call viabilitree code from openMOLE
 This code will be called by OpenMOLE in a task like the one below (see [openMOLE documentation][openmoleDOC] for more information)
 ```
 val kernelTask = ScalaTask(
@@ -248,6 +251,7 @@ val kernelTask = ScalaTask(
   plugins += pluginsOf(fr.iscpif.population.Pop)
   )
 ```
+### Link openMOLE to Viabilitree
 In order to link the viability code to openmole it is necessary to produce the .jar code that will be called.  
 To do this, modify the **build.sbt** file to include the **osgiBundle** settings. For **population* we have:
 ```scala
@@ -262,7 +266,7 @@ lazy val population =
 instead of just:
 ```scala
 lazy val population =
-  Project(id = "population", base = file("example/population")) settings(publishArtifact := false)  dependsOn(viability, export, model) enablePlugins(SbtOsgi)
+  Project(id = "population", base = file("example/population")) settings(publishArtifact := false)  dependsOn(viability, export, model)
 ```
 The following *sbt* command creates the executable file.
 ```
