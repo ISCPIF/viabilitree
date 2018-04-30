@@ -74,8 +74,8 @@ The resulting kd-tree represening the approximation of the viability kernel know
 * clean(k: Kernel) = kernel.clean(k): cleans tree _k_ by grouping leaves withe same label.
 
 Note: the following methods can also be used (from package kdtree)
- ak.volume: similar to volume(ak)
- ak.contains: Vector[Double] => Boolean: the indicator function of kd-tree _ak_
+* ak.volume: similar to volume(ak)
+* ak.contains: Vector[Double] => Boolean: the indicator function of kd-tree _ak_
  
 
 <!-- Identifiers, in alphabetical order -->
