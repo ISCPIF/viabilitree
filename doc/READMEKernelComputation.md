@@ -79,6 +79,6 @@ Note: the following methods can also be used (from package kdtree)
  
 
 <!-- Identifiers, in alphabetical order -->
-[MVT]: https://gitlab.iscpif.fr/viability/viabilitree/README.md#MVT "Short Introduction to the Mathematical Viability Theory"
+[MVT]: https://gitlab.iscpif.fr/viability/viabilitree/tree/master#mathematical-viability-theory-2-3 "Short Introduction to the Mathematical Viability Theory"
 [population]: https://gitlab.iscpif.fr/viability/viabilitree/tree/master/example/population/src/main/scala/fr/iscpif/population "Population growth example"
 [viabilitree]: https://hal.archives-ouvertes.fr/hal-01319738v1 "Working paper with technical proofs"
