@@ -133,7 +133,7 @@ _ak_ is the resulting viability kernel. It is a Tree with KernelContent (Tree[Ke
 
 ## Approximation of a set
 
-The **population** package gives an example of the basic learning function in **Viabilitree**. Scala object *PopulationApproximation* shows how to approximate the set Viab(K), the theoretical viability kernel is defined by:
+The **population** package gives an example of the basic learning function in **Viabilitree**. Scala object *PopulationApproximation* shows how to approximate the set Viab(K), the theoretical viability kernel which is defined by:
 ```math
 Viab(K) = \left\{ (x,y)\in {\mathbb R}^2| \quad  x \in [a;b], y\in [-\sqrt{2c\text{log}(\frac{x}{a})}; \sqrt{2c\text{log}(\frac{b}{x})}] \right\}
 ```
@@ -171,8 +171,8 @@ object PopulationApproximation extends App {
 ```
 The approximation problem is defined as an instance of _OracleApproximation_ with the following parameters:
 
-* _depth_  defines the accuracy of the approximation. There are $`2^{depth}`$ grid points (here, $`2^18`$ points per axes).
-* _box_: the area to explore (here it is identical to the constraint set of the viability problem)
+* _depth_  defines the accuracy of the approximation. There are $`2^{depth}`$ grid points (here, $`2^{18}`$ points, that is $`2^9`$ per axes).
+* _box_: the area to explore (here it is identical to the constraint set of the viability problem). It is a hyperrectangle 
 * _oracle_: the oracle function $`f`$ to call in order to label examples. This function apply to a Vector[Double]) and returns a Boolean.
 * _point_ (optional): if known (an Option of) a point $`x`$ that belongs to the set to approximate: $`f(x)`$ returns TRUE.
 
