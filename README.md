@@ -105,6 +105,7 @@ The viability problem is defined by class _KernelComputation_ with the following
 The computation itself is done by the _approximate_ function.
 
 ### Mathematical Viability Theory ([2], [3])
+<a id="MVT"></a>
 In Viabilitree we consider a viability problem defined by a controlled dynamical system $`S`$, a set-valued map $`U`$ (the set of admissible controls depending on the state of the system), and a compact subset $`K`$ of the state space (the set of constraints):
 ```math
 (S)\left\{
