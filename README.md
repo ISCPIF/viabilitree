@@ -34,6 +34,8 @@ The above figure shows an approximation of the viability kernel for the populati
 * control set $`U=[-0.5;0.5]`$ with discretization step 0.02. 
 The color stands for the value of a control $`u`$ which allows the state to stay in the viability kernel. In black the boundary of the true kernel.
 
+**By definition of the viability kernel, starting from any point in the viability kernel, there exists always an evolution that stays in the viability kernel. Starting from any point outside the viability kernel, any evolution will exit the constraint set in finite time.** This is why the notion of viability kernel is so useful.
+
 The corresponding code is the following:
 
 For the definition of the model: dynamics, perturbations, etc.
@@ -71,11 +73,10 @@ object PopulationViability extends App {
 // model definition  
     val population = Population()
 // control parameter  
-    val umax = 0.5
-// constraint set parameters 
+   def c = 0.5
+   // constraint set parameters 
     def a = 0.2
     def b = 3.0
-    def c = 0.5
     def d = -2.0
     def e = 2.0
 // definition of the viability problem
@@ -83,7 +84,7 @@ object PopulationViability extends App {
       dynamic = population.dynamic,
       depth = depth,
       zone = Vector((a, b), (d, e)),
-      controls = Vector(-u_max to u_max by 0.02))
+      controls = Vector(-c to c by 0.02))
 // computation of the viability kernel corresponding to problem vk
     val (ak, steps) = approximate(vk, rng)
 // save viability kernel to file (vtk format, to be processed by paraview)
@@ -92,14 +93,13 @@ object PopulationViability extends App {
   }
 }
 ```
-_umax_ corresponds to $`c`$.
 _a_ to _e_ are the same parameters as in the mathematical definition.
 
 The viability problem is defined by class _KernelComputation_ with the following parameters:
 
 * _depth_ which defines the accuracy of the approximation. There are $`2^{depth}`$ grid points (here, $`2^{\frac{depth}{2}}`$ points per axes).
 * _dynamic_: the model dynamic
-* _zone_: the area to explore and here it is also the constraint set, $`[a,b]\times[c,d]`$
+* _zone_: the area to explore and here it is also the constraint set, $`[a,b]\times[d,e]`$
 * _controls_: the set of admissible controls, it is the same set for each state,$`[-c,c]`$
 
 The computation itself is done by the _approximate_ function.
@@ -128,10 +128,10 @@ x(t)&\in & K
 \end{array}\right.
 ```
 #### References
-[1] Rouquier et al
+[1] Rouquier et al, A kd-tree algorithm to discover the boundary of a black box hypervolume, _{Annals of Mathematics and Artificial Intelligence_, vol 75, _3_, pp "335--350, 2015. 
 
-[2] Aubin, 1991
+[2] Aubin, "Viability theory", Birkhäuser, 1991
 
-[3] Aubin, et al 2011
+[3] Aubin, Bayen, A. and Saint-Pierre, P. Viability Theory: New Directions, Springer, 2011.
 
-[4] Aubin et Saint-Pierre 2007
+[4] Aubin et Saint-Pierre, "An introduction to viability theory and management of renewable resources", chapter in _Advanced Methods for Decision Making and Risk Management_, J. Kropp and J. Scheffran eds., Nova Science Publishers, 2007

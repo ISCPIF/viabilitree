@@ -17,14 +17,14 @@ import viabilitree.viability.kernel._
 
 object PopulationViability extends App {
   val depth = 10
-  val umax = 0.5
+  val c = 0.5
   //  def stringToFile(s: String): better.files.File = File(s)
 /*
   val file: java.io.File = new java.io.File("testTest")
   Pop.run3(depth, file, umax)
   */
   val file : java.io.File = new java.io.File("experimentTime")
-  Pop.runTest(depth,file, umax)
+  Pop.runTest(depth,file, c)
 }
 
 
@@ -74,12 +74,11 @@ object Pop {
     tps
   }
 
-  def run(depth: Int, file: java.io.File, u_max: Double) = {
+  def run(depth: Int, file: java.io.File, c: Double) = {
     val population = Population()
     val rng = new Random(42)
     def a = 0.2
     def b = 3.0
-    def c = 0.5
     def d = -2.0
     def e = 2.0
 
@@ -88,7 +87,7 @@ object Pop {
       depth = depth,
       zone = Vector((a, b), (d, e)),
  //     controls = Vector(-0.5 to 0.5 by 0.02))
-      controls = Vector(-u_max to u_max by 0.02))
+      controls = Vector(-c to c by 0.02))
 
     val begin = System.currentTimeMillis()
     val (ak, steps) = approximate(vk, rng)
@@ -96,9 +95,9 @@ object Pop {
     val f = file.toScala / s"${steps}depth${depth}.vtk"
     saveVTK2D(ak, f)
     println(volume(ak))
-    val f2 = file.toScala / s"${steps}depth${depth}withControl${u_max}.txt"
+    val f2 = file.toScala / s"${steps}depth${depth}withControl${c}.txt"
     saveHyperRectangles(vk)(ak, f2)
-    val f3 = file.toScala / s"${steps}depth${depth}withControl${u_max}.bin"
+    val f3 = file.toScala / s"${steps}depth${depth}withControl${c}.bin"
     save(ak,f3)
     val ak2 = load[Tree[KernelContent]](f3)
     println(volume(ak2))
@@ -106,12 +105,11 @@ object Pop {
     tps
   }
 
-  def runTest(depth: Int, file: java.io.File, u_max: Double) = {
+  def runTest(depth: Int, file: java.io.File, c: Double) = {
     val population = Population()
     val rng = new Random(42)
     def a = 0.2
     def b = 3.0
-    def c = 0.5
     def d = -2.0
     def e = 2.0
 
@@ -120,7 +118,7 @@ object Pop {
       depth = depth,
       zone = Vector((a, b), (d, e)),
       //     controls = Vector(-0.5 to 0.5 by 0.02))
-      controls = Vector(-u_max to u_max by 0.02))
+      controls = Vector(-c to c by 0.02))
 
     val begin = System.currentTimeMillis()
     val (ak, steps) = approximate(vk, rng)
