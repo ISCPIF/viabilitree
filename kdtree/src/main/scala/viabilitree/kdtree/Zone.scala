@@ -99,6 +99,11 @@ trait Zone { zone: Zone =>
   def contains(point: Vector[Double]): Boolean =
     (point zip region).forall { case (p, r) => r.min <= p && p < r.max }
 
+  def boundingBox(zone2: Zone): Zone = new Zone {
+    assert(dimension == zone2.dimension, s"dimension of trees should be the same, found ${dimension}  and ${zone2.dimension}" )
+   val region = zone.region.zipAll(zone2.region,Interval(0.0,10e-10),Interval(0.0,10e-10) ).map{ case(a,b) => Interval(List(a.min,b.min).min,List(a.max,b.max).max)}
+  }
+
   //Draw a random point in a zone
   def randomPoint(rng: Random): Vector[Double] =
     region.map(i => i.min + rng.nextDouble() * ((i.max - i.min))).toVector

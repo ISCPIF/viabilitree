@@ -1,5 +1,7 @@
 package viabilitree.approximation.example.circle
 
+import scala.reflect.ClassTag
+
 object InterCircle extends App {
 
   import viabilitree.kdtree._
@@ -24,11 +26,24 @@ object InterCircle extends App {
 
   implicit val random = new Random(42)
 
-  val res1 = approximate(approximation(-0.5, -0.5, -0.5)).get
+  val o1 = approximation(-0.5, -0.5, -0.5)
+  val res1 = approximate(o1).get
   val res2 = approximate(approximation(0.5, 0.5, 0.5)).get
 
-  val inter = Tree.intersect(res1, res2, OracleApproximationContent.label.get)
+//  val inter = Tree.intersect(res1, res2, OracleApproximationContent.label.get)
+//  val inter = intersect(res1,res2,OracleApproximationContent.label.get)
+  // It's outragous
+  val inter = intersectDirect(res1,res2,OracleApproximationContent.label.get,OracleApproximationContent.label.get)
 
-  saveVTK3D(inter, "/tmp/inter.vtk")
+  val vol = volume(inter)
+  println(s"volume $vol")
+
+/*
+  ClassTag(inter.getClass) match {
+    case Tree =>  saveVTK3D(inter, "/tmp/inter.vtk")
+  }
+
+*/
+
 
 }

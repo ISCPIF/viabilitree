@@ -66,12 +66,12 @@ package object kdtree {
         case e: EmptyTree[T] => EmptyTree[(Double, Path)](e.zone)
       }
 
-    def intersect[T](t1: Tree[T], t2: Tree[T], label: T => Boolean) =
+/*    def intersect[T](t1: Tree[T], t2: Tree[T], label: T => Boolean) =
       (t1, t2) match {
         case (t1: NonEmptyTree[T], t2: NonEmptyTree[T]) => NonEmptyTree.intersect(t1, t2, label)
         case (t1: EmptyTree[T], _) => t1
         case (_, t2: EmptyTree[T]) => t2
-      }
+      }*/
 
   }
 
@@ -181,8 +181,41 @@ package object kdtree {
     }
 
     // Should return a boolean tree => because of additional leaves creation when splitting diverges
-    def intersect[T](t1: NonEmptyTree[T], t2: NonEmptyTree[T], label: T => Boolean): NonEmptyTree[T] = {
-      assert(Zone.equals(t1.root.zone, t2.root.zone))
+
+ /*   def intersect[T](t1: NonEmptyTree[T], t2: NonEmptyTree[T], label: T => Boolean): NonEmptyTree[T] = {
+
+     if (Zone.equals(t1.root.zone, t2.root.zone)) {
+       // Normally should be possible to reconstruct directly the intersection. Until then, same process for both cases
+      }
+
+      val zone: Zone = (Zone.equals(t1.root.zone, t2.root.zone)) match {
+        case true => t1.root.zone
+        case false => t1.root.zone.boundingBox(t2.root.zone)
+          // t1.root.zone U t1.root.zone bounding box
+      }
+
+      val depthIntersect = List(t1.depth,t2.depth).max
+
+      def oracleIntersect(p: Vector[Double]):Boolean =  {
+        if ((t1.root.zone.contains(p)) && !(t2.root.zone.contains(p))) {
+        false
+      } else {
+        if ((t2.root.zone.contains(p)) && !(t1.root.zone.contains(p))) {
+          false
+        } else t1.contains(p) && t2.contains(p)
+      }
+    }
+
+       val o1 = OracleApproximation(
+        depth = depthIntersect,
+        box = zone,
+        oracle = (p: Vector[Double]) => oracleIntersect(p)
+
+        val kd1 = o1.approximate(rng).get
+
+
+
+      // assert(Zone.equals(t1.root.zone, t2.root.zone))
 
       sealed trait AddOperation
       case class AddNode(node: Node[T]) extends AddOperation
@@ -229,6 +262,8 @@ package object kdtree {
         ops.flatten
       }
 
+      //TODO code to be completed. Until then approximate the intersection oracle with a new kd-tree.
+
       //      def recurse(currentNodeT1: Node[T], currentNodeT2: Node[T], newParent: Option[Fork[T]] = None, level: Int = 0): Node[T] = {
       //        (currentNodeT1, currentNodeT2) match {
       //          case (l1: Leaf[T], _) =>
@@ -260,9 +295,8 @@ package object kdtree {
 
       // UGLY
       //NonEmptyTree(intersectSimilarStructure(t1.root, t2.root), math.max(t1.depth, t2.depth))
-      ???
     }
-
+*/
   }
 
   // TODO move depth to approximation

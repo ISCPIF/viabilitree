@@ -128,11 +128,18 @@ u(t)&\in & U(x(t))\\
 x(t)&\in & K
 \end{array}\right.
 ```
+## Installation
+<!-- A rédiger après la mise en forme finale -->
+
 #### References
-[1] Rouquier et al, A kd-tree algorithm to discover the boundary of a black box hypervolume, _{Annals of Mathematics and Artificial Intelligence_, vol 75, _3_, pp "335--350, 2015. 
+[1] Rouquier et al, A kd-tree algorithm to discover the boundary of a black box hypervolume, _Annals of Mathematics and Artificial Intelligence_, vol 75, _3_, pp "335--350, 2015. 
 
-[2] Aubin, "Viability theory", Birkhäuser, 1991
+[2] Aubin, _Viability theory_, Birkhäuser, 1991
 
-[3] Aubin, Bayen, A. and Saint-Pierre, P. Viability Theory: New Directions, Springer, 2011.
+[3] Aubin, Bayen, A. and Saint-Pierre, P. _Viability Theory: New Directions_, Springer, 2011.
 
 [4] Aubin et Saint-Pierre, "An introduction to viability theory and management of renewable resources", chapter in _Advanced Methods for Decision Making and Risk Management_, J. Kropp and J. Scheffran eds., Nova Science Publishers, 2007
+
+<!-- Identifiers, in alphabetical order -->
+
+<!-- [openmole]: http://www.openmole.org/ "OpenMOLE website: for numerical exploration of complex models" -->
