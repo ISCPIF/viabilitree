@@ -47,10 +47,10 @@ object ConsumerKernel extends App {
   println(volume(res))
   println(volume(leClean))
 
-  saveVTK2D(res, s"/tmp/testConsumer${approximation.depth}.vtk")
-  saveVTK2D(leClean, s"/tmp/testConsumerCleanD${approximation.depth}.vtk")
-  saveHyperRectangles(approximation)(res, s"/tmp/testConsumerPointD${approximation.depth}.txt")
-  saveHyperRectangles(approximation)(leClean, s"/tmp/testConsumerCleanPointD${approximation.depth}.txt")
+  saveVTK2D(res, s"/tmp/testConsumerf${approximation.depth}.vtk")
+  saveVTK2D(leClean, s"/tmp/testConsumerCleanDf${approximation.depth}.vtk")
+  saveHyperRectangles(approximation)(res, s"/tmp/testConsumerPointDf${approximation.depth}.txt")
+  saveHyperRectangles(approximation)(leClean, s"/tmp/testConsumerCleanPointDf${approximation.depth}.txt")
 
   //  def zone = Seq((0.0, b), (0.0, e))
   //

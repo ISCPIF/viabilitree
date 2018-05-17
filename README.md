@@ -128,6 +128,20 @@ u(t)&\in & U(x(t))\\
 x(t)&\in & K
 \end{array}\right.
 ```
+In Viabilitree we follow the method described in [5], we consider dynamical system ($`S_{dt}`$) discretized in time: 
+```math
+\begin{array}{lll}
+F_{dt}(x)&=& \left\{ x+\Phi(x,u)dt, u \in U(x) \right\}.
+\end{array}
+
+```
+We use the learning algorithm $`L`$ of kd-tree described in [1] on a discretized grid $`K_h`$ to compute an approximation $`L(K_h)`$ of the viability kernel $`viab_{S}_{dt}(K)`$ of the discretized dynamical system ($`S_{dt}`$) with constraint set $`K`$. When the learning algorithm and $`S_{dt}`$ verify some conditions, [1], [5] and [6] ensure that $`L(K_h)`$ converges to $`viab_S(K)`$.
+
+
+Among the conditions we have:
+ * $`F`$ is Marchaud and $`\mu`$-Lipschitz with closed images
+ * $`L(K^0)=K`$. 
+ * 
 
 ## Install
 Coming soon
@@ -144,6 +158,10 @@ Coming soon
 [3] Aubin, Bayen, A. and Saint-Pierre, P. _Viability Theory: New Directions_, Springer, 2011.
 
 [4] Aubin et Saint-Pierre, "An introduction to viability theory and management of renewable resources", chapter in _Advanced Methods for Decision Making and Risk Management_, J. Kropp and J. Scheffran eds., Nova Science Publishers, 2007
+
+[5] Deffuant , Chapel,  Martin (2007). Approximating viability kernels with support vector machines. _IEEE T. Automat. Contr._, 52(5), 933–937.
+
+[6] Saint-Pierre, P. (1994). Approximation of the viability kernel. _Applied Mathematics & Optimisation_, 29(2), 187–209.
 
 <!-- Identifiers, in alphabetical order -->
 

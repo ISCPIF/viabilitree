@@ -28,7 +28,7 @@ object Consume {
     val begin = System.currentTimeMillis()
     val (ak, steps) = approximate(vk, rng)
 
-    println(s"nb of steps : " steps)
+    println(s"nb of steps : $steps")
 
     val tps = (System.currentTimeMillis - begin)
     tps
