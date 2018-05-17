@@ -205,6 +205,46 @@ object KdTreeComputation {
       }
     }
 
+  def learnIntersection[T1, T2](
+    t1: Tree[T1],
+    t2: Tree[T2],
+    label1 : T1 => Boolean,
+    label2 : T2 => Boolean,
+    rng: util.Random): Tree[OracleApproximationContent] = {
+
+    val zone: Zone =
+      Zone.equals(Tree.zone(t1), Tree.zone(t2)) match {
+        case true => Tree.zone(t1)
+        case false => Zone.boundingBox(Tree.zone(t1), Tree.zone(t2))
+      }
+
+    def learnIntersectionForNET(t1: NonEmptyTree[T1], t2: NonEmptyTree[T2]) = {
+      
+      val depthIntersect = math.max(t1.depth, t2.depth)
+
+      def oracleIntersect(p: Vector[Double]): Boolean =
+        if (t1.root.zone.contains(p) && !t2.root.zone.contains(p)) false
+        else {
+          if (t2.root.zone.contains(p) && !t1.root.zone.contains(p)) false
+          else t1.contains(label1, p) && t2.contains(label2, p)
+        }
+
+      val o1 =
+        OracleApproximation(
+          depth = depthIntersect,
+          box = zone,
+          oracle = oracleIntersect
+        )
+
+      o1.approximate(rng).get
+    }
+
+    (t1, t2) match {
+      case (t1: NonEmptyTree[T1], t2: NonEmptyTree[T2]) => learnIntersectionForNET(t1, t2)
+      case _ => EmptyTree[OracleApproximationContent](zone)
+    }
+  }
+
   //
   //  def erosionInDomain[CONTENT](
   //    learnBoundary: LearnBoundary[CONTENT],

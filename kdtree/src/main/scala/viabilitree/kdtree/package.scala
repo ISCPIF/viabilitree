@@ -66,6 +66,13 @@ package object kdtree {
         case e: EmptyTree[T] => EmptyTree[(Double, Path)](e.zone)
       }
 
+
+    def zone[T](tree: Tree[T]): Zone =
+      tree match {
+        case t: EmptyTree[T] => t.zone
+        case t: NonEmptyTree[T] => t.root.zone
+      }
+
 /*    def intersect[T](t1: Tree[T], t2: Tree[T], label: T => Boolean) =
       (t1, t2) match {
         case (t1: NonEmptyTree[T], t2: NonEmptyTree[T]) => NonEmptyTree.intersect(t1, t2, label)

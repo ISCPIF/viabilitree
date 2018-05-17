@@ -66,6 +66,10 @@ package object approximation {
         tree.criticalLeaves(OracleApproximationContent.label.get).map(_.zone).toVector,
         OracleApproximationContent.testPoint.get))
 
+  def learnIntersection[T1, T2](t1: Tree[T1], t2: Tree[T2])(
+    implicit label1 : ContainsLabel[T1], label2 : ContainsLabel[T2], rng: util.Random): Tree[OracleApproximationContent] =
+    KdTreeComputation.learnIntersection(t1, t2, label1.label, label2.label, rng)
+
  /* def intersect[T](t1: Tree[T], t2: Tree[T]): Tree[OracleApproximationContent] =
     (t1, t2) match {
       case (t1: NonEmptyTree[T], t2: NonEmptyTree[T]) => intersectNET(t1, t2)
@@ -132,37 +136,6 @@ package object approximation {
     kd1
   }
 */
-
-
-  def intersectDirect[T1,T2](t1:NonEmptyTree[T1], t2: NonEmptyTree[T2], getLabel1 : T1 => Boolean, getLabel2 : T2=> Boolean ):  Tree[OracleApproximationContent] = {
-
-    implicit val rng = new util.Random(42)
-    val zone: Zone = (Zone.equals(t1.root.zone, t2.root.zone)) match {
-      case true => t1.root.zone
-      case false => t1.root.zone.boundingBox(t2.root.zone)
-    }
-
-    val depthIntersect = List(t1.depth,t2.depth).max
-
-
-    def oracleIntersect(p: Vector[Double]):Boolean =  {
-      if ((t1.root.zone.contains(p)) && !(t2.root.zone.contains(p))) {
-        false
-      } else {
-        if ((t2.root.zone.contains(p)) && !(t1.root.zone.contains(p))) {
-          false
-        } else t1.contains(getLabel1, p) && t2.contains(getLabel2, p)
-      }
-    }
-
-    val o1 = OracleApproximation(
-      depth = depthIntersect,
-      box = zone,
-      oracle = (p: Vector[Double]) => oracleIntersect(p))
-
-    val kd1 = o1.approximate(rng).get
-    kd1
-  }
 
 
   /* --- Algorithm ---- */

@@ -1,6 +1,5 @@
 package viabilitree.approximation.example.circle
 
-import scala.reflect.ClassTag
 
 object InterCircle extends App {
 
@@ -33,7 +32,7 @@ object InterCircle extends App {
 //  val inter = Tree.intersect(res1, res2, OracleApproximationContent.label.get)
 //  val inter = intersect(res1,res2,OracleApproximationContent.label.get)
   // It's outragous
-  val inter = intersectDirect(res1,res2,OracleApproximationContent.label.get,OracleApproximationContent.label.get)
+  val inter = learnIntersection(res1, res2)
 
   val vol = volume(inter)
   println(s"volume $vol")
