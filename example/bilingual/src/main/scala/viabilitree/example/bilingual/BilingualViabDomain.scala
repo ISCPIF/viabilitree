@@ -54,4 +54,5 @@ object BilingualViabDomain extends App {
 
   //  save(viabilityDomain, file)
   println("fin save noyau ")
+
 }

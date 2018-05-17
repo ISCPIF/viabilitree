@@ -11,6 +11,8 @@ package object strategy {
   def unrollStrategy(
     point: Vector[Double],
     dynamic: (Vector[Double], Vector[Double]) => Vector[Double],
+    // strategy is able to give for a point a viable control (or None if None)
+    // an example of use is: basicStrategy(kc,k)
     strategy: Vector[Double] => Option[Vector[Double]],
     steps: Int) = {
 
@@ -25,6 +27,15 @@ package object strategy {
 
     unrollStrategy0(steps, point)
   }
+
+  def evolution(   point: Vector[Double],
+                   dynamic: (Vector[Double], Vector[Double]) => Vector[Double],
+                   strategy: Vector[Double] => Option[Vector[Double]],
+                   steps: Int) = {
+    val xut = unrollStrategy(point,dynamic,strategy,steps)
+    xut.map(_.point)
+  }
+
 
   def exhaustiveStrategy(dynamic: (Vector[Double], Vector[Double]) => Vector[Double], controls: Vector[Control], oracle: Vector[Double] => Boolean)(point: Vector[Double]): Option[Vector[Double]] =
     controls.find { c => oracle(dynamic(point, c.value)) }.map(_.value)
