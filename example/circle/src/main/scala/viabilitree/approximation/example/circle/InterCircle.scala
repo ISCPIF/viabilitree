@@ -30,17 +30,16 @@ object InterCircle extends App {
 
   var vol = volume(res1)
   println(s"volume 1 $vol")
-saveVTK3D(res1, "/tmp/res1.vtk")
+  saveVTK3D(res1, "/tmp/res1.vtk")
 
-  var rayon = pow(3.0/4.0 /math.Pi * vol,1.0/3)
-    println(s"rayon apparent 1 $rayon")
-
+  var rayon = pow(3.0 / 4.0 / math.Pi * vol, 1.0 / 3)
+  println(s"rayon apparent 1 $rayon")
 
   vol = volume(res2)
   println(s"volume 2 $vol")
-saveVTK3D(res2, "/tmp/res2.vtk")
+  saveVTK3D(res2, "/tmp/res2.vtk")
 
-  rayon = pow(3.0/4.0 /math.Pi * vol,1.0/3)
+  rayon = pow(3.0 / 4.0 / math.Pi * vol, 1.0 / 3)
   println(s"rayon apparent 2 $rayon")
 
   //  val inter = Tree.intersect(res1, res2, OracleApproximationContent.label.get)
@@ -51,10 +50,9 @@ saveVTK3D(res2, "/tmp/res2.vtk")
   vol = volume(inter)
   println(s"volume inter $vol")
 
-  rayon = pow(3.0/4.0 /math.Pi * vol,1.0/3)
+  rayon = pow(3.0 / 4.0 / math.Pi * vol, 1.0 / 3)
   println(s"rayon apparent inter $rayon")
 
-saveVTK3D(inter, "/tmp/inter.vtk")
-
+  saveVTK3D(inter, "/tmp/inter.vtk")
 
 }
