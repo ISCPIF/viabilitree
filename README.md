@@ -66,31 +66,38 @@ import viabilitree.viability.kernel._
 import java.io.File
 
 object PopulationViability extends App {
-// accuracy parameter
+  // accuracy parameter
   val depth = 20
-// algorithm parameter  
+  
+  // algorithm parameter  
   val rng = new Random(42)
-// model definition  
-    val population = Population()
-// control parameter  
-   def c = 0.5
-   // constraint set parameters 
-    def a = 0.2
-    def b = 3.0
-    def d = -2.0
-    def e = 2.0
-// definition of the viability problem
-    val vk = KernelComputation(
-      dynamic = population.dynamic,
-      depth = depth,
-      zone = Vector((a, b), (d, e)),
-      controls = Vector(-c to c by 0.02))
-// computation of the viability kernel corresponding to problem vk
-    val (ak, steps) = approximate(vk, rng)
-// save viability kernel to file (vtk format, to be processed by paraview)
-    val f = new File(s"population${steps}depth${depth}.vtk")
-    saveVTK2D(ak, f)
-  }
+  
+  // model definition  
+  val population = Population()
+  
+  // control parameter  
+  def c = 0.5
+  
+  // constraint set parameters 
+  def a = 0.2
+  def b = 3.0
+  def d = -2.0
+  def e = 2.0
+  
+  // definition of the viability problem
+  val vk = KernelComputation(
+    dynamic = population.dynamic,
+    depth = depth,
+    zone = Vector((a, b), (d, e)),
+    controls = Vector(-c to c by 0.02)
+  )
+
+  // computation of the viability kernel corresponding to problem vk
+  val (ak, steps) = approximate(vk, rng)
+  
+  // save viability kernel to file (vtk format, to be processed by paraview)
+  val f = new File(s"population${steps}depth${depth}.vtk")
+  saveVTK2D(ak, f)
 }
 ```
 _a_ to _e_ are the same parameters as in the mathematical definition.
