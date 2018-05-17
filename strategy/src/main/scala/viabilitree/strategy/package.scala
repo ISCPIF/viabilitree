@@ -6,20 +6,36 @@ import viabilitree.model.Control
 
 package object strategy {
 
-  def findViableControl(
-    dynamic: (Vector[Double], Vector[Double]) => Vector[Double],
+  case class StrategyElement(point: Vector[Double], control: Vector[Double])
+
+  def unrollStrategy(
     point: Vector[Double],
-    controls: Vector[Control],
-    oracle: Vector[Double] => Boolean) =
+    dynamic: (Vector[Double], Vector[Double]) => Vector[Double],
+    strategy: Vector[Double] => Option[Vector[Double]],
+    steps: Int) = {
+
+    def unrollStrategy0(remainingSteps: Int, point: Vector[Double], acc: List[StrategyElement] = List.empty): Vector[StrategyElement] =
+      if (remainingSteps == 0) acc.reverse.toVector
+      else {
+        strategy(point) match {
+          case None => acc.reverse.toVector
+          case Some(control) => unrollStrategy0(remainingSteps - 1, dynamic(point, control), StrategyElement(point, control) :: acc)
+        }
+      }
+
+    unrollStrategy0(steps, point)
+  }
+
+  def exhaustiveStrategy(dynamic: (Vector[Double], Vector[Double]) => Vector[Double], controls: Vector[Control], oracle: Vector[Double] => Boolean)(point: Vector[Double]): Option[Vector[Double]] =
     controls.find { c => oracle(dynamic(point, c.value)) }.map(_.value)
 
-  def exhaustiveStrategy(kc: KernelComputation, k: viability.kernel.Kernel, point: Vector[Double]): Option[Vector[Double]] =
+  def exhaustiveStrategy(kc: KernelComputation, k: viability.kernel.Kernel)(point: Vector[Double]): Option[Vector[Double]] =
     k match {
       case _: EmptyTree[_] => None
-      case k: NonEmptyTree[KernelContent] => findViableControl(kc.dynamic, point, kc.controls(point), k.contains)
+      case k: NonEmptyTree[KernelContent] => exhaustiveStrategy(kc.dynamic, kc.controls(point), k.contains)(point)
     }
 
-  def basicStrategy(kc: KernelComputation, k: viability.kernel.Kernel, point: Vector[Double]): Option[Vector[Double]] = {
+  def basicStrategy(kc: KernelComputation, k: viability.kernel.Kernel)(point: Vector[Double]): Option[Vector[Double]] = {
     k match {
       case _: EmptyTree[_] => None
       case k: NonEmptyTree[KernelContent] =>
@@ -34,7 +50,7 @@ package object strategy {
             basicControl <- pointControls.find(_ == testPointControlValue)
           } yield basicControl.value
 
-        basicControl orElse exhaustiveStrategy(kc, k, point)
+        basicControl orElse exhaustiveStrategy(kc, k)(point)
     }
   }
 
