@@ -14,19 +14,17 @@ import viabilitree.export._
 import viabilitree.kdtree.Tree
 import viabilitree.viability.kernel._
 
-
 object PopulationViability extends App {
   val depth = 10
   val c = 0.5
   //  def stringToFile(s: String): better.files.File = File(s)
-/*
+  /*
   val file: java.io.File = new java.io.File("testTest")
   Pop.run3(depth, file, umax)
   */
-  val file : java.io.File = new java.io.File("experimentTime")
-  Pop.runTest(depth,file, c)
+  val file: java.io.File = new java.io.File("experimentTime")
+  Pop.runTest(depth, file, c)
 }
-
 
 object Pop {
 
@@ -86,7 +84,7 @@ object Pop {
       dynamic = population.dynamic,
       depth = depth,
       zone = Vector((a, b), (d, e)),
- //     controls = Vector(-0.5 to 0.5 by 0.02))
+      //     controls = Vector(-0.5 to 0.5 by 0.02))
       controls = Vector(-c to c by 0.02))
 
     val begin = System.currentTimeMillis()
@@ -98,7 +96,7 @@ object Pop {
     val f2 = file.toScala / s"${steps}depth${depth}withControl${c}.txt"
     saveHyperRectangles(vk)(ak, f2)
     val f3 = file.toScala / s"${steps}depth${depth}withControl${c}.bin"
-    save(ak,f3)
+    save(ak, f3)
     val ak2 = load[Tree[KernelContent]](f3)
     println(volume(ak2))
     val tps = (System.currentTimeMillis - begin)
@@ -130,7 +128,6 @@ object Pop {
     tps
 
     println(tps)
-
 
     /*
     val f = file.toScala / s"${steps}depth${depth}.vtk"

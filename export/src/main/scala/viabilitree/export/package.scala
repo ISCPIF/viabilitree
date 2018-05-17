@@ -223,12 +223,11 @@ package object export extends better.files.Implicits {
         def label = OracleApproximationContent.label.get
       }
 
-/*     NOT CORRECT (idea: save an empty Trre)
+      /*     NOT CORRECT (idea: save an empty Trre)
         implicit def emptyTreeIsTraceable[T] = new Traceable[T] {
         def label = T => false
       }
 */
-
 
     }
 

@@ -8,7 +8,7 @@ object Circle extends App {
   import math._
 
   def oracle(p: Vector[Double]) =
-    pow(p(0), 2) + pow(p(1), 2) + pow(p(2), 2) <= pow(1, 3)
+    pow(p(0), 2) + pow(p(1), 2) + pow(p(2), 2) <= 1
 
   val approximation =
     OracleApproximation(
