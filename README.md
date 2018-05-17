@@ -141,7 +141,8 @@ We use the learning algorithm $`L`$ of kd-tree described in [1] on a discretized
 Among the conditions we have:
  * $`F`$ is Marchaud and $`\mu`$-Lipschitz with closed images
  * $`L(K^0)=K`$. 
- * 
+ * $`viab_S(K)`$ is compact, it is path-connected as is its complementary set.
+ * No small tentacles
 
 ## Install
 Coming soon
