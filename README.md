@@ -119,7 +119,7 @@ u(t)&\in & U(x(t))
  The set-valued map $`U : {\mathbb R}^p\leadsto {\mathbb{R}}^q`$ gives the set of admissible control for each state $`x`$. $`\Phi`$ is a function from $`\text{Graph}(U)`$ to $`{\mathbb R}^p`$.
 $`K\subset {\mathbb R}^p`$ is a compact subset of $`{\mathbb R}^p`$, it is the set of desirable states, the constraint set in which the state $`x(t)`$ is supposed to stay.
 
-The viability kernel $`viab_S(K)`$ is the subset of $`K`$ (possibly empty) that gathers the states from which it is possible to find a control function $`u(t)`$ such that the evolution $`x(.)`$ stays in the compact set $`K`$.
+The viability kernel $`viab_S(K)`$ is the largest subset of $`K`$ (possibly empty) that gathers the states from which it is possible to find a control function $`u(t)`$ such that the evolution $`x(.)`$ stays in the compact set $`K`$.
 ```math
 x\in viab_S(K) \Leftrightarrow  \exists u(.) \quad \forall t\geq 0 \left\{
 \begin{array}{lll}
@@ -128,7 +128,12 @@ u(t)&\in & U(x(t))\\
 x(t)&\in & K
 \end{array}\right.
 ```
-## Installation
+
+## Install
+Coming soon
+<!-- A rédiger après la mise en forme finale -->
+
+## Use
 <!-- A rédiger après la mise en forme finale -->
 
 #### References
