@@ -208,8 +208,8 @@ object KdTreeComputation {
   def learnIntersection[T1, T2](
     t1: Tree[T1],
     t2: Tree[T2],
-    label1 : T1 => Boolean,
-    label2 : T2 => Boolean,
+    label1: T1 => Boolean,
+    label2: T2 => Boolean,
     rng: util.Random): Tree[OracleApproximationContent] = {
 
     val zone: Zone =
@@ -219,7 +219,7 @@ object KdTreeComputation {
       }
 
     def learnIntersectionForNET(t1: NonEmptyTree[T1], t2: NonEmptyTree[T2]) = {
-      
+
       val depthIntersect = math.max(t1.depth, t2.depth)
 
       def oracleIntersect(p: Vector[Double]): Boolean =
@@ -233,8 +233,7 @@ object KdTreeComputation {
         OracleApproximation(
           depth = depthIntersect,
           box = zone,
-          oracle = oracleIntersect
-        )
+          oracle = oracleIntersect)
 
       o1.approximate(rng).get
     }

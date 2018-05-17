@@ -66,14 +66,13 @@ package object kdtree {
         case e: EmptyTree[T] => EmptyTree[(Double, Path)](e.zone)
       }
 
-
     def zone[T](tree: Tree[T]): Zone =
       tree match {
         case t: EmptyTree[T] => t.zone
         case t: NonEmptyTree[T] => t.root.zone
       }
 
-/*    def intersect[T](t1: Tree[T], t2: Tree[T], label: T => Boolean) =
+    /*    def intersect[T](t1: Tree[T], t2: Tree[T], label: T => Boolean) =
       (t1, t2) match {
         case (t1: NonEmptyTree[T], t2: NonEmptyTree[T]) => NonEmptyTree.intersect(t1, t2, label)
         case (t1: EmptyTree[T], _) => t1
@@ -189,7 +188,7 @@ package object kdtree {
 
     // Should return a boolean tree => because of additional leaves creation when splitting diverges
 
- /*   def intersect[T](t1: NonEmptyTree[T], t2: NonEmptyTree[T], label: T => Boolean): NonEmptyTree[T] = {
+    /*   def intersect[T](t1: NonEmptyTree[T], t2: NonEmptyTree[T], label: T => Boolean): NonEmptyTree[T] = {
 
      if (Zone.equals(t1.root.zone, t2.root.zone)) {
        // Normally should be possible to reconstruct directly the intersection. Until then, same process for both cases

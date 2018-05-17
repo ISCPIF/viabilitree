@@ -70,8 +70,8 @@ object Zone {
     }
 
   def boundingBox(zone1: Zone, zone2: Zone): Zone = new Zone {
-    assert(dimension == zone2.dimension, s"dimension of trees should be the same, found ${dimension}  and ${zone2.dimension}" )
-    val region = zone1.region.zipAll(zone2.region,Interval(0.0,10e-10),Interval(0.0,10e-10) ).map{ case(a,b) => Interval(List(a.min,b.min).min,List(a.max,b.max).max)}
+    assert(zone1.dimension == zone2.dimension, s"dimension of trees should be the same, found ${zone1.dimension}  and ${zone2.dimension}")
+    val region = zone1.region.zipAll(zone2.region, Interval(0.0, 10e-10), Interval(0.0, 10e-10)).map { case (a, b) => Interval(List(a.min, b.min).min, List(a.max, b.max).max) }
   }
 
 }
