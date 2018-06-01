@@ -144,12 +144,14 @@ F_{dt}(x)&=& \left\{ x+\Phi(x,u)dt, u \in U(x) \right\}.
 ```
 We use the learning algorithm $`L`$ of kd-tree described in [1] on a discretized grid $`K_h`$ to compute an approximation $`L(K_h)`$ of the viability kernel $`viab_{S_{dt}}(K)`$ of the discretized dynamical system ($`S_{dt}`$) with constraint set $`K`$. When the learning algorithm and $`S_{dt}`$ verify some conditions, [1], [5] and [6] ensure that $`L(K_h)`$ converges to $`viab_S(K)`$.
 
-
-Among the conditions we have:
- * $`F`$ is Marchaud and $`\mu`$-Lipschitz with closed images
+The convergence conditions are:
+ * $`F`$ is [Marchaud][Marchaud] and $`\mu`$-[Lipschitz][Lipschitz] with closed images
+ * $`K`$ is a compact set.
  * $`L(K^0)=K`$. 
- * $`viab_S(K)`$ is compact, it is path-connected as is its complementary set.
- * No small tentacles
+ * $`viab_S(K)`$ is compact, it is path-connected 
+ * $`viab_S(K)`$ erosion with $`B(\epsilon)`$ is path-connected and points of $`viab_S(K)`$ are at most distant from the eroded set by $`\epsilon sqrt{p}`$
+ * $`viab_S(K)`$ complementary set is path-connected as its erosion with $`B(\epsilon)`$, and its points are at most distant from the eroded set by $`\epsilon sqrt{p}`$.
+The two last properties ensure that there are no small entacles.
 
 ## Install
 Coming soon
@@ -171,6 +173,12 @@ Coming soon
 
 [6] Saint-Pierre, P. (1994). Approximation of the viability kernel. _Applied Mathematics & Optimisation_, 29(2), 187–209.
 
+#### Remarks
+<a id="Marchaud"></a>
+A set-valued map $`F`$, non trivial, upper semicontinuous, with compact convex images is a Marchaud map if it has linear growth, that is there exists $`c > 0`$ such that $`\forall x  \sup _{y \in F(x)} \left\|y\right\| \leq c(\left\|x\right\|+1)`$.
+<a id="Lipschitz"></a>
+A set-valued map $`F`$ is $`\mu`$-Lipschitz with $`\mu>0`$ if for all $`x`$ and $`y`$, $` F(x)\subset F(y)+B(0,\mu ||x-y||)`$
 <!-- Identifiers, in alphabetical order -->
-
+[Marchaud]: https://gitlab.iscpif.fr/viability/viabilitree/tree/master#Marchaud "Definition of the Marchaud property for dynamical systems"
+[Lipschitz]: https://gitlab.iscpif.fr/viability/viabilitree/tree/master#Lipschitz "Definition of the Lipschitz property for dynamical systems"
 <!-- [openmole]: http://www.openmole.org/ "OpenMOLE website: for numerical exploration of complex models" -->
