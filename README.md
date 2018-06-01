@@ -174,10 +174,10 @@ Coming soon
 [6] Saint-Pierre, P. (1994). Approximation of the viability kernel. _Applied Mathematics & Optimisation_, 29(2), 187–209.
 
 #### Remarks
-<a id="Marchaud"></a>
+<a name="Marchaud"></a>
 A set-valued map $`F`$, non trivial, upper semicontinuous, with compact convex images is a Marchaud map if it has linear growth, that is there exists $`c > 0`$ such that $`\forall x  \sup _{y \in F(x)} \left\|y\right\| \leq c(\left\|x\right\|+1)`$.
 
-<a id="Lipschitz"></a>
+<a name="Lipschitz"></a>
 A set-valued map $`F`$ is $`\mu`$-Lipschitz with $`\mu>0`$ if for all $`x`$ and $`y`$, $` F(x)\subset F(y)+B(0,\mu ||x-y||)`$
 
 <!-- Identifiers, in alphabetical order -->
