@@ -49,7 +49,7 @@ Each leaf stores:
 * k: the indicator function of the constraint set if necessary (default is None: the hyperrectangle _zone_ is the default constraint set)
 * domain: the domain of definition of the state space (a BlackBoxDomain) if it is not a hyperrectangle of $`{\mathbb R}^p`$ (InfiniteDomain)
 * neutralBoundary: the list, empty by default of boundaries that are not to be considered regarding viability purpose.
-* dilations: parameter of the approximation algorithm, specifying how many dilations must be performed in order to guarantee the convergence to the true viability kernel. [See Viabilitree][viabilitree] for more information. Default value is _0_, no dilation.
+* dilations: parameter of the approximation algorithm, specifying how many basic dilations must be performed in order to guarantee the convergence to the true viability kernel. [See Viabilitree][viabilitree] for more information. Default value is _0_, no dilation.
 
 ### Computation
 Declaring a KernelComputation defines a viability problem, as in [population] for the population growth model. The effective computation is performed by the _approximate_ function.

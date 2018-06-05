@@ -142,7 +142,7 @@ F_{dt}(x)&=& \left\{ x+\Phi(x,u)dt, u \in U(x) \right\}.
 \end{array}
 
 ```
-We use the learning algorithm $`L`$ of kd-tree described in [1] on a discretized grid $`K_h`$ to compute an approximation $`L(K_h)`$ of the viability kernel $`viab_{S_{dt}}(K)`$ of the discretized dynamical system ($`S_{dt}`$) with constraint set $`K`$. When the learning algorithm and $`S_{dt}`$ verify some conditions, [1], [5] and [6] ensure that $`L(K_h)`$ converges to $`viab_S(K)`$.
+We use the learning algorithm $`L`$ of kd-tree described in [1] on a discretized grid $`K_h`$ to compute an approximation $`L(K_h)`$ of the viability kernel $`viab_{S_{dt}}(K)`$ of the discretized dynamical system ($`S_{dt}`$) with constraint set $`K`$. When the learning algorithm and $`S_{dt}`$ verify some conditions, [1], [5] and [6] ensure that $`L(K_h)`$ converges to $`viab_S(K)`$ when $`h`$ and $`dt`$ tend to 0.
 
 The convergence conditions are:
  * $`F`$ is [Marchaud][Marchaud] and $`\mu`$-[Lipschitz][Lipschitz] with closed images
@@ -150,8 +150,10 @@ The convergence conditions are:
  * $`L(K^0)=K`$. 
  * $`viab_S(K)`$ is compact, it is path-connected 
  * $`viab_S(K)`$ erosion with $`B(\epsilon)`$ is path-connected and points of $`viab_S(K)`$ are at most distant from the eroded set by $`\epsilon \sqrt{p}`$
- * $`viab_S(K)`$ complementary set is path-connected as its erosion with $`B(\epsilon)`$, and its points are at most distant from the eroded set by $`\epsilon \sqrt{p}`$.
-The two last properties ensure that there are no small entacles.
+ * $`viab_S(K)`$ complementary set is path-connected as is its erosion with $`B(\epsilon)`$, and its points are at most distant from the eroded set by $`\epsilon \sqrt{p}`$.
+The two last properties ensure that there are no small tentacles.
+
+In practice points of the grid are removed from the current dilated approximation when following the dynamic with each available control they always leave the dilated approximation at the next step. See [KernelComputation][kernelLink] for details.
 
 ## Install
 Coming soon
@@ -175,12 +177,13 @@ Coming soon
 
 #### Remarks
 <a name="Marchaud"></a>
-A set-valued map $`F`$, non trivial, upper semicontinuous, with compact convex images is a Marchaud map if it has linear growth, that is there exists $`c > 0`$ such that $`\forall x  \sup _{y \in F(x)} \left\|y\right\| \leq c(\left\|x\right\|+1)`$.
+A set-valued map $`F`$, non trivial, upper semicontinuous, with compact convex images is a Marchaud map if it has linear growth, that is there exists $`c > 0`$ such that $`\forall x, \  \sup _{y \in F(x)} \left\|y\right\| \leq c(\left\|x\right\|+1)`$.
 
 <a name="Lipschitz"></a>
 A set-valued map $`F`$ is $`\mu`$-Lipschitz with $`\mu>0`$ if for all $`x`$ and $`y`$, $` F(x)\subset F(y)+B(0,\mu ||x-y||)`$
 
 <!-- Identifiers, in alphabetical order -->
-[Marchaud]: https://gitlab.iscpif.fr/viability/viabilitree/tree/master#Marchaud "Definition of the Marchaud property for dynamical systems"
+[kernelLink]:doc/READMEKernelComputation.md "Documentation for class KernelComputation"
 [Lipschitz]: https://gitlab.iscpif.fr/viability/viabilitree/tree/master#Lipschitz "Definition of the Lipschitz property for dynamical systems"
+[Marchaud]: https://gitlab.iscpif.fr/viability/viabilitree/tree/master#Marchaud "Definition of the Marchaud property for dynamical systems"
 <!-- [openmole]: http://www.openmole.org/ "OpenMOLE website: for numerical exploration of complex models" -->
