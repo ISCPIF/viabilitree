@@ -153,13 +153,31 @@ The convergence conditions are:
  * $`viab_S(K)`$ complementary set is path-connected as is its erosion with $`B(\epsilon)`$, and its points are at most distant from the eroded set by $`\epsilon \sqrt{p}`$.
 The two last properties ensure that there are no small tentacles.
 
-In practice points of the grid are removed from the current dilated approximation when following the dynamic with each available control they always leave the dilated approximation at the next step. See [KernelComputation][kernelLink] for details.
+In practice points of the grid are removed from the current dilated approximation when following the dynamic with each available control they always leave the dilated approximation at the next step. See [KernelComputation][kernelLink] for implementation details.
+
+More details on both theoretical and practical aspects in [7][viabilitree]
 
 ## Install
 Coming soon
 <!-- A rédiger après la mise en forme finale -->
 
 ## Use
+The main purpose of **Viabilitree** is to help users to declare a viability problem, compute the corresponding viability kernel and possibly its capture basin, in order to perform a viability analysis.
+
+Example of viability problems are gathered in package **example**. Each example is detailled in its own readme file.
+ * Bilingual :
+   - approximation of the viability kernel (BilingualViabDomain)
+   - approximation of the capture basin of the viability kernel (BilingualBasin)
+ * Consumer
+   - approximation of the viability kernel (ConsumerViability)
+   - approximation of a set (the analytical kernel ) (ConsumerKernel)
+ * Population
+   - approximation of the viability kernel (PopulationViability)
+   - exploration with OpenMOLE (PopulationViability)
+   - approximation of a set (the analytical kernel ) (PopulationApproximation)
+  
+To be completed
+
 <!-- A rédiger après la mise en forme finale -->
 
 #### References
@@ -175,6 +193,8 @@ Coming soon
 
 [6] Saint-Pierre, P. (1994). Approximation of the viability kernel. _Applied Mathematics & Optimisation_, 29(2), 187–209.
 
+[7] Alvarez, Reuillon, de Aldama. Viabilitree: A kd-tree Framework for Viability-based Decision. hal-01319738.
+
 #### Remarks
 <a name="Marchaud"></a>
 A set-valued map $`F`$, non trivial, upper semicontinuous, with compact convex images is a Marchaud map if it has linear growth, that is there exists $`c > 0`$ such that $`\forall x, \  \sup _{y \in F(x)} \left\|y\right\| \leq c(\left\|x\right\|+1)`$.
@@ -186,4 +206,5 @@ A set-valued map $`F`$ is $`\mu`$-Lipschitz with $`\mu>0`$ if for all $`x`$ and 
 [kernelLink]:doc/READMEKernelComputation.md "Documentation for class KernelComputation"
 [Lipschitz]: https://gitlab.iscpif.fr/viability/viabilitree/tree/master#Lipschitz "Definition of the Lipschitz property for dynamical systems"
 [Marchaud]: https://gitlab.iscpif.fr/viability/viabilitree/tree/master#Marchaud "Definition of the Marchaud property for dynamical systems"
+[viabilitree]: https://hal.archives-ouvertes.fr/hal-01319738v1 "Working paper with technical proofs"
 <!-- [openmole]: http://www.openmole.org/ "OpenMOLE website: for numerical exploration of complex models" -->
