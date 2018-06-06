@@ -18,29 +18,40 @@ Language coexistence model from Bernard and Martin, 2012.
 
 The model describes a bilingual society considering three groups in the population: the monolingual speakers of language $`A`$, the monolingual speakers of language $`B`$, and the bilingual speakers $`AB`$. Transitions occurs only from monolingual speakers to bilingual speakers and conversely. The switch rate depends on the relative attractiveness of the languages
 
-The language coexistence viability problem consists in maintaining the proportion of speakers of each language above a threshold $`\underline{\sigma}>0`$. The state of the system is described by the variables $`\sigma_A}`$ and $`\sigma_B}`$, ******* the size of the population, and $`y(t)`$, the population growth rate. The dynamics are described by the following equations:
+The language coexistence viability problem consists in maintaining the proportion of speakers of each language above a threshold $`\underline{\sigma}>0`$. The state of the system is described by the variables $`\sigma_A}`$ and $`\sigma_B}`$ (with $`\sigma_{AB}=1-\sigma_A - \sigma_B`$), and _s_ the prestige of language _A_ in $`[0,1]`$. The dynamics are described by the following equations:
 ```math
 (1)\left\{
 \begin{array}{lll}
-x'(t) &=& x(t)y(t)\\
-y'(t) &=& u(t) \text{  with  }  \left| u(t) \right| \leq c
+\frac{d\sigma_A}{dt}&=&(1-\sigma_A-\sigma_B) (1-\sigma_B)^a s-\sigma_A\sigma_B^a (1-s)\\
+\frac{d\sigma_B}{dt}&=&(1-\sigma_A-\sigma_B) (1-\sigma_A)^a (1-s)-\sigma_B\sigma_A^a s\\
+\frac{ds}{dt}&=&u\in U
 \end{array}\right.
 ```
-The dynamics are controlled by taking the growth rate evolution in interval $`[-c,c]`$. This viability problem can be resolved analytically (see [4]} for details). The theoretical viability kernel is defined by:
-```math
-Viab(K) = \left\{ (x,y)\in {\mathbb R}^2| \quad  x \in [a;b], y\in [-\sqrt{2c\text{log}(\frac{x}{a})}; \sqrt{2c\text{log}(\frac{b}{x})}] \right\}
-```
+The dynamics are controlled by taking the prestige evolution rate in interval $`[-\bar{u},\bar{u}]`$. 
+
+This viability problem was studied in [8], a viability domain can be computed from the analytical study.
 
 <a name="Fig1"></a>
-<img src="../../../../../../images/populationGitlab.png" width="300" alt="Figure 1: Viability kernel of the population viability problem">
+<img src="../../../../../../images/LanguageGitlab.png" width="300" alt="Figure 1: Viability domain of the language coexistance problem">
 
-[Figure 1: Viability kernel of the population viability problem](#Fig1)
+[Figure 1: Viability domain of the bilingual society problem](#Fig1)
 
-Figure 1 above shows an approximation of the viability kernel for the population problem with:
-* constraint set $`K=[a=0.2,b=3]\times[d=-2,e=2]`$, 
-* parameters $`dt=0.1`$, 
-* control set $`U=[-0.5;0.5]`$ with discretization step 0.02. 
-The color stands for the value of a control $`u`$ which allows the state to stay in the viability kernel. In black the boundary of the true kernel.
+Figure 1 above shows a computation of the viability domain for the bilingual society problem with:
+* constraint set $`K=[0.2,1]\times[0.2,1]\times[0,1]`$, 
+* control set $`U=[-0.1;0.1]`$ <!-- with discretization step _0.01_. -->
+* parameters `a=1.31`$, according to the calibration from historical data from Abrams and Strogatz (Nature, 2003).
+
+The approximation from **Viabilitree** is showed in Figure 2 with the same parameters and the following discretization parameters:
+* control set $`U=[-0.1;0.1]`$ with discretization step _0.01_.
+* time discretization `dt=1`$
+* space discretization $`2^{7}=128`$ points per axis ($`depth=21, \ 2.10^6`$ grid points)
+
+In blue the viability kernel from Figure 1. In white the approximation with no dilation, in red with one basic dilation.
+
+<a name="Fig2"></a>
+<img src="../../../../../../images/language21TS0_5d0white1red.png" width="300" alt="Figure 1: Viability domain of the language coexistance problem">
+
+[Figure 2: Approximation of the viability kernel of the bilingual society problem](#Fig2)
 
 The corresponding code is the following:
 
@@ -48,38 +59,43 @@ The corresponding code is the following:
 For the definition of the model: dynamics, perturbations, etc, a class Population is created. Here it only stores the definition of the dynamics (1).
 ```scala
 import viabilitree.model.Dynamic
+import scala.math._
 
-case class Population(integrationStep: Double = 0.01, timeStep: Double = 0.1) {
+case class Bilingual(a: Double = 1.31, integrationStep: Double = 0.1, timeStep: Double = 1.0) {
+  def dynamic(state: Vector[Double], control: Vector[Double]): Vector[Double] = {
+    def sA = state(0)
+    def sB = state(1)
+    def s = state(2)
+    def σaDot(state: Vector[Double], t: Double) =
+      (1 - sA - sB) * pow(1 - sB, a) * s - sA * pow(sB, a) * (1 - s)
 
-  def dynamic(state: Vector[Double], control: Vector[Double]) = {
-    def xDot(state: Vector[Double], t: Double) = state(1) * state(0)
-    def yDot(state: Vector[Double], t: Double) = control(0)
-    val dynamic = Dynamic(xDot, yDot)
-    val res = dynamic.integrate(state.toArray, integrationStep, timeStep)
-    res
+    def σbDot(state: Vector[Double], t: Double) =
+      (1 - sA - sB) * pow(1 - sA, a) * (1 - s) - sB * pow(sA, a) * s
+
+    def sDot(state: Vector[Double], t: Double) =
+      control(0)
+
+    val dynamic = Dynamic(σaDot, σbDot, sDot)
+    dynamic.integrate(state.toArray, integrationStep, timeStep)
   }
- }
+}
 ```
-_timeStep_ stands for the time discretization parameter $`dt`$ in (2).
+import scala.math._ is necessary because of the use of the _pow_ function.
+
+_timeStep_ is the time discretization parameter $`dt`$.
 
 _integrationStep_ is a private parameter used by the _integrate_ method.
 
-With these parameters **Viabilitree** computes the viability kernel of the discretized system:
-```math
-(2) \left\{
-\begin{array}{lll}
-x(t+dt) &=& x(t)+x(t)y(t)dt\\
-y(t+dt) &=& y(t)+u(t)dt  \text{  with  }  \left| u(t) \right| \leq c
-\end{array}\right.
-```
+With these parameters **Viabilitree** computes an approximation of the viability kernel of the discretized system of (1).
+
 ### Step2: Code for the computation of the viability kernel
-For the definition of the viability problem, a scala object *PopulationViability* is created.
+For the definition of the viability problem, a scala object *BilingualViabDomain* is created.
 
 The viability problem is defined by an instance of _KernelComputation_ with the following parameters:
 
-* _depth_  defines the accuracy of the approximation. There are $`2^{depth}`$ grid points (here, $`2^{\frac{depth}{2}}`$ points per axes).
+* _depth_  defines the accuracy of the approximation. There are $`2^{depth}`$ grid points (here, $`2^{\frac{depth}{3}}`$ points per axes) since the dimension is _3_.
 * _dynamic_: the model dynamics
-* _zone_: the area to explore and here it is also the constraint set, $`[a,b]\times[c,d]`$. For constraint set defined as a function see for example the **circle** or **bilingual** examples
+* _zone_: the area to explore $`[0.2,1]\times[0.2,1]\times[0,1]`$. 
 * _controls_: the set of admissible controls, here it is the same set for each state,$`[-c,c]`$. For more elaborate control function see other examples [ref to come]. Note that the discretization of the parameter *controls* has to be set by the user. 
 
 The computation itself is done by the call to function  _approximate_  of class _KernelComputation_
