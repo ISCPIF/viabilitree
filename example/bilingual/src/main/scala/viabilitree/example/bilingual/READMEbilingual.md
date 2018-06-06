@@ -32,7 +32,7 @@ The dynamics are controlled by taking the prestige evolution rate in interval $`
 This viability problem was studied in [8], a viability domain can be computed from the analytical study.
 
 <a name="Fig1"></a>
-<img src="../../../../../../images/LanguageGitlab.png" width="300" alt="Figure 1: Viability domain of the language coexistance problem">
+<img src="../../../../../../images/languageDomain.png" width="300" alt="Figure 1: Viability domain of the language coexistance problem">
 
 [Figure 1: Viability domain of the bilingual society problem](#Fig1)
 
@@ -95,9 +95,10 @@ The viability problem is defined by an instance of _KernelComputation_ with the 
 
 * _depth_  defines the accuracy of the approximation. There are $`2^{depth}`$ grid points (here, $`2^{\frac{depth}{3}}`$ points per axes) since the dimension is _3_.
 * _dynamic_: the model dynamics
-* _zone_: the area to explore $`[0.2,1]\times[0.2,1]\times[0,1]`$. 
-* _controls_: the set of admissible controls, here it is the same set for each state,$`[-c,c]`$. For more elaborate control function see other examples [ref to come]. Note that the discretization of the parameter *controls* has to be set by the user. 
-
+* _zone_: the area to explore $`[0.2,1]\times[0.2,1]\times[0,1]`$. It has to be a hyperrectangle bounding the constraint set.
+* _controls_: the set of admissible controls, here it is the same set for each state. For more elaborate control function see other examples [ref to come]. Note that the discretization of the parameter *controls* has to be set by the user. 
+* _k_: the constraint set indicator function.
+* _domain_ : the definition domain for the dynamics (as an indicator function). Here we have $`sigma_A + sigma_B \leq 1`$, $`0\leq sigma_A\le 1`$, $`0\leq sigma_B\leq 1`$,  $`0\leq s \leq 1`$.
 The computation itself is done by the call to function  _approximate_  of class _KernelComputation_
 
 ```scala
@@ -108,232 +109,121 @@ import viabilitree.kdtree.Tree
 import viabilitree.viability.kernel._
 import java.io.File
 
-object PopulationViability extends App {
-// accuracy parameter
-  val depth = 20
-// algorithm parameter  
-  val rng = new Random(42)
-// model definition  
-    val population = Population()
-// control parameter  
-    val umax = 0.5
-// constraint set parameters 
-    def a = 0.2
-    def b = 3.0
-    def c = 0.5
-    def d = -2.0
-    def e = 2.0
-// definition of the viability problem
-    val vk = KernelComputation(
-      dynamic = population.dynamic,
-      depth = depth,
-      zone = Vector((a, b), (d, e)),
-      controls = Vector(-u_max to u_max by 0.02))
-// computation of the viability kernel corresponding to problem vk
-    val (ak, steps) = approximate(vk, rng)
-// save viability kernel to file (vtk format, to be processed by paraview)
-    val f = new java.io.File(s"population${steps}depth${depth}.vtk")
-    saveVTK2D(ak, f)
-  }
+object BilingualViabDomain extends App {
+  val rng = new util.Random(42) // algorithm parameter  
+  val society = Bilingual(integrationStep = 0.1, timeStep = 1.0) // model definition  
+
+  val vk = KernelComputation(
+    dynamic = society.dynamic,
+    depth = 18, // accuracy parameter
+    zone = Vector((0.2, 1.0), (0.2, 1.0), (0.0, 1.0)),
+    controls = Vector((0.1 to -0.1 by -0.01)), // control parameter  
+    k = Some(p => p(0) <= 1 && p(0) >= 0.2 && p(1) <= 1 && p(1) >= 0.2), // constraint set 
+    domain = (p: Vector[Double]) => p(0) + p(1) <= 1 && p.forall(_ >= 0) && p.forall(_ <= 1), // definition domain for 
+    dilations = 0)
+
+  val (viabilityDomain, steps) = approximate(vk, rng)
+  //  val (viabilityDomain, steps) = approximate(vk, rng, maxNumberOfStep = Some(0))
+  val output = s"/tmp/BilingualResult2018/"
+  saveVTK3D(viabilityDomain, s"${output}Bilingual${vk.depth}viabdil${vk.dilations}withk.vtk")
+  saveHyperRectangles(vk)(viabilityDomain, s"${output}Bilingual${vk.depth}dil${vk.dilations}withk.txt")
 }
 ```
 ##### Correspondance of the code with the mathematical model
 
-_umax_ corresponds with $`c`$.
+_vk_ is the discretized version of viability problem (2), where _k_ is the constraint set indicator function and _controls_ the discretized admissible controls at each state.
 
-_a_ to _e_ are the same parameters as in the mathematical definition.
-
-_vk_ is the viability problem as stated in (2)
-
-_ak_ is the resulting viability kernel. It is a Tree with KernelContent (Tree[KernelContent]])
+_viabilityDomain_ is the resulting viability kernel. It is a Tree with KernelContent (Tree[KernelContent]])
 
 ##### Private Parameters
 ```scala
-  val rng = new Random(42)
+  val rng = new util.Random(42)
 ```
 *rng* is the seed parameter for the random generator. It is used to generate test points when splitting a leaf of the kd-tree in new leaves. Two runs with the same seed will generate the same points.
 
-## Approximation of a set
+## Approximation of a capture basin
 
-The **population** package gives an example of the basic learning function in **Viabilitree**. Scala object *PopulationApproximation* shows how to approximate the set Viab(K), the theoretical viability kernel which is defined by:
-```math
-Viab(K) = \left\{ (x,y)\in {\mathbb R}^2| \quad  x \in [a;b], y\in [-\sqrt{2c\text{log}(\frac{x}{a})}; \sqrt{2c\text{log}(\frac{b}{x})}] \right\}
-```
+The **bilingual** package gives an example of the capture basin approximation in **Viabilitree**. Scala object *BilingualBasin* shows how to approximate the capture basin of the approximation of the viability kernel for the bilingual society problem.
+
 ```scala
 import viabilitree.export._
-import viabilitree.approximation._
-object PopulationApproximation extends App {
+import viabilitree.viability._
+import viabilitree.viability.basin._
 
-  val a = 0.2
-  val b = 3.0
-  val c = 0.5
-  val d = -2.0
-  val e = 2.0
+object BilingualBasinFromKernel extends App {
+  implicit val rng = new Random(42)
+  val society = Bilingual(integrationStep = 0.1, timeStep = 1.0)
 
-  def oracle(p: Vector[Double]): Boolean = {
-    p(0) >= a && p(0) <= b &&
-      p(1) <= sqrt(2 * c * log(b / p(0))) && p(1) >= -sqrt(2 * c * log(p(0) / a))
+  def kernelBilingual ={
+    import viabilitree.viability.kernel._
+
+    val vk = KernelComputation(
+      dynamic = society.dynamic,
+      depth = 15,
+      zone = Vector((0.2, 1.0), (0.2, 1.0), (0.0, 1.0)),
+      controls = Vector((0.1 to -0.1 by -0.01)),
+      k = Some(p => p(0) <= 1 && p(0) >= 0.2 && p(1) <= 1 && p(1) >= 0.2),
+      domain = (p: Vector[Double]) => p(0) + p(1) <= 1 && p.forall(_ >= 0) && p.forall(_ <= 1))
+
+    val (viabilityDomain, steps) = approximate(vk, rng)
+    (viabilityDomain,steps)
   }
 
-  val depth = 18
+  val (viabilityDomain,stepK) = kernelBilingual
 
-  val approximation =
-    OracleApproximation(
-      depth = depth,
-      box =
-        Vector((a, b), (d, e)),
-      oracle = oracle,
-      point = Option(Vector(1.0, 0.0)))
+  val bc = BasinComputation(
+    zone = Vector((0.0, 1.0), (0.0, 1.0), (0.0, 1.0)),
+    depth = 21,
+    pointInTarget = Vector(70.0 / 99, 24.0 / 99, 1.0 / 99),
+    dynamic = society.dynamic,
+    target = p => viabilityDomain.contains(p),
+    controls = Vector((-0.1 to 0.1 by 0.01)),
+    domain = (p: Vector[Double]) => p(0) + p(1) <= 1 && p.forall(_ >= 0))
 
-  implicit val random = new Random(42)
-  val res = approximate(approximation).get
+  val (basin, step) = bc.approximate()
 
-  saveVTK2D(res, s"/tmp/population/kernelVFtest${depth}.vtk")
+  println(s"steps $step; volume ${volume(basin)}")
+
+  saveVTK3D(basin, s"/tmp/bilingual${bc.depth}FromKernel.vtk")
 }
 ```
-The approximation problem is defined as an instance of _OracleApproximation_ with the following parameters:
+Fist an approximation of the viability kernel for the bilingual society problem is computed by function _kernelBilingual_. It is stored in _viabilityDomain_.
 
-* _depth_  defines the accuracy of the approximation. There are $`2^{depth}`$ grid points (here, $`2^{18}`$ points, that is $`2^9`$ per axes).
-* _box_: the area to explore (here it is identical to the constraint set of the viability problem). It is a hyperrectangle 
-* _oracle_: the oracle function $`f`$ to call in order to label examples. This function apply to a Vector[Double]) and returns a Boolean.
-* _point_ (optional): if known (an Option of) a point $`x`$ that belongs to the set to approximate: $`f(x)`$ returns TRUE.
+The capture basin approximitaion is defined as an instance of _BasinComputation_ with the following parameters:
 
-The computation  is done by the call to function  _approximate_  of class _OracleApproximation_
+* _zone_: the area to explore. It has to be a hyperrectangle 
+* _depth_:  defines the accuracy of the approximation. There are $`2^{depth}`$ grid points (here, $`2^{21}`$ points, that is $`2^7`$ points per axes).
+* _pointInTarget_: a known point in the target (to speed up the computation and prevent computation of empty tree)
+* _dynamic_: the model dynamics
+* _target_: the indicator function of the target. This function apply to a state (a Vector[Double]) and returns a Boolean. Here it is the indicator function of _viabilityDomain_.
+* _controls_: the set of admissible controls, here it is the same set for each state,$`[-c,c]`$. For more elaborate control function see other examples [ref to come]. Note that the discretization of the parameter *controls* has to be set by the user. 
+* _domain_ : the definition domain for the dynamics (as an indicator function). Here we have $`sigma_A + sigma_B \leq 1`$, $`0\leq sigma_A\le 1`$, $`0\leq sigma_B\leq 1`$,  $`0\leq s \leq 1`$.
+
+The capture basin of the set defined by _target_ is computed in the intersection of _zone_ and the set defined by _domain_, for the dynamics defined by _dynamic_ and _controls_.
+
+The computation  is done by the call to function  _approximate_  of class _BasinComputation_
 
 The resulting VTK files can be processed with Paraview.
-
-<img src="/images/ApproximationTrueKernel.png" width="300" alt="Figure 2: Direct approximation of the Viability kernel indicator function">
-
-[Figure 2: Direct approximation of the Viability kernel indicator function](#Fig2)
 
 ## Output
 
 ```scala
-    val (ak, steps) = approximate(vk, rng)
+  val (basin, step) = bc.approximate()
 ```    
-After running the code, *ak* stores an approximation of the viability kernel for (2), as a kd-tree, which was computed in *steps* steps. The kd-tree is saved to a text file with a simple VTK format, so it can be processed by Paraview [https://www.paraview.org/].
+After running the code, *basin* stores an approximation of the capture basin of the viability kernel for (2), as a kd-tree, which was computed in *steps* steps. The kd-tree is saved to a text file with a simple VTK format, so it can be processed by Paraview [https://www.paraview.org/].
 ```scala
-    saveVTK2D(ak, f)
+  saveVTK3D(basin, s"/tmp/bilingual${bc.depth}FromKernel.vtk")
 ```    
-the VTK format is available only for 2D and 3D trees. For 3D example see the **bilingual** example.
+the VTK format is available only for 2D and 3D trees.
 
 An alternative format (valid for any dimension) is available:
 ```scala
-    saveHyperRectangles(vk)(ak, f)
+    saveHyperRectangles(bc)(basin, f)
 ``` 
 This format is described in the **export** package. Each line corresponds with a leaf of the kd-tree, characterized by its testpoint, its extends along each dimension (a min and a max), and a viable control which was found for the testpoint.
 
-[Figure 1](#Fig1) shows both files in Paraview.
+<!-- [Figure 1](#Fig1) shows both files in Paraview.-->
 
-<a name="OpenMOLE"></a>
-## Requirement for OpenMOLE
-If you want to use your viability code with OpenMOLE, please visit first the [OpenMOLE website][openmole].
-
-### Code with function
-Previous code cannot be called by OpenMOLE. The code must be wrapped in a function, for example as below:
-```scala
-object PopulationViability extends App {
-  val depth=16
-  Pop.run(depth)
-}
-
-object Pop {
-
-  def run(depth: Int) = {
-    val population = Population()
-    val rng = new Random(42)
-    def a = 0.2
-    def b = 3.0
-    def c = 0.5
-    def d = -2.0
-    def e = 2.0
-
-    val vk = KernelComputation(
-      dynamic = population.dynamic,
-      depth = depth,
-      zone = Vector((a, b), (d, e)),
-      controls = Vector(-0.5 to 0.5 by 0.02))
-
-    val begin = System.currentTimeMillis()
-    val (ak, steps) = approximate(vk, rng)
-    // saveVTK2D(ak, s"/tmp/populationFINAL/population${steps}.vtk")
-    val tps = (System.currentTimeMillis - begin)
-    tps
-  }
-}
-```
-
-### Call viabilitree code from openMOLE
-This code will be called by OpenMOLE in a task like the one below (see [openMOLE documentation][openmoleDOC] for more information)
-```
-val kernelTask = ScalaTask(
-"""val tempsFinal = fr.iscpif.population.Pop.run""") set(
-  inputs += (),
-  outputs += (computTime),
-  plugins += pluginsOf(fr.iscpif.population.Pop)
-  )
-```
-### Link openMOLE to Viabilitree
-In order to link the viability code to openmole it is necessary to produce the .jar code that will be called.  
-To do this, modify the **build.sbt** file to include the **osgiBundle** settings. For **population* we have:
-```scala
-lazy val population =
-  Project(id = "population", base = file("example/population")) settings(
-    publishArtifact := false,
-    OsgiKeys . exportPackage := Seq ( "viabilitree.*", "fr.iscpif.population.*"),
-    OsgiKeys . importPackage := Seq ( "*;resolution:=optional" ),
-    OsgiKeys . privatePackage := Seq ( "*" ),
-    OsgiKeys . requireCapability := """osgi.ee;filter:="(&(osgi.ee=JavaSE)(version=1.8))"""") dependsOn(viability, export, model) enablePlugins(SbtOsgi)
-```
-instead of just:
-```scala
-lazy val population =
-  Project(id = "population", base = file("example/population")) settings(publishArtifact := false)  dependsOn(viability, export, model)
-```
-The following *sbt* command creates the executable file.
-```
-sbt osgiBundle
-```
-
-### Save each computation in a separate file when using OpenMOLE
-
-OpenMOLE can follow an experimental design but generally it aggregates outputs. To keep all the (for example) viability kernel computed with OpenMOLE it is necessaty to declare the output directory in the main.
-```scala
-val file : java.io.File = new java.io.File("directory")
-```
-File names are then append to the directory name. Function **run** of Object *Pop* (in *PopulationViability*) will save each kernel in all available formats in the input *file* directory. 
-
-```scala
-  def run(depth: Int, file: java.io.File, u_max: Double) = {
-    val population = Population()
-    val rng = new Random(42)
-    def a = 0.2
-    def b = 3.0
-    def c = 0.5
-    def d = -2.0
-    def e = 2.0
-
-    val vk = KernelComputation(
-      dynamic = population.dynamic,
-      depth = depth,
-      zone = Vector((a, b), (d, e)),
-      controls = Vector(-u_max to u_max by 0.02))
-      
-    val (ak, steps) = approximate(vk, rng)
-    val result = volume(ak)
-    
-    val f = file.toScala / s"${steps}depth${depth}.vtk"
-    saveVTK2D(ak, f)
-    val f2 = file.toScala / s"${steps}depth${depth}withControl${u_max}.txt"
-    saveHyperRectangles(vk)(ak, f2)
-    val f3 = file.toScala / s"${steps}depth${depth}withControl${u_max}.bin"
-    save(ak,f3)
-    /* reload an already computed kernel
-    val ak2 = load[Tree[KernelContent]](f3)
-    */
-    result
-  }
-```
 
 <!-- Identifiers, in alphabetical order -->
 
