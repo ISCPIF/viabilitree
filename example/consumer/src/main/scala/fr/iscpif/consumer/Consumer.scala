@@ -1,5 +1,7 @@
 package fr.iscpif.consumer
 
+//TODO fix the link problem in readme: relative path doesn't always work, gitlab asks for signing in. With bilingual and population
+
 import viabilitree.model._
 
 case class Consumer(
