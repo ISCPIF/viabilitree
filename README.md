@@ -203,8 +203,8 @@ A set-valued map $`F`$, non trivial, upper semicontinuous, with compact convex i
 A set-valued map $`F`$ is $`\mu`$-Lipschitz with $`\mu>0`$ if for all $`x`$ and $`y`$, $` F(x)\subset F(y)+B(0,\mu ||x-y||)`$
 
 <!-- Identifiers, in alphabetical order -->
-[Bilingual]:example/READMEbilingual.md "Documentation for the example of the Bilingual society viability problem"
-[Consumer]:example/READMEconsumer.md "Documentation for the example of the consumption model"
+[Bilingual]:https://gitlab.iscpif.fr/viability/viabilitree/example/READMEbilingual.md "Documentation for the example of the Bilingual society viability problem"
+[Consumer]:https://gitlab.iscpif.fr/viability/viabilitree/example/READMEconsumer.md "Documentation for the example of the consumption model"
 [kernelLink]:doc/READMEKernelComputation.md "Documentation for class KernelComputation"
 [Lipschitz]: https://gitlab.iscpif.fr/viability/viabilitree/tree/master#Lipschitz "Definition of the Lipschitz property for dynamical systems"
 [Marchaud]: https://gitlab.iscpif.fr/viability/viabilitree/tree/master#Marchaud "Definition of the Marchaud property for dynamical systems"
