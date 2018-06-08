@@ -165,13 +165,13 @@ Coming soon
 The main purpose of **Viabilitree** is to help users to declare a viability problem, compute the corresponding viability kernel and possibly its capture basin, in order to perform a viability analysis.
 
 Example of viability problems are gathered in package **example**. Each example is detailled in its own readme file.
- * Bilingual :
+ * [Bilingual][Bilingual] :
    - approximation of the viability kernel (BilingualViabDomain)
    - approximation of the capture basin of the viability kernel (BilingualBasin)
- * Consumer
+ * [Consumer][Consumer]
    - approximation of the viability kernel (ConsumerViability)
    - approximation of a set (the analytical kernel ) (ConsumerKernel)
- * Population
+ * [Population][Population]
    - approximation of the viability kernel (PopulationViability)
    - exploration with OpenMOLE (PopulationViability)
    - approximation of a set (the analytical kernel ) (PopulationApproximation)
@@ -203,8 +203,11 @@ A set-valued map $`F`$, non trivial, upper semicontinuous, with compact convex i
 A set-valued map $`F`$ is $`\mu`$-Lipschitz with $`\mu>0`$ if for all $`x`$ and $`y`$, $` F(x)\subset F(y)+B(0,\mu ||x-y||)`$
 
 <!-- Identifiers, in alphabetical order -->
+[Bilingual]:example/READMEbilingual.md "Documentation for the example of the Bilingual society viability problem"
+[Consumer]:example/READMEconsumer.md "Documentation for the example of the consumption model"
 [kernelLink]:doc/READMEKernelComputation.md "Documentation for class KernelComputation"
 [Lipschitz]: https://gitlab.iscpif.fr/viability/viabilitree/tree/master#Lipschitz "Definition of the Lipschitz property for dynamical systems"
 [Marchaud]: https://gitlab.iscpif.fr/viability/viabilitree/tree/master#Marchaud "Definition of the Marchaud property for dynamical systems"
+[Population]:example/READMEpopulation.md "Documentation for the example of the population growth model"
 [viabilitree]: https://hal.archives-ouvertes.fr/hal-01319738v1 "Working paper with technical proofs"
 <!-- [openmole]: http://www.openmole.org/ "OpenMOLE website: for numerical exploration of complex models" -->
