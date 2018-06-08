@@ -18,7 +18,7 @@ Language coexistence model from Bernard and Martin, 2012.
 
 The model describes a bilingual society considering three groups in the population: the monolingual speakers of language $`A`$, the monolingual speakers of language $`B`$, and the bilingual speakers $`AB`$. Transitions occurs only from monolingual speakers to bilingual speakers and conversely. The switch rate depends on the relative attractiveness of the languages
 
-The language coexistence viability problem consists in maintaining the proportion of speakers of each language above a threshold $`\underline{\sigma}>0`$. The state of the system is described by the variables $`\sigma_A}`$ and $`\sigma_B}`$ (with $`\sigma_{AB}=1-\sigma_A - \sigma_B`$), and _s_ the prestige of language _A_ in $`[0,1]`$. The dynamics are described by the following equations:
+The language coexistence viability problem consists in maintaining the proportion of speakers of each language above a threshold $`\underline{\sigma}>0`$. The state of the system is described by the variables $`\sigma_A`$ and $`\sigma_B`$ (with $`\sigma_{AB}=1-\sigma_A - \sigma_B`$), and _s_ the prestige of language _A_ in $`[0,1]`$. The dynamics are described by the following equations:
 ```math
 (1)\left\{
 \begin{array}{lll}
