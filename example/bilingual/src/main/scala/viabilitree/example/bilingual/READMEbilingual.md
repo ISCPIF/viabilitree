@@ -37,13 +37,14 @@ This viability problem was studied in [8], a viability domain can be computed fr
 [Figure 1: Viability domain of the bilingual society problem](#Fig1)
 
 Figure 1 above shows a computation of the viability domain for the bilingual society problem with:
-* constraint set $`K=[0.2,1]\times[0.2,1]\times[0,1]`$, 
-* control set $`U=[-0.1;0.1]`$ <!-- with discretization step _0.01_. -->
-* parameters `a=1.31`$, according to the calibration from historical data from Abrams and Strogatz (Nature, 2003).
+* constraint set $`K=[0.2;1]\times [0.2;1]\times [0;1]`$, 
+* control set $`U=[-0.1,0.1]`$ 
+<!-- with discretization step _0.01_. -->
+* parameters $`a=1.31`$, according to the calibration from historical data from Abrams and Strogatz (Nature, 2003).
 
 The approximation from **Viabilitree** is showed in Figure 2 with the same parameters and the following discretization parameters:
 * control set $`U=[-0.1;0.1]`$ with discretization step _0.01_.
-* time discretization `dt=1`$
+* time discretization $`dt=1`$
 * space discretization $`2^{7}=128`$ points per axis ($`depth=21, \ 2.10^6`$ grid points)
 
 In blue the viability kernel from Figure 1. In white the approximation with no dilation, in red with one basic dilation.
@@ -95,10 +96,10 @@ The viability problem is defined by an instance of _KernelComputation_ with the 
 
 * _depth_  defines the accuracy of the approximation. There are $`2^{depth}`$ grid points (here, $`2^{\frac{depth}{3}}`$ points per axes) since the dimension is _3_.
 * _dynamic_: the model dynamics
-* _zone_: the area to explore $`[0.2,1]\times[0.2,1]\times[0,1]`$. It has to be a hyperrectangle bounding the constraint set.
+* _zone_: the area to explore $`[0.2,1]\times [0.2,1]\times [0,1]`$. It has to be a hyperrectangle bounding the constraint set.
 * _controls_: the set of admissible controls, here it is the same set for each state. For more elaborate control function see other examples [ref to come]. Note that the discretization of the parameter *controls* has to be set by the user. 
 * _k_: the constraint set indicator function.
-* _domain_ : the definition domain for the dynamics (as an indicator function). Here we have $`sigma_A + sigma_B \leq 1`$, $`0\leq sigma_A\le 1`$, $`0\leq sigma_B\leq 1`$,  $`0\leq s \leq 1`$.
+* _domain_ : the definition domain for the dynamics (as an indicator function). Here we have $`sigma_A + sigma_B \leq 1`$, $`0\leq sigma_A\leq 1`$, $`0\leq sigma_B\leq 1`$,  $`0\leq s \leq 1`$.
 The computation itself is done by the call to function  _approximate_  of class _KernelComputation_
 
 ```scala
