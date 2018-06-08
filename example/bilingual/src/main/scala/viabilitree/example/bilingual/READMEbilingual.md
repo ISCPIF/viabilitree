@@ -134,7 +134,7 @@ object BilingualViabDomain extends App {
 
 _vk_ is the discretized version of viability problem (2), where _k_ is the constraint set indicator function and _controls_ the discretized admissible controls at each state.
 
-_viabilityDomain_ is the resulting viability kernel. It is a Tree with KernelContent (Tree[KernelContent]])
+_viabilityDomain_ is the resulting viability kernel. It is a Tree with KernelContent (Tree[KernelContent])
 
 ##### Private Parameters
 ```scala
