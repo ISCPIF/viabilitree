@@ -18,7 +18,7 @@ Language coexistence model from Bernard and Martin, 2012.
 
 The model describes a bilingual society considering three groups in the population: the monolingual speakers of language $`A`$, the monolingual speakers of language $`B`$, and the bilingual speakers $`AB`$. Transitions occurs only from monolingual speakers to bilingual speakers and conversely. The switch rate depends on the relative attractiveness of the languages
 
-The language coexistence viability problem consists in maintaining the proportion of speakers of each language above a threshold $`\underline{\sigma}>0`$. The state of the system is described by the variables $`\sigma_A`$ and $`\sigma_B`$ (with $`\sigma_{AB}=1-\sigma_A - \sigma_B`$), and _s_ the prestige of language _A_ in $`[0,1]`$. The dynamics are described by the following equations:
+The language coexistence viability problem consists in maintaining the proportion of speakers of each language above a threshold $`\underline{\sigma}>0`$. The state of the system is described by the variables $`\sigma_A`$ and $`\sigma_B`$ (with $`\sigma_{AB}=1-\sigma_A - \sigma_B`$), and $`s`$ the prestige of language _A_ in $`[0,1]`$. The dynamics are described by the following equations:
 ```math
 (1)\left\{
 \begin{array}{lll}
@@ -38,8 +38,7 @@ This viability problem was studied in [8], a viability domain can be computed fr
 
 Figure 1 above shows a computation of the viability domain for the bilingual society problem with:
 * constraint set $`K=[0.2;1]\times [0.2;1]\times [0;1]`$, 
-* control set $`U=[-0.1,0.1]`$ 
-<!-- with discretization step _0.01_. -->
+* control set $`U=[-0.1,0.1]`$ ,
 * parameters $`a=1.31`$, according to the calibration from historical data from Abrams and Strogatz (Nature, 2003).
 
 The approximation from **Viabilitree** is showed in Figure 2 with the same parameters and the following discretization parameters:
@@ -57,7 +56,7 @@ In blue the viability kernel from Figure 1. In white the approximation with no d
 The corresponding code is the following:
 
 ### Step 1: Code for the dynamics
-For the definition of the model: dynamics, perturbations, etc, a class Population is created. Here it only stores the definition of the dynamics (1).
+For the definition of the model: dynamics, perturbations, etc, a class *Bilingual* is created. Here it only stores the definition of the dynamics (1).
 ```scala
 import viabilitree.model.Dynamic
 import scala.math._
@@ -99,7 +98,8 @@ The viability problem is defined by an instance of _KernelComputation_ with the 
 * _zone_: the area to explore $`[0.2,1]\times [0.2,1]\times [0,1]`$. It has to be a hyperrectangle bounding the constraint set.
 * _controls_: the set of admissible controls, here it is the same set for each state. For more elaborate control function see other examples [ref to come]. Note that the discretization of the parameter *controls* has to be set by the user. 
 * _k_: the constraint set indicator function.
-* _domain_ : the definition domain for the dynamics (as an indicator function). Here we have $`sigma_A + sigma_B \leq 1`$, $`0\leq sigma_A\leq 1`$, $`0\leq sigma_B\leq 1`$,  $`0\leq s \leq 1`$.
+* _domain_ : the definition domain for the dynamics (as an indicator function). Here we have $`\sigma_A + \sigma_B \leq 1`$, $`0\leq \sigma_A\leq 1`$, $`0\leq \sigma_B\leq 1`$,  $`0\leq s \leq 1`$.
+
 The computation itself is done by the call to function  _approximate_  of class _KernelComputation_
 
 ```scala
@@ -198,7 +198,7 @@ The capture basin approximitaion is defined as an instance of _BasinComputation_
 * _dynamic_: the model dynamics
 * _target_: the indicator function of the target. This function apply to a state (a Vector[Double]) and returns a Boolean. Here it is the indicator function of _viabilityDomain_.
 * _controls_: the set of admissible controls, here it is the same set for each state,$`[-c,c]`$. For more elaborate control function see other examples [ref to come]. Note that the discretization of the parameter *controls* has to be set by the user. 
-* _domain_ : the definition domain for the dynamics (as an indicator function). Here we have $`sigma_A + sigma_B \leq 1`$, $`0\leq sigma_A\le 1`$, $`0\leq sigma_B\leq 1`$,  $`0\leq s \leq 1`$.
+* _domain_ : the definition domain for the dynamics (as an indicator function). Here we have $`\sigma_A + \sigma_B \leq 1`$, $`0\leq \sigma_A\le 1`$, $`0\leq \sigma_B\leq 1`$,  $`0\leq s \leq 1`$.
 
 The capture basin of the set defined by _target_ is computed in the intersection of _zone_ and the set defined by _domain_, for the dynamics defined by _dynamic_ and _controls_.
 
