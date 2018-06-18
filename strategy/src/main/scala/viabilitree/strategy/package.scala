@@ -4,6 +4,12 @@ import viability.kernel._
 import kdtree._
 import viabilitree.model.Control
 
+import com.thoughtworks.xstream._
+import io.binary._
+import better.files._
+import cats._
+import cats.implicits._
+
 package object strategy {
 
   case class StrategyElement(point: Vector[Double], control: Vector[Double])
@@ -62,6 +68,19 @@ package object strategy {
           } yield basicControl.value
 
         basicControl orElse exhaustiveStrategy(kc, k)(point)
+    }
+  }
+
+
+  def traceStrategyElemTraj(t:Seq[StrategyElement], file: File): Unit = {
+    file.delete(true)
+    file.parent.createDirectories()
+    file.touch()
+    t.foreach { s =>
+      file.append(s.point.mkString(" "))
+      file.append(" ")
+      file.append(s.control.mkString(" "))
+      file.append(s"\n")
     }
   }
 
