@@ -23,7 +23,7 @@ The lake viability problem consists in maintaining the concentration of phosphor
 (1)\left\{
 \begin{array}{lll}
 \frac{dL}{dt}&=&u\in U\\
-\frac{d\PA}{dt}&=&-b P(t) + L(t) +r\frac{P^q(t)}{m^q + P^q(t)}\\
+\frac{dP}{dt}&=&-b P(t) + L(t) +r\frac{P^q(t)}{m^q + P^q(t)}\\
 (L,P)&\in& K
 \end{array}\right.
 ```
