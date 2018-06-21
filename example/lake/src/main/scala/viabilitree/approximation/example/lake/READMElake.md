@@ -42,6 +42,8 @@ Figure 1 above shows approximations of the viability kernel for lake problem wit
 * control set $`U=[-0.09,0.09]`$ ,
 * parameters $`b=0.8`$, $`r=1`$, $`m=1`$ representing a reversible lake (according to the calibration from [10] and the use in [11]).
 
+In light gray approximation with dilation=0, in dark gray with dilation = 1. In white the boundary computed from the reverse dynamic from equilibrium at $`P=1.4`$.
+
 The corresponding code is the following:
 
 ### Step 1: Code for the dynamics
