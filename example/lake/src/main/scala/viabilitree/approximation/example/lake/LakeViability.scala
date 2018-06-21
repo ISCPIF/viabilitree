@@ -28,7 +28,27 @@ object LakeViabilityKernel extends App {
 
   val vk = KernelComputation(
     dynamic = lake.dynamic,
-    depth = 18,
+    depth = 20,
+    zone = Vector((0.1, 1.0), (0.0, 1.4)),
+    controls = Vector((0.09 to -0.09 by -0.01)))
+
+  val (ak, steps) = approximate(vk, rng)
+
+  saveVTK2D(ak, "/tmp/reslake.vtk")
+  saveHyperRectangles(vk)(ak, "/tmp/reslakeWithControl.txt")
+
+  println(volume(res))
+
+}
+
+object LakeViabilityKernelWithDistance extends App {
+
+  val lake = Lake()
+  val rng = new util.Random(42)
+
+  val vk = KernelComputation(
+    dynamic = lake.dynamic,
+    depth = 20,
     zone = Vector((0.1, 1.0), (0.0, 1.4)),
     controls = Vector((0.09 to 0.09 by 0.0)))
 
@@ -53,33 +73,5 @@ object LakeViabilityKernel extends App {
 
 }
 
-object LakeTestControl extends App {
 
-  val lake = Lake()
-  val rng = new util.Random(42)
-
-  val u1 = Vector((1.0 to 5.0 by 1.0), (1.0 to 5.0 by 1.0), (1.0 to 2.0 by 1.0))
-  val u2 = Vector(Vector(1.0, 2.0), Vector(1.0, 3.0), Vector(1.0, 0.0))
-
-  val unPoint = Vector(0.0, 1.0)
-
-  val vk1 = KernelComputation(
-    dynamic = lake.dynamic,
-    depth = 18,
-    zone = Vector((0.1, 1.0), (0.0, 1.4)),
-    controls = u1)
-
-  val vk2 = KernelComputation(
-    dynamic = lake.dynamic,
-    depth = 18,
-    zone = Vector((0.1, 1.0), (0.0, 1.4)),
-    controls = u2)
-
-  val lu1 = vk1.controls(unPoint)
-  val lu2 = vk2.controls(unPoint)
-
-  println(lu1)
-  println(lu2)
-
-}
 
