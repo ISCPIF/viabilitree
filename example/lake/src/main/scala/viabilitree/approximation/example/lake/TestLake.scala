@@ -14,15 +14,14 @@ import math._
 // Note NumericalRange n'accepte pas un step à zéro (0.0 to 0.0 by 0.0) NON mais (0.0 to 0.0 by 0.1) OUI
 //  saveHyperRectangles(vk)(ak, s"/tmp/TestControlLakeD${vk.depth}.txt")
 
+
 object OutputLake extends App {
-  val b = 0.1
-  val r = 0.1
 
   val lake=Lake()
   val rng = new util.Random(42)
   val depth = 20
 
-  def initViabProblem(lake: lake, depth:Int) ={
+  def initViabProblem(lake: Lake, depth:Int) ={
     val vk = KernelComputation(
       dynamic = lake.dynamic,
       depth = depth,
@@ -43,6 +42,7 @@ object OutputLake extends App {
   if (!exists((s"/tmp/TestControlLakeD${depth}.vtk"))) saveVTK2D(ak,s"/tmp/TestControlLakeD${depth}.vtk")
   println ("volume ", volume(ak))
 }
+
 object OutputLakeWithdt extends App {
   val b = 0.1
   val r = 0.1
@@ -187,7 +187,7 @@ object DynamicLake extends App {
     save(ak,s"/tmp/TestDynamicLakeD${vk.depth}.bin")
     ak
   }
-  val vk = initViabProblem(lake, depth)
+  val vk = initViabProblem(lake.dynamic, depth)
   val ak= if (exists((s"/tmp/TestDynamicLakeD${depth}.bin"))) load[Kernel](s"/tmp/TestControlLakeD${depth}.bin") else initKernel(lake, vk)
   if (!exists((s"/tmp/TestDynamicLakeD${depth}.txt"))) saveHyperRectangles(vk)(ak,s"/tmp/TestControlLakeD${depth}.txt")
   if (!exists((s"/tmp/TestDynamicLakeD${depth}.vtk"))) saveVTK2D(ak,s"/tmp/TestControlLakeD${depth}.vtk")

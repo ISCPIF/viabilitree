@@ -1,6 +1,11 @@
 package viabilitree.approximation.example.lake
 
-import viabilitree.viability.kernel.KernelComputation
+import viabilitree.viability._
+import viabilitree.viability.kernel._
+import viabilitree.export._
+import viabilitree.model._
+import viabilitree.strategy._
+import math._
 
 /**
   * Created by scala on 21/06/18.

@@ -37,7 +37,7 @@ object LakeViabilityKernel extends App {
   saveVTK2D(ak, "/tmp/reslake.vtk")
   saveHyperRectangles(vk)(ak, "/tmp/reslakeWithControl.txt")
 
-  println(volume(res))
+  println(volume(ak))
 
 }
 
