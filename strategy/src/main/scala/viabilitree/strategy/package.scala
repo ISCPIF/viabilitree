@@ -16,13 +16,14 @@ package object strategy {
 
   case class StrategyExploration (guess: Option[Vector[Control] => Option[Vector[Double]]] = None)
 
+/*
   def mostDemandingControl(lesC: Vector[Control]):Option[Vector[Double]] = {
     if (lesC.isEmpty)  None else {
-
     }
   }
 
   def mostDemandingControl : Vector[Control] => Option[Vector[Double]]= None
+*/
 
 
 
@@ -72,19 +73,18 @@ package object strategy {
       case k: NonEmptyTree[KernelContent] => exhaustiveStrategy(kc.dynamic, kc.controls(point), k.contains)(point)
     }
 
-  def exhaustiveStrategyGuess(dynamic: (Vector[Double], Vector[Double]) => Vector[Double], controls: Vector[Control], oracle: Vector[Double] => Boolean, guess: Vector[Control] => Option(Vector[Double]))(point: Vector[Double]): Option[Vector[Double]] = {
+ /* def exhaustiveStrategyGuess(dynamic: (Vector[Double], Vector[Double]) => Vector[Double], controls: Vector[Control], oracle: Vector[Double] => Boolean, guess: Vector[Control] => Option(Vector[Double]))(point: Vector[Double]): Option[Vector[Double]] = {
     val cViable = controls.find { c => oracle(dynamic(point, c.value)) }.map(_.value)
     val result = if cViable.isDefined cViable else guess(controls)
   }
-  def exhaustiveStrategyGuess(kc: KernelComputation, k: viability.kernel.Kernel)(point: Vector[Double]): Option[Vector[Double]] =
 
+  def exhaustiveStrategyGuess(kc: KernelComputation, k: viability.kernel.Kernel)(point: Vector[Double]): Option[Vector[Double]] =
     k match {
       case _: EmptyTree[_] => None
       case k: NonEmptyTree[KernelContent] => exhaustiveStrategyGuess(kc.dynamic, kc.controls(point), k.contains, min)(point)
     }
 
-
-
+*/
   def basicStrategy(kc: KernelComputation, k: viability.kernel.Kernel)(point: Vector[Double]): Option[Vector[Double]] = {
     k match {
       case _: EmptyTree[_] => None

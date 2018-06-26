@@ -1,6 +1,6 @@
 package viabilitree.approximation.example.circle
 
-object Circle extends App {
+object Circle3D extends App {
 
   import viabilitree.approximation._
   import viabilitree.export._
@@ -22,29 +22,34 @@ object Circle extends App {
 
   implicit val random = new Random(42)
 
-  val res = approximation.approximate.get
-
-  println("Nb leaves " + res.leaves.size)
-  println("Nb atomic leaves " + res.atomicLeaves.size)
-  println("Nb true atomic leaves " + res.atomicLeaves.filter(_.content.label).size)
+  val res = approximate(approximation).get
   println("Volume " + volume(res))
-
-  //  val dilated = dilate(approximation, res)
-  //
-  //  println("Nb atomic leaves " + dilated.atomicLeaves.size)
-  //  println("Nb true atomic leaves " + dilated.atomicLeaves.filter(_.content.label).size)
-  //  println("Volume dilaté " + volume(dilated))
-  //
-  //  val eroded = erode(approximation, res)
-  //
-  //  println("Nb atomic leaves " + eroded.atomicLeaves.size)
-  //  println("Nb true atomic leaves " + eroded.atomicLeaves.filter(_.content.label).size)
-  //  println("Volume érodé " + volume(eroded))
-  //
-  //  println("Eroded of dilated " + volume(erode(approximation, dilated)))
-  //  println("Dilated of eroded " + volume(dilate(approximation, eroded)))
-
   saveVTK3D(res, "/tmp/circle.vtk")
   saveHyperRectangles(approximation)(res, "/tmp/circle.txt")
 
+  val res2 = approximateNoClean(approximation).get
+  println("Volume " + volume(res2))
+  val eroded = erode(approximation, res2)
+
+   println("Volume eroded set " + volume(eroded))
+  saveVTK3D(eroded, "/tmp/circleEroded.vtk")
+  saveHyperRectangles(approximation)(res, "/tmp/circleEroded.txt")
+
 }
+
+//  println("Nb leaves " + res.leaves.size)
+//  println("Nb atomic leaves " + res.atomicLeaves.size)
+//  println("Nb true atomic leaves " + res.atomicLeaves.filter(_.content.label).size)
+
+//  val dilated = dilate(approximation, res)
+//
+//  println("Nb atomic leaves " + dilated.atomicLeaves.size)
+//  println("Nb true atomic leaves " + dilated.atomicLeaves.filter(_.content.label).size)
+//  println("Volume dilaté " + volume(dilated))
+//
+
+//  println("Nb atomic leaves " + eroded.atomicLeaves.size)
+//  println("Nb true atomic leaves " + eroded.atomicLeaves.filter(_.content.label).size)
+
+//  println("Eroded of dilated " + volume(erode(approximation, dilated)))
+//  println("Dilated of eroded " + volume(dilate(approximation, eroded)))

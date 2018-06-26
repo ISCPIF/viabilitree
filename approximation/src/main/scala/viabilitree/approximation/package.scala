@@ -39,6 +39,19 @@ package object approximation {
     }
   }
 
+  def approximateNoClean(o: OracleApproximation)(implicit rng: util.Random): util.Try[Tree[OracleApproximationContent]] = {
+    def learn(tree: NonEmptyTree[OracleApproximationContent]) = learnBoundary(o)(tree, eval(o), rng)
+
+    o.point match {
+      case None =>
+        val initialTree = input.zone(eval(o), OracleApproximationContent.label.get, OracleApproximationContent.testPoint.get)(o.box, o.depth, rng)
+        util.Success(initialTree.mapNonEmpty(learn))
+      case Some(p) =>
+        val initialTree = input.zoneAndPoint(contentBuilder(o.oracle), sampler(o), OracleApproximationContent.label.get)(o.box, p, o.depth)
+        initialTree.map(learn).map(t => t)
+    }
+  }
+
   def dilate(o: OracleApproximation, tree: Tree[OracleApproximationContent])(implicit rng: util.Random) =
     tree.mapNonEmpty { KdTreeComputation.dilate(eval(o), OracleApproximationContent.label, OracleApproximationContent.testPoint.get, o.neutralBoundary)(_, rng) }
 
