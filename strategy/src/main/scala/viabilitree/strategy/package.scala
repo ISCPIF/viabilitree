@@ -43,6 +43,14 @@ package object strategy {
         }
       }
 
+    def unrollStrategyPB(remainingSteps: Int, point: Vector[Double], acc: List[StrategyElement]): Vector[StrategyElement] = {
+      if (remainingSteps == 0) acc.reverse.toVector
+      else {
+        acc.reverse.toVector
+      }
+    }
+
+
     unrollStrategy0(steps, point)
   }
 
