@@ -25,7 +25,7 @@ object TestControl extends App {
     dynamic.integrate(state.toArray, 0.01, 0.1)
   }
 
-  val lake=Lake()
+  val lake = Lake()
   val rng = new util.Random(42)
 
   val vk = KernelComputation(
@@ -37,14 +37,14 @@ object TestControl extends App {
   // Note NumericalRange n'accepte pas un step à zéro (0.0 to 0.0 by 0.0) NON mais (0.0 to 0.0 by 0.1) OUI
 
   val (ak, steps) = approximate(vk, rng)
-//  saveHyperRectangles(vk)(ak, s"/tmp/TestControlLakeD${vk.depth}.txt")
-  save(ak,s"/tmp/TestControlLakeD${vk.depth}.bin")
+  //  saveHyperRectangles(vk)(ak, s"/tmp/TestControlLakeD${vk.depth}.txt")
+  save(ak, s"/tmp/TestControlLakeD${vk.depth}.bin")
 
   val point = Vector(0.7, 0.5)
-  def basic: Vector[Double] => Option[Vector[Double]] = basicStrategy(vk,ak)
-  val traj = evolution(point,lake.dynamic,basic,10)
+  def basic: Vector[Double] => Option[Vector[Double]] = basicStrategy(vk, ak)
+  val traj = evolution(point, lake.dynamic, basic, 10)
   println(traj)
-  traceTraj(traj,s"/tmp/TrajTestControlD${vk.depth}.txt")
+  traceTraj(traj, s"/tmp/TrajTestControlD${vk.depth}.txt")
 }
 
 object TestControlE extends App {
@@ -59,11 +59,11 @@ object TestControlE extends App {
     dynamic.integrate(state.toArray, 0.01, 0.1)
   }
 
-  val lake=Lake()
+  val lake = Lake()
   val rng = new util.Random(42)
   val depth = 20
 
-  def initViabProblem(lake: Lake, depth:Int) ={
+  def initViabProblem(lake: Lake, depth: Int) = {
     val vk = KernelComputation(
       dynamic = lake.dynamic,
       depth = depth,
@@ -72,22 +72,69 @@ object TestControlE extends App {
     vk
   }
 
-  def initKernel (lake: Lake, vk:KernelComputation):Kernel = {
+  def initKernel(lake: Lake, vk: KernelComputation): Kernel = {
     val (ak, steps) = approximate(vk, rng)
-    save(ak,s"/tmp/TestControlLakeD${vk.depth}.bin")
+    save(ak, s"/tmp/TestControlLakeD${vk.depth}.bin")
     ak
   }
   val vk = initViabProblem(lake, depth)
-  val ak= if (exists((s"/tmp/TestControlLakeD${depth}.bin"))) load[Kernel](s"/tmp/TestControlLakeD${depth}.bin") else initKernel(lake, vk)
-  println ("volume ", volume(ak))
+  val ak = if (exists((s"/tmp/TestControlLakeD${depth}.bin"))) load[Kernel](s"/tmp/TestControlLakeD${depth}.bin") else initKernel(lake, vk)
+  println("volume ", volume(ak))
 
-  val explore = Lake(integrationStep = 0.001, timeStep= 0.01)
-  def basic: Vector[Double] => Option[Vector[Double]] = basicStrategy(vk,ak)
+  val explore = Lake(integrationStep = 0.001, timeStep = 0.01)
+  def basic: Vector[Double] => Option[Vector[Double]] = basicStrategy(vk, ak)
   val trajSU1 = unrollStrategy(point, explore.dynamic, basic, 2000)
-  val traj1 = evolution(point,explore.dynamic,basic,2000)
+  val traj1 = evolution(point, explore.dynamic, basic, 2000)
   println("durée ", trajSU1.length, "valeurs ", trajSU1)
-//  println(traj1)
-  traceStrategyElemTraj(trajSU1,s"/tmp/TrajTestControlD${depth}trajSU1.txt")
-  traceTraj(traj1,s"/tmp/TrajTestControlD${depth}traj1.txt")
+  //  println(traj1)
+  traceStrategyElemTraj(trajSU1, s"/tmp/TrajTestControlD${depth}trajSU1.txt")
+  traceTraj(traj1, s"/tmp/TrajTestControlD${depth}traj1.txt")
+
+}
+
+object TestControlE2 extends App {
+  val b = 0.1
+  val r = 0.1
+  val point = Vector(0.7, 0.4)
+
+  def lakeDynamic(state: Vector[Double], control: Vector[Double]): Vector[Double] = {
+    def xDot(state: Vector[Double], t: Double) = control(0) + control(1)
+    def yDot(state: Vector[Double], t: Double) = state(0) - (b * state(1) - r * math.pow(state(1), 8) / (1 + pow(state(1), 8)))
+    val dynamic = Dynamic(xDot, yDot)
+    dynamic.integrate(state.toArray, 0.01, 0.1)
+  }
+
+  val lake = Lake()
+  val rng = new util.Random(42)
+  val depth = 20
+  val explorationStep = 1000.0
+  val timeStep = 1 / explorationStep
+
+  def initViabProblem(lake: Lake, depth: Int) = {
+    val vk = KernelComputation(
+      dynamic = lake.dynamic,
+      depth = depth,
+      zone = Vector((0.1, 1.0), (0.0, 1.4)),
+      controls = Vector(0.09 to -0.09 by -0.01))
+    vk
+  }
+
+  def initKernel(lake: Lake, vk: KernelComputation): Kernel = {
+    val (ak, steps) = approximate(vk, rng)
+    save(ak, s"/tmp/TestControlLakeD${vk.depth}.bin")
+    ak
+  }
+  val vk = initViabProblem(lake, depth)
+  val ak = if (exists((s"/tmp/TestControlLakeD${depth}.bin"))) load[Kernel](s"/tmp/TestControlLakeD${depth}.bin") else initKernel(lake, vk)
+  println("volume ", volume(ak))
+
+  val explore = Lake(integrationStep = timeStep / 100, timeStep = timeStep)
+  def basic: Vector[Double] => Option[Vector[Double]] = basicStrategy(vk, ak)
+  val trajSU1 = unrollStrategy(point, explore.dynamic, basic, 2000)
+  val traj1 = evolution(point, explore.dynamic, basic, 2000)
+  println("durée ", trajSU1.length, "valeurs ", trajSU1)
+  //  println(traj1)
+  traceStrategyElemTraj(trajSU1, s"/tmp/TrajTestControlD${depth}trajSU1${explorationStep}.txt")
+  traceTraj(traj1, s"/tmp/TrajTestControlD${depth}traj1${explorationStep}.txt")
 
 }

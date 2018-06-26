@@ -33,7 +33,7 @@ package object export extends better.files.Implicits {
   implicit def stringToFile(s: String) = File(s)
 
   // implicit def stringToFile(s: String) = new File(s)
-  def exists(file: File)={file.exists}
+  def exists(file: File) = { file.exists }
 
   def save(o: AnyRef, output: File) = {
     output.parent.createDirectories()
@@ -64,7 +64,6 @@ package object export extends better.files.Implicits {
       file.append(s"\n")
     }
   }
-
 
   /* ------------------------- Hyper-rectangles ---------------------- */
 

@@ -20,14 +20,12 @@ package viabilitree.example.bilingual
 import viabilitree.viability._
 import viabilitree.viability.basin._
 
-
 import scala.Ordering.Implicits._
 import scala.collection.immutable._
 import scala.io._
 import scala.util.Random
 
 import viabilitree.export._
-
 
 object BilingualBasin extends App {
 
@@ -64,7 +62,7 @@ object BilingualBasinFromKernel extends App {
   implicit val rng = new Random(42)
   val society = Bilingual(integrationStep = 0.1, timeStep = 1.0)
 
-  def kernelBilingual ={
+  def kernelBilingual = {
     import viabilitree.viability.kernel._
 
     val vk = KernelComputation(
@@ -78,10 +76,10 @@ object BilingualBasinFromKernel extends App {
     val (viabilityDomain, steps) = approximate(vk, rng)
     //  val (viabilityDomain, steps) = approximate(vk, rng, maxNumberOfStep = Some(0))
     println(s"fin calcul noyau ${steps}")
-    (viabilityDomain,steps)
+    (viabilityDomain, steps)
   }
 
-  val (viabilityDomain,stepK) = kernelBilingual
+  val (viabilityDomain, stepK) = kernelBilingual
 
   val bc = BasinComputation(
     zone = Vector((0.0, 1.0), (0.0, 1.0), (0.0, 1.0)),
