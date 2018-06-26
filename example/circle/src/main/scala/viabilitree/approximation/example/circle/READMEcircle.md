@@ -121,7 +121,7 @@ Otherwise it computes an approximation of the intersection, using each trees as 
 ```  
 
 Figure 2 shows the resulting approximation of 2 subset of spheres within the bounding box of the preceding code. (Vtk files processed with paraview).
-<img src="/images/interspehre3D.png" width="300" alt="Figure 1: Approximation of the intersection of subsets of 3D spheres">
+<img src="/images/intersphere3D.png" width="300" alt="Figure 1: Approximation of the intersection of subsets of 3D spheres">
 [Figure 2: Approximation of of the intersection of subsets of 3D spheres](#Fig2)
 
 
