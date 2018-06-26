@@ -24,9 +24,9 @@ object InterCircle extends App {
 
   implicit val random = new Random(42)
 
-  val o1 = approximation(1.5, 1.5, 1.5, 2, 2, 2, 1)
+  val o1 = approximation(1.0, 1.0, 1.0, 2, 2, 2, 2)
   val res1 = approximate(o1).get
-  val res2 = approximate(approximation(0.0, 0.0, 0.0, 2, 1, 2, 0.5)).get
+  val res2 = approximate(approximation(0.0, 0.0, 0.0, 2, 1, 2, 1)).get
 
   var vol = volume(res1)
   println(s"volume 1 $vol")

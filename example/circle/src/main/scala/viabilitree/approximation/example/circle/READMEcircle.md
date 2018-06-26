@@ -3,8 +3,8 @@
 ## Description of the package
 Package **circle** contains 3 files:
 * This READMEcircle.md file
-* Circle.scala: approximation of a 3D spere. 
-* InterCircle.scala: intersection of two different 3D-sphere
+* Circle.scala: approximation of a 3D sphere and erosion function
+* InterCircle.scala: intersection operator (example of two different 3D-spheres)
 
 ## Approximation of a set
 
@@ -45,7 +45,6 @@ object Circle3D extends App {
   saveHyperRectangles(approximation)(res, "/tmp/circle.txt")
 }
 ```
-
 Figure 1 shows the resulting approximation of the sphere (vtk files processed with paraview).
 
 <img src="/images/sphere3Derosion.png" width="300" alt="Figure 1: Approximation of the 3D sphere and its basic erosion">
@@ -92,6 +91,39 @@ Or, if it is not known if a set is cleaned or not, it is necessary to lean it ag
   val res2 = approximateNoClean(relearn).get
   val eroded = erode(approximation, res2)
 ```  
+## Intersection of 2 trees
+
+The intersection operator computes the bounding box of the intersection. If it is empty it returns an _EmptyTree_ (which volume is 0).
+Otherwise it computes an approximation of the intersection, using each trees as an indicator set function. 
+
+```scala
+// res1 and res2 are both _Tree[OracleApproximationContent]_
+  def approximation(x: Double, y: Double, z: Double, offset1: Double, offset2: Double, offset3: Double, r: Double) = {
+    def oracle(p: Vector[Double]) =
+      pow(p(0) - x, 2) + pow(p(1) - y, 2) + pow(p(2) - z, 2) <= pow(r, 2)
+
+    OracleApproximation(
+      depth = 18,
+      box =
+        Vector(
+          (-offset1, offset1),
+          (-offset2, offset2),
+          (-offset3, offset3)),
+      oracle = oracle)
+  }
+
+  implicit val random = new Random(42)
+
+  val o1 = approximation(1.0, 1.0, 1.0, 2, 2, 2, 2)
+  val res1 = approximate(o1).get
+  val res2 = approximate(approximation(0.0, 0.0, 0.0, 2, 1, 2, 1)).get
+  val inter = learnIntersection(res1, res2)
+```  
+
+Figure 2 shows the resulting approximation of 2 subset of spheres within the bounding box of the preceding code. (Vtk files processed with paraview).
+<img src="/images/interspehre3D.png" width="300" alt="Figure 1: Approximation of the intersection of subsets of 3D spheres">
+[Figure 2: Approximation of of the intersection of subsets of 3D spheres](#Fig2)
+
 
 ## Output
 The computaiton of the approximation of the sphere 3D is done by the following code:
@@ -111,7 +143,7 @@ An alternative format (valid for any dimension) is available:
 This format is described in the **export** package. It depends on the content of the tree, here it is an *OracleApproximationContent*. Each line corresponds with a leaf of the kd-tree, characterized by its testpoint and its range along each dimension (a min and a max).
 The resulting VTK files can be processed with Paraview.
     
-[Figure 1](#Fig1) shows both files in Paraview.
+[Figure 1](#Fig1) shows the VTK files in Paraview.
     
 <a name="OpenMOLE"></a>
 <!-- Identifiers, in alphabetical order -->
