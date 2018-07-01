@@ -126,7 +126,7 @@ Figure 2 shows the resulting approximation of 2 subset of spheres within the bou
 
 
 ## Output
-The computaiton of the approximation of the sphere 3D is done by the following code:
+The computation of the approximation of the sphere 3D is done by the following code:
 ```scala
    val res = approximate(approximation).get
 ``` 

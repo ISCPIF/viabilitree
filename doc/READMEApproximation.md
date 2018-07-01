@@ -1,12 +1,77 @@
-# KernelComputation
+# approximation
 
-## In package viabilitree.viability
-File kernel.scala defines
-* object Kernel
-* class KernelComputation
+## Description of the package
+Package **approximation** contains 6 files and 1 example package:
+ * approximation.scala
+ * evaluator
+ * input
+ * KdTreeComputation
+ * OracleApproximation
+ * Sampler
 
-## Kernel and KernelContent
-It is the type of the kd-tree computed by KernelComputation, an alias for : _Tree[KernelContent]_. 
+### approximation
+File approximation.scala defined
+ * type Approximation=Tree[OracleApproximationContent]
+ * several types usefull for the algorithm
+ * API for approximation with kd-trees:
+   - approximate and clean for _OracleApproximation_
+   - operators on sets: erode, dilate, learnIntersection, volume
+ * object Domain
+ * object NeutralBoundary
+ * the algorithm for leavesToRefine with NeutralBoundary
+
+### evaluator
+object evaluator specifies how collection of testpoints are generated. Presently only sequential evaluation is available. Previous possible behaviors are TODO
+
+Presently only the sequential method is implemented.
+
+### input
+object input describes the different possibilities of initial condition for calling approximation of sets. 
+ * with only a _Zone_ (search area), with implies the call to function _findTrueLabel_ in order to verify that the tree is not empty.
+ * with a _Zone_ and a point
+
+### Sampler
+a Sampler manage the grid defined by a  _Zone_  and the value of _depth_.
+ 
+ A regular grid sampler is uniquely defined by  a  _Zone_  and the value of _depth_.
+ 
+ * _cellNumbers(point: Vector[Double]))_ identifies the regular grid cell to which a point belongs for each axis.
+ * _cellNumberToGridPoint(cellNumber: Vector[Int]): Vector[Double]_ identifies the regular grid point center of the cell given by the cell number for each axis.
+ * _align_: adjust a sampled point to the center of the cell it belongs.
+
+Presently a call to Sampler will generate a random point in sampler.zone and align it to the nearest grid point.
+
+Previous version provided other behaviors that are TODO
+
+
+### OracleApproximation
+_OracleApproximation_ defines a learning set problem.
+
+* dynamic: it describes the equations of the controlled dynamic. See the [introduction to Viability Theory][MVT] First Vector[Double] is the state in the state space (with dimension _d_= _zone.dimension_) , second Vector[Double] is the control (a vector of dimension _p_).  Example of dynamics can be found here [see Population growth model and dynamics][population]
+* depth: set the accuracy of the kd-tree, which maximum number of leaves is $`2^{depth}`$. If the dimension is $`p`$, there are $`2^{depth/p}`$ points per axis. _depth_ has to be a multiple of the dimension.
+* zone: a Zone that delimits a region (an array of Interval) to explore. It is a hyperrectangle.
+* controls: as described in the [introduction to Viability Theory][MVT], it is a function that associates to each state a vector of admissible controls. Each control is a vector of dimension _q_. Controls has to be given already discretized.
+* k: the indicator function of the constraint set if necessary (default is None: the hyperrectangle _zone_ is the default constraint set)
+* domain: the domain of definition of the state space (a BlackBoxDomain) if it is not a hyperrectangle of $`{\mathbb R}^p`$ (InfiniteDomain)
+* neutralBoundary: the list, empty by default of boundaries that are not to be considered regarding viability purpose.
+* dilations: parameter of the approximation algorithm, specifying how many basic dilations must be performed in order to guarantee the convergence to the true viability kernel. [See Viabilitree][viabilitree] for more information. Default value is _0_, no dilation.
+
+
+```scala
+case class OracleApproximation(
+  depth: Int,
+  box: Zone,
+  oracle: Oracle,
+  domain: Domain = InfiniteDomain,
+  point: Option[Vector[Double]] = None,
+  neutralBoundary: NeutralBoundary = NeutralBoundary.empty)
+```
+Each leaf stores with _OracleApproximationContent_:
+* testPoint: the point (Vector[Double]) of the leaf whose oracle value is tested.
+* label: the label of the leaf (_true_ if _oracle(testPoint)_ is true, _false_ otherwise)
+
+### KdTreeComputation
+It is the type of the kd-tree computed by ...
 
 ```scala
   @Lenses case class KernelContent(
@@ -71,7 +136,7 @@ The resulting kd-tree represening the approximation of the viability kernel know
 * erode(k: Kernel): erode the boundary of the kd-tree _k_ with one critical leaf.
 * dilate(k: Kernel): erode the complementary set of the kd-tree _k_.
 * volume(k: Kernel): computes the volume of the leaves with label of tree _k_.
-* clean(k: Kernel) = kernel.clean(k): cleans tree _k_ by grouping leaves with same label.
+* clean(k: Kernel) = kernel.clean(k): cleans tree _k_ by grouping leaves withe same label.
 
 Note: the following methods can also be used (from package kdtree)
 * ak.volume: similar to volume(ak)
