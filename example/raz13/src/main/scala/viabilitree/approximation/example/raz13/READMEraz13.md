@@ -23,6 +23,8 @@ w &\in& \mathbb R
 ```
 The dynamics are controlled by taking the control $`u`$ in interval $`[0,U]`$. 
 
+The constraint set $`K`$ is $`[0,1]\times [0,+\infty[`$.
+
 ### Parameters
  * $`C>0`$ is the unit cost of communication campaign.
  * $`b>0`$ is the natural growth rate of the welfare.
@@ -53,10 +55,10 @@ s &\in& \mathbb R ^{+*}
 ```
 ### Parameters for perturbations
  * $`M`$ is the flood intensity for which the impact of the flood on the safety level in the population is half its maximum. We consider that bigger floods have a bigger impact, with a saturation effect: a flood of intensity $`2M`$ has a bigger impact than a flood of intensity $`M`$, but not twice its impact. 
- * $`A_3 = ?`$
+ * $`A_3 = ?`$ but with $`A_3 \frac{s}{M+s} \leq 1 `$ i.e. $`A_3 \leq 1 `$ to ensure that $`\alpha \leq 1`$
  * $`\texttt{damage}(\alpha,s)`$ (in €) is the damage function. It is described on the wiki.
 
-Safety measure consists mainly in protecting houses with small cofferdams. It reduces significantly the effect of small floods of intensity $`v \leq v_m`$.
+Safety measure consists mainly in protecting houses with small cofferdams. It reduces significantly the effect of small floods of intensity $`s \leq v_m`$.
 
 ### Code for perturbations
  ```scala
@@ -81,7 +83,7 @@ Safety measure consists mainly in protecting houses with small cofferdams. It re
   }
 ```
 
-_jump_ computes the image of a state $(`\alpha,w)`$ by a perturbation of size $`s`$.
+_jump_ computes the image of a state $`(\alpha,w)`$ by a perturbation of size $`s`$.
 
 _softJump_ verifies if a state and its image by a perturbation both belong to a viable set.
 
@@ -105,6 +107,85 @@ _softJump_ verifies if a state and its image by a perturbation both belong to a 
 ```
 ### Code for inverse of perturbations
 To be continued
+
+## raz13 study: indicators for risk management
+
+### initialization
+
+_kernel0_ defines the viability problem and computes the first viability kernel in absence of flood (the whole constraint set); If there is no flood, since $`w`$ increases with time, then the whole set $`K`$ is viable.
+
+ ```scala
+ import viabilitree.export._
+ import viabilitree.viability._
+ import viabilitree.kdtree._
+ import viabilitree.approximation._
+
+ 
+val riverfront = RAZ13()
+implicit val rng = new util.Random(42)
+val U: Double = 10.0
+val depth: Int = 14
+val output = s"/tmp/RAZ13Study/"
+def kernel0 = {
+     import viabilitree.viability._
+     import viabilitree.viability.kernel._
+ 
+     val vk = KernelComputation(
+       dynamic = riverfront.dynamic,
+       depth = depth,
+       zone = Vector((0.0, 1.0), (0.0, 20.0)),
+       controls = Vector((0.0 to U by 1.0)),
+       domain = (p: Vector[Double]) => p(0) <= 1.0 && p(0) >= 0,
+       neutralBoundary = Vector(ZoneSide(0, Low), ZoneSide(0, High), ZoneSide(1, High)))
+ 
+     val (ak, steps) = approximate(vk, rng)
+     saveVTK2D(ak, s"${output}raz13${vk.depth}U${U}K0.vtk")
+     saveHyperRectangles(vk)(ak, s"${output}raz13${vk.depth}U${U}K0.txt")
+     save(ak, s"${output}raz13${vk.depth}U${U}K0.bin")
+ 
+     (vk, ak, steps)
+   }
+ ```
+
+### indicator 1: Size of the maximum intensity of the flood that state $`(\alpha,w)`$ can cope with.
+Indicator 1 is a map of the maximum size of a flood that a state can endure at any time.
+
+For a given flood size $`s`$, only a subset $`K \ominus \Theta(s)`$ of $`K`$ stays in $`K`$ after the flood. Since with time $`\alpha(t)`$ decreases, some states of $`K \ominus \Theta(s)`$ leave it with time.
+We compute the viability kernel of $`K \ominus \Theta(s)`$, with and without control.
+
+$`K_s = \viab(K \ominus \theta(s))`$ is the subset of $`K`$ that withstand one flood of size  $`s`$ at any time without control
+
+$`K_s^u = \viab_u(K \ominus \theta(s))`$ is the subset of $`K`$ that withstand one flood of size  $`s`$ at any time with control.
+
+If a  given state $`(\alpha,w)`$ belongs to $`K_s`$, then it can withstand now and in the future a flood of size $`s`$. The flood of maximum size it can withstand at any time is the size $`s`$ for which the state belongs to the boundary of  $`K_s`$.
+
+The boundary of sets $`K_s`$ gives the map of the maximum size of a flood that a state can withstand at any time.
+
+
+This map is computed with the boundary of the sets 
+ ```scala
+  def thetaV(v: Double, ak: Kernel, vk: KernelComputation) = {
+    val o1 = OracleApproximation(
+      depth = depth,
+      box = vk0.zone,
+      oracle = (p: Vector[Double]) => riverfront.softJump(p, q => riverfront.jump(q, v), ak, vk))
+
+    val kd1 = o1.approximate(rng).get
+    /*
+    Pas la même signature pour OracleApproximation et KernelComputation
+
+
+    saveVTK2D(kd1, s"${output}raz13${vk.depth}U${U}v${v}ORACLE.vtk")
+    saveHyperRectangles(o1)(kd1, s"${output}raz13${vk.depth}U${U}v${v}ORACLE.txt")
+*/
+    (o1, kd1)
+  }
+ ```
+
+
+
+
+
 
 <a name="Fig1"></a>
 <img src="../../../../../../images/indicator1.png" width="300" alt="Figure 1: Indicator 1>
