@@ -16,7 +16,7 @@ object RAZ13study extends App {
   //  val v: Double = 1.5
   val depth: Int = 14
 
-  val output = s"/tmp/RAZ13Study/test0219/"
+  val output = s"/tmp/RAZ13Study/test0702/"
 
   def kernel0 = {
     import viabilitree.viability._

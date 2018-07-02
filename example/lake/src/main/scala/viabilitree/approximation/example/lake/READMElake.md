@@ -16,7 +16,7 @@ Package **lake** contains several files:
 ## Viability of the lake model
 Lake model from Carpenter, 1999 and its viability model from S. Martin, 2004.
 
-The model describes a lake submitted to phosphorus pollution, with danger of eutrofication.
+The model describes a lake submitted to phosphorus pollution, with danger of eutrophication.
 
 The lake viability problem consists in maintaining the concentration of phosphorus $`P`$ in the lake under a threshold, and in maintaining the input of phosphorus from human activity $`L`$ above a threshold. The state of the system is described by the variables $`L`$ and $`P`$. The dynamics are described by the following equations:
 ```math
