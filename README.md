@@ -171,6 +171,9 @@ Example of viability problems are gathered in package **example**. Each example 
  * [Consumer][Consumer]
    - approximation of the viability kernel (ConsumerViability)
    - approximation of a set (the analytical kernel ) (ConsumerKernel)
+ * [Lake][Lake]
+   - approximation of the viability kernel (LakeViability)
+   - use of output files (OutputLake)
  * [Population][Population]
    - approximation of the viability kernel (PopulationViability)
    - exploration with OpenMOLE (PopulationViability)
@@ -206,6 +209,7 @@ A set-valued map $`F`$ is $`\mu`$-Lipschitz with $`\mu>0`$ if for all $`x`$ and 
 [Bilingual]:https://gitlab.iscpif.fr/viability/viabilitree/tree/master/example/bilingual/src/main/scala/viabilitree/example/bilingual "Documentation for the example of the Bilingual society viability problem"
 [Consumer]:https://gitlab.iscpif.fr/viability/viabilitree/example/READMEconsumer.md "Documentation for the example of the consumption model"
 [kernelLink]:doc/READMEKernelComputation.md "Documentation for class KernelComputation"
+[Lake]:example/lake "Eutrophication and lakeside farms problem"
 [Lipschitz]: https://gitlab.iscpif.fr/viability/viabilitree/tree/master#Lipschitz "Definition of the Lipschitz property for dynamical systems"
 [Marchaud]: https://gitlab.iscpif.fr/viability/viabilitree/tree/master#Marchaud "Definition of the Marchaud property for dynamical systems"
 [Population]:example/READMEpopulation.md "Documentation for the example of the population growth model"

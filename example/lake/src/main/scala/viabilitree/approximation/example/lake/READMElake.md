@@ -171,7 +171,7 @@ object OutputLake extends App {
 }
 
 ```
-The viability probleme is defined by function _initViabProblem_. An approximation of the viability kernel is computed with the _initKernel_ function if the backup file is not found. It is stored in _ak_ and save to file. Otherwise _ak_ is assigned with the backup avlue from .bin file.
+The viability problem is defined by function _initViabProblem_. An approximation of the viability kernel is computed with the _initKernel_ function if the backup file is not found. It is stored in _ak_ and save to file. Otherwise _ak_ is assigned with the backup value from .bin file.
 
 ## Output
 

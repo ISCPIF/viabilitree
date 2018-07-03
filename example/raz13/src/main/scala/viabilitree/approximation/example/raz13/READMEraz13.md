@@ -148,14 +148,14 @@ def kernel0 = {
  ```
 
 ### indicator 1: Size of the maximum intensity of the flood that state $`(\alpha,w)`$ can cope with.
-Indicator 1 is a map of the maximum size of a flood that a state can endure at any time.
+Indicator 1 is a map of the maximum size of a flood that a state can withstand at any time.
 
 For a given flood size $`s`$, only a subset $`K \ominus \Theta(s)`$ of $`K`$ stays in $`K`$ after the flood. Since with time $`\alpha(t)`$ decreases, some states of $`K \ominus \Theta(s)`$ leave it with time.
 We compute the viability kernel of $`K \ominus \Theta(s)`$, with and without control.
 
-$`K_s = \viab(K \ominus \theta(s))`$ is the subset of $`K`$ that withstand one flood of size  $`s`$ at any time without control
+$`K_s = \texttt{viab}(K \ominus \theta(s))`$ is the subset of $`K`$ that withstand one flood of size  $`s`$ at any time without control
 
-$`K_s^u = \viab_u(K \ominus \theta(s))`$ is the subset of $`K`$ that withstand one flood of size  $`s`$ at any time with control.
+$`K_s^u = \texttt{viab}_u(K \ominus \theta(s))`$ is the subset of $`K`$ that withstand one flood of size  $`s`$ at any time with control.
 
 If a  given state $`(\alpha,w)`$ belongs to $`K_s`$, then it can withstand now and in the future a flood of size $`s`$. The flood of maximum size it can withstand at any time is the size $`s`$ for which the state belongs to the boundary of  $`K_s`$.
 

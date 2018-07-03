@@ -1,32 +1,77 @@
 package viabilitree.approximation.example.raz13
 
-import viabilitree.export._
-import viabilitree.model._
-import viabilitree.viability.kernel._
-import viabilitree.viability.basin._
-import viabilitree.kdtree._
 import viabilitree.approximation._
+import viabilitree.export._
+import viabilitree.kdtree._
 import viabilitree.viability._
-import cats.implicits._
+import viabilitree.viability.basin._
+import viabilitree.viability.kernel._
 
-object RAZ13study extends App {
+object RAZ13studyPrep extends App {
   val riverfront = RAZ13()
   implicit val rng = new util.Random(42)
   val U: Double = 10.0
   //  val v: Double = 1.5
-  val depth: Int = 14
+  val depth: Int = 20
+  val controls = Vector((0.0 to U by 1.0))
+  val nocontrols = Vector(Vector(0.0))
 
   val output = s"/tmp/RAZ13Study/test0702/"
+  val Wmax = 20.0
 
-  def kernel0 = {
+
+  def initViabProblemControl(riverfront: RAZ13, depth: Int, U: Double) = {
+    val vk = KernelComputation(
+      dynamic = riverfront.dynamic,
+      depth = depth,
+      zone = Vector((0.0, 1.0), (0.0, Wmax)),
+      controls = Vector((0.0 to U by 1.0)),
+      domain = (p: Vector[Double]) => p(0) <= 1.0 && p(0) >= 0,
+      neutralBoundary = Vector(ZoneSide(0, Low), ZoneSide(0, High), ZoneSide(1, High)))
+    vk
+  }
+
+  def initViabProblemNoControl(riverfront: RAZ13, depth: Int) = {
+    val vk = KernelComputation(
+      dynamic = riverfront.dynamic,
+      depth = depth,
+      zone = Vector((0.0, 1.0), (0.0, Wmax)),
+      controls = Vector(Vector(0.0)),
+      domain = (p: Vector[Double]) => p(0) <= 1.0 && p(0) >= 0,
+      neutralBoundary = Vector(ZoneSide(0, Low), ZoneSide(0, High), ZoneSide(1, High)))
+    vk
+  }
+
+  def initKernel(riverfront: RAZ13, vk: KernelComputation, fileName: String): Kernel = {
+    val (ak, steps) = approximate(vk, rng)
+    save(ak, s"${fileName}.bin")
+    saveVTK2D(ak, s"${fileName}.vtk")
+    saveHyperRectangles(vk)(ak, s"${fileName}.txt")
+    ak
+  }
+
+  def kernel0Load = {
+    val vk = initViabProblemNoControl(riverfront, depth)
+    val fileName = s"${output}K0D${depth}W${Wmax}"
+    val ak = if (exists((s"${output}K0D${depth}W${Wmax}.bin"))) load[Kernel](s"${output}K0D${depth}W${Wmax}.bin") else initKernel(riverfront, vk, fileName)
+    ak
+  }
+
+  val k0 = kernel0Load
+  println(volume(k0))
+
+}
+
+
+/*  def kernel0(depth:Int) = {
     import viabilitree.viability._
     import viabilitree.viability.kernel._
 
     val vk = KernelComputation(
       dynamic = riverfront.dynamic,
       depth = depth,
-      zone = Vector((0.0, 1.0), (0.0, 20.0)),
-      controls = Vector((0.0 to U by 1.0)),
+      zone = Vector((0.0, 1.0), (0.0, Wmax)),
+      controls = nocontrols,
       domain = (p: Vector[Double]) => p(0) <= 1.0 && p(0) >= 0,
       neutralBoundary = Vector(ZoneSide(0, Low), ZoneSide(0, High), ZoneSide(1, High)))
 
@@ -36,7 +81,10 @@ object RAZ13study extends App {
     save(ak, s"${output}raz13${vk.depth}U${U}K0.bin")
 
     (vk, ak, steps)
-  }
+  }*/
+
+
+  /* comment til EOF
 
   //calcule le noyau initial : normalement tout l'espace
   val (vk0, ak0, steps) = kernel0
@@ -241,3 +289,4 @@ object RAZ13study extends App {
   }
   studyMaps1_2
 }
+*/

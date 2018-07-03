@@ -66,6 +66,13 @@ import viabilitree.viability._
 ```
 The resulting kd-tree _ak_ is a _Tree[KernelContent]_. It is an approximation of the viability kernel of viability problem _vk_.
 
+_controls_ is a function from state to the extensive set of controls (discretized). Implicit conversion allow to give directly a Vector[Vector[Double]] or a Vector[NumericRange[Double]]. In these cases, all states will have the same set of admissible controls.
+
+When there is no control, it is presently necessary to define a dummy control, which is not used in the dynamics.
+```scala
+     controls = Vector(Vector(0.0))
+```
+
 ### Functions
 The resulting kd-tree represening the approximation of the viability kernel knows the following functions:
 * erode(k: Kernel): erode the boundary of the kd-tree _k_ with one critical leaf.
