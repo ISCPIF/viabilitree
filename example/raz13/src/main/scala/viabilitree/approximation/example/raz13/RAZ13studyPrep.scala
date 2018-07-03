@@ -1,11 +1,11 @@
 package viabilitree.approximation.example.raz13
 
-import viabilitree.approximation._
 import viabilitree.export._
 import viabilitree.kdtree._
 import viabilitree.viability._
 import viabilitree.viability.basin._
 import viabilitree.viability.kernel._
+import viabilitree.approximation._
 
 object RAZ13studyPrep extends App {
   val riverfront = RAZ13()
@@ -18,9 +18,13 @@ object RAZ13studyPrep extends App {
 
   val output = s"/tmp/RAZ13Study/test0702/"
   val Wmax = 20.0
+  val zoneExplore = Vector((0.0,1.0),(0.0,Wmax))
 
 
-  def initViabProblemControl(riverfront: RAZ13, depth: Int, U: Double) = {
+  def initViabProblemControl(riverfront: RAZ13, depth: Int, U: Double):KernelComputation = {
+    import viabilitree.viability._
+    import viabilitree.viability.kernel._
+
     val vk = KernelComputation(
       dynamic = riverfront.dynamic,
       depth = depth,
@@ -31,7 +35,10 @@ object RAZ13studyPrep extends App {
     vk
   }
 
-  def initViabProblemNoControl(riverfront: RAZ13, depth: Int) = {
+  def initViabProblemNoControl(riverfront: RAZ13, depth: Int):KernelComputation = {
+    import viabilitree.viability._
+    import viabilitree.viability.kernel._
+
     val vk = KernelComputation(
       dynamic = riverfront.dynamic,
       depth = depth,
@@ -43,6 +50,9 @@ object RAZ13studyPrep extends App {
   }
 
   def initKernel(riverfront: RAZ13, vk: KernelComputation, fileName: String): Kernel = {
+    import viabilitree.viability._
+    import viabilitree.viability.kernel._
+
     val (ak, steps) = approximate(vk, rng)
     save(ak, s"${fileName}.bin")
     saveVTK2D(ak, s"${fileName}.vtk")
@@ -51,37 +61,111 @@ object RAZ13studyPrep extends App {
   }
 
   def kernel0Load = {
+    import viabilitree.viability._
+    import viabilitree.viability.kernel._
+
     val vk = initViabProblemNoControl(riverfront, depth)
     val fileName = s"${output}K0D${depth}W${Wmax}"
     val ak = if (exists((s"${output}K0D${depth}W${Wmax}.bin"))) load[Kernel](s"${output}K0D${depth}W${Wmax}.bin") else initKernel(riverfront, vk, fileName)
     ak
   }
 
-  val k0 = kernel0Load
-  println(volume(k0))
+  def thetaV(v: Double, ak: Kernel, vk: KernelComputation, fileName: String) = {
+    val o1 = OracleApproximation(
+      depth = depth,
+      box = vk.zone,
+      oracle = (p: Vector[Double]) => riverfront.softJump(p, q => riverfront.jump(q, v), ak, vk))
 
-}
+    def firstComputation(o1:OracleApproximation, fileName: String): Approximation = {
+      val kd1 = o1.approximate(rng).get
+      save(kd1, s"${fileName}.bin")
+      saveVTK2D(kd1, s"${fileName}.vtk")
+      saveHyperRectangles(o1)(kd1, s"${fileName}.txt")
+      kd1
+    }
 
+    val filenameTv = s"${fileName}Tv${v}"
+    val kd1 = if (exists((s"${fileName}Tv${v}.bin"))) load[Approximation](s"${fileName}Tv${v}.bin") else firstComputation(o1,filenameTv)
+    /*
+    Pas la même signature pour OracleApproximation et KernelComputation
+    */
+    (o1, kd1)
+  }
 
-/*  def kernel0(depth:Int) = {
-    import viabilitree.viability._
-    import viabilitree.viability.kernel._
+  def kernelThetaNoU(
+                      v: Double,
+                      kd: Approximation,
+                      oa: OracleApproximation) = {
+    val vk = KernelComputation(
+      /*
+      dynamic = riverfront.copy(integrationStep =  0.7).dynamic,
+*/
+      dynamic = riverfront.dynamic,
+      depth = depth,
+      zone = oa.box,
+      controls = Vector(Vector(0.0)),
+      domain = (p: Vector[Double]) => p(0) <= 1.0 && p(0) >= 0,
+      k = Some(kd.contains),
+      neutralBoundary = Vector(ZoneSide(0, Low), ZoneSide(0, High), ZoneSide(1, High)))
 
+    def firstComputation(vk:KernelComputation,fileName: String): Kernel = {
+      val (ak, steps) = vk.approximate()
+      save(ak, s"${fileName}.bin")
+      saveVTK2D(ak, s"${fileName}.vtk")
+      saveHyperRectangles(vk)(ak, s"${fileName}.txt")
+      ak
+      }
+
+    val filenameKvNoU = s"${output}KvNoUD${depth}W${Wmax}Tv${v}"
+    val kv = if (exists((s"${filenameKvNoU}.bin"))) load[Kernel](s"${filenameKvNoU}.bin") else firstComputation(vk,filenameKvNoU)
+
+    (vk, kv)
+
+  }
+
+  def kernelTheta(
+                      v: Double,
+                      kd: Approximation,
+                      oa: OracleApproximation) = {
     val vk = KernelComputation(
       dynamic = riverfront.dynamic,
       depth = depth,
-      zone = Vector((0.0, 1.0), (0.0, Wmax)),
-      controls = nocontrols,
+      zone = oa.box,
+      controls = controls,
       domain = (p: Vector[Double]) => p(0) <= 1.0 && p(0) >= 0,
+      k = Some(kd.contains),
       neutralBoundary = Vector(ZoneSide(0, Low), ZoneSide(0, High), ZoneSide(1, High)))
 
-    val (ak, steps) = approximate(vk, rng)
-    saveVTK2D(ak, s"${output}raz13${vk.depth}U${U}K0.vtk")
-    saveHyperRectangles(vk)(ak, s"${output}raz13${vk.depth}U${U}K0.txt")
-    save(ak, s"${output}raz13${vk.depth}U${U}K0.bin")
+    def firstComputation(vk:KernelComputation,fileName: String): Kernel = {
+      val (ak, steps) = vk.approximate()
+      save(ak, s"${fileName}.bin")
+      saveVTK2D(ak, s"${fileName}.vtk")
+      saveHyperRectangles(vk)(ak, s"${fileName}.txt")
+      ak
+    }
 
-    (vk, ak, steps)
-  }*/
+    val filenameKv = s"${output}Kv${depth}W${Wmax}Tv${v}"
+    val kv = if (exists((s"${filenameKv}.bin"))) load[Kernel](s"${filenameKv}.bin") else firstComputation(vk,filenameKv)
+
+    (vk, kv)
+
+  }
+
+  val vk0 = initViabProblemNoControl(riverfront, depth)
+  val k0 = kernel0Load
+  // println(k0.volume)
+  // Note: here volume(k0) doesn't compile
+
+  val (o1, kd1) = thetaV(2.0,k0, vk0,s"${output}D${depth}W${Wmax}")
+  println(viabilitree.approximation.volume(kd1))
+
+  val (vkN1, kvNu)=kernelThetaNoU(2.0,kd1,o1)
+  println(kvNu.volume)
+
+  val (vk1, kv)=kernelTheta(2.0,kd1,o1)
+  println(kv.volume)
+}
+
 
 
   /* comment til EOF
