@@ -47,9 +47,40 @@ package object viability {
 
   lazy val Zone = viabilitree.kdtree.Zone
 
+  def cartesianProduct(v: Vector[NumericRange[Double]]): Vector[Vector[Double]] = {
+
+    def cartesianProduct(a: NumericRange[Double], b: NumericRange[Double]) =
+      a.toVector.map(p => b.toVector.map(o => Vector(p, o))).flatten
+
+    def cross2WithTail(accumulator: Vector[Vector[Double]], v: Vector[NumericRange[Double]]): Vector[Vector[Double]] = {
+      def crossVector(a: Vector[Vector[Double]], b: NumericRange[Double]): Vector[Vector[Double]] =
+        a.map(p => b.toVector.map(o => p :+ o)).flatten
+
+      v.length match {
+        case 0 => accumulator
+        case _ =>
+          val t = v.tail
+          val hd = v.head
+          t.length match {
+            case 0 => crossVector(accumulator, hd)
+            case _ => cross2WithTail(crossVector(accumulator, hd), t)
+          }
+      }
+    }
+
+    val t = v.tail
+    val hd = v.head
+
+    t.length match {
+      case 0 => hd.map(p => Vector(p)).toVector
+      case _ => cross2WithTail(cartesianProduct(hd, t.head), t.tail)
+    }
+  }
+
   // TODO we need to deal with empty list of control
   implicit def vectorOfNumericRangeToVectorOfControl(v: Vector[NumericRange[Double]]) = {
 
+/*
     def cartesianProduct(v: Vector[NumericRange[Double]]): Vector[Vector[Double]] = {
 
       def cartesianProduct(a: NumericRange[Double], b: NumericRange[Double]) =
@@ -79,6 +110,7 @@ package object viability {
         case _ => cross2WithTail(cartesianProduct(hd, t.head), t.tail)
       }
     }
+*/
 
     (_: Vector[Double]) => cartesianProduct(v).map(Control(_))
   }

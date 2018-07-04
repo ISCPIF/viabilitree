@@ -38,6 +38,7 @@ case class RAZ13(
   /* PARAMETRES
   M flood size for which impact is half the max (1/2)
   A3 must be <= 1
+  A2 and U (control) must be such that A2/4 * U > A1, otherwise control is inefficient.
   Damage parameters a3, a2, a1, a0
    */
   /* ON NE PEUT PAS FAIRE COMME CA

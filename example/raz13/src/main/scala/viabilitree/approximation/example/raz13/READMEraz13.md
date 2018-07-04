@@ -29,7 +29,10 @@ The constraint set $`K`$ is $`[0,1]\times [0,+\infty[`$.
  * $`C>0`$ is the unit cost of communication campaign.
  * $`b>0`$ is the natural growth rate of the welfare.
  * $`A_1 = \frac{\log(2)}{T_m}`$. With time people abandon their safety measures against flood. $`T_m`$ is the time for which half the population has renounced to safety measure in absence of flooding. 
- * $`A_2 = ?`$
+ * $`A_2 = ?`$ 
+ 
+ Regarding $`\alpha`$  the dynamics always decreases when $`A_2u\leq A_1`$. When $`A_2u>A_1`$ the dynamics is increasing on $`[0,1]`$ (since $`\alpha ^*=\frac{A_2u}{A_2u-A_1}>1`$).
+  $`A_2`$  and _U_ must be fixed accordingly.  Controls in $`[0,\frac{A_1}{A_2}]`$ are inefficient. Controls should be tested in $`]\frac{A_1}{A_2}],U]`$.
 
 ### Code for dynamics
  ```scala
@@ -367,10 +370,6 @@ $`K_s^u`$
 #### Remarks
  * With k0 = kernel0Load,  volume(k0) doesn't compile contrary to k0.volume
  * clean cannot be apply to k0
- * control or not same result => bug
- eroded 11.135997772216797
- no control 8.851337432861328
- control  8.851337432861328
 
 
 <a name="Fig1"></a>
