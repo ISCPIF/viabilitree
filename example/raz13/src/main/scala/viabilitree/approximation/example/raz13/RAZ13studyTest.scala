@@ -15,12 +15,15 @@ object RAZ13studyTest extends App {
   //  val v: Double = 1.5
   val depth: Int = 20
 
+
   val nbControl: Int = 10
   val stepU: Double = (U - MinU) / nbControl
-  val Econtrols = cartesianProduct(Vector(MinU to U by stepU))
-  val nocontrols = Vector(Vector(0.0))
+  val Econtrols: Vector[Vector[Double]] = cartesianProduct(Vector(MinU to U by stepU))
+  val nocontrols: Vector[Vector[Double]] = Vector(Vector(0.0))
 
-  val controls = nocontrols +: Econtrols
+  val test: Vector[Vector[Double]] = Vector(Vector(1.0), Vector(2.0))
+  val controls = nocontrols +: test
+
   println("Econtrols " + Econtrols)
   println("controls " + controls)
   val output = s"/tmp/RAZ13Study/test0702/"

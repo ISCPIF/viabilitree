@@ -11,25 +11,24 @@ object RAZ13studyPrep extends App {
   val riverfront = RAZ13()
   implicit val rng = new util.Random(42)
   val MinU: Double = riverfront.A1 / riverfront.A2
+  val depth: Int = 20
+
   val MaxU: Double = 3.0
   val U: Double = MaxU * MinU
   //  val v: Double = 1.5
-  val depth: Int = 20
+
 
   val nbControl: Int = 10
   val stepU: Double = (U - MinU) / nbControl
-  val Econtrols = Vector(MinU to U by stepU)
-  val nocontrols = Vector(Vector(0.0))
+  val Econtrols: Vector[Vector[Double]] = cartesianProduct(Vector(MinU to U by stepU))
+  val nocontrols: Vector[Double] = Vector(0.0)
+  val controls: Vector[Vector[Double]] = nocontrols +: Econtrols
 
-  val controls = nocontrols +: Econtrols
-  println("Econtrols " + Econtrols)
-  println("controls " + Econtrols)
+
   val output = s"/tmp/RAZ13Study/test0702/"
   val Wmax = 20.0
   val zoneExplore = Vector((0.0, 1.0), (0.0, Wmax))
 
-}
-/*
   def initViabProblemControl(riverfront: RAZ13, depth: Int, U: Double):KernelComputation = {
     import viabilitree.viability._
     import viabilitree.viability.kernel._
@@ -38,7 +37,7 @@ object RAZ13studyPrep extends App {
       dynamic = riverfront.dynamic,
       depth = depth,
       zone = Vector((0.0, 1.0), (0.0, Wmax)),
-      controls = Vector((0.0 to U by 1.0)),
+      controls = controls,
       domain = (p: Vector[Double]) => p(0) <= 1.0 && p(0) >= 0,
       neutralBoundary = Vector(ZoneSide(0, Low), ZoneSide(0, High), ZoneSide(1, High)))
     vk
@@ -382,6 +381,4 @@ object RAZ13studyPrep extends App {
   }
   studyMaps1_2
 }
-*/
-
 */
