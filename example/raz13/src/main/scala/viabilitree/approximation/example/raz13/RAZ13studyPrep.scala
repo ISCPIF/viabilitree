@@ -163,17 +163,17 @@ object RAZ13studyPrep extends App {
   println("alpha star: " + alphaStarU)
   val vk0 = initViabProblemNoControl(riverfront, depth)
   val k0 = kernel0Load
-  // println(k0.volume)
+  println("K0 volume: " + k0.volume)
   // Note: here volume(k0) doesn't compile
 
-  val (o1, kd1) = thetaV(2.0,k0, vk0,s"${output}D${depth}W${Wmax}")
-  println(viabilitree.approximation.volume(kd1))
+  val (o1, kd1) = thetaV(1.0,k0, vk0,s"${output}D${depth}W${Wmax}")
+  println("erosion " + viabilitree.approximation.volume(kd1))
 
-  val (vkN1, kvNu)=kernelThetaNoU(2.0,kd1,o1)
-  println(kvNu.volume)
+  val (vkN1, kvNu)=kernelThetaNoU(1.0,kd1,o1)
+  println("no control " + kvNu.volume)
 
-  val (vk1, kv)=kernelTheta(2.0,kd1,o1)
-  println(kv.volume)
+  val (vk1, kv)=kernelTheta(1.0,kd1,o1)
+  println("with control " + kv.volume)
 }
 
 
