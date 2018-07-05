@@ -31,8 +31,10 @@ The constraint set $`K`$ is $`[0,1]\times [0,+\infty[`$.
  * $`A_1 = \frac{\log(2)}{T_m}`$. With time people abandon their safety measures against flood. $`T_m`$ is the time for which half the population has renounced to safety measure in absence of flooding. 
  * $`A_2 = ?`$ 
  
- Regarding $`\alpha`$  the dynamics always decreases when $`A_2u\leq A_1`$. When $`A_2u>A_1`$ the dynamics is increasing on $`[0,1]`$ (since $`\alpha ^*=\frac{A_2u}{A_2u-A_1}>1`$).
+ Regarding $`\alpha`$  the dynamics always decreases when $`A_2u\leq A_1`$. When $`A_2u>A_1`$ the dynamics is increasing on $`[0,\alpha ^*[`$ (with $`\alpha ^*=1-\frac{A_1}{A_2u}<1`$). Given $`A_1`$ and $`A_2`$, small value of _u_ are such that $`A_2u<A_1`$ and are then inefficient.
   $`A_2`$  and _U_ must be fixed accordingly.  Controls in $`[0,\frac{A_1}{A_2}]`$ are inefficient. Controls should be tested in $`]\frac{A_1}{A_2}],U]`$.
+  
+ Regarding the welfare parameters, cost of control varies from $`C\frac{A_1}{A_2}`$ to $`CU`$, for example, if $`U= k\frac{A_1}{A_2}`$, the cost of control goes from $`C\frac{A_1}{A_2}`$ to $`kC\frac{A_1}{A_2}`$, for a positive impact except on the population with $`\alpha\geq 1-\frac{1}{k}`$. _b_ and _C_ should be chosen accordingly.
 
 ### Code for dynamics
  ```scala
@@ -171,6 +173,26 @@ This map is computed with the boundary of the sets
  ```
 
 ## Code Notes
+
+#### parameters
+
+ ```scala
+RAZ13(
+   integrationStep: Double = 0.01,
+   timeStep: Double = 0.1,
+   Tm: Double = 2.0,
+   A2: Double = 0.2,
+   b: Double = 1.0,
+   C: Double = 0.2,
+   A3: Double = 1.0,
+   M: Double = 5.0,
+   a3: Double = 2.0,
+   a2: Double = 0.0,
+   a1: Double = 0.0,
+   a0: Double = 1.0,
+   v_m: Double = 0.8)
+```
+$`\frac{A_1}{A_2}=\frac{\texttt{log}(2)}{T_m A_2}`$ is around 1.73
 
 #### Run
  ```scala

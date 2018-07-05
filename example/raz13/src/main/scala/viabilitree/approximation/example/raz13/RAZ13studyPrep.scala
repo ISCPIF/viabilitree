@@ -12,11 +12,12 @@ object RAZ13studyPrep extends App {
   implicit val rng = new util.Random(42)
   val MinU: Double = riverfront.A1 / riverfront.A2
   val depth: Int = 20
-
-  val MaxU: Double = 3.0
-  val U: Double = MaxU * MinU
   //  val v: Double = 1.5
 
+  val MaxU: Double = 5.0
+  val U: Double = MaxU * MinU
+
+  val alphaStarU: Double = 1.0-1.0/MaxU
 
   val nbControl: Int = 10
   val stepU: Double = (U - MinU) / nbControl
@@ -159,6 +160,7 @@ object RAZ13studyPrep extends App {
 
   }
 
+  println("alpha star: " + alphaStarU)
   val vk0 = initViabProblemNoControl(riverfront, depth)
   val k0 = kernel0Load
   // println(k0.volume)

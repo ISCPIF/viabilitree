@@ -21,19 +21,19 @@ import viabilitree.model._
 import math._
 
 case class RAZ13(
-  integrationStep: Double = 0.01,
-  timeStep: Double = 0.1,
-  Tm: Double = 2.0,
-  A2: Double = 0.1,
-  b: Double = 1.0,
-  C: Double = 2.0,
-  A3: Double = 1.0,
-  M: Double = 5.0,
-  a3: Double = 2.0,
-  a2: Double = 0.0,
-  a1: Double = 0.0,
-  a0: Double = 1.0,
-  v_m: Double = 0.8) {
+                  integrationStep: Double = 0.01,
+                  timeStep: Double = 0.1,
+                  Tm: Double = 2.0,
+                  A2: Double = 0.2,
+                  b: Double = 1.0,
+                  C: Double = 0.2,
+                  A3: Double = 1.0,
+                  M: Double = 5.0,
+                  a3: Double = 2.0,
+                  a2: Double = 0.0,
+                  a1: Double = 0.0,
+                  a0: Double = 1.0,
+                  v_m: Double = 0.8) {
 
   /* PARAMETRES
   M flood size for which impact is half the max (1/2)
