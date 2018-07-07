@@ -166,14 +166,21 @@ object RAZ13studyPrep extends App {
   println("K0 volume: " + k0.volume)
   // Note: here volume(k0) doesn't compile
 
-  val (o1, kd1) = thetaV(1.0,k0, vk0,s"${output}D${depth}W${Wmax}")
-  println("erosion " + viabilitree.approximation.volume(kd1))
+  val listeVpair = 0.2 to 2.6 by 0.2
+  val listeVimpair = 0.1 to 2.5 by 0.1
 
-  val (vkN1, kvNu)=kernelThetaNoU(1.0,kd1,o1)
-  println("no control " + kvNu.volume)
-
-  val (vk1, kv)=kernelTheta(1.0,kd1,o1)
-  println("with control " + kv.volume)
+ def indicator1(listeV) = {
+   for (v <- listeV) {
+     println("v = " + v)
+     val (o1, kd1) = thetaV(v,k0, vk0,s"${output}D${depth}W${Wmax}")
+     println("erosion v " +v +" " + viabilitree.approximation.volume(kd1))
+     val (vkN1, kvNu)=kernelThetaNoU(v,kd1,o1)
+     println("no control " + kvNu.volume)
+     val (vk1, kv)=kernelTheta(v,kd1,o1)
+     println("with control " + kv.volume)
+   }
+ }
+indicator1(listeVpair)
 }
 
 
