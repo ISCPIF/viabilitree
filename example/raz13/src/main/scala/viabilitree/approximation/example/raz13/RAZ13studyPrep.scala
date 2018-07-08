@@ -160,7 +160,7 @@ object RAZ13studyPrep extends App {
 
   }
 
-  def captHv(v: Double, ak: Kernel, viabProblem: KernelComputation, T: Option[Int]) = {
+  def captHv(v: Double, ak: Kernel, viabProblem: KernelComputation, T: Option[Int]): List[Basin] = {
 
     val zoneLim = viabProblem.zone
     val wLim = zoneLim.region(1).max
@@ -234,13 +234,13 @@ object RAZ13studyPrep extends App {
 
       val listCapt: List[Basin] = captHv(v,kvNu,vkN1, T=None)
       println("erosion v " +v +" " + viabilitree.approximation.volume(kd1))
-      listCapt zipWithIndex match {
-        case (b,ind) => println("volume capt " + ind +"+1"+ volume(b))
+      listCapt.zipWithIndex.foreach {
+        case (b,ind) => println("volume capt " + ind +"+1"+ b.volume)
       }
     }
   }
 
-indicator1(listeCorrect)
+indicator1bc(listeCorrect)
 }
 
 
