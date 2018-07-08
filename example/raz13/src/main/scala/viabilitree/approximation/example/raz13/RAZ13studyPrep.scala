@@ -27,7 +27,7 @@ object RAZ13studyPrep extends App {
 
 
   val output = s"/tmp/RAZ13Study/test0702/"
-  val Wmax = 20.0
+  val Wmax = 25.0
   val zoneExplore = Vector((0.0, 1.0), (0.0, Wmax))
 
   def initViabProblemControl(riverfront: RAZ13, depth: Int, U: Double):KernelComputation = {
@@ -160,7 +160,7 @@ object RAZ13studyPrep extends App {
 
   }
 
-  def captHv(v: Double, ak: Kernel, viabProblem: KernelComputation, T: Option[Int]): List[Basin] = {
+  def captHv(v: Double, ak: Kernel, viabProblem: KernelComputation, T: Option[Int], depthBC:Int, nameControl: String): List[Basin] = {
 
     val zoneLim = viabProblem.zone
     val wLim = zoneLim.region(1).max
@@ -168,14 +168,14 @@ object RAZ13studyPrep extends App {
 
     val bc = BasinComputation(
       zone = viabProblem.zone,
-      depth = viabProblem.depth + 4,
+      depth = depthBC,
       dynamic = viabProblem.dynamic,
       controls = viabProblem.controls,
       target = ak.contains,
       pointInTarget = searchPoint)
 
     def firstComputationBC(bc:BasinComputation,fileName: String): List[Basin] = {
-      val list:List[Basin] = bc.approximateAll()
+      val list:List[Basin] = bc.approximateAll(None,None, Some(true))
       list.zipWithIndex.foreach{
         case(b,ind) => {
           val t = ind+1
@@ -186,7 +186,7 @@ object RAZ13studyPrep extends App {
       list
     }
 
-    val filenameBcv = s"${output}CaptD${depth}W${Wmax}Tv${v}"
+    val filenameBcv = s"${output}CaptD${nameControl}${depthBC}W${Wmax}Tv${v}"
     val listCapt = if (exists((s"${filenameBcv}t1.bin"))) {
       var indexT: Int = 1
       var acc: List[Basin] = Nil
@@ -206,9 +206,9 @@ object RAZ13studyPrep extends App {
   println("K0 volume: " + k0.volume)
   // Note: here volume(k0) doesn't compile
 
-  val listeVpair = 0.2 to 2.6 by 0.2
+  val listeVpair = 0.2 to 2.2 by 0.2
   val listeVimpair = 0.1 to 2.5 by 0.2
-  val listeCorrect = Vector(0.7)
+  val listeCorrect = Vector(0.2,0.5,1.0,1.5)
 
  def indicator1(listeV:Vector[Double]) = {
    for (v <- listeV) {
@@ -232,15 +232,33 @@ object RAZ13studyPrep extends App {
       val (vk1, kv)=kernelTheta(v,kd1,o1)
       println("with control " + kv.volume)
 
-      val listCapt: List[Basin] = captHv(v,kvNu,vkN1, T=None)
-      println("erosion v " +v +" " + viabilitree.approximation.volume(kd1))
+      val listCapt: List[Basin] = captHv(v,kv,vk1, T=None, 16,"")
       listCapt.zipWithIndex.foreach {
-        case (b,ind) => println("volume capt " + ind +"+1"+ b.volume)
+        case (b,ind) => println("v " + v + " volume capt n° " + ind +"+1: "+ b.volume)
       }
     }
   }
 
-indicator1bc(listeCorrect)
+  def indicator1bcNoControl(listeV:Vector[Double]) = {
+    for (v <- listeV) {
+      println("v = " + v)
+      val (o1, kd1) = thetaV(v,k0, vk0,s"${output}D${depth}W${Wmax}")
+      println("erosion v " +v +" " + viabilitree.approximation.volume(kd1))
+      val (vkN1, kvNu)=kernelThetaNoU(v,kd1,o1)
+      println("no control " + kvNu.volume)
+      val (vk1, kv)=kernelTheta(v,kd1,o1)
+      println("with control " + kv.volume)
+
+      val listCapt: List[Basin] = captHv(v,kvNu,vkN1, T=None, 16,"NC")
+      listCapt.zipWithIndex.foreach {
+        case (b,ind) => println("v " + v + " volume capt n° " + ind +"+1: "+ b.volume)
+      }
+    }
+  }
+
+
+//indicator1bc(listeCorrect)
+  indicator1bcNoControl(Vector(1.5))
 }
 
 

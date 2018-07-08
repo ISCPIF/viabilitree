@@ -22,7 +22,7 @@ object basin {
 
   implicit class BasinComputationDecorator(o: BasinComputation) {
     def approximate(maxNumberOfStep: Option[Int] = None, b: Option[Basin] = None)(implicit rng: util.Random) = basin.approximate(o, rng, maxNumberOfStep, b)
-    def approximateAll(maxNumberOfStep: Option[Int] = None, b: Option[Basin] = None)(implicit rng: util.Random) = basin.approximateAll(o, rng, maxNumberOfStep, b)
+    def approximateAll(maxNumberOfStep: Option[Int] = None, b: Option[Basin] = None, print: Option[Boolean] = None )(implicit rng: util.Random) = basin.approximateAll(o, rng, maxNumberOfStep, b)
     def erode(b: Basin)(implicit rng: util.Random) = basin.erode(o, b, rng)
     def volume(b: Basin) = b.volume(BasinContent.label.get)
     def clean(b: Basin) = basin.cleanNonCritical(b)
@@ -80,10 +80,11 @@ object basin {
         BasinContent.testPoint.get))
   }
 
-  def approximateAll(basinComputation: BasinComputation, rng: Random, maxNumberOfStep: Option[Int] = None, basin: Option[Basin] = None) = {
+  def approximateAll(basinComputation: BasinComputation, rng: Random, maxNumberOfStep: Option[Int] = None, basin: Option[Basin] = None, print: Option[Boolean] = None) = {
     def whileVolumeDiffersList(tree: Basin, previousVolume: Option[Double], step: Int, acc: List[Basin]): List[Basin] =
       if (maxNumberOfStep.map(ms => step >= ms).getOrElse(false)) acc.reverse
       else {
+        if (print.getOrElse(false)) println("step bc " + step)
         val withNewTarget = basinComputation.copy(target = p => tree.contains(p))
         val newTree = iterate(withNewTarget, tree, rng)
         val cleanNewTree = cleanNonCritical(newTree)
