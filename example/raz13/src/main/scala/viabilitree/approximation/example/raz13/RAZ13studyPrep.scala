@@ -160,6 +160,46 @@ object RAZ13studyPrep extends App {
 
   }
 
+  def captHv(v: Double, ak: Kernel, viabProblem: KernelComputation, T: Option[Int]) = {
+
+    val zoneLim = viabProblem.zone
+    val wLim = zoneLim.region(1).max
+    val searchPoint: Vector[Double] = Vector(1.0, wLim)
+
+    val bc = BasinComputation(
+      zone = viabProblem.zone,
+      depth = viabProblem.depth + 4,
+      dynamic = viabProblem.dynamic,
+      controls = viabProblem.controls,
+      target = ak.contains,
+      pointInTarget = searchPoint)
+
+    def firstComputationBC(bc:BasinComputation,fileName: String): List[Basin] = {
+      val list:List[Basin] = bc.approximateAll()
+      list.zipWithIndex.foreach{
+        case(b,ind) => {
+          val t = ind+1
+          save(b, s"${fileName}t${t}.bin")
+          saveVTK2D(b, s"${fileName}t${t}.vtk")
+          saveHyperRectangles(bc)(b, s"${fileName}t${t}.txt")}
+      }
+      list
+    }
+
+    val filenameBcv = s"${output}CaptD${depth}W${Wmax}Tv${v}"
+    val listCapt = if (exists((s"${filenameBcv}t1.bin"))) {
+      var indexT: Int = 1
+      var acc: List[Basin] = Nil
+      while (exists((s"${filenameBcv}t${indexT}.bin"))) {
+        val newB = load[Basin](s"${filenameBcv}t${indexT}.bin")
+        acc = newB::acc
+        indexT = indexT+1
+      }
+    acc.reverse
+    } else firstComputationBC(bc,filenameBcv)
+    listCapt
+  }
+
   println("alpha star: " + alphaStarU)
   val vk0 = initViabProblemNoControl(riverfront, depth)
   val k0 = kernel0Load
@@ -167,9 +207,10 @@ object RAZ13studyPrep extends App {
   // Note: here volume(k0) doesn't compile
 
   val listeVpair = 0.2 to 2.6 by 0.2
-  val listeVimpair = 0.1 to 2.5 by 0.1
+  val listeVimpair = 0.1 to 2.5 by 0.2
+  val listeCorrect = Vector(0.7)
 
- def indicator1(listeV) = {
+ def indicator1(listeV:Vector[Double]) = {
    for (v <- listeV) {
      println("v = " + v)
      val (o1, kd1) = thetaV(v,k0, vk0,s"${output}D${depth}W${Wmax}")
@@ -180,7 +221,26 @@ object RAZ13studyPrep extends App {
      println("with control " + kv.volume)
    }
  }
-indicator1(listeVpair)
+
+  def indicator1bc(listeV:Vector[Double]) = {
+    for (v <- listeV) {
+      println("v = " + v)
+      val (o1, kd1) = thetaV(v,k0, vk0,s"${output}D${depth}W${Wmax}")
+      println("erosion v " +v +" " + viabilitree.approximation.volume(kd1))
+      val (vkN1, kvNu)=kernelThetaNoU(v,kd1,o1)
+      println("no control " + kvNu.volume)
+      val (vk1, kv)=kernelTheta(v,kd1,o1)
+      println("with control " + kv.volume)
+
+      val listCapt: List[Basin] = captHv(v,kvNu,vkN1, T=None)
+      println("erosion v " +v +" " + viabilitree.approximation.volume(kd1))
+      listCapt zipWithIndex match {
+        case (b,ind) => println("volume capt " + ind +"+1"+ volume(b))
+      }
+    }
+  }
+
+indicator1(listeCorrect)
 }
 
 

@@ -32,7 +32,7 @@ The constraint set $`K`$ is $`[0,1]\times [0,+\infty[`$.
  * $`A_2 = ?`$ 
  
  Regarding $`\alpha`$  the dynamics always decreases when $`A_2u\leq A_1`$. When $`A_2u>A_1`$ the dynamics is increasing on $`[0,\alpha ^*[`$ (with $`\alpha ^*=1-\frac{A_1}{A_2u}<1`$). Given $`A_1`$ and $`A_2`$, small value of _u_ are such that $`A_2u<A_1`$ and are then inefficient.
-  $`A_2`$  and _U_ must be fixed accordingly.  Controls in $`[0,\frac{A_1}{A_2}]`$ are inefficient. Controls should be tested in $`]\frac{A_1}{A_2}],U]`$.
+  $`A_2`$  and _U_ must be fixed accordingly.  Controls in $`[0,\frac{A_1}{A_2}]`$ are inefficient. Controls should be tested in $`]\frac{A_1}{A_2},U]`$.
   
  Regarding the welfare parameters, cost of control varies from $`C\frac{A_1}{A_2}`$ to $`CU`$, for example, if $`U= k\frac{A_1}{A_2}`$, the cost of control goes from $`C\frac{A_1}{A_2}`$ to $`kC\frac{A_1}{A_2}`$, for a positive impact except on the population with $`\alpha\geq 1-\frac{1}{k}`$. _b_ and _C_ should be chosen accordingly.
 
