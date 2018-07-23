@@ -119,7 +119,7 @@ lazy val population =
 lazy val lake = Project(id = "lake", base = file("example/lake")) settings(publishArtifact := false) dependsOn(viability, export, model, strategy)
 
 lazy val bilingual = Project(id = "bilingual", base = file("example/bilingual")) settings(publishArtifact := false) dependsOn(viability, export, model)
-
+lazy val oscillator = Project(id = "oscillator", base = file("example/oscillator")) settings(publishArtifact := false) dependsOn(viability, export, model, strategy)
 lazy val circle = Project(id = "circle", base = file("example/circle")) settings(publishArtifact := false) dependsOn(kdtree, export)
 
 lazy val raz13 = Project(id = "raz13", base = file("example/raz13")) settings(publishArtifact := false) dependsOn(viability, export, model, strategy)
