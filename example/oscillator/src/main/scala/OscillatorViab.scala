@@ -1,6 +1,8 @@
 package viabilitree.example.oscillator
 
 import java.io.File
+
+import viabilitree.approximation.ZoneSide
 import viabilitree.viability._
 import viabilitree.viability.kernel._
 import viabilitree.export._
@@ -65,15 +67,17 @@ object BrusselatorViab extends App {
   val rng = new util.Random(42)
   val circuit = Brusselator(integrationStep = 0.01, timeStep = 0.1)
   val B =2.2
-  val minmB = 1.7
+  val minmB = 2.2
   val theControls: Vector[Double] => Vector[Control] = if (minmB<B) Vector(minmB to B by 0.1) else Vector(Vector(B))
 
   val vk = KernelComputation(
     dynamic = circuit.dynamic,
     depth = 20,
     zone = Vector((0.0, 3.0), (0.0, 3.0)),
-    controls = theControls)
-   //  controls = Vector(0.1 to 0.5 by 0.1)
+    controls = theControls,
+    neutralBoundary = Vector(ZoneSide(0, Low), ZoneSide(1, Low)))
+
+  //  controls = Vector(0.1 to 0.5 by 0.1)
   //    k = Some(p => p(0) <= 2.5 && p(0) >= -2.5 && p(1) <= 2.5 && p(1) >= -2.5)
 
   val begin = System.currentTimeMillis()
@@ -93,4 +97,20 @@ object BrusselatorViab extends App {
   save(viabilityDomain,fileName)
 
   println(tps)
+}
+
+object BrusselatorTraj extends App {
+  val rng = new util.Random(42)
+  val circuit = Brusselator(integrationStep = 0.001, timeStep = 0.01)
+
+  //  val point = Vector(-2.1, 0) // for mu=0.1
+  val point = Vector(2.5,1.5)
+  val mu = 1.7
+  val unControl = Control(Vector(mu))
+  val T=10000
+  def basic: Vector[Double] => Option[Vector[Double]] = constantStrategy(Some(unControl))
+  val (traj,controlt) = cevolution(point, circuit.dynamic, basic, T)
+  println(traj)
+  traceTraj(traj, s"/tmp/Oscillator/AttracteurBrusselatorB${mu}T${T}p${point}.txt")
+  // traceTraj(controlt, s"/tmp/ControlTestOscillatorMU${mu}.txt")
 }
