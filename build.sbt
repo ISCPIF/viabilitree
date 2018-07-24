@@ -95,7 +95,7 @@ lazy val viability = Project(id = "viability", base = file("viability")) setting
 lazy val model = Project(id = "model", base = file("model"))  settings(defaultSettings: _*) settings (
   libraryDependencies += "org.apache.commons" % "commons-math3" % "3.6.1")
 
-lazy val strategy = Project(id = "strategy", base = file("strategy")) settings(defaultSettings: _*) dependsOn(viability, kdtree) settings (
+lazy val strategy = Project(id = "strategy", base = file("strategy")) settings(defaultSettings: _*) dependsOn(viability, kdtree, model) settings (
   libraryDependencies += "com.github.pathikrit" %% "better-files" % "3.4.0",
   libraryDependencies += "com.thoughtworks.xstream" % "xstream" % "1.4.7")
 
@@ -117,12 +117,10 @@ lazy val population =
     OsgiKeys . requireCapability := """osgi.ee;filter:="(&(osgi.ee=JavaSE)(version=1.8))"""") dependsOn(viability, export, model) enablePlugins(SbtOsgi)
 
 lazy val lake = Project(id = "lake", base = file("example/lake")) settings(publishArtifact := false) dependsOn(viability, export, model, strategy)
-
 lazy val bilingual = Project(id = "bilingual", base = file("example/bilingual")) settings(publishArtifact := false) dependsOn(viability, export, model)
-lazy val oscillator = Project(id = "oscillator", base = file("example/oscillator")) settings(publishArtifact := false) dependsOn(viability, export, model, strategy)
 lazy val circle = Project(id = "circle", base = file("example/circle")) settings(publishArtifact := false) dependsOn(kdtree, export)
-
 lazy val raz13 = Project(id = "raz13", base = file("example/raz13")) settings(publishArtifact := false) dependsOn(viability, export, model, strategy)
+lazy val oscillator = Project(id = "oscillator", base = file("example/oscillator")) settings(publishArtifact := false) dependsOn(viability, export, model, strategy)
 
 /*----- Libraries ------ */
 

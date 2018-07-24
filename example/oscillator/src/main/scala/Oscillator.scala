@@ -38,3 +38,22 @@ case class Oscillator(o: Double = 0.0, A: Double = 0.0, integrationStep: Double 
   }
 
 }
+
+case class Brusselator(A: Double = 1.0, integrationStep: Double = 0.1, timeStep: Double = 1.0) {
+
+  // fix point when B < 1+A², limit cycle otherwise
+
+  def dynamic(state: Vector[Double], control: Vector[Double]): Vector[Double] = {
+    def x = state(0)
+    def y = state(1)
+    def B = control(0)
+
+    def xDot(state: Vector[Double], t: Double) = A + x*x* y - (B+1)*x
+
+    def yDot(state: Vector[Double], t: Double) = B*x - y * x *x
+
+    val dynamic = Dynamic(xDot, yDot)
+    dynamic.integrate(state.toArray, integrationStep, timeStep)
+  }
+
+}
