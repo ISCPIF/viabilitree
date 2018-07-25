@@ -73,5 +73,3 @@ object LakeViabilityKernelWithDistance extends App {
 
 }
 
-
-

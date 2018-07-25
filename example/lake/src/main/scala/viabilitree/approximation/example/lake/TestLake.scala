@@ -14,14 +14,13 @@ import math._
 // Note NumericalRange n'accepte pas un step à zéro (0.0 to 0.0 by 0.0) NON mais (0.0 to 0.0 by 0.1) OUI
 //  saveHyperRectangles(vk)(ak, s"/tmp/TestControlLakeD${vk.depth}.txt")
 
-
 object OutputLake extends App {
 
-  val lake=Lake()
+  val lake = Lake()
   val rng = new util.Random(42)
   val depth = 20
 
-  def initViabProblem(lake: Lake, depth:Int) ={
+  def initViabProblem(lake: Lake, depth: Int) = {
     val vk = KernelComputation(
       dynamic = lake.dynamic,
       depth = depth,
@@ -30,17 +29,17 @@ object OutputLake extends App {
     vk
   }
 
-  def initKernel (lake: Lake, vk:KernelComputation):Kernel = {
+  def initKernel(lake: Lake, vk: KernelComputation): Kernel = {
     val (ak, steps) = approximate(vk, rng)
-    save(ak,s"/tmp/TestControlLakeD${vk.depth}.bin")
+    save(ak, s"/tmp/TestControlLakeD${vk.depth}.bin")
     ak
   }
 
   val vk = initViabProblem(lake, depth)
-  val ak= if (exists((s"/tmp/TestControlLakeD${depth}.bin"))) load[Kernel](s"/tmp/TestControlLakeD${depth}.bin") else initKernel(lake, vk)
-  if (!exists((s"/tmp/TestControlLakeD${depth}.txt"))) saveHyperRectangles(vk)(ak,s"/tmp/TestControlLakeD${depth}.txt")
-  if (!exists((s"/tmp/TestControlLakeD${depth}.vtk"))) saveVTK2D(ak,s"/tmp/TestControlLakeD${depth}.vtk")
-  println ("volume ", volume(ak))
+  val ak = if (exists((s"/tmp/TestControlLakeD${depth}.bin"))) load[Kernel](s"/tmp/TestControlLakeD${depth}.bin") else initKernel(lake, vk)
+  if (!exists((s"/tmp/TestControlLakeD${depth}.txt"))) saveHyperRectangles(vk)(ak, s"/tmp/TestControlLakeD${depth}.txt")
+  if (!exists((s"/tmp/TestControlLakeD${depth}.vtk"))) saveVTK2D(ak, s"/tmp/TestControlLakeD${depth}.vtk")
+  println("volume ", volume(ak))
 }
 
 object OutputLakeWithdt extends App {
@@ -54,11 +53,11 @@ object OutputLakeWithdt extends App {
     dynamic.integrate(state.toArray, 0.01, 0.1)
   }
 
-  val lake=Lake()
+  val lake = Lake()
   val rng = new util.Random(42)
   val depth = 20
 
-  def initViabProblem(lake: Lake, depth:Int) ={
+  def initViabProblem(lake: Lake, depth: Int) = {
     val vk = KernelComputation(
       dynamic = lake.dynamic,
       depth = depth,
@@ -67,16 +66,16 @@ object OutputLakeWithdt extends App {
     vk
   }
 
-  def initKernel (lake: Lake, vk:KernelComputation):Kernel = {
+  def initKernel(lake: Lake, vk: KernelComputation): Kernel = {
     val (ak, steps) = approximate(vk, rng)
-    save(ak,s"/tmp/TestControlLakeD${vk.depth}.bin")
+    save(ak, s"/tmp/TestControlLakeD${vk.depth}.bin")
     ak
   }
   val vk = initViabProblem(lake, depth)
-  val ak= if (exists((s"/tmp/TestControlLakeD${depth}.bin"))) load[Kernel](s"/tmp/TestControlLakeD${depth}.bin") else initKernel(lake, vk)
-  if (!exists((s"/tmp/TestControlLakeD${depth}.txt"))) saveHyperRectangles(vk)(ak,s"/tmp/TestControlLakeD${depth}.txt")
-  if (!exists((s"/tmp/TestControlLakeD${depth}.vtk"))) saveVTK2D(ak,s"/tmp/TestControlLakeD${depth}.vtk")
-  println ("volume ", volume(ak))
+  val ak = if (exists((s"/tmp/TestControlLakeD${depth}.bin"))) load[Kernel](s"/tmp/TestControlLakeD${depth}.bin") else initKernel(lake, vk)
+  if (!exists((s"/tmp/TestControlLakeD${depth}.txt"))) saveHyperRectangles(vk)(ak, s"/tmp/TestControlLakeD${depth}.txt")
+  if (!exists((s"/tmp/TestControlLakeD${depth}.vtk"))) saveVTK2D(ak, s"/tmp/TestControlLakeD${depth}.vtk")
+  println("volume ", volume(ak))
 }
 
 object TestControl extends App {
@@ -90,7 +89,7 @@ object TestControl extends App {
     dynamic.integrate(state.toArray, 0.01, 0.1)
   }
 
-  val lake=Lake()
+  val lake = Lake()
   val rng = new util.Random(42)
 
   val vk = KernelComputation(
@@ -102,14 +101,14 @@ object TestControl extends App {
   // Note NumericalRange n'accepte pas un step à zéro (0.0 to 0.0 by 0.0) NON mais (0.0 to 0.0 by 0.1) OUI
 
   val (ak, steps) = approximate(vk, rng)
-//  saveHyperRectangles(vk)(ak, s"/tmp/TestControlLakeD${vk.depth}.txt")
-  save(ak,s"/tmp/TestControlLakeD${vk.depth}.bin")
+  //  saveHyperRectangles(vk)(ak, s"/tmp/TestControlLakeD${vk.depth}.txt")
+  save(ak, s"/tmp/TestControlLakeD${vk.depth}.bin")
 
   val point = Vector(0.7, 0.5)
-  def basic: Vector[Double] => Option[Vector[Double]] = basicStrategy(vk,ak)
-  val traj = evolution(point,lake.dynamic,basic,10)
+  def basic: Vector[Double] => Option[Vector[Double]] = basicStrategy(vk, ak)
+  val traj = evolution(point, lake.dynamic, basic, 10)
   println(traj)
-  traceTraj(traj,s"/tmp/TrajTestControlD${vk.depth}.txt")
+  traceTraj(traj, s"/tmp/TrajTestControlD${vk.depth}.txt")
 }
 
 object TestControlE extends App {
@@ -124,11 +123,11 @@ object TestControlE extends App {
     dynamic.integrate(state.toArray, 0.01, 0.1)
   }
 
-  val lake=Lake()
+  val lake = Lake()
   val rng = new util.Random(42)
   val depth = 20
 
-  def initViabProblem(lake: Lake, depth:Int) ={
+  def initViabProblem(lake: Lake, depth: Int) = {
     val vk = KernelComputation(
       dynamic = lake.dynamic,
       depth = depth,
@@ -137,26 +136,25 @@ object TestControlE extends App {
     vk
   }
 
-  def initKernel (lake: Lake, vk:KernelComputation):Kernel = {
+  def initKernel(lake: Lake, vk: KernelComputation): Kernel = {
     val (ak, steps) = approximate(vk, rng)
-    save(ak,s"/tmp/TestControlLakeD${vk.depth}.bin")
+    save(ak, s"/tmp/TestControlLakeD${vk.depth}.bin")
     ak
   }
   val vk = initViabProblem(lake, depth)
-  val ak= if (exists((s"/tmp/TestControlLakeD${depth}.bin"))) load[Kernel](s"/tmp/TestControlLakeD${depth}.bin") else initKernel(lake, vk)
-  println ("volume ", volume(ak))
+  val ak = if (exists((s"/tmp/TestControlLakeD${depth}.bin"))) load[Kernel](s"/tmp/TestControlLakeD${depth}.bin") else initKernel(lake, vk)
+  println("volume ", volume(ak))
 
-  val explore = Lake(integrationStep = 0.001, timeStep= 0.01)
-  def basic: Vector[Double] => Option[Vector[Double]] = basicStrategy(vk,ak)
+  val explore = Lake(integrationStep = 0.001, timeStep = 0.01)
+  def basic: Vector[Double] => Option[Vector[Double]] = basicStrategy(vk, ak)
   val trajSU1 = unrollStrategy(point, explore.dynamic, basic, 2000)
-  val traj1 = evolution(point,explore.dynamic,basic,2000)
+  val traj1 = evolution(point, explore.dynamic, basic, 2000)
   println("durée ", trajSU1.length, "valeurs ", trajSU1)
-//  println(traj1)
-  traceStrategyElemTraj(trajSU1,s"/tmp/TrajTestControlD${depth}trajSU1.txt")
-  traceTraj(traj1,s"/tmp/TrajTestControlD${depth}traj1.txt")
+  //  println(traj1)
+  traceStrategyElemTraj(trajSU1, s"/tmp/TrajTestControlD${depth}trajSU1.txt")
+  traceTraj(traj1, s"/tmp/TrajTestControlD${depth}traj1.txt")
 
 }
-
 
 object DynamicLake extends App {
   val b = 0.1
@@ -169,11 +167,11 @@ object DynamicLake extends App {
     dynamic.integrate(state.toArray, 0.01, 0.1)
   }
 
-  val lake=Lake()
+  val lake = Lake()
   val rng = new util.Random(42)
   val depth = 20
 
-  def initViabProblem(lakeDynamic: (Vector[Double],Vector[Double])=> Vector[Double], depth:Int) ={
+  def initViabProblem(lakeDynamic: (Vector[Double], Vector[Double]) => Vector[Double], depth: Int) = {
     val vk = KernelComputation(
       dynamic = lake.dynamic,
       depth = depth,
@@ -182,14 +180,14 @@ object DynamicLake extends App {
     vk
   }
 
-  def initKernel (lake: Lake, vk:KernelComputation):Kernel = {
+  def initKernel(lake: Lake, vk: KernelComputation): Kernel = {
     val (ak, steps) = approximate(vk, rng)
-    save(ak,s"/tmp/TestDynamicLakeD${vk.depth}.bin")
+    save(ak, s"/tmp/TestDynamicLakeD${vk.depth}.bin")
     ak
   }
   val vk = initViabProblem(lake.dynamic, depth)
-  val ak= if (exists((s"/tmp/TestDynamicLakeD${depth}.bin"))) load[Kernel](s"/tmp/TestControlLakeD${depth}.bin") else initKernel(lake, vk)
-  if (!exists((s"/tmp/TestDynamicLakeD${depth}.txt"))) saveHyperRectangles(vk)(ak,s"/tmp/TestControlLakeD${depth}.txt")
-  if (!exists((s"/tmp/TestDynamicLakeD${depth}.vtk"))) saveVTK2D(ak,s"/tmp/TestControlLakeD${depth}.vtk")
-  println ("volume ", volume(ak))
+  val ak = if (exists((s"/tmp/TestDynamicLakeD${depth}.bin"))) load[Kernel](s"/tmp/TestControlLakeD${depth}.bin") else initKernel(lake, vk)
+  if (!exists((s"/tmp/TestDynamicLakeD${depth}.txt"))) saveHyperRectangles(vk)(ak, s"/tmp/TestControlLakeD${depth}.txt")
+  if (!exists((s"/tmp/TestDynamicLakeD${depth}.vtk"))) saveVTK2D(ak, s"/tmp/TestControlLakeD${depth}.vtk")
+  println("volume ", volume(ak))
 }

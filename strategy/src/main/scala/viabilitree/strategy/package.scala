@@ -14,9 +14,9 @@ package object strategy {
 
   case class StrategyElement(point: Vector[Double], control: Vector[Double])
 
-  case class StrategyExploration (guess: Option[Vector[Control] => Option[Vector[Double]]] = None)
+  case class StrategyExploration(guess: Option[Vector[Control] => Option[Vector[Double]]] = None)
 
-/*
+  /*
   def mostDemandingControl(lesC: Vector[Control]):Option[Vector[Double]] = {
     if (lesC.isEmpty)  None else {
     }
@@ -24,8 +24,6 @@ package object strategy {
 
   def mostDemandingControl : Vector[Control] => Option[Vector[Double]]= None
 */
-
-
 
   def unrollStrategy(
     point: Vector[Double],
@@ -51,7 +49,6 @@ package object strategy {
       }
     }
 
-
     unrollStrategy0(steps, point)
   }
 
@@ -73,7 +70,7 @@ package object strategy {
       case k: NonEmptyTree[KernelContent] => exhaustiveStrategy(kc.dynamic, kc.controls(point), k.contains)(point)
     }
 
- /* def exhaustiveStrategyGuess(dynamic: (Vector[Double], Vector[Double]) => Vector[Double], controls: Vector[Control], oracle: Vector[Double] => Boolean, guess: Vector[Control] => Option(Vector[Double]))(point: Vector[Double]): Option[Vector[Double]] = {
+  /* def exhaustiveStrategyGuess(dynamic: (Vector[Double], Vector[Double]) => Vector[Double], controls: Vector[Control], oracle: Vector[Double] => Boolean, guess: Vector[Control] => Option(Vector[Double]))(point: Vector[Double]): Option[Vector[Double]] = {
     val cViable = controls.find { c => oracle(dynamic(point, c.value)) }.map(_.value)
     val result = if cViable.isDefined cViable else guess(controls)
   }

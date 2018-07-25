@@ -80,7 +80,7 @@ package object viability {
   // TODO we need to deal with empty list of control
   implicit def vectorOfNumericRangeToVectorOfControl(v: Vector[NumericRange[Double]]) = {
 
-/*
+    /*
     def cartesianProduct(v: Vector[NumericRange[Double]]): Vector[Vector[Double]] = {
 
       def cartesianProduct(a: NumericRange[Double], b: NumericRange[Double]) =
