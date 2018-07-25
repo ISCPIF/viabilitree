@@ -61,8 +61,12 @@ s &\in& \mathbb R ^{+*}
 ### Parameters for perturbations
  * $`M`$ is the flood intensity for which the impact of the flood on the safety level in the population is half its maximum. We consider that bigger floods have a bigger impact, with a saturation effect: a flood of intensity $`2M`$ has a bigger impact than a flood of intensity $`M`$, but not twice its impact. 
  * $`A_3 = ?`$ but with $`A_3 \frac{s}{M+s} \leq 1 `$ i.e. $`A_3 \leq 1 `$ to ensure that $`\alpha \leq 1`$
- * $`\texttt{damage}(\alpha,s)`$ (in €) is the damage function. It is described on the wiki.
-
+ * $`\texttt{damage}(\alpha,s)`$ (in €) is the damage function. It is described on the wiki. The file [DamageFile][DamageFile] contains the parameters for the damage function
+### Damage file reading
+ ```scala
+ // for floods intensity v (cm) between tempVMIN and tempVMAX, and corresponding min and coeff of the linear interpolation, the damage functions are of the form ((v - tempVMIN) * coeff + min) / 1000.0  
+ val (tempVMIN, tempVMAX, coeff1, min1, coeff2, min2) = lectureDamage
+ ```
 Safety measure consists mainly in protecting houses with small cofferdams. It reduces significantly the effect of small floods of intensity $`s \leq v_m`$.
 
 ### Code for perturbations
@@ -80,6 +84,8 @@ Safety measure consists mainly in protecting houses with small cofferdams. It re
   def damage(alpha: Double, s: Double): Double = {
     (1 - alpha) * d_1(alpha, s) + alpha * d_2(alpha, s)
   }
+  
+  
 
   def perturbation(state: Vector[Double], s: Double): (Double,Double) = {
     def alphaDelta(state: Vector[Double], s: Double) = A3 * (1 - state(0)) * (s / (M + s))
@@ -404,4 +410,5 @@ $`K_s^u`$
 
 
 <!-- Identifiers, in alphabetical order -->
+[DamageFile]: ../../../../../../images/DataDamage.csv "Parameters of the damage function"
 [RAZ13wiki]: https://groupes.renater.fr/wiki/raz13/index "Wiki of the RAZ13 project"
