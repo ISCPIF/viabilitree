@@ -79,7 +79,7 @@ object RAZ13studyPrep extends App {
     ak
   }
 
-  def thetaV(v: Double, ak: Kernel, vk: KernelComputation, fileName: String) = {
+  def thetaV(v: Double, ak: Kernel, vk: KernelComputation, fileName: Option[String]) = {
     val o1 = OracleApproximation(
       depth = depth,
       box = vk.zone,
@@ -93,8 +93,8 @@ object RAZ13studyPrep extends App {
       kd1
     }
 
-    val filenameTv = s"${fileName}Tv${v}"
-    val kd1 = if (exists((s"${fileName}Tv${v}.bin"))) load[Approximation](s"${fileName}Tv${v}.bin") else firstComputation(o1,filenameTv)
+    val filenameTv = fileName.getOrElse(s"${fileName}Tv${v}")
+    val kd1 = if (exists((s"${filenameTv}.bin"))) load[Approximation](s"$filenameTv.bin") else firstComputation(o1,filenameTv)
     /*
     Pas la même signature pour OracleApproximation et KernelComputation
     */
@@ -104,7 +104,8 @@ object RAZ13studyPrep extends App {
   def kernelThetaNoU(
                       v: Double,
                       kd: Approximation,
-                      oa: OracleApproximation) = {
+                      oa: OracleApproximation,
+                      fileName: Option[String]=None) = {
     val vk = KernelComputation(
       /*
       dynamic = riverfront.copy(integrationStep =  0.7).dynamic,
@@ -125,7 +126,7 @@ object RAZ13studyPrep extends App {
       ak
       }
 
-    val filenameKvNoU = s"${output}KvNoUD${depth}W${Wmax}Tv${v}"
+    val filenameKvNoU = fileName.getOrElse(s"${output}KvNoUD${depth}W${Wmax}Tv${v}")
     val kv = if (exists((s"${filenameKvNoU}.bin"))) load[Kernel](s"${filenameKvNoU}.bin") else firstComputation(vk,filenameKvNoU)
 
     (vk, kv)
@@ -213,7 +214,7 @@ object RAZ13studyPrep extends App {
  def indicator1(listeV:Vector[Double]) = {
    for (v <- listeV) {
      println("v = " + v)
-     val (o1, kd1) = thetaV(v,k0, vk0,s"${output}D${depth}W${Wmax}")
+     val (o1, kd1) = thetaV(v,k0, vk0,Some(s"${output}D${depth}W${Wmax}"))
      println("erosion v " +v +" " + viabilitree.approximation.volume(kd1))
      val (vkN1, kvNu)=kernelThetaNoU(v,kd1,o1)
      println("no control " + kvNu.volume)
@@ -225,7 +226,7 @@ object RAZ13studyPrep extends App {
   def indicator1bc(listeV:Vector[Double]) = {
     for (v <- listeV) {
       println("v = " + v)
-      val (o1, kd1) = thetaV(v,k0, vk0,s"${output}D${depth}W${Wmax}")
+      val (o1, kd1) = thetaV(v,k0, vk0,Some(s"${output}D${depth}W${Wmax}"))
       println("erosion v " +v +" " + viabilitree.approximation.volume(kd1))
       val (vkN1, kvNu)=kernelThetaNoU(v,kd1,o1)
       println("no control " + kvNu.volume)
@@ -242,7 +243,7 @@ object RAZ13studyPrep extends App {
   def indicator1bcNoControl(listeV:Vector[Double]) = {
     for (v <- listeV) {
       println("v = " + v)
-      val (o1, kd1) = thetaV(v,k0, vk0,s"${output}D${depth}W${Wmax}")
+      val (o1, kd1) = thetaV(v,k0, vk0,Some(s"${output}D${depth}W${Wmax}"))
       println("erosion v " +v +" " + viabilitree.approximation.volume(kd1))
       val (vkN1, kvNu)=kernelThetaNoU(v,kd1,o1)
       println("no control " + kvNu.volume)
@@ -256,7 +257,68 @@ object RAZ13studyPrep extends App {
     }
   }
 
+  def oplusV(v: Double, viabTree: Kernel, viabProblem: KernelComputation, fileName:String) = {
+    val o1 = OracleApproximation(
+      depth = depth,
+      box = vk0.zone,
+      oracle = (p: Vector[Double]) => riverfront.softInverseJump(p, q => riverfront.inverseJumpDirect(q, v), viabTree, viabProblem))
+    val filenameOplus = fileName + "v" +v
+    def firstComputation(o1:OracleApproximation, fileName: String): Approximation = {
+     val kov = o1.approximate(rng).get
+       save(kov, s"${fileName}.bin")
+      saveVTK2D(kov, s"${fileName}.vtk")
+      saveHyperRectangles(o1)(kov, s"${fileName}.txt")
+      kov
+    }
+    val kov = if (exists((s"${filenameOplus}.bin"))) load[Kernel](s"${filenameOplus}.bin") else firstComputation(o1,filenameOplus)
+    kov
+  }
 
+  def thetaV2(v: Double, ak: Kernel, vk: KernelComputation, fileName: String) = {
+    val o1 = OracleApproximation(
+      depth = depth,
+      box = vk.zone,
+      oracle = (p: Vector[Double]) => riverfront.softJump(p, q => riverfront.jump(q, v), ak, vk))
+
+    def firstComputation(o1:OracleApproximation, fileName: String): Approximation = {
+      val kd1 = o1.approximate(rng).get
+      save(kd1, s"${fileName}.bin")
+      saveVTK2D(kd1, s"${fileName}.vtk")
+      saveHyperRectangles(o1)(kd1, s"${fileName}.txt")
+      kd1
+    }
+
+    val filenameTv = s"${fileName}Tv${v}"
+    val kd1 = if (exists((s"${fileName}Tv${v}.bin"))) load[Approximation](s"${fileName}Tv${v}.bin") else firstComputation(o1,filenameTv)
+    /*
+    Pas la même signature pour OracleApproximation et KernelComputation
+    */
+    (o1, kd1)
+  }
+
+  def indicator3_Perturbation2(listeV:Vector[Double], listeV2 : Vector[Double]) = {
+    for (v <- listeV) {
+      println("v = " + v)
+      val (o1, kd1) = thetaV(v, k0, vk0, Some(s"${output}D${depth}W${Wmax}"))
+      println("erosion v " + v + " " + viabilitree.approximation.volume(kd1))
+      val (vkN1, kvNu) = kernelThetaNoU(v, kd1, o1)
+      println("no control volume " + kvNu.volume)
+      val (vk1, kv) = kernelTheta(v, kd1, o1)
+      println("with control volume " + kv.volume)
+      val listCapt: List[Basin] = captHv(v, kvNu, vkN1, T = None, 16, "NC")
+      listCapt.zipWithIndex.foreach {
+        case (b, ind) => println("v " + v + " volume capt n° " + ind + "+1: " + b.volume)
+      }
+      for (v2 <- listeV2) {
+        val (o2, kd2) = thetaV(v, kv, vk1, Some(s"${output}Tv2${v2}Kv{v}D${depth}W${Wmax}"))
+        println("erosion v2 " + v2 + " " + viabilitree.approximation.volume(kd2))
+        val (vk2, kv2) = kernelTheta(v, kd2, o2)
+        println("with control volume " + kv2.volume)
+        val (vkN2, kvNu2) = kernelThetaNoU(v, kd2, o2)
+        println("no control volume " + kvNu2.volume)
+      }
+    }
+  }
 //indicator1bc(listeCorrect)
   indicator1bcNoControl(Vector(1.5))
 }
