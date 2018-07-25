@@ -17,18 +17,16 @@ object RAZ13studyTest extends App {
   //  val v: Double = 1.5
   val depth: Int = 20
 
-
   val nbControl: Int = 10
   val stepU: Double = (U - MinU) / nbControl
   val Econtrols: Vector[Vector[Double]] = cartesianProduct(Vector(MinU to U by stepU))
   val nocontrols: Vector[Double] = Vector(0.0)
 
-
   val output = s"/tmp/RAZ13Study/test0702/"
   val Wmax = 20.0
   val zoneExplore = Vector((0.0, 1.0), (0.0, Wmax))
 
-/*
+  /*
   for (alpha <- 0.0 to 1.0 by 0.1) {
     for (s <- 0.0 until 2.0 by 0.12) {
       val dT = riverfront.damageT(alpha,s)
@@ -37,11 +35,11 @@ object RAZ13studyTest extends App {
     }
   }
 */
-  val res = riverfront.damage(0.0,2.0)
-  val resT = riverfront.damageT(0.0,2.0)
+  val res = riverfront.damage(0.0, 2.0)
+  val resT = riverfront.damageT(0.0, 2.0)
 
-  val res1 = riverfront.damage(0.0,0.0)
-  val resT1 = riverfront.damageT(0.0,0.0)
+  val res1 = riverfront.damage(0.0, 0.0)
+  val resT1 = riverfront.damageT(0.0, 0.0)
 
   println(res + "   T: " + resT)
   println(res1 + "   T: " + resT1)

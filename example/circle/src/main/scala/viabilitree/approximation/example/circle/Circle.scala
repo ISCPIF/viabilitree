@@ -31,7 +31,7 @@ object Circle3D extends App {
   println("Volume " + volume(res2))
   val eroded = erode(approximation, res2)
 
-   println("Volume eroded set " + volume(eroded))
+  println("Volume eroded set " + volume(eroded))
   saveVTK3D(eroded, "/tmp/circleEroded.vtk")
   saveHyperRectangles(approximation)(res, "/tmp/circleEroded.txt")
 

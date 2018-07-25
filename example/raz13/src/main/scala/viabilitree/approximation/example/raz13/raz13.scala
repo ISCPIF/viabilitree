@@ -21,19 +21,19 @@ import viabilitree.model._
 import math._
 
 case class RAZ13(
-                  integrationStep: Double = 0.01,
-                  timeStep: Double = 0.1,
-                  Tm: Double = 2.0,
-                  A2: Double = 0.2,
-                  b: Double = 1.0,
-                  C: Double = 0.2,
-                  A3: Double = 1.0,
-                  M: Double = 5.0,
-                  a3: Double = 2.0,
-                  a2: Double = 0.0,
-                  a1: Double = 0.0,
-                  a0: Double = 1.0,
-                  v_m: Double = 0.8) {
+  integrationStep: Double = 0.01,
+  timeStep: Double = 0.1,
+  Tm: Double = 2.0,
+  A2: Double = 0.2,
+  b: Double = 1.0,
+  C: Double = 0.2,
+  A3: Double = 1.0,
+  M: Double = 5.0,
+  a3: Double = 2.0,
+  a2: Double = 0.0,
+  a1: Double = 0.0,
+  a0: Double = 1.0,
+  v_m: Double = 0.8) {
 
   /* PARAMETRES
   M flood size for which impact is half the max (1/2)
@@ -88,17 +88,17 @@ def dynamic(state: Vector[Double], control: Vector[Double]) = {
     import better.files.File
     val file = File("images/DataDamage.csv")
     val lines = file.lines.drop(1).toVector
-      val tempVMIN = lines.map(p => p.split(";").toList(0).toDouble)
-      val tempVMAX = lines.map(p => p.split(";").toList(1).toDouble)
-      val coeff1 = lines.map(p => p.split(";").toList(4).toDouble)
-      val min1 = lines.map(p => p.split(";").toList(5).toDouble)
+    val tempVMIN = lines.map(p => p.split(";").toList(0).toDouble)
+    val tempVMAX = lines.map(p => p.split(";").toList(1).toDouble)
+    val coeff1 = lines.map(p => p.split(";").toList(4).toDouble)
+    val min1 = lines.map(p => p.split(";").toList(5).toDouble)
     val coeff2 = lines.map(p => p.split(";").toList(6).toDouble)
     val min2 = lines.map(p => p.split(";").toList(7).toDouble)
-    (tempVMIN,tempVMAX,coeff1,min1, coeff2, min2)
+    (tempVMIN, tempVMAX, coeff1, min1, coeff2, min2)
   }
 
-  val (tempVMIN,tempVMAX,coeff1,min1, coeff2, min2) = lectureDamage
-/*  println ("tempVMIN " + tempVMIN)
+  val (tempVMIN, tempVMAX, coeff1, min1, coeff2, min2) = lectureDamage
+  /*  println ("tempVMIN " + tempVMIN)
   println ("tempVMAX " + tempVMAX)
   println ("coeff1 " + coeff1)
   println ("min1 " + min1)
@@ -106,47 +106,46 @@ def dynamic(state: Vector[Double], control: Vector[Double]) = {
   println ("min2 " + min2)*/
 
   def d_2real(alpha: Double, s: Double): Double = {
-    val ind = tempVMAX.indexWhere(_ > 100* s)
+    val ind = tempVMAX.indexWhere(_ > 100 * s)
 
     val coeff = ind match {
       case -1 => coeff2.last
-      case x =>  coeff2(x)
+      case x => coeff2(x)
     }
     val min = ind match {
       case -1 => min2.last
-      case x =>  min2(x)
+      case x => min2(x)
     }
     val smin = ind match {
       case -1 => tempVMIN.last
-      case x =>  tempVMIN(x)
+      case x => tempVMIN(x)
     }
 
-    val d2final =  (((100*s)-smin)  *coeff + min)/1000.0
-//   println( "alpha s " + alpha + "  " +s + " with " +  "ind " + ind + " / coeff " + coeff +  " smin " + smin+ "  => d2: " +d2final)
+    val d2final = (((100 * s) - smin) * coeff + min) / 1000.0
+    //   println( "alpha s " + alpha + "  " +s + " with " +  "ind " + ind + " / coeff " + coeff +  " smin " + smin+ "  => d2: " +d2final)
     d2final
-      }
+  }
 
   def d_1real(alpha: Double, s: Double): Double = {
-    val ind = tempVMAX.indexWhere(_ > 100* s)
+    val ind = tempVMAX.indexWhere(_ > 100 * s)
 
     val coeff = ind match {
       case -1 => coeff1.last
-      case x =>  coeff1(x)
+      case x => coeff1(x)
     }
     val min = ind match {
       case -1 => min1.last
-      case x =>  min1(x)
+      case x => min1(x)
     }
     val smin = ind match {
       case -1 => tempVMIN.last
-      case x =>  tempVMIN(x)
+      case x => tempVMIN(x)
     }
 
-    val d1final =  (((100*s)-smin)  *coeff + min)/1000.0
-//    println( "alpha s " + alpha + "  " +s + " with " +  "ind " + ind + " / coeff " + coeff +  " smin " + smin+ "  => d1: " +d1final)
+    val d1final = (((100 * s) - smin) * coeff + min) / 1000.0
+    //    println( "alpha s " + alpha + "  " +s + " with " +  "ind " + ind + " / coeff " + coeff +  " smin " + smin+ "  => d1: " +d1final)
     d1final
   }
-
 
   def damage(alpha: Double, s: Double): Double = {
     (1 - alpha) * d_1real(alpha, s) + alpha * d_2real(alpha, s)

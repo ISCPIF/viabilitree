@@ -26,7 +26,7 @@ object RAZ13studyPrep extends App {
   val controls: Vector[Vector[Double]] = nocontrols +: Econtrols
 
 
-  val output = s"/tmp/RAZ13Study/test0702/"
+  val output = s"/tmp/RAZ13Study/test0725/"
   val Wmax = 25.0
   val zoneExplore = Vector((0.0, 1.0), (0.0, Wmax))
 

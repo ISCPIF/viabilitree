@@ -102,9 +102,9 @@ object RAZ13study extends App {
   }
 
   def kernelThetaNoU(
-                   v: Double,
-                   kd: Approximation,
-                   oa: OracleApproximation) = {
+    v: Double,
+    kd: Approximation,
+    oa: OracleApproximation) = {
     val vk = KernelComputation(
       /*
       dynamic = riverfront.copy(integrationStep =  0.7).dynamic,
