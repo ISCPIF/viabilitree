@@ -61,6 +61,17 @@ package object strategy {
     xut.map(_.point)
   }
 
+  def cevolution(
+                 point: Vector[Double],
+                 dynamic: (Vector[Double], Vector[Double]) => Vector[Double],
+                 strategy: Vector[Double] => Option[Vector[Double]],
+                 steps: Int) = {
+    val xut = unrollStrategy(point, dynamic, strategy, steps)
+    val trajt= xut.map(_.point)
+      val controlt = xut.map(_.control)
+    (trajt,controlt)
+  }
+
   def exhaustiveStrategy(dynamic: (Vector[Double], Vector[Double]) => Vector[Double], controls: Vector[Control], oracle: Vector[Double] => Boolean)(point: Vector[Double]): Option[Vector[Double]] =
     controls.find { c => oracle(dynamic(point, c.value)) }.map(_.value)
 
@@ -98,6 +109,13 @@ package object strategy {
           } yield basicControl.value
 
         basicControl orElse exhaustiveStrategy(kc, k)(point)
+    }
+  }
+
+  def constantStrategy(u: Option[Control]=None) (point: Vector[Double]): Option[Vector[Double]] = {
+    u match {
+      case None => Some(Vector(0.0))
+      case _ => Some(u.get.value)
     }
   }
 
