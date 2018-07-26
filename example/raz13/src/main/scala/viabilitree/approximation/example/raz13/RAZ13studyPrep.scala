@@ -12,6 +12,8 @@ object RAZ13studyPrep extends App {
   implicit val rng = new util.Random(42)
   val MinU: Double = riverfront.A1 / riverfront.A2
   val depth: Int = 20
+  val depthAlpha: Int = depth/2
+  val depthW: Int = depth/2
   //  val v: Double = 1.5
 
   val MaxU: Double = 5.0
@@ -187,7 +189,7 @@ object RAZ13studyPrep extends App {
       list
     }
 
-    val filenameBcv = s"${output}CaptD${nameControl}${depthBC}W${Wmax}Tv${v}"
+    val filenameBcv = s"${output}Capt${nameControl}D${depthBC}W${Wmax}Tv${v}"
     val listCapt = if (exists((s"${filenameBcv}t1.bin"))) {
       var indexT: Int = 1
       var acc: List[Basin] = Nil
@@ -250,11 +252,79 @@ object RAZ13studyPrep extends App {
       val (vk1, kv)=kernelTheta(v,kd1,o1)
       println("with control " + kv.volume)
 
-      val listCapt: List[Basin] = captHv(v,kvNu,vkN1, T=None, 16,"NC")
-      listCapt.zipWithIndex.foreach {
-        case (b,ind) => println("v " + v + " volume capt n° " + ind +"+1: "+ b.volume)
+          val listCaptNC: List[Basin] = captHv(v,kvNu,vkN1, T=None, 16,"NC")
+      listCaptNC.zipWithIndex.foreach {
+        case (b,ind) => println("v " + v + " volume capt NC n° " + ind +"+1: "+ b.volume)
       }
     }
+  }
+
+  def indicator1bcTotal(listeV:Vector[Double]) = {
+    for (v <- listeV) {
+      println("v = " + v)
+      val (o1, kd1) = thetaV(v, k0, vk0, Some(s"${output}D${depth}W${Wmax}"))
+      println("erosion v " + v + " " + viabilitree.approximation.volume(kd1))
+      val (vkN1, kvNu) = kernelThetaNoU(v, kd1, o1)
+      println("no control " + kvNu.volume)
+      val (vk1, kv) = kernelTheta(v, kd1, o1)
+      println("with control " + kv.volume)
+
+      val listCapt: List[Basin] = captHv(v, kv, vk1, T = None, 16, "")
+      listCapt.zipWithIndex.foreach {
+        case (b, ind) => println("v " + v + " volume capt n° " + ind + "+1: " + b.volume)
+      }
+      val listCaptNC: List[Basin] = captHv(v, kvNu, vkN1, T = None, 16, "NC")
+      listCaptNC.zipWithIndex.foreach {
+            case (b, ind) => println("v " + v + " volume capt NC n° " + ind + "+1: " + b.volume)
+          }
+      }
+    }
+
+  def indicator1MAPBasic(listeV:Vector[Double]) = {
+    indicator1MAPFirst(listeV,s"${output}D${depth}V${listeV.mkString("_")}")
+  }
+
+  def indicator1MAPFirst(listeV:Vector[Double], name: String) = {
+      // stocke pour chaque v le noyau avec et sans contrôle
+      // stocke pour chaque v la liste des bassins de capture
+      var tableErosion: List[Approximation] = Nil
+      var tableKernel: List[Kernel] = Nil
+      var tableKernelNC: List[Kernel] = Nil
+      var tableTableBC:List[List[Basin]] = Nil
+      var tableTableBCNC:List[List[Basin]] = Nil
+      var tableAlphaW: Array[Double] = Nil.toArray
+      for (v <- listeV) {
+        println("v = " + v)
+        val (o1, kd1) = thetaV(v, k0, vk0, Some(s"${output}D${depth}W${Wmax}"))
+        tableErosion = kd1::tableErosion
+        println("erosion v " + v + " " + viabilitree.approximation.volume(kd1))
+        val (vkN1, kvNu) = kernelThetaNoU(v, kd1, o1)
+        tableKernelNC = kvNu::tableKernelNC
+        println("no control " + kvNu.volume)
+        val (vk1, kv) = kernelTheta(v, kd1, o1)
+        tableKernel = kvNu::tableKernel
+        println("with control " + kv.volume)
+        val listCapt: List[Basin] = captHv(v, kv, vk1, T = None, 16, "")
+        tableTableBC = listCapt::tableTableBC
+        val listCaptNC: List[Basin] = captHv(v, kvNu, vkN1, T = None, 16, "NC")
+        tableTableBCNC=listCaptNC::tableTableBCNC
+      }
+    tableErosion = tableErosion.reverse
+    tableKernel = tableKernel.reverse
+    tableKernelNC = tableKernelNC.reverse
+    tableTableBC = tableTableBC.reverse
+    tableTableBCNC = tableTableBCNC.reverse
+    val filename = s"${output}D${depth}V${listeV.mkString("_")}"
+    save(listeV,s"${filename}ListeV.bin")
+    save(tableKernel,s"${filename}tableKernel.bin")
+    save(tableKernelNC,s"${filename}tableKernelNC.bin")
+    save(tableTableBC,s"${filename}tableTableBC.bin")
+    save(tableTableBCNC,s"${filename}tableTableBCNC.bin")
+  }
+
+  def indicator1MAPProvide(listeV:Vector[Double], displayAlpha: Int=depthAlpha, displayAW: Int=depthW, fileName: String)= {
+    val saveFilename = s"${fileName}V${listeV.mkString("_")}"
+    val listeVverif = if (exists((s"${saveFilename}.bin"))) load[Vector[Double]](s"${saveFilename}.bin") else indicator1MAPFirst(listeV,fileName)
   }
 
   def oplusV(v: Double, viabTree: Kernel, viabProblem: KernelComputation, fileName:String) = {
@@ -319,6 +389,7 @@ object RAZ13studyPrep extends App {
       }
     }
   }
+
 //indicator1bc(listeCorrect)
   indicator1bcNoControl(Vector(1.5))
 }
