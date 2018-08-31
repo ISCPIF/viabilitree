@@ -12,9 +12,9 @@ Package **attractor1D** contains 4 files:
 This dynamic is characterized by a stable attractor and two unstable attractors when b<a<c and $`\mu=1`$
 ```math
 (1)
-\frac{d\x}{dt}=(x-a)(x-b)(\mu x-c)
+\frac{dx}{dt}=(x-a)(x-b)(\mu x-c)
 ```
-The dynamic is possibly controlled by varying $`\mu`$ in interval $`[1-\bar{u},1+\bar{u}]`$. 
+The dynamic is possibly controlled by varying $`\mu`$ in interval $`[mu-\bar{u},mu+\bar{u}]`$. 
 
 The corresponding code is the following:
 
@@ -76,8 +76,8 @@ object attractor1DViab extends App {
    controls = theControls)
 
   val (viabilityDomain, steps) = approximate(vk, rng)
-  println(s"fin calcul noyau ${steps}")
-  println(s"volume noyau ${volume(viabilityDomain)}")
+  println(s"kernel computed in ${steps} steps")
+  println(s"volume ${volume(viabilityDomain)}")
 
   val output = s"/tmp/1D/"
   val fileName = s"${output}1D${vk.depth}minmU${minmU}mu${mu}Noyaut${attractor.timeStep}.bin"
@@ -91,6 +91,8 @@ _vk_ is the discretized version of viability problem (2), where _controls_ the d
 
 _viabilityDomain_ is the resulting viability kernel. It is a Tree with KernelContent (Tree[KernelContent])
 
+_mu_ is the control parameter.
+
 ##### Private Parameters
 ```scala
   val rng = new util.Random(42)
@@ -101,6 +103,6 @@ _viabilityDomain_ is the resulting viability kernel. It is a Tree with KernelCon
 
 Only one format (valid for any dimension) is available here:
 ```scala
-    saveHyperRectangles(bc)(basin, f)
+  saveHyperRectangles(vk)(viabilityDomain, s"${output}1D${vk.depth}minmU${minmU}mu${mu}.txt")
 ``` 
 This format is described in the **export** package. Each line corresponds with a leaf of the kd-tree, characterized by its testpoint, its extends along each dimension (a min and a max), and a viable control which was found for the testpoint.

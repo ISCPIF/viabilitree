@@ -28,8 +28,8 @@ object attractor1DViab extends App {
 
   val (viabilityDomain, steps) = approximate(vk, rng)
   //  val (viabilityDomain, steps) = approximate(vk, rng, maxNumberOfStep = Some(0))
-  println(s"fin calcul noyau ${steps}")
-  println(s"volume noyau ${volume(viabilityDomain)}")
+  println(s"kernel computed in ${steps} steps")
+  println(s"volume ${volume(viabilityDomain)}")
 
   val tps = (System.currentTimeMillis - begin)
 
