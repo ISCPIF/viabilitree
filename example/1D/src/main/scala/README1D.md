@@ -9,36 +9,12 @@ Package **attractor1D** contains 4 files:
 * 1DAttractorViab: declaration of the viability problem and computation of the viability kernel with an extension of class **App**. 
 
 ## 1D dynamic
-This dynamic is characterized by a stable attractor and two unstable attractors when b<a<c and $`\alpha=1`$
+This dynamic is characterized by a stable attractor and two unstable attractors when b<a<c and $`\mu=1`$
 ```math
 (1)
-\frac{d\x}{dt}=(x-a)(x-b)(\alpha x-c)
+\frac{d\x}{dt}=(x-a)(x-b)(\mu x-c)
 ```
-The dynamic is possibly controlled by varying $`\alpha`$ in interval $`[1-\bar{u},1+\bar{u}]`$. 
-
-This viability problem was studied in [8], a viability domain can be computed from the analytical study.
-
-<a name="Fig1"></a>
-<img src="../../../../../../images/languageDomain.png" width="300" alt="Figure 1: Viability domain of the language coexistance problem">
-
-[Figure 1: Viability domain of the bilingual society problem](#Fig1)
-
-Figure 1 above shows a computation of the viability domain for the bilingual society problem with:
-* constraint set $`K=[0.2;1]\times [0.2;1]\times [0;1]`$, 
-* control set $`U=[-0.1,0.1]`$ ,
-* parameters $`a=1.31`$, according to the calibration from historical data from Abrams and Strogatz (Nature, 2003).
-
-The approximation from **Viabilitree** is showed in Figure 2 with the same parameters and the following discretization parameters:
-* control set $`U=[-0.1;0.1]`$ with discretization step _0.01_.
-* time discretization $`dt=1`$
-* space discretization $`2^{7}=128`$ points per axis ($`depth=21, \ 2.10^6`$ grid points)
-
-In blue the viability kernel from Figure 1. In white the approximation with no dilation, in red with one basic dilation.
-
-<a name="Fig2"></a>
-<img src="../../../../../../images/language21TS0_5d0white1red.png" width="300" alt="Figure 1: Viability domain of the language coexistance problem">
-
-[Figure 2: Approximation of the viability kernel of the bilingual society problem](#Fig2)
+The dynamic is possibly controlled by varying $`\mu`$ in interval $`[1-\bar{u},1+\bar{u}]`$. 
 
 The corresponding code is the following:
 
@@ -91,7 +67,7 @@ object attractor1DViab extends App {
   val attractor = Attractor1D(integrationStep = 0.01, timeStep = 0.1)
   val mu =1.0
   val minmU = 1.0
-  val theControls: Vector[Double] => Vector[Control] = if (minmU<mu) Vector(minmU to mu by 0.1) else Vector(Vector(mu))
+  val theControls: Vector[Double] => Vector[Control] = if (minmU<mu) Vector(minmU to (mu+(mu-minmU)) by 0.1) else Vector(Vector(mu))
 
   val vk = KernelComputation(
     dynamic = attractor.dynamic,

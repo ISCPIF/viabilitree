@@ -16,7 +16,7 @@ object attractor1DViab extends App {
   val attractor = Attractor1D(integrationStep = 0.01, timeStep = 0.1)
   val mu =1.0
   val minmU = 1.0
-  val theControls: Vector[Double] => Vector[Control] = if (minmU<mu) Vector(minmU to mu by 0.1) else Vector(Vector(mu))
+  val theControls: Vector[Double] => Vector[Control] = if (minmU<mu) Vector(minmU to (mu+(mu-minmU)) by 0.1) else Vector(Vector(mu))
 
   val vk = KernelComputation(
     dynamic = attractor.dynamic,
