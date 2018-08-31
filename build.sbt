@@ -121,6 +121,7 @@ lazy val bilingual = Project(id = "bilingual", base = file("example/bilingual"))
 lazy val circle = Project(id = "circle", base = file("example/circle")) settings(publishArtifact := false) dependsOn(kdtree, export)
 lazy val raz13 = Project(id = "raz13", base = file("example/raz13")) settings(publishArtifact := false) dependsOn(viability, export, model, strategy)
 lazy val oscillator = Project(id = "oscillator", base = file("example/oscillator")) settings(publishArtifact := false) dependsOn(viability, export, model, strategy)
+lazy val attractor1D = Project(id = "attractor1D", base = file("example/1D")) settings(publishArtifact := false) dependsOn(viability, export, model, strategy)
 
 /*----- Libraries ------ */
 
