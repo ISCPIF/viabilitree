@@ -401,9 +401,9 @@ $`K_s^u`$
 
 
 <a name="Fig1"></a>
-<img src="../../../../../../images/indicator1.png" width="300" alt="Figure 1: Indicator 1>
+<img src="../../../../../../images/indicator1NoControl.png" width="300" alt="Figure 1: Indicator 1>
 
-[Figure 1: Indicator 1 for the raz13 problem](#Fig1)
+[Figure 1: Indicator 1 for the raz13 problem, no control: maximum intesity of a flood a state can cope with now and in the future](#Fig1)
 
 
 <!-- [Figure 1](#Fig1) shows ...-->
