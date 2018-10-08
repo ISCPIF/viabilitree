@@ -65,7 +65,7 @@ object OscillatorTraj extends App {
 
 object BrusselatorViab extends App {
   val rng = new util.Random(42)
-  val circuit = Brusselator(integrationStep = 0.01, timeStep = 0.1)
+  val circuit = Brusselator(integrationStep = 0.001, timeStep = 0.01)
   val B =2.2
   val minmB = 2.2
   val theControls: Vector[Double] => Vector[Control] = if (minmB<B) Vector(minmB to B by 0.1) else Vector(Vector(B))
@@ -76,6 +76,9 @@ object BrusselatorViab extends App {
     zone = Vector((0.0, 3.0), (0.0, 3.0)),
     controls = theControls,
     neutralBoundary = Vector(ZoneSide(0, Low), ZoneSide(1, Low)))
+
+    // for zone from the axis
+  //   neutralBoundary = Vector(ZoneSide(0, Low), ZoneSide(1, Low)))
 
   //  controls = Vector(0.1 to 0.5 by 0.1)
   //    k = Some(p => p(0) <= 2.5 && p(0) >= -2.5 && p(1) <= 2.5 && p(1) >= -2.5)
@@ -90,10 +93,10 @@ object BrusselatorViab extends App {
   val tps = (System.currentTimeMillis - begin)
 
   val output = s"/tmp/Oscillator/"
+  val fileName = s"${output}BrusselatorD${vk.depth}minmB${minmB}B${B}Noyaut${circuit.timeStep}Zone03.bin"
 
-  saveVTK2D(viabilityDomain, s"${output}BrusselatorD${vk.depth}minmB${minmB}B${B}.vtk")
-  saveHyperRectangles(vk)(viabilityDomain, s"${output}BrusselatorD${vk.depth}minmB${minmB}mu${B}.txt")
-  val fileName = s"${output}BrusselatorD${vk.depth}minmB${minmB}B${B}Noyaut${circuit.timeStep}.bin"
+  saveVTK2D(viabilityDomain, s"${output}BrusselatorD${vk.depth}minmB${minmB}B${B}Zone${vk.zone}.vtk")
+//  saveHyperRectangles(vk)(viabilityDomain, s"${output}BrusselatorD${vk.depth}minmB${minmB}mu${B}.txt")
   save(viabilityDomain,fileName)
 
   println(tps)
