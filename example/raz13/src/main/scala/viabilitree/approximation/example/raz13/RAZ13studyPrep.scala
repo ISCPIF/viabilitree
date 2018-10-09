@@ -28,9 +28,10 @@ object RAZ13studyPrep extends App {
   val controls: Vector[Vector[Double]] = nocontrols +: Econtrols
 
 
-  val output = s"/tmp/RAZ13Study/test0725/"
-  val Wmax = 25.0
+  val output = s"/tmp/RAZ13Study/test1008/"
+  val Wmax = 30.0
   val zoneExplore = Vector((0.0, 1.0), (0.0, Wmax))
+
 
   def initViabProblemControl(riverfront: RAZ13, depth: Int, U: Double):KernelComputation = {
     import viabilitree.viability._
@@ -95,7 +96,7 @@ object RAZ13studyPrep extends App {
       kd1
     }
 
-    val filenameTv = fileName.getOrElse(s"${fileName}Tv${v}")
+    val filenameTv = fileName.getOrElse(s"${output}ErodeD${depth}W${Wmax}Tv${v}")
     val kd1 = if (exists((s"${filenameTv}.bin"))) load[Approximation](s"$filenameTv.bin") else firstComputation(o1,filenameTv)
     /*
     Pas la même signature pour OracleApproximation et KernelComputation
@@ -136,9 +137,11 @@ object RAZ13studyPrep extends App {
   }
 
   def kernelTheta(
+
                       v: Double,
                       kd: Approximation,
-                      oa: OracleApproximation) = {
+                      oa: OracleApproximation,
+                      fileName: Option[String]=None) = {
     val vk = KernelComputation(
       dynamic = riverfront.dynamic,
       depth = depth,
@@ -156,7 +159,7 @@ object RAZ13studyPrep extends App {
       ak
     }
 
-    val filenameKv = s"${output}Kv${depth}W${Wmax}Tv${v}"
+    val filenameKv = fileName.getOrElse(s"${output}Kv${depth}W${Wmax}Tv${v}")
     val kv = if (exists((s"${filenameKv}.bin"))) load[Kernel](s"${filenameKv}.bin") else firstComputation(vk,filenameKv)
 
     (vk, kv)
@@ -203,20 +206,10 @@ object RAZ13studyPrep extends App {
     listCapt
   }
 
-  println("alpha star: " + alphaStarU)
-  val vk0 = initViabProblemNoControl(riverfront, depth)
-  val k0 = kernel0Load
-  println("K0 volume: " + k0.volume)
-  // Note: here volume(k0) doesn't compile
-
-  val listeVpair = 0.2 to 2.2 by 0.2
-  val listeVimpair = 0.1 to 2.5 by 0.2
-  val listeCorrect = Vector(0.2,0.5,1.0,1.5)
-
  def indicator1(listeV:Vector[Double]) = {
    for (v <- listeV) {
      println("v = " + v)
-     val (o1, kd1) = thetaV(v,k0, vk0,Some(s"${output}D${depth}W${Wmax}"))
+     val (o1, kd1) = thetaV(v,k0, vk0,Some(s"${output}ErodeD${depth}W${Wmax}Tv${v}"))
      println("erosion v " +v +" " + viabilitree.approximation.volume(kd1))
      val (vkN1, kvNu)=kernelThetaNoU(v,kd1,o1)
      println("no control " + kvNu.volume)
@@ -228,7 +221,7 @@ object RAZ13studyPrep extends App {
   def indicator1bc(listeV:Vector[Double]) = {
     for (v <- listeV) {
       println("v = " + v)
-      val (o1, kd1) = thetaV(v,k0, vk0,Some(s"${output}D${depth}W${Wmax}"))
+      val (o1, kd1) = thetaV(v,k0, vk0,Some(s"${output}ErodeD${depth}W${Wmax}Tv${v}"))
       println("erosion v " +v +" " + viabilitree.approximation.volume(kd1))
       val (vkN1, kvNu)=kernelThetaNoU(v,kd1,o1)
       println("no control " + kvNu.volume)
@@ -245,7 +238,7 @@ object RAZ13studyPrep extends App {
   def indicator1bcNoControl(listeV:Vector[Double]) = {
     for (v <- listeV) {
       println("v = " + v)
-      val (o1, kd1) = thetaV(v,k0, vk0,Some(s"${output}D${depth}W${Wmax}"))
+      val (o1, kd1) = thetaV(v,k0, vk0,Some(s"${output}ErodeD${depth}W${Wmax}Tv${v}"))
       println("erosion v " +v +" " + viabilitree.approximation.volume(kd1))
       val (vkN1, kvNu)=kernelThetaNoU(v,kd1,o1)
       println("no control " + kvNu.volume)
@@ -262,7 +255,7 @@ object RAZ13studyPrep extends App {
   def indicator1bcTotal(listeV:Vector[Double]) = {
     for (v <- listeV) {
       println("v = " + v)
-      val (o1, kd1) = thetaV(v, k0, vk0, Some(s"${output}D${depth}W${Wmax}"))
+      val (o1, kd1) = thetaV(v, k0, vk0, Some(s"${output}ErodeD${depth}W${Wmax}Tv${v}"))
       println("erosion v " + v + " " + viabilitree.approximation.volume(kd1))
       val (vkN1, kvNu) = kernelThetaNoU(v, kd1, o1)
       println("no control " + kvNu.volume)
@@ -295,7 +288,7 @@ object RAZ13studyPrep extends App {
       var tableAlphaW: Array[Double] = Nil.toArray
       for (v <- listeV) {
         println("v = " + v)
-        val (o1, kd1) = thetaV(v, k0, vk0, Some(s"${output}D${depth}W${Wmax}"))
+        val (o1, kd1) = thetaV(v, k0, vk0, Some(s"${output}ErodeD${depth}W${Wmax}Tv${v}"))
         tableErosion = kd1::tableErosion
         println("erosion v " + v + " " + viabilitree.approximation.volume(kd1))
         val (vkN1, kvNu) = kernelThetaNoU(v, kd1, o1)
@@ -369,7 +362,7 @@ object RAZ13studyPrep extends App {
   def indicator3_Perturbation2(listeV:Vector[Double], listeV2 : Vector[Double]) = {
     for (v <- listeV) {
       println("v = " + v)
-      val (o1, kd1) = thetaV(v, k0, vk0, Some(s"${output}D${depth}W${Wmax}"))
+      val (o1, kd1) = thetaV(v, k0, vk0, Some(s"${output}ErodeD${depth}W${Wmax}Tv${v}"))
       println("erosion v " + v + " " + viabilitree.approximation.volume(kd1))
       val (vkN1, kvNu) = kernelThetaNoU(v, kd1, o1)
       println("no control volume " + kvNu.volume)
@@ -380,225 +373,34 @@ object RAZ13studyPrep extends App {
         case (b, ind) => println("v " + v + " volume capt n° " + ind + "+1: " + b.volume)
       }
       for (v2 <- listeV2) {
-        val (o2, kd2) = thetaV(v, kv, vk1, Some(s"${output}Tv2${v2}Kv{v}D${depth}W${Wmax}"))
+        val (o2, kd2) = thetaV(v2, kv, vk1, Some(s"${output}Tv2${v2}Kv{v}D${depth}W${Wmax}Tv2_${v2}"))
         println("erosion v2 " + v2 + " " + viabilitree.approximation.volume(kd2))
-        val (vk2, kv2) = kernelTheta(v, kd2, o2)
+        val (vk2, kv2) = kernelTheta(v2, kd2, o2)
         println("with control volume " + kv2.volume)
-        val (vkN2, kvNu2) = kernelThetaNoU(v, kd2, o2)
+        val (vkN2, kvNu2) = kernelThetaNoU(v2, kd2, o2)
         println("no control volume " + kvNu2.volume)
       }
     }
   }
 
-//indicator1bc(listeCorrect)
-  indicator1bcNoControl(Vector(1.5))
+  // fin des déclarations
+
+  println("alpha star: " + alphaStarU)
+  val vk0 = initViabProblemNoControl(riverfront, depth)
+  val k0 = kernel0Load
+  println("K0 volume: " + k0.volume)
+  // Note: here volume(k0) doesn't compile
+
+/*
+  val listeVpair = 0.2 to 2.2 by 0.2
+  val listeVimpair = 0.1 to 2.5 by 0.2
+  val listeCorrect = Vector(0.2,0.5,1.0,1.5)
+*/
+
+
+  //indicator1bc(listeCorrect)
+  indicator1bcTotal(Vector(0.4,0.8,1.2,1.4,1.5))
 }
 
 
 
-  /* comment til EOF
-
-  //calcule le noyau initial : normalement tout l'espace
-  val (vk0, ak0, steps) = kernel0
-  println("kernel0" + steps)
-  println("depth " + depth)
-
-  // EROSION DE K
-  //On applique l'inondation de taille v. C'est à dire que les états state se retrouvent en (state + perturbation)
-  // ceci doit être aussi dans le noyau et on apprend le nouvel ensemble.
-  def thetaV(v: Double, ak: Kernel, vk: KernelComputation) = {
-    val o1 = OracleApproximation(
-      depth = depth,
-      box = vk0.zone,
-      oracle = (p: Vector[Double]) => riverfront.softJump(p, q => riverfront.jump(q, v), ak, vk))
-
-    val kd1 = o1.approximate(rng).get
-    /*
-    Pas la même signature pour OracleApproximation et KernelComputation
-
-
-    saveVTK2D(kd1, s"${output}raz13${vk.depth}U${U}v${v}ORACLE.vtk")
-    saveHyperRectangles(o1)(kd1, s"${output}raz13${vk.depth}U${U}v${v}ORACLE.txt")
-*/
-    (o1, kd1)
-  }
-
-  // On applique l'inondation de taille v et on apprend l'ensemble d'arrivée, a priori depuis un noyau ou un bassin de capture
-  def oplusV(v: Double, ak: Kernel, vk: KernelComputation) = {
-    val o1 = OracleApproximation(
-      depth = depth,
-      box = vk0.zone,
-      oracle = (p: Vector[Double]) => riverfront.softInverseJump(p, q => riverfront.inverseJumpDirect(q, v), ak, vk))
-
-    val kd1 = o1.approximate(rng).get
-  }
-
-  def kernelTheta(
-    v: Double,
-    kd: Approximation,
-    oa: OracleApproximation,
-    lesControls: Vector[Double] => Vector[Control] = vk0.controls) = {
-    val vk = KernelComputation(
-      /*
-      dynamic = riverfront.copy(integrationStep =  0.7).dynamic,
-*/
-      dynamic = riverfront.dynamic,
-      depth = depth,
-      zone = oa.box,
-      controls = lesControls,
-      domain = (p: Vector[Double]) => p(0) <= 1.0 && p(0) >= 0,
-      k = Some(kd.contains),
-      neutralBoundary = Vector(ZoneSide(0, Low), ZoneSide(0, High), ZoneSide(1, High)))
-
-    val (ak, steps) = vk.approximate()
-
-    /* seulement pour les tests     */
-    saveVTK2D(ak, s"${output}raz13${vk.depth}U${U}Kv${v}.vtk")
-    saveHyperRectangles(vk)(ak, s"${output}raz13${vk.depth}U${U}Kv${v}.txt")
-    save(ak, s"${output}raz13${vk.depth}U${U}Kv${v}.bin")
-
-    (vk, ak, steps)
-
-  }
-
-  def kernelThetaNoU(
-                   v: Double,
-                   kd: Approximation,
-                   oa: OracleApproximation) = {
-    val vk = KernelComputation(
-      /*
-      dynamic = riverfront.copy(integrationStep =  0.7).dynamic,
-*/
-      dynamic = riverfront.dynamic,
-      depth = depth,
-      zone = oa.box,
-      controls = Vector(Vector(0.0)),
-      domain = (p: Vector[Double]) => p(0) <= 1.0 && p(0) >= 0,
-      k = Some(kd.contains),
-      neutralBoundary = Vector(ZoneSide(0, Low), ZoneSide(0, High), ZoneSide(1, High)))
-
-    val (ak, steps) = vk.approximate()
-
-    /* seulement pour les tests     */
-    saveVTK2D(ak, s"${output}raz13${vk.depth}U${U}KvNoU${v}.vtk")
-    saveHyperRectangles(vk)(ak, s"${output}raz13${vk.depth}U${U}KvNoU${v}.txt")
-    save(ak, s"${output}raz13${vk.depth}U${U}KvNoU${v}.bin")
-
-    (vk, ak, steps)
-
-  }
-
-  def captHv(v: Double, ak: Kernel, viabProblem: KernelComputation, T: Option[Int]) = {
-
-    val zoneLim = viabProblem.zone
-    val wLim = zoneLim.region(1).max
-    val searchPoint: Vector[Double] = Vector(1.0, wLim)
-
-    val bc = BasinComputation(
-      zone = viabProblem.zone,
-      depth = viabProblem.depth + 4,
-      dynamic = viabProblem.dynamic,
-      controls = viabProblem.controls,
-      target = ak.contains,
-      pointInTarget = searchPoint)
-
-    bc.approximateAll(maxNumberOfStep = T)
-  }
-
-  def study0() = {
-    val listeV = List(0.8, 1.2, 1.5)
-    val tMax = 3
-
-    for (v <- listeV) {
-      println("v")
-      println(v)
-
-      val (o1, kd1) = thetaV(v, ak0, vk0)
-      println("ok ak0 erode de v volume " + kd1.volume)
-
-      viabilitree.approximation.volume(kd1) match {
-        case 0 => println("erosion vide")
-        case _ => {
-          val (vk1, ak1, steps1) = kernelTheta(v, kd1, o1, vk0.controls)
-          println(steps1)
-          println("kernel de K erode v volume " + ak1.volume)
-          saveVTK2D(ak1, s"${output}raz13${vk1.depth}U${U}Kv${v}.vtk")
-          /*
-            val nak1 = ak1.map{c => c.copy(label = !c.label)}
-            saveVTK2D(nak1, s"${output}raz13${vk1.depth}U${U}Kv${v}NEG.vtk")
-            println("complémentaire du kernel de K erode v volume " + nak1.volume)
-*/
-        }
-      }
-    }
-  }
-
-  def oneStateStudyForV(state: Vector[Double], v: Double, kv: Kernel, viabProblem: KernelComputation, listeBasin: List[Basin]) = {
-    var stringToPrint: String = state.toString
-    val inKernel: Boolean = kv.contains(state)
-    var inCapt = true
-    var noCapt = 0
-    if (!inKernel) {
-      val captdt = listeBasin.zipWithIndex.collectFirst {
-        case (aCapt: Basin, count: Int) if (aCapt.contains(state)) => count
-      }.getOrElse(-1)
-      if (captdt < 0) inCapt = false
-      if (!inCapt) { noCapt = captdt }
-    }
-  }
-
-  def studyMaps1_2() = {
-    //    val listeV = List(0.5, 1.0, 1.5, 2.0, 2.5)
-    val listeV = List(1.5)
-    val tMax = 20
-    val unAlpha = 0.25
-    val unW = 10.0
-
-    for (v <- listeV) {
-      println("v")
-      println(v)
-
-      val (o1, kd1) = thetaV(v, ak0, vk0)
-      println("ok ak0 erode de v volume " + kd1.volume)
-
-      viabilitree.approximation.volume(kd1) match {
-        case 0 => println("erosion vide")
-        case _ => {
-          val (vk1, ak1, steps1) = kernelTheta(v, kd1, o1, vk0.controls)
-          println(steps1)
-          println("kernel de K erode v volume " + ak1.volume)
-
-          /*
-            val nak1 = ak1.map{c => c.copy(label = !c.label)}
-            saveVTK2D(nak1, s"${output}raz13${vk1.depth}U${U}Kv${v}NEG.vtk")
-            println("complémentaire du kernel de K erode v volume " + nak1.volume)
-*/
-
-          ak1.volume match {
-            case 0 => println("noyau d'erosion vide")
-            case _ => {
-              val listeCapt = captHv(v, ak1, vk1, None)
-              println("nb de pas" + listeCapt.length)
-              println("capture de K erode v de volume " + listeCapt.last.volume)
-              listeCapt.zipWithIndex.foreach {
-                case (aCapt, step) => {
-                  saveVTK2D(aCapt, s"${output}raz13${vk1.depth}U${U}CaptKv${v}No${step}.vtk")
-                  save(aCapt, s"${output}raz13${vk1.depth}U${U}CaptKv${v}No${step}.bin")
-                }
-              }
-            }
-            // peculiar study for (unAlpha, unW)
-            // for each v, find if it is in the kernel Hv
-            // if not find in which Capt K(v,t) it is and note this t
-            // THEN for another v' (smaller than vMax, last v for which it is in Hv
-            // compute Hv' + theta(v')
-            // see in which J(v,t) it is included
-
-          }
-        }
-      }
-    }
-  }
-  studyMaps1_2
-}
-*/
