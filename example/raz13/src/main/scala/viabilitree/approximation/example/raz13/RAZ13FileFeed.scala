@@ -11,7 +11,7 @@ object RAZ13FileFeed extends App {
   val riverfront = RAZ13()
   implicit val rng = new util.Random(42)
   val MinU: Double = riverfront.A1 / riverfront.A2
-  val depth: Int = 6
+  val depth: Int = 16
   val depthAlpha: Int = depth/2
   val depthW: Int = depth/2
   //  val v: Double = 1.5
@@ -369,7 +369,7 @@ Pour les données c'est saveHyperRectanglesJsonString qu'il faut appeler, cela r
   appendJSONraz13file(fileJason,k0String)
 
 //  indicator1(Vector(0.8,1.2,1.5))
-  indicator1bcTotal(Vector(0.8,1.2,1.5))
+  indicator1bcTotal(Vector(0.4,0.5,0.6,0.8,1.0,1.2,1.3,1.5))
 
   appendJSONraz13file(fileJason,closeJSONraz13)
 
