@@ -129,7 +129,7 @@ object RAZ13FileFeed extends App {
       save(ak, s"${fileName}.bin")
       saveVTK2D(ak, s"${fileName}.vtk")
       saveHyperRectangles(vk)(ak, s"${fileName}.txt")
-      val kernelString = appendJasonraz13EKernelv(vk,ak,false,0.0,0.0,fileName,v,riverfront.timeStep,depth)
+      val kernelString = appendJasonraz13EKernelv(vk,ak,0,0.0,0.0,fileName,v,riverfront.timeStep,depth)
       appendJSONraz13file(fileJason,kernelString)
 
       ak
@@ -162,7 +162,7 @@ object RAZ13FileFeed extends App {
       save(ak, s"${fileName}.bin")
       saveVTK2D(ak, s"${fileName}.vtk")
       saveHyperRectangles(vk)(ak, s"${fileName}.txt")
-      val kernelString = appendJasonraz13EKernelv(vk,ak,true,MinU,U,fileName,v,riverfront.timeStep,depth)
+      val kernelString = appendJasonraz13EKernelv(vk,ak,1,MinU,U,fileName,v,riverfront.timeStep,depth)
       appendJSONraz13file(fileJason,kernelString)
       ak
     }
@@ -180,6 +180,7 @@ object RAZ13FileFeed extends App {
     val wLim = zoneLim.region(1).max
     val searchPoint: Vector[Double] = Vector(1.0, wLim)
     val nameControl : String = if (withControl) "" else "NC"
+    val jsonWithControl : Int = if (withControl) 1 else 0
     val umin : Double = if (withControl) MinU else 0.0
     val umax : Double = if (withControl) U else 0.0
     val dt: Double = riverfront.timeStep
@@ -202,7 +203,7 @@ object RAZ13FileFeed extends App {
           saveHyperRectangles(bc)(b, s"${fileName}t${t}.txt")}
 
       }
-      val bcString = appendJasonraz13ECaptv(bc,list,withControl, umin,umax,fileName,v,dt, depthBC)
+      val bcString = appendJasonraz13ECaptv(bc,list,jsonWithControl, umin,umax,fileName,v,dt, depthBC)
       appendJSONraz13file(fileJason,bcString)
       list
     }
@@ -265,7 +266,7 @@ object RAZ13FileFeed extends App {
     initString+dataString+lastString
   }
 
-  def appendJasonraz13EKernelv(vk:KernelComputation, ak: Tree[KernelContent],withControl: Boolean, Umin:Double, Umax: Double, fileName: String, v: Double, dt:Double, depth:Integer): String={
+  def appendJasonraz13EKernelv(vk:KernelComputation, ak: Tree[KernelContent],withControl: Int, Umin:Double, Umax: Double, fileName: String, v: Double, dt:Double, depth:Integer): String={
     val lcontrols = vk.controls
     val initString = s",{ ${'"'}type${'"'}:${'"'}kernel${'"'},${'"'}dt${'"'}:${dt},${'"'}depth${'"'}:${depth},${'"'}withControl${'"'}:${withControl},${'"'}controlMin${'"'}:${Umin},${'"'}controlMax${'"'}:${Umax},${'"'}size${'"'}:${v},${'"'}filename${'"'}:${'"'}${fileName}${'"'},${'"'}data${'"'}:["
     val dataString = saveHyperRectanglesJsonString(vk)(ak)
@@ -273,7 +274,7 @@ object RAZ13FileFeed extends App {
     initString+dataString+lastString
   }
 
-  def appendJasonraz13ECaptv(vk:BasinComputation, lcapt: List[Basin],withControl: Boolean, Umin:Double, Umax: Double, fileName: String, v: Double, dt:Double, depth:Integer): String={
+  def appendJasonraz13ECaptv(vk:BasinComputation, lcapt: List[Basin],withControl: Int, Umin:Double, Umax: Double, fileName: String, v: Double, dt:Double, depth:Integer): String={
     val theString = s",{ ${'"'}type${'"'}:${'"'}liste_capt${'"'},,${'"'}size${'"'}:${v},${'"'}filename${'"'}:${fileName},${'"'}nbStep${'"'}:${lcapt.length},${'"'}data${'"'}:[["
     val lastString = "]}"
     val jsonOutput = StringBuilder.newBuilder
@@ -295,21 +296,27 @@ Pour les données c'est saveHyperRectanglesJsonString qu'il faut appeler, cela r
   // end raz13 save json file
 
   println("alpha star: " + alphaStarU)
-  val test: String = raz13JSON
-  println(test)
-  initJSONraz13file(s"${output}test.json",test)
+
+
+  // init json
+  val init: String = raz13JSON
+  println(init)
+
+  initJSONraz13file(fileJason,init)
 
 
   val vk0 = initViabProblemNoControl(riverfront, depth)
   val k0 = kernel0Load
   val fileName = s"${output}K0D${depth}W${Wmax}"
   println("K0 volume: " + k0.volume)
-  val k0String = appendJasonraz13EKernelv(vk0,k0,false ,0.0,0.0,fileName,0.0,riverfront.timeStep,depth)
-  appendJSONraz13file(s"${output}test.json",k0String)
+  val k0String = appendJasonraz13EKernelv(vk0,k0,0 ,0.0,0.0,fileName,0.0,riverfront.timeStep,depth)
+
+  // k0 to json
+  appendJSONraz13file(fileJason,k0String)
 
   indicator1(Vector(0.8,1.2,1.5))
 
-  appendJSONraz13file(s"${output}test.json",closeJSONraz13)
+  appendJSONraz13file(fileJason,closeJSONraz13)
 
 
 
