@@ -166,11 +166,12 @@ object RAZ13studyPrep extends App {
 
   }
 
-  def captHv(v: Double, ak: Kernel, viabProblem: KernelComputation, T: Option[Int], depthBC:Int, nameControl: String): List[Basin] = {
+  def captHv(v: Double, ak: Kernel, viabProblem: KernelComputation, T: Option[Int], depthBC:Int, withControl: Boolean): List[Basin] = {
 
     val zoneLim = viabProblem.zone
     val wLim = zoneLim.region(1).max
     val searchPoint: Vector[Double] = Vector(1.0, wLim)
+    val nameControl : String = if (withControl) "" else "NC"
 
     val bc = BasinComputation(
       zone = viabProblem.zone,
@@ -191,7 +192,6 @@ object RAZ13studyPrep extends App {
       }
       list
     }
-
     val filenameBcv = s"${output}Capt${nameControl}D${depthBC}W${Wmax}Tv${v}"
     val listCapt = if (exists((s"${filenameBcv}t1.bin"))) {
       var indexT: Int = 1
@@ -228,7 +228,7 @@ object RAZ13studyPrep extends App {
       val (vk1, kv)=kernelTheta(v,kd1,o1)
       println("with control " + kv.volume)
 
-      val listCapt: List[Basin] = captHv(v,kv,vk1, T=None, 16,"")
+      val listCapt: List[Basin] = captHv(v,kv,vk1, T=None, 16,true)
       listCapt.zipWithIndex.foreach {
         case (b,ind) => println("v " + v + " volume capt n° " + ind +"+1: "+ b.volume)
       }
@@ -245,7 +245,7 @@ object RAZ13studyPrep extends App {
       val (vk1, kv)=kernelTheta(v,kd1,o1)
       println("with control " + kv.volume)
 
-          val listCaptNC: List[Basin] = captHv(v,kvNu,vkN1, T=None, 16,"NC")
+          val listCaptNC: List[Basin] = captHv(v,kvNu,vkN1, T=None, 16,false)
       listCaptNC.zipWithIndex.foreach {
         case (b,ind) => println("v " + v + " volume capt NC n° " + ind +"+1: "+ b.volume)
       }
@@ -262,11 +262,11 @@ object RAZ13studyPrep extends App {
       val (vk1, kv) = kernelTheta(v, kd1, o1)
       println("with control " + kv.volume)
 
-      val listCapt: List[Basin] = captHv(v, kv, vk1, T = None, 16, "")
+      val listCapt: List[Basin] = captHv(v, kv, vk1, T = None, 16, true)
       listCapt.zipWithIndex.foreach {
         case (b, ind) => println("v " + v + " volume capt n° " + ind + "+1: " + b.volume)
       }
-      val listCaptNC: List[Basin] = captHv(v, kvNu, vkN1, T = None, 16, "NC")
+      val listCaptNC: List[Basin] = captHv(v, kvNu, vkN1, T = None, 16, false)
       listCaptNC.zipWithIndex.foreach {
             case (b, ind) => println("v " + v + " volume capt NC n° " + ind + "+1: " + b.volume)
           }
@@ -297,9 +297,9 @@ object RAZ13studyPrep extends App {
         val (vk1, kv) = kernelTheta(v, kd1, o1)
         tableKernel = kvNu::tableKernel
         println("with control " + kv.volume)
-        val listCapt: List[Basin] = captHv(v, kv, vk1, T = None, 16, "")
+        val listCapt: List[Basin] = captHv(v, kv, vk1, T = None, 16, true)
         tableTableBC = listCapt::tableTableBC
-        val listCaptNC: List[Basin] = captHv(v, kvNu, vkN1, T = None, 16, "NC")
+        val listCaptNC: List[Basin] = captHv(v, kvNu, vkN1, T = None, 16, false)
         tableTableBCNC=listCaptNC::tableTableBCNC
       }
     tableErosion = tableErosion.reverse
@@ -368,7 +368,7 @@ object RAZ13studyPrep extends App {
       println("no control volume " + kvNu.volume)
       val (vk1, kv) = kernelTheta(v, kd1, o1)
       println("with control volume " + kv.volume)
-      val listCapt: List[Basin] = captHv(v, kvNu, vkN1, T = None, 16, "NC")
+      val listCapt: List[Basin] = captHv(v, kvNu, vkN1, T = None, 16, false)
       listCapt.zipWithIndex.foreach {
         case (b, ind) => println("v " + v + " volume capt n° " + ind + "+1: " + b.volume)
       }

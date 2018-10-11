@@ -218,18 +218,20 @@ package object export extends better.files.Implicits {
     file.parent.createDirectories()
     file.touch()
 
-    //todo add the first line in the .txt file, of the form x1 x2 ... x${dim} min1 max1 ... min${dim} max${dim} control1 ... control${aControl.size}
-    //    def header =
-    //      (0 until tree.dimension).map(d => s"x$d") ++
-    //        (0 until tree.dimension).map(d => s"min$d") ++
-    //        (0 until tree.dimension).map(d => s"max$d") ++
-    //        (0 until controls.size).map(c => s"control$c")
-
-    //    file << header.mkString(" ")
-
     tree.leaves.flatMap(l => columns(l.content, l.zone).toVector).foreach {
       cols => file.appendLines(cols.mkString("[",",","],"))
     }
+  }
+
+  def saveHyperRectanglesJsonString[T, C](t: T)(tree: Tree[C])(implicit traceable: HyperRectangles.Traceable[T, C]): String =
+    saveHyperRectanglesJsonString(tree, traceable.columns(t))
+
+  def saveHyperRectanglesJsonString[T](tree: Tree[T], columns: (T, Zone) => Option[Vector[String]]): String = {
+  val jsonOutput = StringBuilder.newBuilder
+    tree.leaves.flatMap(l => columns(l.content, l.zone).toVector).foreach {
+      cols => jsonOutput.append(cols.mkString("[",",","],"))
+    }
+    jsonOutput.toString.dropRight(1)
   }
 
 
