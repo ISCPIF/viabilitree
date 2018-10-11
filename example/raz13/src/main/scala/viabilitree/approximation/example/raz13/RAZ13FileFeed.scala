@@ -233,6 +233,60 @@ object RAZ13FileFeed extends App {
       println("with control " + kv.volume)
     }
   }
+  def indicator1bc(listeV:Vector[Double]) = {
+    for (v <- listeV) {
+      println("v = " + v)
+      val (o1, kd1) = thetaV(v,k0, vk0,Some(s"${output}ErodeD${depth}W${Wmax}Tv${v}"))
+      println("erosion v " +v +" " + viabilitree.approximation.volume(kd1))
+      val (vkN1, kvNu)=kernelThetaNoU(v,kd1,o1)
+      println("no control " + kvNu.volume)
+      val (vk1, kv)=kernelTheta(v,kd1,o1)
+      println("with control " + kv.volume)
+
+      val listCapt: List[Basin] = captHv(v,kv,vk1, T=None, 16,true)
+      listCapt.zipWithIndex.foreach {
+        case (b,ind) => println("v " + v + " volume capt n° " + ind +"+1: "+ b.volume)
+      }
+    }
+  }
+
+  def indicator1bcNoControl(listeV:Vector[Double]) = {
+    for (v <- listeV) {
+      println("v = " + v)
+      val (o1, kd1) = thetaV(v,k0, vk0,Some(s"${output}ErodeD${depth}W${Wmax}Tv${v}"))
+      println("erosion v " +v +" " + viabilitree.approximation.volume(kd1))
+      val (vkN1, kvNu)=kernelThetaNoU(v,kd1,o1)
+      println("no control " + kvNu.volume)
+      val (vk1, kv)=kernelTheta(v,kd1,o1)
+      println("with control " + kv.volume)
+
+      val listCaptNC: List[Basin] = captHv(v,kvNu,vkN1, T=None, 16,false)
+      listCaptNC.zipWithIndex.foreach {
+        case (b,ind) => println("v " + v + " volume capt NC n° " + ind +"+1: "+ b.volume)
+      }
+    }
+  }
+
+  def indicator1bcTotal(listeV:Vector[Double]) = {
+    for (v <- listeV) {
+      println("v = " + v)
+      val (o1, kd1) = thetaV(v, k0, vk0, Some(s"${output}ErodeD${depth}W${Wmax}Tv${v}"))
+      println("erosion v " + v + " " + viabilitree.approximation.volume(kd1))
+      val (vkN1, kvNu) = kernelThetaNoU(v, kd1, o1)
+      println("no control " + kvNu.volume)
+      val (vk1, kv) = kernelTheta(v, kd1, o1)
+      println("with control " + kv.volume)
+
+      val listCapt: List[Basin] = captHv(v, kv, vk1, T = None, 16, true)
+      listCapt.zipWithIndex.foreach {
+        case (b, ind) => println("v " + v + " volume capt n° " + ind + "+1: " + b.volume)
+      }
+      val listCaptNC: List[Basin] = captHv(v, kvNu, vkN1, T = None, 16, false)
+      listCaptNC.zipWithIndex.foreach {
+        case (b, ind) => println("v " + v + " volume capt NC n° " + ind + "+1: " + b.volume)
+      }
+    }
+  }
 
   // end declaration
 
@@ -260,7 +314,7 @@ object RAZ13FileFeed extends App {
   def closeJSONraz13(): String = "]"
 
   def appendJasonraz13Erosion(o1:OracleApproximation, kd: Tree[OracleApproximationContent],fileName: String, v: Double, dt:Double, depth:Integer): String={
-    val initString = s",{ ${'"'}type${'"'}:${'"'}erosion${'"'},${'"'}dt${'"'}:${dt},${'"'}depth${'"'}:${depth},${'"'}size${'"'}:${v},${'"'}filename${'"'}:${fileName},${'"'}data${'"'}:["
+    val initString = s",{ ${'"'}type${'"'}:${'"'}erosion${'"'},${'"'}dt${'"'}:${dt},${'"'}depth${'"'}:${depth},${'"'}size${'"'}:${v},${'"'}filename${'"'}:${'"'}${fileName}${'"'},${'"'}data${'"'}:["
     val dataString = saveHyperRectanglesJsonString(o1)(kd)
     val lastString = "]}"
     initString+dataString+lastString
@@ -314,7 +368,8 @@ Pour les données c'est saveHyperRectanglesJsonString qu'il faut appeler, cela r
   // k0 to json
   appendJSONraz13file(fileJason,k0String)
 
-  indicator1(Vector(0.8,1.2,1.5))
+//  indicator1(Vector(0.8,1.2,1.5))
+  indicator1bcTotal
 
   appendJSONraz13file(fileJason,closeJSONraz13)
 
