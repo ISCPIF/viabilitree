@@ -243,7 +243,7 @@ object RAZ13FileFeed extends App {
       val (vk1, kv)=kernelTheta(v,kd1,o1)
       println("with control " + kv.volume)
 
-      val listCapt: List[Basin] = captHv(v,kv,vk1, T=None, 16,true)
+      val listCapt: List[Basin] = captHv(v,kv,vk1, T=None, depth,true)
       listCapt.zipWithIndex.foreach {
         case (b,ind) => println("v " + v + " volume capt n° " + ind +"+1: "+ b.volume)
       }
@@ -260,7 +260,7 @@ object RAZ13FileFeed extends App {
       val (vk1, kv)=kernelTheta(v,kd1,o1)
       println("with control " + kv.volume)
 
-      val listCaptNC: List[Basin] = captHv(v,kvNu,vkN1, T=None, 16,false)
+      val listCaptNC: List[Basin] = captHv(v,kvNu,vkN1, T=None, depth,false)
       listCaptNC.zipWithIndex.foreach {
         case (b,ind) => println("v " + v + " volume capt NC n° " + ind +"+1: "+ b.volume)
       }
@@ -277,11 +277,11 @@ object RAZ13FileFeed extends App {
       val (vk1, kv) = kernelTheta(v, kd1, o1)
       println("with control " + kv.volume)
 
-      val listCapt: List[Basin] = captHv(v, kv, vk1, T = None, 16, true)
+      val listCapt: List[Basin] = captHv(v, kv, vk1, T = None, depth, true)
       listCapt.zipWithIndex.foreach {
         case (b, ind) => println("v " + v + " volume capt n° " + ind + "+1: " + b.volume)
       }
-      val listCaptNC: List[Basin] = captHv(v, kvNu, vkN1, T = None, 16, false)
+      val listCaptNC: List[Basin] = captHv(v, kvNu, vkN1, T = None, depth, false)
       listCaptNC.zipWithIndex.foreach {
         case (b, ind) => println("v " + v + " volume capt NC n° " + ind + "+1: " + b.volume)
       }
@@ -329,7 +329,7 @@ object RAZ13FileFeed extends App {
   }
 
   def appendJasonraz13ECaptv(vk:BasinComputation, lcapt: List[Basin],withControl: Int, Umin:Double, Umax: Double, fileName: String, v: Double, dt:Double, depth:Integer): String={
-    val theString = s",{ ${'"'}type${'"'}:${'"'}liste_capt${'"'},,${'"'}size${'"'}:${v},${'"'}filename${'"'}:${fileName},${'"'}nbStep${'"'}:${lcapt.length},${'"'}data${'"'}:[["
+    val theString = s",{ ${'"'}type${'"'}:${'"'}liste_capt${'"'},${'"'}size${'"'}:${v},${'"'}filename${'"'}:${'"'}${fileName}${'"'},${'"'}nbStep${'"'}:${lcapt.length},${'"'}data${'"'}:["
     val lastString = "]}"
     val jsonOutput = StringBuilder.newBuilder
     lcapt foreach {
@@ -369,7 +369,7 @@ Pour les données c'est saveHyperRectanglesJsonString qu'il faut appeler, cela r
   appendJSONraz13file(fileJason,k0String)
 
 //  indicator1(Vector(0.8,1.2,1.5))
-  indicator1bcTotal
+  indicator1bcTotal(Vector(0.8,1.2,1.5))
 
   appendJSONraz13file(fileJason,closeJSONraz13)
 
