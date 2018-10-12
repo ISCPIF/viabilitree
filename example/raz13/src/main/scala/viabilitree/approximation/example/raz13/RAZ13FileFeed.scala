@@ -307,7 +307,7 @@ object RAZ13FileFeed extends App {
   def raz13JSON: String = initJSONraz13()
   // la virgule annonçant un autre élément doit être rajoutée à l'insertion de l'élément suivant
   def initJSONraz13(): String = {
-  s"[ { ${'"'}integrationStep${'"'}:${riverfront.integrationStep},${'"'}timeStep${'"'}:${riverfront.timeStep},${'"'}Tm${'"'}:${riverfront.Tm},${'"'}A2${'"'}:${riverfront.A2},${'"'}b${'"'}:${riverfront.b},${'"'}C${'"'}:${riverfront.C},${'"'}A3${'"'}:${riverfront.A3},${'"'}M${'"'}:${riverfront.M},${'"'}v_m${'"'}:${riverfront.v_m}}"
+  s"[ { ${'"'}integrationStep${'"'}:${riverfront.integrationStep},${'"'}timeStep${'"'}:${riverfront.timeStep},${'"'}Tm${'"'}:${riverfront.Tm},${'"'}A2${'"'}:${riverfront.A2},${'"'}b${'"'}:${riverfront.b},${'"'}C${'"'}:${riverfront.C},${'"'}A3${'"'}:${riverfront.A3},${'"'}M${'"'}:${riverfront.M},${'"'}v_m${'"'}:${riverfront.v_m},${'"'}Wmax${'"'}:${Wmax}}"
   }
 
   // close the array of files AND the element

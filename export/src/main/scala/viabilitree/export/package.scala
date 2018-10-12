@@ -144,11 +144,12 @@ package object export extends better.files.Implicits {
       }
 
       implicit def basinComputation = new Traceable[BasinComputation, viability.basin.BasinContent] {
+ // TODO erratic result when a control Vector(a) is present, a string "Vector(a)" is written in the file. Patch temporary with .getOrElse(Vector())
         override def columns(t: BasinComputation) =
           (content: viabilitree.viability.basin.BasinContent, zone: Zone) =>
             content.label match {
               case true =>
-                def c = (content.testPoint ++ intervals(zone) ++ content.control).map(_.toString)
+                def c = (content.testPoint ++ intervals(zone) ++ content.control.getOrElse(Vector())).map(_.toString)
                 Some(c)
               case false => None
             }
@@ -223,7 +224,7 @@ package object export extends better.files.Implicits {
     }
   }
 
-  def saveHyperRectanglesJsonString[T, C](t: T)(tree: Tree[C])(implicit traceable: HyperRectangles.Traceable[T, C]): String =
+  def  saveHyperRectanglesJsonString[T, C](t: T)(tree: Tree[C])(implicit traceable: HyperRectangles.Traceable[T, C]): String =
     saveHyperRectanglesJsonString(tree, traceable.columns(t))
 
   def saveHyperRectanglesJsonString[T](tree: Tree[T], columns: (T, Zone) => Option[Vector[String]]): String = {
