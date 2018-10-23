@@ -21,7 +21,6 @@ import viabilitree.model._
 import math._
 
 case class RAZ13(
-  integrationStep: Double = 0.01,
   timeStep: Double = 0.1,
   Tm: Double = 2.0,
   A2: Double = 0.2,
@@ -57,6 +56,7 @@ def dynamic(state: Vector[Double], control: Vector[Double]) = {
   dynamic1(state,control)
 }
 */
+  def  integrationStep: Double = timeStep/10.0
   def vMax = 5.0
   def A1 = log(2) / Tm
   // A1 peut valoir en fait ln(2)/TM, ie en TM alpha aura perdu la moitié de sa valeur initiale

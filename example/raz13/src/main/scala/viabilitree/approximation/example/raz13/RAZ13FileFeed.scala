@@ -12,6 +12,7 @@ object RAZ13FileFeed extends App {
   implicit val rng = new util.Random(42)
   val MinU: Double = riverfront.A1 / riverfront.A2
   val depth: Int = 12
+  val dt: Double = riverfront.timeStep
   val depthAlpha: Int = depth/2
   val depthW: Int = depth/2
   //  val v: Double = 1.5
@@ -174,12 +175,13 @@ object RAZ13FileFeed extends App {
 
   }
 
-  def captHv(v: Double, ak: Kernel, viabProblem: KernelComputation, T: Option[Int], depthBC:Int, withControl: Boolean): List[Basin] = {
+  def captHv(v: Double, ak: Kernel, viabProblem: KernelComputation, dt:Double = dt, withControl: Boolean=true, afterControl: Boolean= false, depthBC:Int=depth, afterV: Double =0.0, T: Option[Int]=None): List[Basin] = {
 
     val zoneLim = viabProblem.zone
     val wLim = zoneLim.region(1).max
     val searchPoint: Vector[Double] = Vector(1.0, wLim)
-    val nameControl : String = if (withControl) "" else "NC"
+    val nameControl : String = if (withControl) "C" else "NC"
+    val nameAfter : String = if (afterV==0.0) "" else s"after${afterV}"
     val jsonWithControl : Int = if (withControl) 1 else 0
     val umin : Double = if (withControl) MinU else 0.0
     val umax : Double = if (withControl) U else 0.0
@@ -189,7 +191,7 @@ object RAZ13FileFeed extends App {
       zone = viabProblem.zone,
       depth = depthBC,
       dynamic = viabProblem.dynamic,
-      controls = viabProblem.controls,
+      controls = if (withControl) viabProblem.controls else Vector(Vector(0.0)),
       target = ak.contains,
       pointInTarget = searchPoint)
 
@@ -201,13 +203,13 @@ object RAZ13FileFeed extends App {
           save(b, s"${fileName}t${t}.bin")
           saveVTK2D(b, s"${fileName}t${t}.vtk")
           saveHyperRectangles(bc)(b, s"${fileName}t${t}.txt")
-          val bcString = appendJasonraz13ECaptv(bc,b,jsonWithControl,umin,umax,fileName,v,0.0,0,dt,depthBC,t,list.length)
+          val bcString = appendJasonraz13ECaptv(bc,b,jsonWithControl,if (afterControl) 1 else 0,umin,umax,fileName,v,0.0,0,dt,depthBC,t,list.length)
           appendJSONraz13file(fileJason,bcString)
       }}
       list
     }
 
-    val filenameBcv = s"${output}Capt${nameControl}D${depthBC}W${Wmax}Tv${v}"
+    val filenameBcv = s"${output}Capt${nameControl}D${depthBC}W${Wmax}Tv${v}" + nameAfter
     val listCapt = if (exists((s"${filenameBcv}t1.bin"))) {
       var indexT: Int = 1
       var acc: List[Basin] = Nil
@@ -242,7 +244,7 @@ object RAZ13FileFeed extends App {
       val (vk1, kv)=kernelTheta(v,kd1,o1)
       println("with control " + kv.volume)
 
-      val listCapt: List[Basin] = captHv(v,kv,vk1, T=None, depth,true)
+      val listCapt: List[Basin] = captHv(v,kv,vk1,withControl = true)
       listCapt.zipWithIndex.foreach {
         case (b,ind) => println("v " + v + " volume capt n° " + ind +"+1: "+ b.volume)
       }
@@ -259,7 +261,7 @@ object RAZ13FileFeed extends App {
       val (vk1, kv)=kernelTheta(v,kd1,o1)
       println("with control " + kv.volume)
 
-      val listCaptNC: List[Basin] = captHv(v,kvNu,vkN1, T=None, depth,false)
+      val listCaptNC: List[Basin] = captHv(v=v,ak=kvNu,viabProblem = vkN1,withControl = false)
       listCaptNC.zipWithIndex.foreach {
         case (b,ind) => println("v " + v + " volume capt NC n° " + ind +"+1: "+ b.volume)
       }
@@ -276,11 +278,11 @@ object RAZ13FileFeed extends App {
       val (vk1, kv) = kernelTheta(v, kd1, o1)
       println("with control " + kv.volume)
 
-      val listCapt: List[Basin] = captHv(v, kv, vk1, T = None, depth, true)
+      val listCapt: List[Basin] = captHv(v, kv, vk1)
       listCapt.zipWithIndex.foreach {
         case (b, ind) => println("v " + v + " volume capt n° " + ind + "+1: " + b.volume)
       }
-      val listCaptNC: List[Basin] = captHv(v, kvNu, vkN1, T = None, depth, false)
+      val listCaptNC: List[Basin] = captHv(v, kvNu, vkN1, withControl = false)
       listCaptNC.zipWithIndex.foreach {
         case (b, ind) => println("v " + v + " volume capt NC n° " + ind + "+1: " + b.volume)
       }
@@ -289,7 +291,7 @@ object RAZ13FileFeed extends App {
 
   // end declaration
 
-// raz13 save json file
+// JSON raz13 save json file
 
   def initJSONraz13file(filename:better.files.File,result:String)={
    filename.delete(true)
@@ -306,7 +308,7 @@ object RAZ13FileFeed extends App {
   def raz13JSON: String = initJSONraz13()
   // la virgule annonçant un autre élément doit être rajoutée à l'insertion de l'élément suivant
   def initJSONraz13(): String = {
-  s"[ { ${'"'}integrationStep${'"'}:${riverfront.integrationStep},${'"'}timeStep${'"'}:${riverfront.timeStep},${'"'}Tm${'"'}:${riverfront.Tm},${'"'}A2${'"'}:${riverfront.A2},${'"'}b${'"'}:${riverfront.b},${'"'}C${'"'}:${riverfront.C},${'"'}A3${'"'}:${riverfront.A3},${'"'}M${'"'}:${riverfront.M},${'"'}v_m${'"'}:${riverfront.v_m},${'"'}Wmax${'"'}:${Wmax}}"
+  s" { ${'"'}integrationStep${'"'}:${riverfront.integrationStep},${'"'}timeStep${'"'}:${riverfront.timeStep},${'"'}Tm${'"'}:${riverfront.Tm},${'"'}A2${'"'}:${riverfront.A2},${'"'}b${'"'}:${riverfront.b},${'"'}C${'"'}:${riverfront.C},${'"'}A3${'"'}:${riverfront.A3},${'"'}M${'"'}:${riverfront.M},${'"'}v_m${'"'}:${riverfront.v_m},${'"'}Wmax${'"'}:${Wmax}}" + "\n" +"["
   }
 
   // close the array of files AND the element
@@ -342,8 +344,8 @@ object RAZ13FileFeed extends App {
 //    val thedataString = jsonOutput.toString.dropRight(1)
  // }
 
-  def appendJasonraz13ECaptv(vk:BasinComputation, capt: Basin,withControl: Int, Umin:Double, Umax: Double, fileName: String, v: Double, afterV: Double, afterT: Int, dt:Double, depth:Integer, step:Integer, nbStep: Integer): String={
-    val initString = s",{ ${'"'}type${'"'}:${'"'}capt${'"'},${'"'}dt${'"'}:${dt},${'"'}depth${'"'}:${depth},${'"'}withControl${'"'}:${withControl},${'"'}controlMin${'"'}:${Umin},${'"'}controlMax${'"'}:${Umax},${'"'}size${'"'}:${v},${'"'}afterSize${'"'}:${afterV},${'"'}filename${'"'}:${'"'}${fileName}${'"'},${'"'}step${'"'}:${'"'}${step}${'"'},${'"'}nbStep${'"'}:${'"'}${nbStep}${'"'},${'"'}data${'"'}:["
+  def appendJasonraz13ECaptv(vk:BasinComputation, capt: Basin,withControl: Int, afterControl: Int, Umin:Double, Umax: Double, fileName: String, v: Double, afterV: Double, afterT: Int, dt:Double, depth:Integer, step:Integer, nbStep: Integer): String={
+    val initString = s",{ ${'"'}type${'"'}:${'"'}capt${'"'},${'"'}dt${'"'}:${dt},${'"'}depth${'"'}:${depth},${'"'}withControl${'"'}:${withControl},${'"'}afterControl${'"'}:${afterControl},${'"'}controlMin${'"'}:${Umin},${'"'}controlMax${'"'}:${Umax},${'"'}size${'"'}:${v},${'"'}afterSize${'"'}:${afterV},${'"'}filename${'"'}:${'"'}${fileName}${'"'},${'"'}step${'"'}:${'"'}${step}${'"'},${'"'}nbStep${'"'}:${'"'}${nbStep}${'"'},${'"'}data${'"'}:["
     val lastString = "]}"
     val dataString = saveHyperRectanglesJsonString(vk)(capt)
     initString+dataString+lastString
@@ -377,7 +379,8 @@ Pour les données c'est saveHyperRectanglesJsonString qu'il faut appeler, cela r
   appendJSONraz13file(fileJason,k0String0)
   appendJSONraz13file(fileJason,k0String1)
 
-  indicator1bcTotal(Vector(0.8,1.2,1.5))
+  indicator1bcNoControl(Vector(1.2,1.5))
+//  indicator1bcTotal(Vector(0.8,1.2,1.5))
 //  indicator1bcTotal(Vector(0.4,0.5,0.6,0.8,1.0,1.2,1.3,1.5))
 
   appendJSONraz13file(fileJason,closeJSONraz13)
