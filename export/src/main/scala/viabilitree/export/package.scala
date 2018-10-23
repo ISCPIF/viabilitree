@@ -218,7 +218,7 @@ package object export extends better.files.Implicits {
     file.delete(true)
     file.parent.createDirectories()
     file.touch()
-
+    if (tree.dimension==2) file.appendLines(s"[${'"'}x1${'"'},${'"'}x2${'"'},${'"'}x1min${'"'},${'"'}x1max${'"'},${'"'}x2min${'"'},${'"'}x2max${'"'},${'"'}u${'"'}],")
     tree.leaves.flatMap(l => columns(l.content, l.zone).toVector).foreach {
       cols => file.appendLines(cols.mkString("[",",","],"))
     }
