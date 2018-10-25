@@ -231,7 +231,7 @@ package object export extends better.files.Implicits {
   val jsonOutput = StringBuilder.newBuilder
     tree.leaves.flatMap(l => columns(l.content, l.zone).toVector).foreach {
       cols => {
-        val cols2 = if (cols.length==3*tree.dimension) cols else cols ++ Vector("0.0")
+        val cols2 = if (cols.length!=3*tree.dimension) cols else cols ++ Vector("0.0")
         jsonOutput.append(cols2.mkString("[",",","],"))
       }
     }

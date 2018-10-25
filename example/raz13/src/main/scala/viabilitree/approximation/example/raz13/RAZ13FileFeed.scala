@@ -11,7 +11,7 @@ object RAZ13FileFeed extends App {
   val riverfront = RAZ13()
   implicit val rng = new util.Random(42)
   val MinU: Double = riverfront.A1 / riverfront.A2
-  val depth: Int = 12
+  val depth: Int = 18
   val dt: Double = riverfront.timeStep
   val depthAlpha: Int = depth/2
   val depthW: Int = depth/2
@@ -203,7 +203,7 @@ object RAZ13FileFeed extends App {
           save(b, s"${fileName}t${t}.bin")
           saveVTK2D(b, s"${fileName}t${t}.vtk")
           saveHyperRectangles(bc)(b, s"${fileName}t${t}.txt")
-          val bcString = appendJasonraz13ECaptv(bc,b,jsonWithControl,if (afterControl) 1 else 0,umin,umax,fileName,v,0.0,0,dt,depthBC,t,list.length)
+          val bcString = appendJasonraz13ECaptv(bc,b,jsonWithControl,if (afterControl) 1 else 0,umin,umax,fileName,v,0.0,0,dt,depthBC,t,list.length,init=true)
           appendJSONraz13file(fileJason,bcString)
       }}
       list
@@ -312,7 +312,7 @@ object RAZ13FileFeed extends App {
   }
 
   // close the array of files AND the element
-  def closeJSONraz13(): String = "]"
+  def closeJSONraz13(): String = "]"+ "\n"
 
   // typical call indicator 1 appendJasonraz13Erosion(o1,kd1,0,0.0,0.0,fileName,v,0.0,0,riverfront.timeStep,depth,0,0)
   def appendJasonraz13Erosion(o1:OracleApproximation, kd: Tree[OracleApproximationContent],withControl: Int, Umin:Double, Umax: Double,fileName: String, v: Double, afterV: Double, afterT: Int, dt:Double, depth:Integer, step:Integer, nbStep: Integer, init:Boolean = false): String={
@@ -348,7 +348,7 @@ object RAZ13FileFeed extends App {
 
   def appendJasonraz13ECaptv(vk:BasinComputation, capt: Basin,withControl: Int, afterControl: Int, Umin:Double, Umax: Double, fileName: String, v: Double, afterV: Double, afterT: Int, dt:Double, depth:Integer, step:Integer, nbStep: Integer, init:Boolean = false): String={
     val initString = if (init) "" else ","
-    val paramString = s",{ ${'"'}type${'"'}:${'"'}capt${'"'},${'"'}dt${'"'}:${dt},${'"'}depth${'"'}:${depth},${'"'}withControl${'"'}:${withControl},${'"'}afterControl${'"'}:${afterControl},${'"'}controlMin${'"'}:${Umin},${'"'}controlMax${'"'}:${Umax},${'"'}size${'"'}:${v},${'"'}afterSize${'"'}:${afterV},${'"'}filename${'"'}:${'"'}${fileName}${'"'},${'"'}step${'"'}:${'"'}${step}${'"'},${'"'}nbStep${'"'}:${'"'}${nbStep}${'"'},${'"'}data${'"'}:["
+    val paramString = s",{ ${'"'}type${'"'}:${'"'}capt${'"'},${'"'}dt${'"'}:${dt},${'"'}depth${'"'}:${depth},${'"'}withControl${'"'}:${withControl},${'"'}afterControl${'"'}:${afterControl},${'"'}controlMin${'"'}:${Umin},${'"'}controlMax${'"'}:${Umax},${'"'}size${'"'}:${v},${'"'}afterSize${'"'}:${afterV},${'"'}filename${'"'}:${'"'}${fileName}t${step}${'"'},${'"'}step${'"'}:${'"'}${step}${'"'},${'"'}nbStep${'"'}:${'"'}${nbStep}${'"'},${'"'}data${'"'}:["
     val lastString = "]}"
     val dataString = saveHyperRectanglesJsonString(vk)(capt)
     initString+paramString+dataString+lastString
@@ -382,7 +382,7 @@ Pour les données c'est saveHyperRectanglesJsonString qu'il faut appeler, cela r
   appendJSONraz13file(fileJason,k0String0)
   appendJSONraz13file(fileJason,k0String1)
 
-  indicator1bcTotal(Vector(0.8,1.2))
+  indicator1bcTotal(Vector(0.4,0.8,1.0,1.2,1.5))
 //  indicator1bcTotal(Vector(0.8,1.2,1.5))
 //  indicator1bcTotal(Vector(0.4,0.5,0.6,0.8,1.0,1.2,1.3,1.5))
 
