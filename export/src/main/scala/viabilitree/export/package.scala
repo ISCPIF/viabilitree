@@ -218,7 +218,7 @@ package object export extends better.files.Implicits {
     file.delete(true)
     file.parent.createDirectories()
     file.touch()
-    if (tree.dimension==2) file.appendLines(s"[${'"'}x1${'"'},${'"'}x2${'"'},${'"'}x1min${'"'},${'"'}x1max${'"'},${'"'}x2min${'"'},${'"'}x2max${'"'},${'"'}u${'"'}],")
+//    if (tree.dimension==2) file.appendLines(s"[${'"'}x1${'"'},${'"'}x2${'"'},${'"'}x1min${'"'},${'"'}x1max${'"'},${'"'}x2min${'"'},${'"'}x2max${'"'},${'"'}u${'"'}],")
     tree.leaves.flatMap(l => columns(l.content, l.zone).toVector).foreach {
       cols => file.appendLines(cols.mkString("[",",","],"))
     }
@@ -230,7 +230,10 @@ package object export extends better.files.Implicits {
   def saveHyperRectanglesJsonString[T](tree: Tree[T], columns: (T, Zone) => Option[Vector[String]]): String = {
   val jsonOutput = StringBuilder.newBuilder
     tree.leaves.flatMap(l => columns(l.content, l.zone).toVector).foreach {
-      cols => jsonOutput.append(cols.mkString("[",",","],"))
+      cols => {
+        val cols2 = if (cols.length==3*tree.dimension) cols else cols ++ Vector("0.0")
+        jsonOutput.append(cols2.mkString("[",",","],"))
+      }
     }
     jsonOutput.toString.dropRight(1)
   }

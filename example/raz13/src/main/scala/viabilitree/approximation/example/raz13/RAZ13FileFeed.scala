@@ -29,7 +29,7 @@ object RAZ13FileFeed extends App {
   val controls: Vector[Vector[Double]] = nocontrols +: Econtrols
 
 
-  val output = s"/tmp/RAZ13Study/testJSON2/"
+  val output = s"/tmp/RAZ13Study/testJSON3/"
   val Wmax = 30.0
   val zoneExplore = Vector((0.0, 1.0), (0.0, Wmax))
 
