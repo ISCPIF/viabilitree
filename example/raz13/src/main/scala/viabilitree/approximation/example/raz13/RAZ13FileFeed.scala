@@ -93,8 +93,8 @@ object RAZ13FileFeed extends App {
     def firstComputation(o1:OracleApproximation, fileName: String): Approximation = {
       val kd1 = o1.approximate(rng).get
       save(kd1, s"${fileName}.bin")
-      saveVTK2D(kd1, s"${fileName}.vtk")
-      saveHyperRectangles(o1)(kd1, s"${fileName}.txt")
+ //     saveVTK2D(kd1, s"${fileName}.vtk")
+ //     saveHyperRectangles(o1)(kd1, s"${fileName}.txt")
       val erosionString = appendJasonraz13Erosion(o1,kd1,0,0.0,0.0,fileName,v,0.0,0,riverfront.timeStep,depth,0,0)
       appendJSONraz13file(fileJason,erosionString)
       kd1
@@ -128,8 +128,8 @@ object RAZ13FileFeed extends App {
     def firstComputation(vk:KernelComputation,fileName: String): Kernel = {
       val (ak, steps) = vk.approximate()
       save(ak, s"${fileName}.bin")
-      saveVTK2D(ak, s"${fileName}.vtk")
-      saveHyperRectangles(vk)(ak, s"${fileName}.txt")
+//      saveVTK2D(ak, s"${fileName}.vtk")
+//      saveHyperRectangles(vk)(ak, s"${fileName}.txt")
       val kernelString = appendJasonraz13EKernelv(vk,ak,0,0.0,0.0,fileName,v,0.0,0,riverfront.timeStep,depth,0,0)
       appendJSONraz13file(fileJason,kernelString)
 
@@ -161,8 +161,8 @@ object RAZ13FileFeed extends App {
     def firstComputation(vk:KernelComputation,fileName: String): Kernel = {
       val (ak, steps) = vk.approximate()
       save(ak, s"${fileName}.bin")
-      saveVTK2D(ak, s"${fileName}.vtk")
-      saveHyperRectangles(vk)(ak, s"${fileName}.txt")
+//      saveVTK2D(ak, s"${fileName}.vtk")
+//      saveHyperRectangles(vk)(ak, s"${fileName}.txt")
       val kernelString = appendJasonraz13EKernelv(vk,ak,1,MinU,U,fileName,v,0.0,0,riverfront.timeStep,depth,0,0)
       appendJSONraz13file(fileJason,kernelString)
       ak
@@ -201,8 +201,8 @@ object RAZ13FileFeed extends App {
         case(b,ind) => {
           val t = ind+1
           save(b, s"${fileName}t${t}.bin")
-          saveVTK2D(b, s"${fileName}t${t}.vtk")
-          saveHyperRectangles(bc)(b, s"${fileName}t${t}.txt")
+//          saveVTK2D(b, s"${fileName}t${t}.vtk")
+//          saveHyperRectangles(bc)(b, s"${fileName}t${t}.txt")
           val bcString = appendJasonraz13ECaptv(bc,b,jsonWithControl,if (afterControl) 1 else 0,umin,umax,fileName,v,0.0,0,dt,depthBC,t,list.length,init=true)
           appendJSONraz13file(fileJason,bcString)
       }}
@@ -382,7 +382,7 @@ Pour les données c'est saveHyperRectanglesJsonString qu'il faut appeler, cela r
   appendJSONraz13file(fileJason,k0String0)
   appendJSONraz13file(fileJason,k0String1)
 
-  indicator1bcTotal(Vector(0.4,0.8,1.0,1.2,1.5))
+  indicator1bcTotal(Vector(0.6,0.8,1.0,1.2,1.5))
 //  indicator1bcTotal(Vector(0.8,1.2,1.5))
 //  indicator1bcTotal(Vector(0.4,0.5,0.6,0.8,1.0,1.2,1.3,1.5))
 
