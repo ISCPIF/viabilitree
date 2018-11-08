@@ -17,6 +17,8 @@
 
 package viabilitree
 
+import java.io.{ BufferedOutputStream, FileOutputStream, PrintStream }
+
 import viabilitree.kdtree._
 import com.thoughtworks.xstream._
 import io.binary._
@@ -144,7 +146,7 @@ package object export extends better.files.Implicits {
       }
 
       implicit def basinComputation = new Traceable[BasinComputation, viability.basin.BasinContent] {
- // TODO erratic result when a control Vector(a) is present, a string "Vector(a)" is written in the file. Patch temporary with .getOrElse(Vector())
+        // TODO erratic result when a control Vector(a) is present, a string "Vector(a)" is written in the file. Patch temporary with .getOrElse(Vector())
         override def columns(t: BasinComputation) =
           (content: viabilitree.viability.basin.BasinContent, zone: Zone) =>
             content.label match {
@@ -189,6 +191,24 @@ package object export extends better.files.Implicits {
 
   }
 
+  // TODO zip the saveHyperRectangles output file as in previous json saveHyperRectanglesJson option
+ /* def saveHyperRectanglesJson[T, C](t: T)(tree: Tree[C], file: File, compressed: Boolean = false)(implicit traceable: HyperRectangles.Traceable[T, C]): Unit =
+    saveHyperRectanglesJson(tree, traceable.columns(t), file, compressed)
+
+  def saveHyperRectanglesJson[T](tree: Tree[T], columns: (T, Zone) => Option[Vector[String]], file: File, compressed: Boolean): Unit = {
+    file.delete(true)
+    file.parent.createDirectories()
+
+    val os = new PrintStream(if (!compressed) file.newFileOutputStream(append = false) else file.newGzipOutputStream(append = false))
+
+    try {
+      //    if (tree.dimension==2) file.appendLines(s"[${'"'}x1${'"'},${'"'}x2${'"'},${'"'}x1min${'"'},${'"'}x1max${'"'},${'"'}x2min${'"'},${'"'}x2max${'"'},${'"'}u${'"'}],")
+      tree.leaves.flatMap(l => columns(l.content, l.zone).toVector).foreach {
+        cols => os.println(cols.mkString("[", ",", "],"))
+      }
+    } finally os.close()
+  }
+*/
   def saveHyperRectangles[T, C](t: T)(tree: Tree[C], file: File)(implicit traceable: HyperRectangles.Traceable[T, C]): Unit =
     saveHyperRectangles(tree, traceable.columns(t), file)
 
@@ -218,27 +238,38 @@ package object export extends better.files.Implicits {
     file.delete(true)
     file.parent.createDirectories()
     file.touch()
-//    if (tree.dimension==2) file.appendLines(s"[${'"'}x1${'"'},${'"'}x2${'"'},${'"'}x1min${'"'},${'"'}x1max${'"'},${'"'}x2min${'"'},${'"'}x2max${'"'},${'"'}u${'"'}],")
-    tree.leaves.flatMap(l => columns(l.content, l.zone).toVector).foreach {
+      //    if (tree.dimension==2) file.appendLines(s"[${'"'}x1${'"'},${'"'}x2${'"'},${'"'}x1min${'"'},${'"'}x1max${'"'},${'"'}x2min${'"'},${'"'}x2max${'"'},${'"'}u${'"'}],")
+      tree.leaves.flatMap(l => columns(l.content, l.zone).toVector).foreach {
       cols => file.appendLines(cols.mkString("[",",","],"))
-    }
+      }
   }
 
-  def  saveHyperRectanglesJsonString[T, C](t: T)(tree: Tree[C])(implicit traceable: HyperRectangles.Traceable[T, C]): String =
+  def saveHyperRectanglesJsonString[T, C](t: T)(tree: Tree[C])(implicit traceable: HyperRectangles.Traceable[T, C]): String =
     saveHyperRectanglesJsonString(tree, traceable.columns(t))
 
   def saveHyperRectanglesJsonString[T](tree: Tree[T], columns: (T, Zone) => Option[Vector[String]]): String = {
-  val jsonOutput = StringBuilder.newBuilder
+    val jsonOutput = StringBuilder.newBuilder
     tree.leaves.flatMap(l => columns(l.content, l.zone).toVector).foreach {
-      cols => {
-        val cols2 = if (cols.length!=3*tree.dimension) cols else cols ++ Vector("0.0")
-        jsonOutput.append(cols2.mkString("[",",","],"))
-      }
+      cols =>
+        {
+          val cols2 = if (cols.length != 3 * tree.dimension) cols else cols ++ Vector("0.0")
+          jsonOutput.append(cols2.mkString("[", ",", "],"))
+        }
     }
     jsonOutput.toString.dropRight(1)
   }
 
+  // print String result in file file
+  def printDirectFile(file: File, result: String,  compressed: Boolean = false):Unit = {
+    file.delete(true)
+    file.parent.createDirectories()
+    val os = new PrintStream(if (!compressed) file.newFileOutputStream(append = false) else file.newGzipOutputStream(append = false))
 
+    try {
+      os.println(result)
+      }
+     finally os.close()
+  }
   /* ------------------------- VTK ---------------------- */
 
   object VTK {

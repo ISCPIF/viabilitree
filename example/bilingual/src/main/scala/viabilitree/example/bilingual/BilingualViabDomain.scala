@@ -17,7 +17,7 @@ object BilingualViabDomainTest extends App {
     depth = 21,
     zone = Vector((0.2, 0.8), (0.2, 0.8), (0.0, 1.0)),
     controls = Vector((0.1 to -0.1 by -0.01)),
- //   k = Some(p => p(0) <= 1 && p(0) >= 0.2 && p(1) <= 1 && p(1) >= 0.2),
+    //   k = Some(p => p(0) <= 1 && p(0) >= 0.2 && p(1) <= 1 && p(1) >= 0.2),
     domain = (p: Vector[Double]) => p(0) + p(1) <= 1 && p.forall(_ >= 0) && p.forall(_ <= 1),
     dilations = 6)
 

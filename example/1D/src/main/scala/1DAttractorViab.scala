@@ -14,15 +14,15 @@ import viabilitree.strategy._
 object attractor1DViab extends App {
   val rng = new util.Random(42)
   val attractor = Attractor1D(integrationStep = 0.01, timeStep = 0.1)
-  val mu =1.0
+  val mu = 1.0
   val minmU = 1.0
-  val theControls: Vector[Double] => Vector[Control] = if (minmU<mu) Vector(minmU to (mu+(mu-minmU)) by 0.1) else Vector(Vector(mu))
+  val theControls: Vector[Double] => Vector[Control] = if (minmU < mu) Vector(minmU to (mu + (mu - minmU)) by 0.1) else Vector(Vector(mu))
 
   val vk = KernelComputation(
     dynamic = attractor.dynamic,
     depth = 10,
     zone = Vector((-3.0, 3.0)),
-   controls = theControls)
+    controls = theControls)
 
   val begin = System.currentTimeMillis()
 
@@ -35,12 +35,11 @@ object attractor1DViab extends App {
 
   val output = s"/tmp/1D/"
   val fileName = s"${output}1D${vk.depth}minmU${minmU}mu${mu}Noyaut${attractor.timeStep}.bin"
-  save(viabilityDomain,fileName)
+  save(viabilityDomain, fileName)
   saveHyperRectangles(vk)(viabilityDomain, s"${output}1D${vk.depth}minmU${minmU}mu${mu}.txt")
 
   println(tps)
 }
-
 
 object AttractorTraj extends App {
   val rng = new util.Random(42)
@@ -50,7 +49,7 @@ object AttractorTraj extends App {
   val mu = 0.0
   val unControl = Control(Vector(mu))
   def basic: Vector[Double] => Option[Vector[Double]] = constantStrategy(Some(unControl))
-  val (traj,controlt) = cevolution(point, attractor.dynamic, basic, 10000)
+  val (traj, controlt) = cevolution(point, attractor.dynamic, basic, 10000)
   println(traj)
   traceTraj(traj, s"/tmp/1D/AttracteurMU${mu}.txt")
 }

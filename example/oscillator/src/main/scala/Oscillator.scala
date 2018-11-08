@@ -48,9 +48,9 @@ case class Brusselator(A: Double = 1.0, integrationStep: Double = 0.1, timeStep:
     def y = state(1)
     def B = control(0)
 
-    def xDot(state: Vector[Double], t: Double) = A + x*x* y - (B+1)*x
+    def xDot(state: Vector[Double], t: Double) = A + x * x * y - (B + 1) * x
 
-    def yDot(state: Vector[Double], t: Double) = B*x - y * x *x
+    def yDot(state: Vector[Double], t: Double) = B * x - y * x * x
 
     val dynamic = Dynamic(xDot, yDot)
     dynamic.integrate(state.toArray, integrationStep, timeStep)

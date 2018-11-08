@@ -26,7 +26,7 @@ case class Attractor1D(a: Double = 0.0, b: Double = -1.0, c: Double = 1.0, integ
     def x = state(0)
     def mu = control(0)
 
-    def xDot(state: Vector[Double], t: Double) = (x-a)*(x-b)*(mu*x-c)
+    def xDot(state: Vector[Double], t: Double) = (x - a) * (x - b) * (mu * x - c)
 
     val dynamic = Dynamic(xDot)
     dynamic.integrate(state.toArray, integrationStep, timeStep)
