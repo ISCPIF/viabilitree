@@ -19,6 +19,13 @@ object RAZ13FileFeed extends App {
 
   val MaxU: Double = 10.0
   val U: Double = MaxU * MinU
+  /* RAPPERL PARAMETRES
+M flood size for which impact is half the max (1/2)
+A3 must be <= 1
+A2 and U (control) must be such that A2/4 * U > A1, otherwise control is inefficient.
+By default A1=log(2)/Tm, here it is ln2/2 ~= 0.346
+Damage parameters a3, a2, a1, a0
+ */
 
   val alphaStarU: Double = 1.0 - 1.0 / MaxU
 
@@ -28,7 +35,7 @@ object RAZ13FileFeed extends App {
   val nocontrols: Vector[Double] = Vector(0.0)
   val controls: Vector[Vector[Double]] = nocontrols +: Econtrols
 
-  val output = s"/tmp/RAZ13Study/testJSON4/"
+  val output = s"/tmp/RAZ13Study/testJSON5/"
   val Wmax = 30.0
   val zoneExplore = Vector((0.0, 1.0), (0.0, Wmax))
 
@@ -443,5 +450,5 @@ Pour les données c'est saveHyperRectanglesJsonString qu'il faut appeler, cela r
   //  appendJSONraz13file(s"${output}test.json",closeJSONraz13)
 
   // compressed JSON file
-  printJSONraz13file(fileCompressedJason,stringTOfileJSON)
+  printJSONraz13file(fileCompressedJason,stringTOfileJSON,compressed=true)
 }
