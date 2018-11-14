@@ -1,4 +1,6 @@
 package viabilitree.approximation.example.raz13
+//STUDY INDICATOR 1 depth = 16, v from 0.2 to 1.6 (m)
+// b= 1.5, other parameters with default value
 
 import viabilitree.approximation._
 import viabilitree.export._
@@ -8,7 +10,8 @@ import viabilitree.viability.basin._
 import viabilitree.viability.kernel._
 
 object RAZ13FileFeed1 extends App {
-  val riverfront = RAZ13()
+
+  val riverfront = RAZ13(b=1.5)
   implicit val rng = new util.Random(42)
   val MinU: Double = riverfront.A1 / riverfront.A2
   val depth: Int = 16
@@ -26,6 +29,10 @@ A2 and U (control) must be such that A2/4 * U > A1, otherwise control is ineffic
 By default A1=log(2)/Tm, here it is ln2/2 ~= 0.346
 Damage parameters a3, a2, a1, a0
  */
+  // PARAMETERS
+  // with Tm=2 A1= 0.35
+  // with A2 = 0.2 , A1/A2 = 1.7329
+  // with MaxU = 10, the maximum value of the control is 17.3, with a cost of 3.4
 
   val alphaStarU: Double = 1.0 - 1.0 / MaxU
 
