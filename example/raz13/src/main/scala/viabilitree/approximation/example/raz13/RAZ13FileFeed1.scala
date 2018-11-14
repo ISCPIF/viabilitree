@@ -1,14 +1,14 @@
 package viabilitree.approximation.example.raz13
 
+import viabilitree.approximation._
 import viabilitree.export._
 import viabilitree.kdtree._
 import viabilitree.viability._
 import viabilitree.viability.basin._
 import viabilitree.viability.kernel._
-import viabilitree.approximation._
 
-object RAZ13FileFeed extends App {
-  val riverfront = RAZ13(b = 1.5)
+object RAZ13FileFeed1 extends App {
+  val riverfront = RAZ13()
   implicit val rng = new util.Random(42)
   val MinU: Double = riverfront.A1 / riverfront.A2
   val depth: Int = 16
@@ -16,11 +16,6 @@ object RAZ13FileFeed extends App {
   val depthAlpha: Int = depth / 2
   val depthW: Int = depth / 2
   //  val v: Double = 1.5
-
-  // PARAMETERS
-  // with Tm=2 A1= 0.35
-  // with A2 = 0.2 , A1/A2 = 1.7329
-  // with MaxU = 10, the maximum value of the control is 17.3, with a cost of 3.4
 
   val MaxU: Double = 10.0
   val U: Double = MaxU * MinU
@@ -40,7 +35,7 @@ Damage parameters a3, a2, a1, a0
   val nocontrols: Vector[Double] = Vector(0.0)
   val controls: Vector[Vector[Double]] = nocontrols +: Econtrols
 
-  val output = s"/tmp/RAZ13Study/testJSON14/"
+  val output = s"/tmp/RAZ13Study/testJSON5/"
   val Wmax = 30.0
   val zoneExplore = Vector((0.0, 1.0), (0.0, Wmax))
 
@@ -76,7 +71,6 @@ Damage parameters a3, a2, a1, a0
   }
 
   def initKernel(riverfront: RAZ13, vk: KernelComputation, fileName: String): Kernel = {
-    import viabilitree.viability._
     import viabilitree.viability.kernel._
 
     val (ak, steps) = approximate(vk, rng)
@@ -87,7 +81,6 @@ Damage parameters a3, a2, a1, a0
   }
 
   def kernel0Load = {
-    import viabilitree.viability._
     import viabilitree.viability.kernel._
 
     val vk = initViabProblemNoControl(riverfront, depth)
@@ -423,7 +416,6 @@ Pour les données c'est saveHyperRectanglesJsonString qu'il faut appeler, cela r
   // CORPS PROGRAMME RAZ13
   //////////////////////////////////////////////////////////
   println("alpha star: " + alphaStarU)
-  println("U min: " + MinU)
 
   // init json
   val init: String = raz13JSON
@@ -447,7 +439,7 @@ Pour les données c'est saveHyperRectanglesJsonString qu'il faut appeler, cela r
   appendJSONraz13String(k0String1)
 
   //  indicator1bcTotal(Vector(0.6, 0.8, 1.0, 1.2, 1.5))
-  indicator1bcTotal(Vector(0.2, 0.4, 0.8, 1.0, 1.2, 1.4, 1.6))
+  indicator1bcTotal(Vector(0.8, 1.2))
   //  indicator1bcTotal(Vector(0.4,0.5,0.6,0.8,1.0,1.2,1.3,1.5))
 
   appendJSONraz13File(fileJason, closeJSONraz13)
