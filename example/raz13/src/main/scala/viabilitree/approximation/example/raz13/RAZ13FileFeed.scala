@@ -447,7 +447,7 @@ Pour les données c'est saveHyperRectanglesJsonString qu'il faut appeler, cela r
   appendJSONraz13String(k0String1)
 
   //  indicator1bcTotal(Vector(0.6, 0.8, 1.0, 1.2, 1.5))
-  indicator1bcTotal(Vector(0.2, 0.4, 0.8, 1.0, 1.2, 1.4, 1.6))
+  indicator1bcTotal(Vector(0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6))
   //  indicator1bcTotal(Vector(0.4,0.5,0.6,0.8,1.0,1.2,1.3,1.5))
 
   appendJSONraz13File(fileJason, closeJSONraz13)

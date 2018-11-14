@@ -192,7 +192,7 @@ package object export extends better.files.Implicits {
   }
 
   // TODO zip the saveHyperRectangles output file as in previous json saveHyperRectanglesJson option
- /* def saveHyperRectanglesJson[T, C](t: T)(tree: Tree[C], file: File, compressed: Boolean = false)(implicit traceable: HyperRectangles.Traceable[T, C]): Unit =
+  /* def saveHyperRectanglesJson[T, C](t: T)(tree: Tree[C], file: File, compressed: Boolean = false)(implicit traceable: HyperRectangles.Traceable[T, C]): Unit =
     saveHyperRectanglesJson(tree, traceable.columns(t), file, compressed)
 
   def saveHyperRectanglesJson[T](tree: Tree[T], columns: (T, Zone) => Option[Vector[String]], file: File, compressed: Boolean): Unit = {
@@ -238,10 +238,10 @@ package object export extends better.files.Implicits {
     file.delete(true)
     file.parent.createDirectories()
     file.touch()
-      //    if (tree.dimension==2) file.appendLines(s"[${'"'}x1${'"'},${'"'}x2${'"'},${'"'}x1min${'"'},${'"'}x1max${'"'},${'"'}x2min${'"'},${'"'}x2max${'"'},${'"'}u${'"'}],")
-      tree.leaves.flatMap(l => columns(l.content, l.zone).toVector).foreach {
-      cols => file.appendLines(cols.mkString("[",",","],"))
-      }
+    //    if (tree.dimension==2) file.appendLines(s"[${'"'}x1${'"'},${'"'}x2${'"'},${'"'}x1min${'"'},${'"'}x1max${'"'},${'"'}x2min${'"'},${'"'}x2max${'"'},${'"'}u${'"'}],")
+    tree.leaves.flatMap(l => columns(l.content, l.zone).toVector).foreach {
+      cols => file.appendLines(cols.mkString("[", ",", "],"))
+    }
   }
 
   def saveHyperRectanglesJsonString[T, C](t: T)(tree: Tree[C])(implicit traceable: HyperRectangles.Traceable[T, C]): String =
@@ -260,15 +260,14 @@ package object export extends better.files.Implicits {
   }
 
   // print String result in file file
-  def printDirectFile(file: File, result: String,  compressed: Boolean = false):Unit = {
+  def printDirectFile(file: File, result: String, compressed: Boolean = false): Unit = {
     file.delete(true)
     file.parent.createDirectories()
     val os = new PrintStream(if (!compressed) file.newFileOutputStream(append = false) else file.newGzipOutputStream(append = false))
 
     try {
       os.println(result)
-      }
-     finally os.close()
+    } finally os.close()
   }
   /* ------------------------- VTK ---------------------- */
 
