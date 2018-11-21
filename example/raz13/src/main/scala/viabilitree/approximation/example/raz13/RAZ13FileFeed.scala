@@ -40,12 +40,12 @@ Damage parameters a3, a2, a1, a0
   val nocontrols: Vector[Double] = Vector(0.0)
   val controls: Vector[Vector[Double]] = nocontrols +: Econtrols
 
-  val output = s"/tmp/RAZ13Study/testJSON14/"
-  val Wmax = 30.0
+  val output = s"/tmp/RAZ13Study/testJSON21/"
+  val Wmax = 40.0
   val zoneExplore = Vector((0.0, 1.0), (0.0, Wmax))
 
-  val fileJason = s"${output}fileJason.json"
-  val fileCompressedJason = s"${output}fileCompressedJason.json"
+  val fileJason = s"${output}U${U}Depth${depth}dt${dt}fileJason.json"
+  val fileCompressedJason = s"${fileJason}Compressed.zip"
 
   def initViabProblemControl(riverfront: RAZ13, depth: Int, U: Double): KernelComputation = {
     import viabilitree.viability._
@@ -101,7 +101,7 @@ Damage parameters a3, a2, a1, a0
       depth = depth,
       box = vk.zone,
       oracle = (p: Vector[Double]) => riverfront.softJump(p, q => riverfront.jump(q, v), ak, vk))
-
+    //TODO appendJSONraz13String should be computed in all cases, so it should be moved outside fisrtComputation and controlled via a default variable
     def firstComputation(o1: OracleApproximation, fileName: String): Approximation = {
       val kd1 = o1.approximate(rng).get
       save(kd1, s"${fileName}.bin")
@@ -109,15 +109,17 @@ Damage parameters a3, a2, a1, a0
       //     saveHyperRectangles(o1)(kd1, s"${fileName}.txt")
       val erosionString = appendJasonraz13Erosion(o1, kd1, 0, 0.0, 0.0, fileName, v, 0.0, 0, riverfront.timeStep, depth, 0, 0)
       appendJSONraz13File(fileJason, erosionString)
-      appendJSONraz13String(erosionString)
+      //      appendJSONraz13String(erosionString)
       kd1
     }
 
     val filenameTv = fileName.getOrElse(s"${output}ErodeD${depth}W${Wmax}Tv${v}")
     val kd1 = if (exists((s"${filenameTv}.bin"))) load[Approximation](s"$filenameTv.bin") else firstComputation(o1, filenameTv)
+    val erosionString = appendJasonraz13Erosion(o1, kd1, 0, 0.0, 0.0, s"${filenameTv}.bin", v, 0.0, 0, riverfront.timeStep, depth, 0, 0)
+    appendJSONraz13String(erosionString)
     /*
-    Pas la même signature pour OracleApproximation et KernelComputation
-    */
+     Pas la même signature pour OracleApproximation et KernelComputation
+     */
     (o1, kd1)
   }
 
@@ -145,13 +147,14 @@ Damage parameters a3, a2, a1, a0
       //      saveHyperRectangles(vk)(ak, s"${fileName}.txt")
       val kernelString = appendJasonraz13EKernelv(vk, ak, 0, 0.0, 0.0, fileName, v, 0.0, 0, riverfront.timeStep, depth, 0, 0)
       appendJSONraz13File(fileJason, kernelString)
-      appendJSONraz13String(kernelString)
+      //      appendJSONraz13String(kernelString)
       ak
     }
 
     val filenameKvNoU = fileName.getOrElse(s"${output}KvNoUD${depth}W${Wmax}Tv${v}")
     val kv = if (exists((s"${filenameKvNoU}.bin"))) load[Kernel](s"${filenameKvNoU}.bin") else firstComputation(vk, filenameKvNoU)
-
+    val kernelString = appendJasonraz13EKernelv(vk, kv, 0, 0.0, 0.0, s"${filenameKvNoU}.bin", v, 0.0, 0, riverfront.timeStep, depth, 0, 0)
+    appendJSONraz13String(kernelString)
     (vk, kv)
 
   }
@@ -178,12 +181,14 @@ Damage parameters a3, a2, a1, a0
       //      saveHyperRectangles(vk)(ak, s"${fileName}.txt")
       val kernelString = appendJasonraz13EKernelv(vk, ak, 1, MinU, U, fileName, v, 0.0, 0, riverfront.timeStep, depth, 0, 0)
       appendJSONraz13File(fileJason, kernelString)
-      appendJSONraz13String(kernelString)
+      //      appendJSONraz13String(kernelString)
       ak
     }
 
     val filenameKv = fileName.getOrElse(s"${output}Kv${depth}W${Wmax}Tv${v}")
     val kv = if (exists((s"${filenameKv}.bin"))) load[Kernel](s"${filenameKv}.bin") else firstComputation(vk, filenameKv)
+    val kernelString = appendJasonraz13EKernelv(vk, kv, 1, MinU, U, s"${filenameKv}.bin", v, 0.0, 0, riverfront.timeStep, depth, 0, 0)
+    appendJSONraz13String(kernelString)
 
     (vk, kv)
 
@@ -219,7 +224,7 @@ Damage parameters a3, a2, a1, a0
           //          saveHyperRectangles(bc)(b, s"${fileName}t${t}.txt")
           val bcString = appendJasonraz13ECaptv(bc, b, jsonWithControl, if (afterControl) 1 else 0, umin, umax, fileName, v, 0.0, 0, dt, depthBC, t, list.length, init = true)
           appendJSONraz13File(fileJason, bcString)
-          appendJSONraz13String(bcString)
+          //         appendJSONraz13String(bcString)
         }
       }
       list
@@ -236,6 +241,13 @@ Damage parameters a3, a2, a1, a0
       }
       acc.reverse
     } else firstComputationBC(bc, filenameBcv)
+    listCapt.zipWithIndex.foreach {
+      case (b, ind) => {
+        val t = ind + 1
+        val bcString = appendJasonraz13ECaptv(bc, b, jsonWithControl, if (afterControl) 1 else 0, umin, umax, filenameBcv, v, 0.0, 0, dt, depthBC, t, listCapt.length, init = true)
+        appendJSONraz13String(bcString)
+      }
+    }
     listCapt
   }
 
@@ -305,26 +317,64 @@ Damage parameters a3, a2, a1, a0
     }
   }
 
+  def indicator2bcTotal(listeV: Vector[Double], listeV2: Vector[Double]) = {
+    for (v <- listeV) {
+      println("v = " + v)
+      val (o1, kd1) = thetaV(v, k0, vk0, Some(s"${output}ErodeD${depth}W${Wmax}Tv${v}"))
+      println("erosion v " + v + " " + viabilitree.approximation.volume(kd1))
+      val (vkN1, kvNu) = kernelThetaNoU(v, kd1, o1)
+      println("no control " + kvNu.volume)
+      val (vk1, kv) = kernelTheta(v, kd1, o1)
+      println("with control " + kv.volume)
+
+      val listCapt: List[Basin] = captHv(v, kv, vk1)
+      listCapt.zipWithIndex.foreach {
+        case (b, ind) => println("v " + v + " volume capt n° " + ind + "+1: " + b.volume)
+      }
+      val listCaptNC: List[Basin] = captHv(v, kvNu, vkN1, withControl = false)
+      listCaptNC.zipWithIndex.foreach {
+        case (b, ind) => println("v " + v + " volume capt NC n° " + ind + "+1: " + b.volume)
+      }
+      for (v2 <- listeV2) {
+        if ((v > 1.0) & (v2 < v)) {
+          println("v = " + v + " v2 = " + v2)
+          val (o2, kd12) = thetaV(v2, kv, vk1, Some(s"${output}ErodeD${depth}U${U}Tv2${v2}AfterTv${v}"))
+          // kd12 can cope with a v2 flood after a v1 one
+          val (vk2, kv2) = kernelThetaNoU(v2, kd12, o2)
+          val listCapt: List[Basin] = captHv(v2, kv2, vk2, afterV = v)
+          // listCapt is withControl (default value)
+          listCapt.zipWithIndex.foreach {
+            case (b, ind) => println("v " + v + " volume capt n° " + ind + "+1: " + b.volume)
+          }
+        }
+      }
+    }
+  }
+
   // end declaration
 
   // JSON raz13 save json file
 
   var stringTOfileJSON: String = ""
 
-  def initJSONraz13file(filename: better.files.File, result: String) = {
-    filename.delete(true)
-    filename.parent.createDirectories()
-    filename.touch()
-    filename.append(result)
+  def initJSONraz13file(filename: better.files.File, result: String, add: Boolean = false) = {
+    if (!add) {
+      filename.delete(true)
+      filename.parent.createDirectories()
+      filename.touch()
+      filename.append(result)
+    }
   }
 
-  def appendJSONraz13File(filename: better.files.File, result: String) = {
-    filename.touch()
-    filename.append(result)
+  def appendJSONraz13File(filename: better.files.File, result: String, add: Boolean = true) = {
+    if (add) {
+      filename.touch()
+      filename.append(result)
+    }
   }
 
-  def appendJSONraz13String(result: String) = {
-    stringTOfileJSON = stringTOfileJSON + result
+  def appendJSONraz13String(result: String, add: Boolean = true) = {
+    if (add) stringTOfileJSON = stringTOfileJSON + result
     stringTOfileJSON
   }
 
@@ -333,12 +383,14 @@ Damage parameters a3, a2, a1, a0
   // sophie : la première ligne introduit le tableau json avec [
   // elle écrit la liste des paramètres entre {} et ajoute une virgule
   // sinon ancienne version
-  def initJSONraz13(sophie: Boolean = true): String = {
-    if (!sophie) {
-      s" { ${'"'}integrationStep${'"'}:${riverfront.integrationStep},${'"'}timeStep${'"'}:${riverfront.timeStep},${'"'}Tm${'"'}:${riverfront.Tm},${'"'}A2${'"'}:${riverfront.A2},${'"'}b${'"'}:${riverfront.b},${'"'}C${'"'}:${riverfront.C},${'"'}A3${'"'}:${riverfront.A3},${'"'}M${'"'}:${riverfront.M},${'"'}v_m${'"'}:${riverfront.v_m},${'"'}Wmax${'"'}:${Wmax}}" + "\n" + "["
-    } else {
-      s" [ { ${'"'}integrationStep${'"'}:${riverfront.integrationStep},${'"'}timeStep${'"'}:${riverfront.timeStep},${'"'}Tm${'"'}:${riverfront.Tm},${'"'}A2${'"'}:${riverfront.A2},${'"'}b${'"'}:${riverfront.b},${'"'}C${'"'}:${riverfront.C},${'"'}A3${'"'}:${riverfront.A3},${'"'}M${'"'}:${riverfront.M},${'"'}v_m${'"'}:${riverfront.v_m},${'"'}Wmax${'"'}:${Wmax}}" + ","
-    }
+  def initJSONraz13(sophie: Boolean = true, add: Boolean = true): String = {
+    if (add) {
+      if (!sophie) {
+        s" { ${'"'}integrationStep${'"'}:${riverfront.integrationStep},${'"'}timeStep${'"'}:${riverfront.timeStep},${'"'}Tm${'"'}:${riverfront.Tm},${'"'}A2${'"'}:${riverfront.A2},${'"'}b${'"'}:${riverfront.b},${'"'}C${'"'}:${riverfront.C},${'"'}A3${'"'}:${riverfront.A3},${'"'}M${'"'}:${riverfront.M},${'"'}v_m${'"'}:${riverfront.v_m},${'"'}Wmax${'"'}:${Wmax}}" + "\n" + "["
+      } else {
+        s" [ { ${'"'}integrationStep${'"'}:${riverfront.integrationStep},${'"'}timeStep${'"'}:${riverfront.timeStep},${'"'}Tm${'"'}:${riverfront.Tm},${'"'}A2${'"'}:${riverfront.A2},${'"'}b${'"'}:${riverfront.b},${'"'}C${'"'}:${riverfront.C},${'"'}A3${'"'}:${riverfront.A3},${'"'}M${'"'}:${riverfront.M},${'"'}v_m${'"'}:${riverfront.v_m},${'"'}Wmax${'"'}:${Wmax}}" + ","
+      }
+    } else ""
   }
 
   // close the array of files AND the element
@@ -425,12 +477,15 @@ Pour les données c'est saveHyperRectanglesJsonString qu'il faut appeler, cela r
   println("alpha star: " + alphaStarU)
   println("U min: " + MinU)
 
+  // In case of correction if the json file already exists, turn add to false
+  val add: Boolean = false
+
   // init json
   val init: String = raz13JSON
   println(init)
 
-  initJSONraz13file(fileJason, init)
-  appendJSONraz13String(init)
+  initJSONraz13file(fileJason, init, add = add)
+  appendJSONraz13String(init, add = add)
 
   val vk0 = initViabProblemNoControl(riverfront, depth)
   val k0 = kernel0Load
@@ -440,14 +495,14 @@ Pour les données c'est saveHyperRectanglesJsonString qu'il faut appeler, cela r
   val k0String1 = appendJasonraz13EKernelv(vk0, k0, 1, 0.0, 0.0, fileName, 0.0, 0.0, 0, riverfront.timeStep, depth, 0, 0)
 
   // k0 to json
-  appendJSONraz13File(fileJason, k0String0)
-  appendJSONraz13String(k0String0)
+  appendJSONraz13File(fileJason, k0String0, add = add)
+  appendJSONraz13String(k0String0, add = add)
 
-  appendJSONraz13File(fileJason, k0String1)
-  appendJSONraz13String(k0String1)
+  appendJSONraz13File(fileJason, k0String1, add = add)
+  appendJSONraz13String(k0String1, add = add)
 
   //  indicator1bcTotal(Vector(0.6, 0.8, 1.0, 1.2, 1.5))
-  indicator1bcTotal(Vector(0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6))
+  indicator2bcTotal(Vector(0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6), Vector(0.2, 0.4, 0.6))
   //  indicator1bcTotal(Vector(0.4,0.5,0.6,0.8,1.0,1.2,1.3,1.5))
 
   appendJSONraz13File(fileJason, closeJSONraz13)
