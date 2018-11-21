@@ -11,7 +11,7 @@ import viabilitree.viability.kernel._
 
 object RAZ13FileFeed1 extends App {
 
-  val riverfront = RAZ13(b=1.5)
+  val riverfront = RAZ13(b = 1.5)
   implicit val rng = new util.Random(42)
   val MinU: Double = riverfront.A1 / riverfront.A2
   val depth: Int = 16
