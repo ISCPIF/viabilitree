@@ -14,7 +14,7 @@ The model takes into account two variables : the proportion $`\alpha`$ (no dimen
 ```math
 (1)\left\{
 \begin{array}{lll}
-\frac{d\alpha}{dt}&=&-A_1\alpha +(A_2\alpha + A_2b)(1-\alpha)u\\
+\frac{d\alpha}{dt}&=&-A_1\alpha +(A_2\alpha + A_{2_0})(1-\alpha)u\\
 \frac{dw}{dt}&=& b - Cu\\
 u &\in& [0,U]\\
 \alpha &\in& \left[0,1\right]\\
@@ -30,9 +30,9 @@ The constraint set $`K`$ is $`[0,1]\times [0,+\infty[`$.
  * $`b>0`$ is the natural growth rate of the welfare.
  * $`A_1 = \frac{\log(2)}{T_m}`$. With time people abandon their safety measures against flood. $`T_m`$ is the time for which half the population has renounced to safety measure in absence of flooding. 
  * $`A_2\leq 1`$ Ratio of the population convinced to adopt safety measures, with the influence of neighbours during a campaign, that actually adopts safety measure by unit of time. 
- * $`A_{2b}<1`$: Ratio of the population convinced to adopt safety measures without influence during a campaign, that actually adopts safety measure by unit of time. ($`A_{2b}`$ should be very small)
+ * $`A_{2_0}<1`$: Ratio of the population convinced to adopt safety measures without influence during a campaign, that actually adopts safety measure by unit of time. ($`A_{2_0}`$ should be very small)
 
- Regarding $`\alpha`$ , when $`A_2b=0`$ the dynamics always decreases when $`A_2u\leq A_1`$. When $`A_2u>A_1`$ the dynamics is increasing on $`[0,\alpha ^*[`$ (with $`\alpha ^*=1-\frac{A_1}{A_2u}<1`$). Given $`A_1`$ and $`A_2`$, small value of _u_ are such that $`A_2u<A_1`$ and are then inefficient.
+ Regarding $`\alpha`$ , when $`A_{2_0}=0`$ the dynamics always decreases when $`A_2u\leq A_1`$. When $`A_2u>A_1`$ the dynamics is increasing on $`[0,\alpha ^*[`$ (with $`\alpha ^*=1-\frac{A_1}{A_2u}<1`$). Given $`A_1`$ and $`A_2`$, small value of _u_ are such that $`A_2u<A_1`$ and are then inefficient.
   $`A_2`$  and _U_ must be fixed accordingly.  Controls in $`[0,\frac{A_1}{A_2}]`$ are inefficient. Controls should be tested in $`]\frac{A_1}{A_2},U]`$.
   
  Regarding the welfare parameters, cost of control varies from $`C\frac{A_1}{A_2}`$ to $`CU`$, for example, if $`U= k\frac{A_1}{A_2}`$, the cost of control goes from $`C\frac{A_1}{A_2}`$ to $`kC\frac{A_1}{A_2}`$, for a positive impact except on the population with $`\alpha\geq 1-\frac{1}{k}`$. _b_ and _C_ should be chosen accordingly.

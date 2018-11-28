@@ -24,6 +24,7 @@ case class RAZ13(
   timeStep: Double = 0.1,
   Tm: Double = 2.0,
   A2: Double = 0.2,
+  A2b: Double = 0.0,
   b: Double = 1.0,
   C: Double = 0.2,
   A3: Double = 1.0,
@@ -63,7 +64,7 @@ def dynamic(state: Vector[Double], control: Vector[Double]) = {
   // A1 peut valoir en fait ln(2)/TM, ie en TM alpha aura perdu la moitié de sa valeur initiale
   def dynamic(state: Vector[Double], control: Vector[Double]) = {
     def alphaDot(state: Vector[Double], t: Double) =
-      -A1 * state(0) + A2 * state(0) * (1 - state(0)) * control(0)
+      -A1 * state(0) + (A2 * state(0) + A2b) * (1 - state(0)) * control(0)
     def wDot(state: Vector[Double], t: Double) = b - C * control(0)
 
     val dynamic = Dynamic(alphaDot, wDot)
