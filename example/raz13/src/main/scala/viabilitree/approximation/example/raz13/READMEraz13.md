@@ -14,7 +14,7 @@ The model takes into account two variables : the proportion $`\alpha`$ (no dimen
 ```math
 (1)\left\{
 \begin{array}{lll}
-\frac{d\alpha}{dt}&=&-A_1\alpha +A_2\alpha (1-\alpha)u\\
+\frac{d\alpha}{dt}&=&-A_1\alpha +(A_2\alpha + A_2b)(1-\alpha)u\\
 \frac{dw}{dt}&=& b - Cu\\
 u &\in& [0,U]\\
 \alpha &\in& \left[0,1\right]\\
@@ -29,9 +29,10 @@ The constraint set $`K`$ is $`[0,1]\times [0,+\infty[`$.
  * $`C>0`$ is the unit cost of communication campaign.
  * $`b>0`$ is the natural growth rate of the welfare.
  * $`A_1 = \frac{\log(2)}{T_m}`$. With time people abandon their safety measures against flood. $`T_m`$ is the time for which half the population has renounced to safety measure in absence of flooding. 
- * $`A_2 = ?`$ 
- 
- Regarding $`\alpha`$  the dynamics always decreases when $`A_2u\leq A_1`$. When $`A_2u>A_1`$ the dynamics is increasing on $`[0,\alpha ^*[`$ (with $`\alpha ^*=1-\frac{A_1}{A_2u}<1`$). Given $`A_1`$ and $`A_2`$, small value of _u_ are such that $`A_2u<A_1`$ and are then inefficient.
+ * $`A_2`$ Ratio of the population convinced to adopt safety measures, with the influence of neighbours during a campaign, that actually adopts safety measure by unit of time. 
+ * $`A_2b`$: Ratio of the population convinced to adopt safety measures without influence during a campaign, that actually adopts safety measure by unit of time. ($`A_2b`$ should be very small)
+
+ Regarding $`\alpha`$ , when $`A_2b=0`$ the dynamics always decreases when $`A_2u\leq A_1`$. When $`A_2u>A_1`$ the dynamics is increasing on $`[0,\alpha ^*[`$ (with $`\alpha ^*=1-\frac{A_1}{A_2u}<1`$). Given $`A_1`$ and $`A_2`$, small value of _u_ are such that $`A_2u<A_1`$ and are then inefficient.
   $`A_2`$  and _U_ must be fixed accordingly.  Controls in $`[0,\frac{A_1}{A_2}]`$ are inefficient. Controls should be tested in $`]\frac{A_1}{A_2},U]`$.
   
  Regarding the welfare parameters, cost of control varies from $`C\frac{A_1}{A_2}`$ to $`CU`$, for example, if $`U= k\frac{A_1}{A_2}`$, the cost of control goes from $`C\frac{A_1}{A_2}`$ to $`kC\frac{A_1}{A_2}`$, for a positive impact except on the population with $`\alpha\geq 1-\frac{1}{k}`$. _b_ and _C_ should be chosen accordingly.
@@ -60,7 +61,7 @@ s &\in& \mathbb R ^{+*}
 ```
 ### Parameters for perturbations
  * $`M`$ is the flood intensity for which the impact of the flood on the safety level in the population is half its maximum. We consider that bigger floods have a bigger impact, with a saturation effect: a flood of intensity $`2M`$ has a bigger impact than a flood of intensity $`M`$, but not twice its impact. 
- * $`A_3 = ?`$ but with $`A_3 \frac{s}{M+s} \leq 1 `$ i.e. $`A_3 \leq 1 `$ to ensure that $`\alpha \leq 1`$
+ * $`A_3 \leq 1`$ is the maximum proportion of the population that actually adopts safety measures just after a flood.
  * $`\texttt{damage}(\alpha,s)`$ (in €) is the damage function. It is described on the wiki. The file [DamageFile][DamageFile] contains the parameters for the damage function
 ### Damage file reading
  ```scala
