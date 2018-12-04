@@ -398,7 +398,8 @@ $`K_s^u`$
 
 #### Remarks
  * With k0 = kernel0Load,  volume(k0) doesn't compile contrary to k0.volume
- * clean cannot be apply to k0
+ * clean cannot be applied to k0
+ * FileFeed is more up-to-date than Indicateur2 (04/12)
 
 
 <a name="Fig1"></a>

@@ -40,8 +40,8 @@ Damage parameters a3, a2, a1, a0
   val nocontrols: Vector[Double] = Vector(0.0)
   val controls: Vector[Vector[Double]] = nocontrols +: Econtrols
 
-  val output = s"/tmp/RAZ13Study/testJSON22/"
-  val Wmax = 40.0
+  val output = s"/tmp/RAZ13Study/testJSON12_04_2/"
+  val Wmax = 50.0
   val zoneExplore = Vector((0.0, 1.0), (0.0, Wmax))
 
   val fileJason = s"${output}U${U}Depth${depth}dt${dt}fileJason.json"
@@ -504,7 +504,7 @@ Pour les données c'est saveHyperRectanglesJsonString qu'il faut appeler, cela r
   appendJSONraz13String(k0String1, add = add)
 
   //  indicator1bcTotal(Vector(0.6, 0.8, 1.0, 1.2, 1.5))
-  indicator2bcTotal(Vector(0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6), Vector(0.2, 0.4, 0.6))
+  indicator2bcTotal(Vector(1.6, 1.8, 2.0), Vector(0.5, 1.0))
   //  indicator1bcTotal(Vector(0.4,0.5,0.6,0.8,1.0,1.2,1.3,1.5))
 
   appendJSONraz13File(fileJason, closeJSONraz13)
