@@ -40,7 +40,7 @@ Damage parameters a3, a2, a1, a0
   val nocontrols: Vector[Double] = Vector(0.0)
   val controls: Vector[Vector[Double]] = nocontrols +: Econtrols
 
-  val output = s"/tmp/RAZ13Study/testJSON12_04_2/"
+  val output = s"/tmp/RAZ13Study/testJSON12_07_TEST/"
   val Wmax = 50.0
   val zoneExplore = Vector((0.0, 1.0), (0.0, Wmax))
 
@@ -141,6 +141,8 @@ Damage parameters a3, a2, a1, a0
       k = Some(kd.contains),
       neutralBoundary = Vector(ZoneSide(0, Low), ZoneSide(0, High), ZoneSide(1, High)))
 
+    val nameAfter: String = if (afterV == 0.0) "" else s"after${afterV}"
+
     def firstComputation(vk: KernelComputation, fileName: String): Kernel = {
       val (ak, steps) = vk.approximate()
       save(ak, s"${fileName}.bin")
@@ -152,7 +154,7 @@ Damage parameters a3, a2, a1, a0
       ak
     }
 
-    val filenameKvNoU = fileName.getOrElse(s"${output}KvNoUD${depth}W${Wmax}Tv${v}")
+    val filenameKvNoU = fileName.getOrElse(s"${output}KvNoUD${depth}W${Wmax}Tv${v}"+nameAfter)
     val kv = if (exists((s"${filenameKvNoU}.bin"))) load[Kernel](s"${filenameKvNoU}.bin") else firstComputation(vk, filenameKvNoU)
     val kernelString = appendJasonraz13EKernelv(vk, kv, 0, 0.0, 0.0, s"${filenameKvNoU}.bin", v, afterV,afterT, riverfront.timeStep, depth, 0, 0)
     appendJSONraz13String(kernelString)
@@ -176,6 +178,9 @@ Damage parameters a3, a2, a1, a0
       k = Some(kd.contains),
       neutralBoundary = Vector(ZoneSide(0, Low), ZoneSide(0, High), ZoneSide(1, High)))
 
+    val nameAfterV: String = if (afterV == 0.0) "" else s"after${afterV}"
+    val nameAfterT: String = if (afterT == 0) "" else s"afterT${afterT}"
+
     def firstComputation(vk: KernelComputation, fileName: String): Kernel = {
       val (ak, steps) = vk.approximate()
       save(ak, s"${fileName}.bin")
@@ -187,7 +192,7 @@ Damage parameters a3, a2, a1, a0
       ak
     }
 
-    val filenameKv = fileName.getOrElse(s"${output}Kv${depth}W${Wmax}Tv${v}")
+    val filenameKv = fileName.getOrElse(s"${output}Kv${depth}W${Wmax}Tv${v}"+nameAfterV+nameAfterT)
     val kv = if (exists((s"${filenameKv}.bin"))) load[Kernel](s"${filenameKv}.bin") else firstComputation(vk, filenameKv)
     val kernelString = appendJasonraz13EKernelv(vk, kv, 1, MinU, U, s"${filenameKv}.bin", v, afterV,afterT, riverfront.timeStep, depth, 0, 0)
     appendJSONraz13String(kernelString)
@@ -504,7 +509,7 @@ Pour les données c'est saveHyperRectanglesJsonString qu'il faut appeler, cela r
   appendJSONraz13String(k0String1, add = add)
 
   //  indicator1bcTotal(Vector(0.6, 0.8, 1.0, 1.2, 1.5))
-  indicator2bcTotal(Vector(1.6, 1.8, 2.0), Vector(0.5, 1.0))
+  indicator2bcTotal(Vector(1.6, 2.0), Vector(0.5, 1.0))
   //  indicator1bcTotal(Vector(0.4,0.5,0.6,0.8,1.0,1.2,1.3,1.5))
 
   appendJSONraz13File(fileJason, closeJSONraz13)
