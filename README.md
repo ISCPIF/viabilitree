@@ -230,7 +230,7 @@ A set-valued map $`F`$ is $`\mu`$-Lipschitz with $`\mu>0`$ if for all $`x`$ and 
 [kernelLink]:doc/READMEKernelComputation.md "Documentation for class KernelComputation"
 [Lake]:https://gitlab.iscpif.fr/viability/viabilitree/tree/master/example/lake/src/main/scala/viabilitree/approximation/example/lake/READMElake.md "Eutrophication and lakeside farms problem"
 [Lipschitz]: #Lipschitz "Definition of the Lipschitz property for dynamical systems"
-[Marchaud]: https://gitlab.iscpif.fr/viability/viabilitree/tree/master#Marchaud "Definition of the Marchaud property for dynamical systems"
+[Marchaud]: #Marchaud "Definition of the Marchaud property for dynamical systems"
 [Population]:https://gitlab.iscpif.fr/viability/viabilitree/tree/master/example/population/src/main/scala/fr/iscpif/population/READMEpopulation.md "Documentation for the example of the population growth model"
 [viabilitree]: https://hal.archives-ouvertes.fr/hal-01319738v1 "Working paper with technical proofs"
 <!-- [openmole]: http://www.openmole.org/ "OpenMOLE website: for numerical exploration of complex models" -->
