@@ -55,4 +55,10 @@ object InterCircle extends App {
 
   saveVTK3D(inter, "/tmp/inter.vtk")
 
+  //indicator function
+
+  def isInIntersection(p: Vector[Double]) = inter.contains(p)
+
+
+
 }

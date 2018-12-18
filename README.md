@@ -178,7 +178,24 @@ Example of viability problems are gathered in package **example**. Each example 
    - approximation of the viability kernel (PopulationViability)
    - exploration with OpenMOLE (PopulationViability)
    - approximation of a set (the analytical kernel ) (PopulationApproximation)
-  
+
+## Set operators
+
+ * volume
+ * intersection of trees
+ * indicator function
+ * erosion
+ * dilation
+
+Examples in [circle][circle].
+ 
+## Learning algorithm
+Apart from viability study it is possible to use **Viabilitree** as a simple learning algorithm.
+
+See [approximation][approximation] package for more details.
+
+Examples in [population] and [circle]
+
 To be completed
 
 <!-- A rédiger après la mise en forme finale -->
@@ -206,12 +223,14 @@ A set-valued map $`F`$, non trivial, upper semicontinuous, with compact convex i
 A set-valued map $`F`$ is $`\mu`$-Lipschitz with $`\mu>0`$ if for all $`x`$ and $`y`$, $` F(x)\subset F(y)+B(0,\mu ||x-y||)`$
 
 <!-- Identifiers, in alphabetical order -->
+[approximation]: doc/READMEApproximation.md "doc for approximation package"
 [Bilingual]:https://gitlab.iscpif.fr/viability/viabilitree/tree/master/example/bilingual/src/main/scala/viabilitree/example/bilingual "Documentation for the example of the Bilingual society viability problem"
-[Consumer]:https://gitlab.iscpif.fr/viability/viabilitree/example/READMEconsumer.md "Documentation for the example of the consumption model"
+[circle]:https://gitlab.iscpif.fr/viability/viabilitree/tree/master/example/circle/src/main/scala/viabilitree/approximation/example/circle Documentation for the example of approximation problems (includning intersection)"
+[Consumer]:example/consumer/READMEconsumer.md "Documentation for the example of the consumption model"
 [kernelLink]:doc/READMEKernelComputation.md "Documentation for class KernelComputation"
-[Lake]:example/lake "Eutrophication and lakeside farms problem"
-[Lipschitz]: https://gitlab.iscpif.fr/viability/viabilitree/tree/master#Lipschitz "Definition of the Lipschitz property for dynamical systems"
+[Lake]:example/lake/READMElake.md "Eutrophication and lakeside farms problem"
+[Lipschitz]: #Lipschitz "Definition of the Lipschitz property for dynamical systems"
 [Marchaud]: https://gitlab.iscpif.fr/viability/viabilitree/tree/master#Marchaud "Definition of the Marchaud property for dynamical systems"
-[Population]:example/READMEpopulation.md "Documentation for the example of the population growth model"
+[Population]:example/population/READMEpopulation.md "Documentation for the example of the population growth model"
 [viabilitree]: https://hal.archives-ouvertes.fr/hal-01319738v1 "Working paper with technical proofs"
 <!-- [openmole]: http://www.openmole.org/ "OpenMOLE website: for numerical exploration of complex models" -->

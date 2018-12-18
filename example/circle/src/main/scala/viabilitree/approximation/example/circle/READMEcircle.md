@@ -69,7 +69,7 @@ The computation  is done by the call to function  _approximate_  of class _Oracl
 
 ## Erosion of a set
 It is possible to compute a basic erosion of a set. 
-The *erode* function labels each critical pair with posiitive label with a negative label and learn again the boundary of the set. 
+The *erode* function labels each critical pair with positive label with a negative label and learn again the boundary of the set. 
 In order to run properly, the erode function can't be called on a cleaned tree, since there is no longer the guarantee that the boundary is still represented by critical pairs completely divided leaves.
 The correct call for for _OracleApproximation_ is the following:
 ```scala
@@ -143,7 +143,7 @@ An alternative format (valid for any dimension) is available:
 This format is described in the **export** package. It depends on the content of the tree, here it is an *OracleApproximationContent*. Each line corresponds with a leaf of the kd-tree, characterized by its testpoint and its range along each dimension (a min and a max).
 The resulting VTK files can be processed with Paraview.
     
-[Figure 1](#Fig1) shows the VTK files in Paraview.
+[Figure 2](#Fig2) shows the VTK files in Paraview.
     
 <a name="OpenMOLE"></a>
 <!-- Identifiers, in alphabetical order -->
