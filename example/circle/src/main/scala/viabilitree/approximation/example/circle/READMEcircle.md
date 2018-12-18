@@ -124,6 +124,12 @@ Figure 2 shows the resulting approximation of 2 subset of spheres within the bou
 <img src="/images/intersphere3D.png" width="300" alt="Figure 1: Approximation of the intersection of subsets of 3D spheres">
 [Figure 2: Approximation of of the intersection of subsets of 3D spheres](#Fig2)
 
+## Indicator function
+
+The indicator function operator is the function _contains_ as in InterCircle
+```scala
+  def isInIntersection(p: Vector[Double]) = inter.contains(p)
+```  
 
 ## Output
 The computation of the approximation of the sphere 3D is done by the following code:

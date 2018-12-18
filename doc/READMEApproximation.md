@@ -132,7 +132,7 @@ import viabilitree.viability._
 The resulting kd-tree _ak_ is a _Tree[KernelContent]_. It is an approximation of the viability kernel of viability problem _vk_.
 
 ### Functions
-The resulting kd-tree represening the approximation of the viability kernel knows the following functions:
+The resulting kd-tree representing the approximation of the viability kernel knows the following functions:
 * erode(k: Kernel): erode the boundary of the kd-tree _k_ with one critical leaf.
 * dilate(k: Kernel): erode the complementary set of the kd-tree _k_.
 * volume(k: Kernel): computes the volume of the leaves with label of tree _k_.
