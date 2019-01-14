@@ -2,7 +2,7 @@
 organization := "fr.iscpif"
 name := "viabilitree"
 
-scalaVersion in ThisBuild := "2.12.6"
+scalaVersion in ThisBuild := "2.12.8"
 
 publishTo in ThisBuild := isSnapshot { snapshot =>
   val nexus = "https://oss.sonatype.org/"

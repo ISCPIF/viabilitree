@@ -59,6 +59,4 @@ object InterCircle extends App {
 
   def isInIntersection(p: Vector[Double]) = inter.contains(p)
 
-
-
 }

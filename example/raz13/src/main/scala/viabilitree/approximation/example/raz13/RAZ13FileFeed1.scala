@@ -42,7 +42,6 @@ Damage parameters a3, a2, a1, a0
   val nocontrols: Vector[Double] = Vector(0.0)
   val controls: Vector[Vector[Double]] = nocontrols +: Econtrols
 
-
   // TEST remove after test
   val isaPasTest = false
 
@@ -50,7 +49,7 @@ Damage parameters a3, a2, a1, a0
   val Wmax = 40.0
   val zoneExplore = Vector((0.0, 1.0), (0.0, Wmax))
 
-//  val fileJason = s"${output}fileJasonInd1IS.json"
+  //  val fileJason = s"${output}fileJasonInd1IS.json"
 
   val fileJason = if (isaPasTest) s"${output}fileJasonInd1IS.json" else s"${output}fileJasonInd1ISTEST.json"
 
@@ -355,7 +354,7 @@ Damage parameters a3, a2, a1, a0
   def appendJasonraz13Erosion(o1: OracleApproximation, kd: Tree[OracleApproximationContent], withControl: Int, Umin: Double, Umax: Double, fileName: String, v: Double, afterV: Double, afterT: Int, dt: Double, depth: Integer, step: Integer, nbStep: Integer, init: Boolean = false): String = {
     val initString = if (init) "" else ","
     val paramString = s"{ ${'"'}type${'"'}:${'"'}erosion${'"'},${'"'}dt${'"'}:${dt},${'"'}depth${'"'}:${depth},${'"'}withControl${'"'}:${withControl},${'"'}controlMin${'"'}:${Umin},${'"'}controlMax${'"'}:${Umax},${'"'}size${'"'}:${v},${'"'}afterSize${'"'}:${afterV},${'"'}filename${'"'}:${'"'}${fileName}${'"'},${'"'}step${'"'}:${'"'}${step}${'"'},${'"'}nbStep${'"'}:${'"'}${nbStep}${'"'},${'"'}data${'"'}:["
-//    val dataString = saveHyperRectanglesJsonString(o1)(kd)
+    //    val dataString = saveHyperRectanglesJsonString(o1)(kd)
     val dataString = if (isaPasTest) saveHyperRectanglesJsonString(o1)(kd) else "test"
     val lastString = "]}"
     initString + paramString + dataString + lastString
@@ -367,7 +366,7 @@ Damage parameters a3, a2, a1, a0
     //   val lcontrols = vk.controls
     val initString = if (init) "" else ","
     val paramString = s"{ ${'"'}type${'"'}:${'"'}kernel${'"'},${'"'}dt${'"'}:${dt},${'"'}depth${'"'}:${depth},${'"'}withControl${'"'}:${withControl},${'"'}controlMin${'"'}:${Umin},${'"'}controlMax${'"'}:${Umax},${'"'}size${'"'}:${v},${'"'}afterSize${'"'}:${afterV},${'"'}filename${'"'}:${'"'}${fileName}${'"'},${'"'}step${'"'}:${'"'}${step}${'"'},${'"'}nbStep${'"'}:${'"'}${nbStep}${'"'},${'"'}data${'"'}:["
-//    val dataString = saveHyperRectanglesJsonString(vk)(ak)
+    //    val dataString = saveHyperRectanglesJsonString(vk)(ak)
     val dataString = if (isaPasTest) saveHyperRectanglesJsonString(vk)(ak) else "test"
     val lastString = "]}"
     initString + paramString + dataString + lastString
@@ -389,7 +388,7 @@ Damage parameters a3, a2, a1, a0
     val initString = if (init) "" else ","
     val paramString = s",{ ${'"'}type${'"'}:${'"'}capt${'"'},${'"'}dt${'"'}:${dt},${'"'}depth${'"'}:${depth},${'"'}withControl${'"'}:${withControl},${'"'}afterControl${'"'}:${afterControl},${'"'}controlMin${'"'}:${Umin},${'"'}controlMax${'"'}:${Umax},${'"'}size${'"'}:${v},${'"'}afterSize${'"'}:${afterV},${'"'}filename${'"'}:${'"'}${fileName}t${step}${'"'},${'"'}step${'"'}:${'"'}${step}${'"'},${'"'}nbStep${'"'}:${'"'}${nbStep}${'"'},${'"'}data${'"'}:["
     val lastString = "]}"
-//    val dataString = saveHyperRectanglesJsonString(vk)(capt)
+    //    val dataString = saveHyperRectanglesJsonString(vk)(capt)
     val dataString = if (isaPasTest) saveHyperRectanglesJsonString(vk)(capt) else "test"
     initString + paramString + dataString + lastString
   }

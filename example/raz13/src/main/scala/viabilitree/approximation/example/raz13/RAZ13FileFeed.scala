@@ -96,7 +96,7 @@ Damage parameters a3, a2, a1, a0
     ak
   }
 
-  def thetaV(v: Double, ak: Kernel, vk: KernelComputation, fileName: Option[String], afterV:Double = 0.0, afterT:Int=0) = {
+  def thetaV(v: Double, ak: Kernel, vk: KernelComputation, fileName: Option[String], afterV: Double = 0.0, afterT: Int = 0) = {
     val o1 = OracleApproximation(
       depth = depth,
       box = vk.zone,
@@ -124,11 +124,11 @@ Damage parameters a3, a2, a1, a0
   }
 
   def kernelThetaNoU(
-                      v: Double,
-                      kd: Approximation,
-                      oa: OracleApproximation,
-                      fileName: Option[String] = None,
-                      afterV:Double = 0.0, afterT:Int=0 ) = {
+    v: Double,
+    kd: Approximation,
+    oa: OracleApproximation,
+    fileName: Option[String] = None,
+    afterV: Double = 0.0, afterT: Int = 0) = {
     val vk = KernelComputation(
       /*
       dynamic = riverfront.copy(integrationStep =  0.7).dynamic,
@@ -148,15 +148,15 @@ Damage parameters a3, a2, a1, a0
       save(ak, s"${fileName}.bin")
       //      saveVTK2D(ak, s"${fileName}.vtk")
       //      saveHyperRectangles(vk)(ak, s"${fileName}.txt")
-      val kernelString = appendJasonraz13EKernelv(vk, ak, 0, 0.0, 0.0, fileName, v,afterV,afterT, riverfront.timeStep, depth, 0, 0)
+      val kernelString = appendJasonraz13EKernelv(vk, ak, 0, 0.0, 0.0, fileName, v, afterV, afterT, riverfront.timeStep, depth, 0, 0)
       appendJSONraz13File(fileJason, kernelString)
       //      appendJSONraz13String(kernelString)
       ak
     }
 
-    val filenameKvNoU = fileName.getOrElse(s"${output}KvNoUD${depth}W${Wmax}Tv${v}"+nameAfter)
+    val filenameKvNoU = fileName.getOrElse(s"${output}KvNoUD${depth}W${Wmax}Tv${v}" + nameAfter)
     val kv = if (exists((s"${filenameKvNoU}.bin"))) load[Kernel](s"${filenameKvNoU}.bin") else firstComputation(vk, filenameKvNoU)
-    val kernelString = appendJasonraz13EKernelv(vk, kv, 0, 0.0, 0.0, s"${filenameKvNoU}.bin", v, afterV,afterT, riverfront.timeStep, depth, 0, 0)
+    val kernelString = appendJasonraz13EKernelv(vk, kv, 0, 0.0, 0.0, s"${filenameKvNoU}.bin", v, afterV, afterT, riverfront.timeStep, depth, 0, 0)
     appendJSONraz13String(kernelString)
     (vk, kv)
 
@@ -164,11 +164,11 @@ Damage parameters a3, a2, a1, a0
 
   def kernelTheta(
 
-                   v: Double,
-                   kd: Approximation,
-                   oa: OracleApproximation,
-                   fileName: Option[String] = None,
-                   afterV: Double = 0.0, afterT:Int = 0) = {
+    v: Double,
+    kd: Approximation,
+    oa: OracleApproximation,
+    fileName: Option[String] = None,
+    afterV: Double = 0.0, afterT: Int = 0) = {
     val vk = KernelComputation(
       dynamic = riverfront.dynamic,
       depth = depth,
@@ -186,15 +186,15 @@ Damage parameters a3, a2, a1, a0
       save(ak, s"${fileName}.bin")
       //      saveVTK2D(ak, s"${fileName}.vtk")
       //      saveHyperRectangles(vk)(ak, s"${fileName}.txt")
-      val kernelString = appendJasonraz13EKernelv(vk, ak, 1, MinU, U, fileName, v, afterV,afterT, riverfront.timeStep, depth, 0, 0)
+      val kernelString = appendJasonraz13EKernelv(vk, ak, 1, MinU, U, fileName, v, afterV, afterT, riverfront.timeStep, depth, 0, 0)
       appendJSONraz13File(fileJason, kernelString)
       //      appendJSONraz13String(kernelString)
       ak
     }
 
-    val filenameKv = fileName.getOrElse(s"${output}Kv${depth}W${Wmax}Tv${v}"+nameAfterV+nameAfterT)
+    val filenameKv = fileName.getOrElse(s"${output}Kv${depth}W${Wmax}Tv${v}" + nameAfterV + nameAfterT)
     val kv = if (exists((s"${filenameKv}.bin"))) load[Kernel](s"${filenameKv}.bin") else firstComputation(vk, filenameKv)
-    val kernelString = appendJasonraz13EKernelv(vk, kv, 1, MinU, U, s"${filenameKv}.bin", v, afterV,afterT, riverfront.timeStep, depth, 0, 0)
+    val kernelString = appendJasonraz13EKernelv(vk, kv, 1, MinU, U, s"${filenameKv}.bin", v, afterV, afterT, riverfront.timeStep, depth, 0, 0)
     appendJSONraz13String(kernelString)
 
     (vk, kv)
@@ -345,9 +345,9 @@ Damage parameters a3, a2, a1, a0
       for (v2 <- listeV2) {
         if ((v > 1.0) & (v2 < v)) {
           println("v = " + v + " v2 = " + v2)
-          val (o2, kd12) = thetaV(v2, kv, vk1, Some(s"${output}ErodeD${depth}U${U}Tv2${v2}AfterTv${v}"),afterV=v)
+          val (o2, kd12) = thetaV(v2, kv, vk1, Some(s"${output}ErodeD${depth}U${U}Tv2${v2}AfterTv${v}"), afterV = v)
           // kd12 can cope with a v2 flood after a v1 one
-          val (vk2, kv2) = kernelThetaNoU(v2, kd12, o2, afterV=v)
+          val (vk2, kv2) = kernelThetaNoU(v2, kd12, o2, afterV = v)
           val listCapt: List[Basin] = captHv(v2, kv2, vk2, afterV = v)
           // listCapt is withControl (default value)
           listCapt.zipWithIndex.foreach {
